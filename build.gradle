@@ -2,12 +2,22 @@
  * see https://docs.gradle.org/4.1/userguide/java_library_plugin.html
  */
 
+buildscript {
+  repositories {
+    jcenter()
+  }
+  dependencies {
+    classpath 'biz.aQute.bnd:biz.aQute.bnd.gradle:3.3.0'
+  }
+}
+
 plugins {
     id 'java-library'
     id 'org.spongepowered.plugin' version '0.8.1'
 }
 
 repositories {
+    // mavenLocal()
     jcenter()
 }
 
@@ -24,7 +34,10 @@ subprojects {
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
+    apply plugin: 'biz.aQute.bnd.builder'
+
     repositories {
+        // mavenLocal()
         jcenter()
     }
 }

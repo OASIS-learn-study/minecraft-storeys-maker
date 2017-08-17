@@ -1,7 +1,8 @@
 dependencies {
-    api 'org.apache.commons:commons-math3:3.6.1'
+    // api 'org.apache.commons:commons-math3:3.6.1'
 
-    implementation 'com.google.guava:guava:22.0'
+    implementation 'org.osgi:org.osgi.core:6.0.0'
+    implementation 'ch.vorburger.minecraft:ch.vorburger.minecraft.osgi.api:1.0.0-SNAPSHOT'
 
     testImplementation 'junit:junit:4.12'
 }
