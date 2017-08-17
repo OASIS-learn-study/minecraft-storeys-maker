@@ -1,5 +1,5 @@
 
-[ ] Name Tag read/write
+[X] Name Tag read/write
 [ ] scroll text in name tag
 [ ] story file and parser
 [ ] story editor in Book

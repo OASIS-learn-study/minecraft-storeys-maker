@@ -1,7 +1,7 @@
 package ch.vorburger.minecraft.storeys.narrate;
 
-import ch.vorburger.minecraft.storeys.narrate.commands.*;
 import ch.vorburger.minecraft.osgi.api.CommandRegistration;
+import ch.vorburger.minecraft.storeys.narrate.commands.NarrateCommand;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -14,7 +14,6 @@ public class Activator implements BundleActivator {
 
     @Override
     public void stop(BundleContext context) throws Exception {
-
     }
 
 }
