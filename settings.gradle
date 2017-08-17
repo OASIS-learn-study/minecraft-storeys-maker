@@ -4,4 +4,4 @@
 
 include 'narrate'
 
-rootProject.name = 'minecraft-storey-maker'
+rootProject.name = 'minecraft-storeys-maker'
