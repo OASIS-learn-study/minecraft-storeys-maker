@@ -6,6 +6,9 @@ import org.spongepowered.api.command.CommandSource;
 
 public class CommandAction implements SynchronousAction<CommandResult> {
 
+    // TODO It would be good if there was a way to know when a /command was "done" ..
+    //   to be able to make this an asynchronous Action returning a CompletionStage - but how?
+
     private String commandLineWithoutSlash;
 
     public CommandAction setCommand(String commandLine) {

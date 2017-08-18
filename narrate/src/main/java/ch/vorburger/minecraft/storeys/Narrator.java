@@ -40,7 +40,7 @@ public class Narrator {
         return future;
     }
 
-    private class NarratorTask implements Consumer<Task> {
+    private static class NarratorTask implements Consumer<Task> {
 
         private final Entity entity;
         private final Iterator<String> splitText;

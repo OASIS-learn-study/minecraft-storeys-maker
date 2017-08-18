@@ -14,6 +14,8 @@
 [ ] Forum
 [ ] LICENSE-HEADER
 
+[ ] Like "Conversations", for learning? (learn.study)
+
 [ ] Entity velocity 0 via script instead of in NarrateAction
 [ ] /story:stop
 [ ] /narrate @p | @MsPiggy bla bla bla
