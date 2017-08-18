@@ -9,14 +9,21 @@
 [ ] README & Video (by D?)
 [ ] CI (incl. also building our deps)
 [ ] Forum
+
 [ ] /tp @pig: In Parser, or in Sponge, so it also works in console?
 [ ] interactive, prompts
-[ ] sub story modules (includes)
+[ ] sub story modules (includes, label welcome: and ->welcome or #welcome ?)
 [ ] /api, for other mods
 [ ] story editor in Book
-[ ] parallelism ({}), if needed?
+
+[ ] parallelism ({}), if needed?  Through indention..
 [ ] Human, with skin (https://github.com/SpongePowered/SpongeCommon/issues/318)
-[ ] FormattingCodeTextSerializer
+
+[ ] Inline http[s]:// links should be click-able
+[ ] MAYBE allow [Google](https://www.google.com) - but can be risky  better to show link - or ask players to confirm?
+[ ] MD Text _emphasis (also *emphasis*) and **strong** (see https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#emphasis)
+[ ] Full FormattingCodeTextSerializer
+[ ] Emoji? :sparkles: :camel: :boom: :+1: (see https://www.webpagefx.com/tools/emoji-cheat-sheet/)
 [ ] paged chat messages
 
 [ ] world plugin which can load previously saved (parts of SMALL) world dumps

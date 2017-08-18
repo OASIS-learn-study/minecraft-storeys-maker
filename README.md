@@ -2,7 +2,7 @@
 
 Minecraft extension to make your own stories in, with and for Minecraft - it's like being a movie director!
 
-_TODO_ **YouTube video here...**
+_TODO_ **YouTube video here...** <!-- https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#youtube-videos -->
 
 Licensed under the [GNU Affero General Public License v3.0 (AGPLv3)](LICENSE).  Contributions most welcome.
 

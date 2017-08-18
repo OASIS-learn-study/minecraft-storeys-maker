@@ -19,4 +19,6 @@ But first of all, I'd like to introduce you to a good friend of mine - let me ta
 
 # TODO Fully document how to use incl. story syntax here
 
+You can find out more on https://github.com/vorburger/minecraft-storeys-maker
+
 We hope you like this mod. Now go and make your own STORY!
