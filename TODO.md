@@ -5,6 +5,7 @@
 [ ] /narrate -> /story
 [ ] story file and parser
 [ ] Story =Header= and ==Subhead==
+[ ] Speed of story
 [X] Bug "more than 1 entity"
 [ ] Normal (non-OSGi) mod
 [ ] README & Video (by D?)

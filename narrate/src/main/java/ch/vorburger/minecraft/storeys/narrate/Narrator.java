@@ -9,8 +9,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
@@ -19,13 +17,11 @@ public class Narrator {
 
     // TODO support narrating Text not String (but how to chop it up?)
 
-    private static final Logger LOG = LoggerFactory.getLogger(Narrator.class);
-
     private final Object plugin;
     private final Splitter splitter = new Splitter();
 
-    private final int maxLength = 10;
-    private final int waitInMS = 700;
+    private final int maxLength = 20;
+    private final int waitInMS = 1500;
 
     public Narrator(Object plugin) {
         super();
