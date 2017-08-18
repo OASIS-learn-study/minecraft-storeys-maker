@@ -1,7 +1,7 @@
 
 [X] Name Tag read/write
 [X] scroll text in name tag
-[ ] Splitter fully TDD implemented
+[X] Splitter fully TDD implemented
 [ ] /narrate -> /story
 [ ] story file and parser
 [ ] Story =Header= and ==Subhead==
