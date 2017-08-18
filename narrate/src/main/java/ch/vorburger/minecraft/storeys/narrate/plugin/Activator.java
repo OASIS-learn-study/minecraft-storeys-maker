@@ -1,4 +1,4 @@
-package ch.vorburger.minecraft.storeys.narrate;
+package ch.vorburger.minecraft.storeys.narrate.plugin;
 
 import ch.vorburger.minecraft.osgi.api.CommandRegistration;
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
