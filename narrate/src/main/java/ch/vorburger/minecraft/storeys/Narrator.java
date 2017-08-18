@@ -4,6 +4,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.spongepowered.api.data.key.Keys.CUSTOM_NAME_VISIBLE;
 import static org.spongepowered.api.data.key.Keys.DISPLAY_NAME;
 
+import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -17,13 +18,13 @@ public class Narrator {
 
     // TODO support narrating Text not String (but how to chop it up?)
 
-    private final Object plugin;
+    private final PluginInstance plugin;
     private final TextSplitter splitter = new TextSplitter();
 
     private final int maxLength = 20;
     private final int waitInMS = 1500;
 
-    public Narrator(Object plugin) {
+    public Narrator(PluginInstance plugin) {
         super();
         this.plugin = plugin;
     }

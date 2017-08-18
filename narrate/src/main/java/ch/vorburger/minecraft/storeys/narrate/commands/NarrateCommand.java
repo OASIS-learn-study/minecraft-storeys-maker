@@ -11,6 +11,7 @@ import ch.vorburger.minecraft.storeys.util.Command;
 import ch.vorburger.minecraft.utils.CommandExceptions;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import java.util.concurrent.CompletionStage;
 import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -52,7 +53,8 @@ public class NarrateCommand implements Command {
         CommandExceptions.doOrThrow("Load & play story: " + storyName, () -> {
             String storyScript = storyRepository.getStoryScript(storyName);
             Story story = actionParser.parse(storyScript);
-            storyPlayer.play(src, story);
+            CompletionStage<?> completionStage = storyPlayer.play(src, story);
+            // TODO keep this, so that a user can /stop the story again..
         });
 
         return CommandResult.success();

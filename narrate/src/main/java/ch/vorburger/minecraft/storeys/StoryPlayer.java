@@ -8,18 +8,24 @@ import org.spongepowered.api.command.CommandSource;
 
 public class StoryPlayer {
 
-    private final Narrator narrator;
+    private final PluginInstance plugin;
 
     public StoryPlayer(PluginInstance plugin) {
-        narrator = new Narrator(plugin);
+        super();
+        this.plugin = plugin;
     }
 
-    public void play(CommandSource src, Story story) {
-        // TODO Must this be async, like Narrator?
+    public CompletionStage<?> play(CommandSource src, Story story) {
+        // TODO This must most probably run in an async (!) Task, similar to Narrator
+        CompletionStage<?> previousCompletionStage = null;
         for (Action<?> action : story.getActionsList()) {
-            // TODO Correct chain the futures ..
-            CompletionStage<?> future = action.execute(src);
+            if (previousCompletionStage != null) {
+                previousCompletionStage = previousCompletionStage.thenCompose(lastResult -> action.execute(src));
+            } else {
+                previousCompletionStage = action.execute(src);
+            }
         }
+        return previousCompletionStage;
     }
 
 }
