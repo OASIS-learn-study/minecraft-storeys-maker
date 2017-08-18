@@ -10,7 +10,7 @@ public class ClassLoaderResourceStoryRepository implements StoryRepository {
 
     @Override
     public String getStoryScript(String storyName) throws IOException {
-        return Resources.toString(getResource(storyName + ".story"), UTF_8);
+        return Resources.toString(getResource(ClassLoaderResourceStoryRepository.class, "/" + storyName + ".story"), UTF_8);
     }
 
 }
