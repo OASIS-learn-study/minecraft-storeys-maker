@@ -8,11 +8,12 @@ public class CommandAction implements SynchronousAction<CommandResult> {
 
     private String commandLineWithoutSlash;
 
-    public void setCommand(String commandLine) {
+    public CommandAction setCommand(String commandLine) {
         this.commandLineWithoutSlash = commandLine.trim();
         if (commandLineWithoutSlash.startsWith("/")) {
             commandLineWithoutSlash = commandLineWithoutSlash.substring(1);
         }
+        return this;
     }
 
     @Override

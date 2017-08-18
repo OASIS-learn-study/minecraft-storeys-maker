@@ -2,15 +2,16 @@ package ch.vorburger.minecraft.storeys.model;
 
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.effect.Viewer;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.title.Title;
 import org.spongepowered.api.text.title.Title.Builder;
 
 public class TitleAction extends TextAction<Void> implements SynchronousAction<Void> {
 
-    private boolean isSubTitle = false;
+    private Text subtitleText;
 
-    public void setSubTitle(boolean isSubTitle) {
-        this.isSubTitle = isSubTitle;
+    public void setSubtitle(Text subtitleText) {
+        this.subtitleText = subtitleText;
     }
 
     @Override
@@ -19,10 +20,9 @@ public class TitleAction extends TextAction<Void> implements SynchronousAction<V
             Viewer srcAsViewer = (Viewer) src;
 
             Builder titleBuilder = Title.builder().fadeIn(60).stay(500).fadeOut(100);
-            if (!isSubTitle) {
-                titleBuilder.title(text);
-            } else {
-                titleBuilder.subtitle(text);
+            titleBuilder.title(text);
+            if (subtitleText != null) {
+                titleBuilder.subtitle(subtitleText);
             }
 
             // TODO srcAsViewer.clearTitle(); ?

@@ -1,5 +1,6 @@
 package ch.vorburger.minecraft.storeys.narrate;
 
+import ch.vorburger.minecraft.storeys.util.MoreStrings;
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,7 +19,7 @@ public class Splitter {
         Preconditions.checkArgument(maxLength > 0, "maxLength < 1");
         Preconditions.checkNotNull(text, "text == null");
 
-        text = normalizeCRLF(text).trim();
+        text = MoreStrings.normalizeCRLF(text).trim();
         if (text.isEmpty()) {
             return Collections.emptyList();
         }
@@ -57,10 +58,6 @@ public class Splitter {
         if (!trimmed.equals("\n") && !trimmed.isEmpty()) {
             segments.add(trimmed);
         }
-    }
-
-    private String normalizeCRLF(String text) {
-        return text.replace("\r\n", "\n");
     }
 
 }
