@@ -3,7 +3,6 @@ package ch.vorburger.minecraft.storeys;
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.Story;
-import ch.vorburger.minecraft.storeys.narrate.Narrator;
 import java.util.concurrent.CompletionStage;
 import org.spongepowered.api.command.CommandSource;
 

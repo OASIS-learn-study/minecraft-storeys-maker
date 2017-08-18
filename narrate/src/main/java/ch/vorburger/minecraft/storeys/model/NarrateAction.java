@@ -1,6 +1,6 @@
 package ch.vorburger.minecraft.storeys.model;
 
-import ch.vorburger.minecraft.storeys.narrate.Narrator;
+import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.util.NamedObjects;
 import com.flowpowered.math.vector.Vector3d;
 import java.util.concurrent.CompletionStage;

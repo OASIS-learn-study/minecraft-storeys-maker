@@ -3,7 +3,7 @@
 [X] scroll text in name tag
 [X] Splitter fully TDD implemented
 [ ] /narrate -> /story (StoryCommand)
-[ ] mv ch.vorburger.minecraft.storeys.narrate to ch.vorburger.minecraft.storeys?
+[X] mv ch.vorburger.minecraft.storeys.narrate to ch.vorburger.minecraft.storeys
 [X] story file and parser
 [X] Story =Header= and ==Subhead==
 [ ] Speed of story

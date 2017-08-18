@@ -1,12 +1,12 @@
 package ch.vorburger.minecraft.storeys.model.parser;
 
+import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.CommandAction;
 import ch.vorburger.minecraft.storeys.model.MessageAction;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
 import ch.vorburger.minecraft.storeys.model.Story;
 import ch.vorburger.minecraft.storeys.model.TitleAction;
-import ch.vorburger.minecraft.storeys.narrate.Narrator;
 import ch.vorburger.minecraft.storeys.util.MoreStrings;
 import com.google.common.base.Splitter;
 import java.util.ArrayList;

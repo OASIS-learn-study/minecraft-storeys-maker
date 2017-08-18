@@ -1,4 +1,4 @@
-package ch.vorburger.minecraft.storeys.narrate;
+package ch.vorburger.minecraft.storeys;
 
 import ch.vorburger.minecraft.storeys.util.MoreStrings;
 import com.google.common.base.Preconditions;
@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Splitter {
+public class TextSplitter {
 
     private static final int AVG_WORD_LENGTH = 5;
 

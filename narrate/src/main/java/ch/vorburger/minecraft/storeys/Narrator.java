@@ -1,4 +1,4 @@
-package ch.vorburger.minecraft.storeys.narrate;
+package ch.vorburger.minecraft.storeys;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.spongepowered.api.data.key.Keys.CUSTOM_NAME_VISIBLE;
@@ -18,7 +18,7 @@ public class Narrator {
     // TODO support narrating Text not String (but how to chop it up?)
 
     private final Object plugin;
-    private final Splitter splitter = new Splitter();
+    private final TextSplitter splitter = new TextSplitter();
 
     private final int maxLength = 20;
     private final int waitInMS = 1500;

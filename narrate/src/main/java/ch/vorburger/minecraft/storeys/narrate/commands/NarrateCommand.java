@@ -1,12 +1,12 @@
 package ch.vorburger.minecraft.storeys.narrate.commands;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
+import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.StoryPlayer;
 import ch.vorburger.minecraft.storeys.model.Story;
 import ch.vorburger.minecraft.storeys.model.parser.StoryParser;
 import ch.vorburger.minecraft.storeys.model.parser.ClassLoaderResourceStoryRepository;
 import ch.vorburger.minecraft.storeys.model.parser.StoryRepository;
-import ch.vorburger.minecraft.storeys.narrate.Narrator;
 import ch.vorburger.minecraft.storeys.util.Command;
 import ch.vorburger.minecraft.utils.CommandExceptions;
 import com.google.common.collect.ImmutableList;
