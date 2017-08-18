@@ -1,8 +1,9 @@
 package ch.vorburger.minecraft.storeys.narrate.commands;
 
-import ch.vorburger.minecraft.osgi.api.CommandRegistration;
+import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.narrate.Narrator;
 import ch.vorburger.minecraft.storeys.util.NamedObjects;
+import ch.vorburger.minecraft.utils.Command;
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -13,16 +14,19 @@ import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
-import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.World;
 
-public class NarrateCommand implements CommandRegistration, CommandExecutor {
+public class NarrateCommand implements Command {
 
     private final NamedObjects namedObjects = new NamedObjects();
-    private final Narrator narrator = new Narrator();
+    private final Narrator narrator;
+
+    public NarrateCommand(PluginInstance plugin) {
+        narrator = new Narrator(plugin);
+    }
 
     @Override
     public List<String> aliases() {

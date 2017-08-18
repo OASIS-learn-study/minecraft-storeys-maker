@@ -1,39 +1,72 @@
 package ch.vorburger.minecraft.storeys.narrate;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.spongepowered.api.data.key.Keys.CUSTOM_NAME_VISIBLE;
+import static org.spongepowered.api.data.key.Keys.DISPLAY_NAME;
+
+import java.util.Iterator;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
 
 public class Narrator {
-
-    // TODO make this run async (and return Future?) in a work thread
-    // (see https://docs.spongepowered.org/stable/en/plugin/scheduler.html)
 
     // TODO support narrating Text not String (but how to chop it up?)
 
     private static final Logger LOG = LoggerFactory.getLogger(Narrator.class);
 
-    private final int maxLength = 10;
-    private final int waitInMS = 2000;
+    private final Object plugin;
     private final Splitter splitter = new Splitter();
 
-    public void narrate(Entity entity, String text) {
-        // Make sure name can always be seen, even if we are not closely look at entity
-        entity.offer(Keys.CUSTOM_NAME_VISIBLE, true);
+    private final int maxLength = 10;
+    private final int waitInMS = 700;
 
-        for (String subText : splitter.split(maxLength, text)) {
-            entity.offer(Keys.DISPLAY_NAME, Text.of(subText));
-            LOG.info(subText);
-            try {
-                Thread.sleep(waitInMS);
-            } catch (InterruptedException e) {
-                return;
-            }
-        }
-
-        // entity.offer(Keys.DISPLAY_NAME, Text.EMPTY);
+    public Narrator(Object plugin) {
+        super();
+        this.plugin = plugin;
     }
 
+    public CompletionStage<Void> narrate(Entity entity, String text) {
+        // Make sure name can always be seen, even if we are not closely look at entity
+        entity.offer(CUSTOM_NAME_VISIBLE, true);
+
+        CompletableFuture<Void> future = new CompletableFuture<>();
+
+        Task.builder()
+            .execute(new NarratorTask(entity, splitter.split(maxLength, text), future))
+            .interval(waitInMS, MILLISECONDS)
+            .submit(plugin);
+
+        return future;
+    }
+
+    private class NarratorTask implements Consumer<Task> {
+
+        private final Entity entity;
+        private final Iterator<String> splitText;
+        private final CompletableFuture<Void> future;
+
+        public NarratorTask(Entity entity, Iterable<String> splitText, CompletableFuture<Void> future) {
+            this.entity = entity;
+            this.splitText = splitText.iterator();
+            this.future = future;
+        }
+
+        @Override
+        public void accept(Task task) {
+            if (splitText.hasNext()) {
+                entity.offer(DISPLAY_NAME, Text.of(splitText.next()));
+            } else {
+                entity.offer(CUSTOM_NAME_VISIBLE, false);
+                entity.offer(DISPLAY_NAME, Text.EMPTY);
+                future.complete(null);
+                task.cancel();
+            }
+        }
+    }
 }

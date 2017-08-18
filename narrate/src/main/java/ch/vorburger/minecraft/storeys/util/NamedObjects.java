@@ -1,10 +1,11 @@
 package ch.vorburger.minecraft.storeys.util;
 
+import static org.spongepowered.api.data.key.Keys.DISPLAY_NAME;
+
 import java.util.Collection;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.world.World;
@@ -23,7 +24,7 @@ public class NamedObjects {
     private static final Logger LOG = LoggerFactory.getLogger(NamedObjects.class);
 
     public Optional<Entity> getEntity(World world, String entityName) {
-        Collection<Entity> entities = world.getEntities(entity -> entity.get(Keys.DISPLAY_NAME).isPresent());
+        Collection<Entity> entities = world.getEntities(entity -> entity.get(DISPLAY_NAME).isPresent());
         entities.removeIf(entity -> entity instanceof Player);
         if (entities.isEmpty()) {
             return Optional.empty();

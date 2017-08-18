@@ -9,7 +9,7 @@ public class Splitter {
         if (text.isEmpty()) {
             return Collections.emptyList();
         }
-        return ImmutableList.of("hello, world.", "I'm a pig.");
+        return ImmutableList.of("hello, world.", "I'm a pig.", "Once upon a time...");
     }
 
 }
