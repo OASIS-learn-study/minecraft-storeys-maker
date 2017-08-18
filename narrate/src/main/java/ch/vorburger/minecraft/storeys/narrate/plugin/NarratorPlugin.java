@@ -2,7 +2,7 @@ package ch.vorburger.minecraft.storeys.narrate.plugin;
 
 import ch.vorburger.minecraft.osgi.api.AbstractPlugin;
 import ch.vorburger.minecraft.storeys.narrate.commands.NarrateCommand;
-import ch.vorburger.minecraft.utils.Commands;
+import ch.vorburger.minecraft.storeys.util.Commands;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.event.Listener;

@@ -1,4 +1,4 @@
-package ch.vorburger.minecraft.utils;
+package ch.vorburger.minecraft.storeys.util;
 
 import ch.vorburger.minecraft.osgi.api.CommandRegistration;
 import org.spongepowered.api.command.spec.CommandExecutor;

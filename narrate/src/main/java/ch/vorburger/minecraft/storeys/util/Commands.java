@@ -1,4 +1,4 @@
-package ch.vorburger.minecraft.utils;
+package ch.vorburger.minecraft.storeys.util;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandMapping;
