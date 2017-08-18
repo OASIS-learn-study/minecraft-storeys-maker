@@ -6,7 +6,7 @@
 [X] mv ch.vorburger.minecraft.storeys.narrate to ch.vorburger.minecraft.storeys
 [X] story file and parser
 [X] Story =Header= and ==Subhead==
-[ ] Speed of story
+[ ] Speed of story - correctly use ReadingSpeed in each Action (with ActionWaitHelper)
 [X] Bug "more than 1 entity"
 [ ] Normal (non-OSGi) mod
 [ ] README & Video (by D?)

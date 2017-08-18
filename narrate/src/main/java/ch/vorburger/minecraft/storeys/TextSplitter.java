@@ -8,8 +8,6 @@ import java.util.List;
 
 public class TextSplitter {
 
-    private static final int AVG_WORD_LENGTH = 5;
-
     /**
      * Split text into segments of ideally maxLength.
      * Splitting is by occurrence space, and if some words are longer than maxLength,
@@ -24,7 +22,7 @@ public class TextSplitter {
             return Collections.emptyList();
         }
 
-        final List<String> segments = new ArrayList<>(text.length() / AVG_WORD_LENGTH / maxLength);
+        final List<String> segments = new ArrayList<>(text.length() / ReadingSpeed.AVG_WORD_LENGTH / maxLength);
 
         text = text.trim();
         int start = 0, end = 0, lastSpace = -1;

@@ -2,7 +2,9 @@ package ch.vorburger.minecraft.storeys.narrate.commands;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.Narrator;
+import ch.vorburger.minecraft.storeys.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.StoryPlayer;
+import ch.vorburger.minecraft.storeys.model.ActionContext;
 import ch.vorburger.minecraft.storeys.model.Story;
 import ch.vorburger.minecraft.storeys.model.parser.StoryParser;
 import ch.vorburger.minecraft.storeys.model.parser.ClassLoaderResourceStoryRepository;
@@ -53,7 +55,7 @@ public class NarrateCommand implements Command {
         CommandExceptions.doOrThrow("Load & play story: " + storyName, () -> {
             String storyScript = storyRepository.getStoryScript(storyName);
             Story story = actionParser.parse(storyScript);
-            CompletionStage<?> completionStage = storyPlayer.play(src, story);
+            CompletionStage<?> completionStage = storyPlayer.play(new ActionContext(src, new ReadingSpeed()), story);
             // TODO keep this, so that a user can /stop the story again..
         });
 

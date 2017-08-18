@@ -2,16 +2,15 @@ package ch.vorburger.minecraft.storeys.model;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import org.spongepowered.api.command.CommandSource;
 
 public interface SynchronousAction<T> extends Action<T> {
 
-    T executeSynchronously(CommandSource src) throws ActionException;
+    T executeSynchronously(ActionContext context) throws ActionException;
 
     @Override
-    default CompletionStage<T> execute(CommandSource src) {
+    default CompletionStage<T> execute(ActionContext context) {
         try {
-            return CompletableFuture.completedFuture(executeSynchronously(src));
+            return CompletableFuture.completedFuture(executeSynchronously(context));
         } catch (Throwable throwable) {
             CompletableFuture<T> failedFuture = new CompletableFuture<>();
             failedFuture.completeExceptionally(throwable);

@@ -1,12 +1,10 @@
 package ch.vorburger.minecraft.storeys.model;
 
-import org.spongepowered.api.command.CommandSource;
-
 public class MessageAction extends TextAction<Void> implements SynchronousAction<Void> {
 
     @Override
-    public Void executeSynchronously(CommandSource src) throws ActionException {
-        src.sendMessage(text);
+    public Void executeSynchronously(ActionContext context) throws ActionException {
+        context.getCommandSource().sendMessage(text);
         return null;
     }
 

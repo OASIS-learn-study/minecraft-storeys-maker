@@ -22,19 +22,18 @@ public class Narrator {
     private final TextSplitter splitter = new TextSplitter();
 
     private final int maxLength = 20;
-    private final int waitInMS = 1500;
 
     public Narrator(PluginInstance plugin) {
         super();
         this.plugin = plugin;
     }
 
-    public CompletionStage<Void> narrate(Entity entity, String text) {
+    public CompletionStage<Void> narrate(Entity entity, String text, ReadingSpeed readingSpeed) {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
         Task.builder()
             .execute(new NarratorTask(entity, splitter.split(maxLength, text), future))
-            .interval(waitInMS, MILLISECONDS)
+            .interval(readingSpeed.msToRead(maxLength), MILLISECONDS)
             .submit(plugin);
 
         return future;

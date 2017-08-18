@@ -24,10 +24,11 @@ public class TitleAction extends TextAction<Void> {
     }
 
     @Override
-    public CompletionStage<Void> execute(CommandSource src) {
+    public CompletionStage<Void> execute(ActionContext context) {
         return actionWaitHelper.executeAndWait(2000, () -> {
-            if (src instanceof Viewer) {
-                Viewer srcAsViewer = (Viewer) src;
+            CommandSource commandSource = context.getCommandSource();
+            if (commandSource instanceof Viewer) {
+                Viewer srcAsViewer = (Viewer) commandSource;
 
                 Builder titleBuilder = Title.builder().fadeIn(60).stay(500).fadeOut(100);
                 titleBuilder.title(text);
@@ -39,7 +40,7 @@ public class TitleAction extends TextAction<Void> {
                 srcAsViewer.sendTitle(titleBuilder.build());
                 return null;
             } else {
-                throw new ActionException("CommandSource is not a Viewer: " + src.toString());
+                throw new ActionException("CommandSource is not a Viewer: " + commandSource.toString());
             }
         });
     }
