@@ -1,5 +1,6 @@
 package ch.vorburger.minecraft.storeys.model.parser;
 
+import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.CommandAction;
@@ -23,10 +24,12 @@ public class StoryParser {
     private NarrateAction narrateActionInConstruction;
     private TitleAction titleActionInConstruction;
 
+    private final PluginInstance plugin;
     private final Narrator narrator;
 
-    public StoryParser(Narrator narrator) {
+    public StoryParser(PluginInstance plugin, Narrator narrator) {
         super();
+        this.plugin = plugin;
         this.narrator = narrator;
     }
 
@@ -49,7 +52,7 @@ public class StoryParser {
             } else if (line.startsWith("=")) {
                 addActionInConstruction();
                 String titleText = line.substring(1).trim();
-                titleActionInConstruction = new TitleAction();
+                titleActionInConstruction = new TitleAction(plugin);
                 titleActionInConstruction.setText(newText(titleText));
             } else if (line.startsWith("@")) {
                 addActionInConstruction();

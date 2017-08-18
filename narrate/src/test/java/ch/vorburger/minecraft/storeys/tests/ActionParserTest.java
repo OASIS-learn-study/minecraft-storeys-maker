@@ -10,7 +10,7 @@ import org.junit.Test;
 
 public class ActionParserTest {
 
-    private final StoryParser parser = new StoryParser(null);
+    private final StoryParser parser = new StoryParser(null, null);
 
     @Test public void helloStory() throws IOException, SyntaxErrorException {
         assertThat(

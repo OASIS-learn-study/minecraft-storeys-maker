@@ -30,7 +30,7 @@ public class NarrateCommand implements Command {
 
     public NarrateCommand(PluginInstance plugin) {
         storyPlayer = new StoryPlayer(plugin);
-        actionParser = new StoryParser(new Narrator(plugin));
+        actionParser = new StoryParser(plugin, new Narrator(plugin));
     }
 
     @Override
