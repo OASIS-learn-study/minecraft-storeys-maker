@@ -2,9 +2,10 @@
 [X] Name Tag read/write
 [X] scroll text in name tag
 [X] Splitter fully TDD implemented
-[ ] /narrate -> /story
-[ ] story file and parser
-[ ] Story =Header= and ==Subhead==
+[ ] /narrate -> /story (StoryCommand)
+[ ] mv ch.vorburger.minecraft.storeys.narrate to ch.vorburger.minecraft.storeys?
+[X] story file and parser
+[X] Story =Header= and ==Subhead==
 [ ] Speed of story
 [X] Bug "more than 1 entity"
 [ ] Normal (non-OSGi) mod
@@ -13,6 +14,7 @@
 [ ] Forum
 [ ] LICENSE-HEADER
 
+[ ] Entity velocity 0 via script instead of in NarrateAction
 [ ] /story:stop
 [ ] /narrate @p | @MsPiggy bla bla bla
 [ ] /tp @pig: In Parser, or in Sponge, so it also works in console?
@@ -25,8 +27,12 @@
 [ ] web-based editor, simple
 [ ] live collab web editor
 
+[ ] WARN on console if narrating entity is not in view of player (as that can be confusing)
+[ ] Use Immutables.org for model; just gen. hashCode/equals & toString or real immutable with *Builder for each?
+[ ] ActionParserTest using xtendbeans
 [ ] parallelism ({}), if needed?  Through indention..
 [ ] Human, with skin (https://github.com/SpongePowered/SpongeCommon/issues/318)
+[ ] Action execute methods in separate class(es) for pure model?
 
 [ ] Inline http[s]:// links should be click-able
 [ ] MAYBE allow [Google](https://www.google.com) - but can be risky  better to show link - or ask players to confirm?
