@@ -4,9 +4,8 @@
 [ ] Splitter fully TDD implemented
 [ ] story file and parser
 [ ] Story =Header= and ==Subhead==
-[ ] Bug "more than 1 entity"
+[X] Bug "more than 1 entity"
 [ ] Normal (non-OSGi) mod
-[ ] Bug reload old text (OSGi only?)
 [ ] README & Video (by D?)
 [ ] CI (incl. also building our deps)
 [ ] Forum
