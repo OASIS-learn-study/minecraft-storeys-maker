@@ -5,6 +5,7 @@ import static org.spongepowered.api.data.key.Keys.CUSTOM_NAME_VISIBLE;
 import static org.spongepowered.api.data.key.Keys.DISPLAY_NAME;
 
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
@@ -32,9 +33,6 @@ public class Narrator {
     }
 
     public CompletionStage<Void> narrate(Entity entity, String text) {
-        // Make sure name can always be seen, even if we are not closely look at entity
-        entity.offer(CUSTOM_NAME_VISIBLE, true);
-
         CompletableFuture<Void> future = new CompletableFuture<>();
 
         Task.builder()
@@ -50,11 +48,17 @@ public class Narrator {
         private final Entity entity;
         private final Iterator<String> splitText;
         private final CompletableFuture<Void> future;
+        private final Optional<Text> originalDisplayName;
 
         public NarratorTask(Entity entity, Iterable<String> splitText, CompletableFuture<Void> future) {
             this.entity = entity;
             this.splitText = splitText.iterator();
             this.future = future;
+
+            // Make sure name can always be seen, even if we are not closely look at entity
+            entity.offer(CUSTOM_NAME_VISIBLE, true);
+
+            originalDisplayName = entity.get(DISPLAY_NAME);
         }
 
         @Override
@@ -63,7 +67,8 @@ public class Narrator {
                 entity.offer(DISPLAY_NAME, Text.of(splitText.next()));
             } else {
                 entity.offer(CUSTOM_NAME_VISIBLE, false);
-                entity.offer(DISPLAY_NAME, Text.EMPTY);
+                // Must reset name, so that NamedObjects can find Entity again next time (after restart)
+                entity.offer(DISPLAY_NAME, originalDisplayName.orElse(Text.EMPTY));
                 future.complete(null);
                 task.cancel();
             }
