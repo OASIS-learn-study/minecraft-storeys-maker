@@ -3,7 +3,7 @@
 Minecraft extension to make your own stories in, with and for Minecraft - it's like being a movie director!
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=ZHHUB7R0gEo
-" target="_blank"><img src="http://img.youtube.com/vi/ZHHUB7R0gEo/0.jpg" 
+" target="_blank"><img src="http://img.youtube.com/vi/ZHHUB7R0gEo/0.jpg"
 alt="Minecraft Stories Maker" width="480" height="360" border="10" /></a>
 
 Licensed under the [GNU Affero General Public License v3.0 (AGPLv3)](LICENSE).  Contributions most welcome.
@@ -20,7 +20,7 @@ Place it into your [spongepowered.org](https://www.spongepowered.org) Minecraft,
 
 ## Use it
 
-Write your own .story file, e.g. see [hello.story](narrate/src/main/resources/hello.story).
+Write your own .story file, e.g. see [hello.story](storeys/src/main/resources/hello.story).
 
 Run it with `/story <story-name>` (without .story suffix, so e.g. `/story hello`)
 
@@ -48,7 +48,7 @@ Run it with `/story <story-name>` (without .story suffix, so e.g. `/story hello`
 
 You can of course use ANY Minecraft command in any line that starts with the '/' character, not just /tp.
 
-An entity's name must be given to your actors with a naming tag (via an Anvil), as always in normal Minecraft.
+An entity's name must be given to your actors with a name tag (created via an Anvil), as always in normal Minecraft.
 
 The `%await` action is is useful e.g. if you are teleporting your viewer around to show him a scenery,
 and need the story to "pause" (to appreciate the beauty of your creation).  You do not need to explicitly use this
