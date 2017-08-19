@@ -17,9 +17,9 @@ But first of all, I'd like to introduce you to a good friend of mine - let me ta
 /tp -237 69 274 -145 20
 # TODO /tp @Chestnut
 
-@Chestnut Howdy.  I'm Chestnut.
+%await 1s
 
-# TODO Fully document how to use incl. story syntax here
+@Chestnut Howdy.  I'm Chestnut.
 
 You can find out more on https://github.com/vorburger/minecraft-storeys-maker
 

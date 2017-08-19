@@ -32,6 +32,10 @@ Run it with `/story <story-name>` (without .story suffix, so e.g. `/story hello`
 
     /tp 0 0 0
 
+    %await 2s
+
+    /tp -235 64 230 17 12
+
     This is something which will appear on the chat.
 
     @entityName this is something that the entity will "narrate" (in its name tag, like a speech bubble in a cartoon)
@@ -44,7 +48,11 @@ You can of course use ANY Minecraft command in any line that starts with the '/'
 
 An entity's name must be given to your actors with a naming tag (via an Anvil), as always in normal Minecraft.
 
-You can obviously mix the order and repeat titles, comments, chats, narrations and commands.
+The `%await` action is is useful e.g. if you are teleporting your viewer around to show him a scenery,
+and need the story to "pause" (to appreciate the beauty of your creation).  You do not need to explicitly use this
+otherwise, as the story automatically pauses appropriately when narrating, showing titles and chat.
+
+You can obviously mix the order and repeat titles, comments, chats, narrations, commands and actions.
 
 ## Commands
 

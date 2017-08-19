@@ -13,12 +13,12 @@
 [X] Latest Sponge version
 [ ] README & Video (by D?)
 [ ] CI (incl. also building our deps)
-[ ] Forum
 [ ] LICENSE-HEADER
+[ ] Forum
 
 [ ] Like "Conversations", for learning? (learn.study)
 
-[ ] wait (pause) in story
+[X] %await 3s
 [ ] /wpm command, to set per-Player ReadingSpeed
 [ ] /move to make entites move around instead of /tp .. slowly, step by step - timed (based on WPM)
 [ ] Entity velocity 0 via script or new /noai (?) instead of in NarrateAction

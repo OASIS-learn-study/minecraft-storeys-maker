@@ -15,7 +15,7 @@ public class ActionParserTest {
     @Test public void helloStory() throws IOException, SyntaxErrorException {
         assertThat(
             parser.parse(new ClassLoaderResourceStoryRepository().getStoryScript("hello")).getActionsList())
-            .hasSize(9);
+            .hasSize(10);
     }
 
     @Test public void empty() throws SyntaxErrorException {

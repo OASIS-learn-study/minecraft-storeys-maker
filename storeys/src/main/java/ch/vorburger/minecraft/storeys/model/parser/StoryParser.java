@@ -3,6 +3,7 @@ package ch.vorburger.minecraft.storeys.model.parser;
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.model.Action;
+import ch.vorburger.minecraft.storeys.model.AwaitAction;
 import ch.vorburger.minecraft.storeys.model.CommandAction;
 import ch.vorburger.minecraft.storeys.model.MessageAction;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
@@ -44,6 +45,7 @@ public class StoryParser {
             } else if (line.startsWith("#") || line.startsWith("//")) {
                 continue;
             } else if (line.startsWith("==")) {
+                // NB: We HAVE to check for "==" before "=" (cauz "==" also startsWith "=")
                 String subTitleText = line.substring(2).trim();
                 if (titleActionInConstruction == null) {
                     throw new SyntaxErrorException("Subtitle (==) must immediately follow Title (=) : " + subTitleText);
@@ -67,6 +69,19 @@ public class StoryParser {
                 addActionInConstruction();
                 String remainingLine = line.substring(1).trim();
                 actions.add(new CommandAction().setCommand(remainingLine));
+            } else if (line.startsWith("%await")) {
+                addActionInConstruction();
+                String remainingLine = line.substring("%await".length()).trim();
+                if (!remainingLine.endsWith("s")) {
+                    throw new SyntaxErrorException("%await currently only supports seconds; example: %await 2s");
+                }
+                String value = remainingLine.substring(0, remainingLine.length() - 1);
+                try {
+                    int secsToWait = Integer.decode(value);
+                    actions.add(new AwaitAction(plugin).setMsToWait(secsToWait * 1000));
+                } catch (NumberFormatException e) {
+                    throw new SyntaxErrorException("%await currently only supports numeric value; example: %await 2s; but not: " + value, e);
+                }
             } else {
                 if (narrateActionInConstruction != null) {
                     narrateActionInConstruction.setText(narrateActionInConstruction.getText().concat(Text.NEW_LINE).concat(newText(line)));
