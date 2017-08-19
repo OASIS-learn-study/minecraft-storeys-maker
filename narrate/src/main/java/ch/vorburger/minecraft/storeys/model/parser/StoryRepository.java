@@ -6,4 +6,6 @@ public interface StoryRepository {
 
     String getStoryScript(String storyName) throws IOException;
 
+    // TODO List<String> getStoryNames(String prefix)
+
 }
