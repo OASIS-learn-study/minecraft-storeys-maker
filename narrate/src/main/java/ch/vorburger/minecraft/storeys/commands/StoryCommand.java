@@ -1,4 +1,4 @@
-package ch.vorburger.minecraft.storeys.narrate.commands;
+package ch.vorburger.minecraft.storeys.commands;
 
 import static org.spongepowered.api.command.args.GenericArguments.onlyOne;
 import static org.spongepowered.api.command.args.GenericArguments.string;

@@ -1,9 +1,9 @@
-package ch.vorburger.minecraft.storeys.narrate.plugin;
+package ch.vorburger.minecraft.storeys.plugin;
 
 import ch.vorburger.minecraft.osgi.api.CommandRegistration;
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
-import ch.vorburger.minecraft.storeys.narrate.commands.NarrateCommand;
-import ch.vorburger.minecraft.storeys.narrate.commands.StoryCommand;
+import ch.vorburger.minecraft.storeys.commands.NarrateCommand;
+import ch.vorburger.minecraft.storeys.commands.StoryCommand;
 import java.nio.file.Paths;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
