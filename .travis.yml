@@ -10,3 +10,4 @@ before_install:
   - git clone --recursive https://github.com/vorburger/ch.vorburger.minecraft.osgi/
   - cd ch.vorburger.minecraft.osgi/ch.vorburger.osgi.gradle && ./gradlew install
   - cd .. && ./gradlew install
+  - cd ..
