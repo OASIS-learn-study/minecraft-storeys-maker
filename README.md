@@ -2,7 +2,9 @@
 
 Minecraft extension to make your own stories in, with and for Minecraft - it's like being a movie director!
 
-_TODO_ **YouTube video here...** <!-- https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#youtube-videos -->
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=ZHHUB7R0gEo
+" target="_blank"><img src="http://img.youtube.com/vi/ZHHUB7R0gEo/0.jpg" 
+alt="Minecraft Stories Maker" width="480" height="360" border="10" /></a>
 
 Licensed under the [GNU Affero General Public License v3.0 (AGPLv3)](LICENSE).  Contributions most welcome.
 
