@@ -18,6 +18,7 @@ public class ReadingSpeed {
         super();
         this.wpm = wordsPerMinute;
         Preconditions.checkArgument(wpm > 5, "Words per minute > 5, was: %s", wpm);
+        Preconditions.checkArgument(wpm < 500, "Words per minute < 500, was: %s", wpm);
     }
 
     public ReadingSpeed by(double factor) {
