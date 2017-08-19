@@ -14,7 +14,7 @@ import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Plugin;
 
-@Plugin(id = "narrate", name = "Vorburger.ch's Storeys", version = "1.0",
+@Plugin(id = "storeys", name = "Vorburger.ch's Storeys", version = "1.0",
     description = "Makes entities narrate story lines so you can make your own movie in Minecraft",
     url = "https://github.com/vorburger/minecraft-storeys-maker",
 authors = "Michael Vorburger.ch")
