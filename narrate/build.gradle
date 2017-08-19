@@ -1,6 +1,28 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '2.0.1'
+}
+
 dependencies {
     // api 'org.apache.commons:commons-math3:3.6.1'
 
     implementation 'org.osgi:org.osgi.core:6.0.0'
     implementation 'ch.vorburger.minecraft:ch.vorburger.minecraft.osgi.api:1.0.0-SNAPSHOT'
 }
+
+shadowJar {
+  dependencies {
+    // http://imperceptiblethoughts.com/shadow/#filtering_dependencies
+    // NB "not being able to filter entire transitive dependency graphs"
+    // so instead of using exclude dependency we just do explicit include:
+    include(dependency('ch.vorburger.minecraft:ch.vorburger.minecraft.osgi.api'))
+  }
+}
+
+artifacts {
+    shadowJar;
+}
+
+build.dependsOn(shadowJar);
+
+// install.dependsOn(shadowJar);
+// install.enabled = false

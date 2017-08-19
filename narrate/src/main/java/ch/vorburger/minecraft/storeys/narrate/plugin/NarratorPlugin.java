@@ -10,7 +10,7 @@ import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.plugin.Plugin;
 
-@Plugin(id = "narrator", name = "Vorburger.ch's Storeys Narrator", version = "1.0",
+@Plugin(id = "narrate", name = "Vorburger.ch's Storeys Narrator", version = "1.0",
     description = "Makes entities narrate story lines",
     url = "https://github.com/vorburger/minecraft-storeys-maker",
 authors = "Michael Vorburger.ch")

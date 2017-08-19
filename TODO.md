@@ -8,7 +8,7 @@
 [X] Speed of story - correctly use ReadingSpeed in each Action (with ActionWaitHelper)
 [ ] /narrate -> /story (StoryCommand), with optional <wpm> arg
 [X] Bug "more than 1 entity"
-[ ] Normal (non-OSGi) mod
+[X] Normal (non-OSGi) mod (but still work under OSGi as well, for dev)
 [ ] Latest Sponge version
 [ ] README & Video (by D?)
 [ ] CI (incl. also building our deps)
@@ -17,6 +17,7 @@
 
 [ ] Like "Conversations", for learning? (learn.study)
 
+[ ] /move to make entites move around instead of /tp .. slowly, step by step - timed (based on WPM)
 [ ] Entity velocity 0 via script instead of in NarrateAction
 [ ] /story:stop
 [ ] /narrate @p | @MsPiggy bla bla bla
@@ -30,6 +31,7 @@
 [ ] web-based editor, simple
 [ ] live collab web editor
 
+[ ] record and store real path of walking around
 [ ] WARN on console if narrating entity is not in view of player (as that can be confusing)
 [ ] Use Immutables.org for model; just gen. hashCode/equals & toString or real immutable with *Builder for each?
 [ ] ActionParserTest using xtendbeans
@@ -49,3 +51,5 @@
 [ ] script to create the demo world with Piggy & Chestnut: /summon, /name etc. (How to fence, leash?)
 [ ] script gen. from existing world?!
 [ ] Bundle hello.story into JAR and extract on start, if not present
+
+[ ] look at other story telling frameworks: interactive fiction engines, GitHub topics storytelling, story, stories,
