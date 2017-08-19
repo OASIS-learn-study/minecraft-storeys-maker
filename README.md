@@ -6,6 +6,8 @@ _TODO_ **YouTube video here...** <!-- https://github.com/adam-p/markdown-here/wi
 
 Licensed under the [GNU Affero General Public License v3.0 (AGPLv3)](LICENSE).  Contributions most welcome.
 
+Tested on Sponge Vanilla 7.0.0 (Minecraft 1.12.1) and Sponge 5.1.0 (Minecraft 1.10.2).
+
 Please do Star & Watch this GitHub project if you like it!
 
 ## Get it

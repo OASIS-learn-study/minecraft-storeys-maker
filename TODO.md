@@ -10,7 +10,7 @@
 [ ] Refactor to remove .narrate. from packages, NarratorPlugin -> StoreysPlugin, id = storeys
 [X] Bug "more than 1 entity"
 [X] Normal (non-OSGi) mod (but still work under OSGi as well, for dev)
-[ ] Latest Sponge version
+[X] Latest Sponge version
 [ ] README & Video (by D?)
 [ ] CI (incl. also building our deps)
 [ ] Forum
