@@ -5,6 +5,7 @@ import static org.spongepowered.api.data.key.Keys.CUSTOM_NAME_VISIBLE;
 import static org.spongepowered.api.data.key.Keys.DISPLAY_NAME;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
+import ch.vorburger.minecraft.storeys.util.NamedObjects;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -13,10 +14,13 @@ import java.util.function.Consumer;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.world.extent.EntityUniverse;
 
 public class Narrator {
 
     // TODO support narrating Text not String (but how to chop it up?)
+
+    private final NamedObjects namedObjects = new NamedObjects();
 
     private final PluginInstance plugin;
     private final TextSplitter splitter = new TextSplitter();
@@ -26,6 +30,11 @@ public class Narrator {
     public Narrator(PluginInstance plugin) {
         super();
         this.plugin = plugin;
+    }
+
+    public CompletionStage<Void> narrate(EntityUniverse entityUniverse, String entityName, String text, ReadingSpeed readingSpeed) {
+        Entity entity = namedObjects.getEntity(entityUniverse, entityName).orElseThrow(() -> new IllegalArgumentException("No entity named: " + entityName));
+        return narrate(entity, text, readingSpeed);
     }
 
     public CompletionStage<Void> narrate(Entity entity, String text, ReadingSpeed readingSpeed) {
@@ -70,4 +79,5 @@ public class Narrator {
             }
         }
     }
+
 }

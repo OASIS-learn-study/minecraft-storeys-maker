@@ -18,7 +18,7 @@ Place it into your [spongepowered.org](https://www.spongepowered.org) Minecraft,
 
 Write your own .story file, e.g. see [hello.story](narrate/src/main/resources/hello.story).
 
-Run it with `/narrate <story-name>` (without .story suffix, so e.g. `/narrate hello`)
+Run it with `/story <story-name>` (without .story suffix, so e.g. `/story hello`)
 
 ## Story syntax
 
@@ -44,6 +44,10 @@ An entity's name must be given to your actors with a naming tag (via an Anvil), 
 
 You can obviously mix the order and repeat titles, comments, chats, narrations and commands.
 
+## Commands
+
+* `/story <story-name>` plays a story, read from config/storeys/stories/<story-name>.story
+* `/narrate <entityName> Text..` makes an entity "narrate" the _Text_
 
 ## FAQ
 

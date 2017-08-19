@@ -1,63 +1,66 @@
 package ch.vorburger.minecraft.storeys.narrate.commands;
 
+import static org.spongepowered.api.command.args.GenericArguments.onlyOne;
+import static org.spongepowered.api.command.args.GenericArguments.remainingJoinedStrings;
+import static org.spongepowered.api.text.Text.of;
+
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.ReadingSpeed;
-import ch.vorburger.minecraft.storeys.StoryPlayer;
-import ch.vorburger.minecraft.storeys.model.ActionContext;
-import ch.vorburger.minecraft.storeys.model.Story;
-import ch.vorburger.minecraft.storeys.model.parser.StoryParser;
-import ch.vorburger.minecraft.storeys.model.parser.ClassLoaderResourceStoryRepository;
-import ch.vorburger.minecraft.storeys.model.parser.StoryRepository;
 import ch.vorburger.minecraft.storeys.util.Command;
-import ch.vorburger.minecraft.utils.CommandExceptions;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import java.util.concurrent.CompletionStage;
 import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.world.Locatable;
+import org.spongepowered.api.world.extent.EntityUniverse;
 
 public class NarrateCommand implements Command {
 
-    // TODO Use new FileStoryRepository(new File("stories"));
-    // TODO but correctly read configuration file directory..
-    private final StoryRepository storyRepository = new ClassLoaderResourceStoryRepository();
-    private final StoryParser actionParser;
-    private final StoryPlayer storyPlayer;
+    private static final Text ARG_ENTITY = of("entity");
+    private static final Text ARG_TEXT = of("text");
+
+    private final Narrator narrator;
 
     public NarrateCommand(PluginInstance plugin) {
-        storyPlayer = new StoryPlayer(plugin);
-        actionParser = new StoryParser(plugin, new Narrator(plugin));
+        narrator = new Narrator(plugin);
     }
 
     @Override
     public List<String> aliases() {
-        return ImmutableList.of("narrate", "story");
+        return ImmutableList.of("narrate");
     }
 
     @Override
     public CommandCallable callable() {
         return CommandSpec.builder()
-            .description(Text.of("Narrate a story"))
-            .executor(this).build();
+            .description(Text.of("Make an entity character narrate story lines"))
+         // .permission("storeys.commands.narrate") ?
+            .arguments(
+                    // TODO when Sponge uses entity names instead of UUIDs:
+                    // onlyOne(entity(ARG_ENTITY)), // TODO requiringPermission()
+                    onlyOne(GenericArguments.string(ARG_ENTITY)), // TODO requiringPermission()
+                    remainingJoinedStrings(ARG_TEXT) // remainingRawJoinedStrings ?
+            ).executor(this).build();
     }
 
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        // TODO read story name from args
-        String storyName = "hello";
+        String text = args.<String>getOne(ARG_TEXT).get();
 
-        CommandExceptions.doOrThrow("Load & play story: " + storyName, () -> {
-            String storyScript = storyRepository.getStoryScript(storyName);
-            Story story = actionParser.parse(storyScript);
-            CompletionStage<?> completionStage = storyPlayer.play(new ActionContext(src, new ReadingSpeed()), story);
-            // TODO keep this, so that a user can /stop the story again..
-        });
+        // TODO when Sponge uses entity names instead of UUIDs:
+        // Entity entity = args.<Entity>getOne(ARG_ENTITY).get();
+        // narrator.narrate(entity, text, new ReadingSpeed());
+
+        String entityName = args.<String>getOne(ARG_ENTITY).get();
+        EntityUniverse world = ((Locatable) src).getWorld();
+        narrator.narrate(world , entityName, text, new ReadingSpeed());
 
         return CommandResult.success();
     }

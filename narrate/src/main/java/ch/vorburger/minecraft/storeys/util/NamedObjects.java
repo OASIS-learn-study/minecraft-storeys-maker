@@ -7,7 +7,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.entity.Entity;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.extent.EntityUniverse;
 
 public class NamedObjects {
 
@@ -22,14 +22,14 @@ public class NamedObjects {
 
     private static final Logger LOG = LoggerFactory.getLogger(NamedObjects.class);
 
-    public Optional<Entity> getEntity(World world, String entityName) {
-        Collection<Entity> entities = world.getEntities(entity -> entity.get(DISPLAY_NAME).filter(name -> entityName.equals(name.toPlain())).isPresent());
+    public Optional<Entity> getEntity(EntityUniverse entityUniverse, String entityName) {
+        Collection<Entity> entities = entityUniverse.getEntities(entity -> entity.get(DISPLAY_NAME).filter(name -> entityName.equals(name.toPlain())).isPresent());
         // entities.removeIf(entity -> entity instanceof Player);
         if (entities.isEmpty()) {
             return Optional.empty();
         } else {
             if (entities.size() > 1) {
-                LOG.warn("World {} has more than 1 entity with display name {} (return first one, arbitratry!)", world.getName(), entityName);
+                LOG.warn("World {} has more than 1 entity with display name {} (return first one, arbitratry!)", entityUniverse, entityName);
                 entities.stream().forEach(entity -> LOG.info(entity.toString()));
             }
             return Optional.of(entities.iterator().next());

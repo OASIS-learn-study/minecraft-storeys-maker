@@ -6,7 +6,8 @@
 [X] story file and parser
 [X] Story =Header= and ==Subhead==
 [X] Speed of story - correctly use ReadingSpeed in each Action (with ActionWaitHelper)
-[ ] /narrate -> /story (StoryCommand), with optional <wpm> arg
+[X] /narrate -> /story (StoryCommand)
+[ ] Refactor to remove .narrate. from packages, NarratorPlugin -> StoreysPlugin, id = storeys
 [X] Bug "more than 1 entity"
 [X] Normal (non-OSGi) mod (but still work under OSGi as well, for dev)
 [ ] Latest Sponge version
@@ -17,8 +18,10 @@
 
 [ ] Like "Conversations", for learning? (learn.study)
 
+[ ] wait (pause) in story
+[ ] /wpm command, to set per-Player ReadingSpeed
 [ ] /move to make entites move around instead of /tp .. slowly, step by step - timed (based on WPM)
-[ ] Entity velocity 0 via script instead of in NarrateAction
+[ ] Entity velocity 0 via script or new /noai (?) instead of in NarrateAction
 [ ] /story:stop
 [ ] /narrate @p | @MsPiggy bla bla bla
 [ ] /tp @pig: In Parser, or in Sponge, so it also works in console?
@@ -31,6 +34,7 @@
 [ ] web-based editor, simple
 [ ] live collab web editor
 
+[ ] /story name completion
 [ ] record and store real path of walking around
 [ ] WARN on console if narrating entity is not in view of player (as that can be confusing)
 [ ] Use Immutables.org for model; just gen. hashCode/equals & toString or real immutable with *Builder for each?
