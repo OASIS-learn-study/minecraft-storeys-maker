@@ -18,7 +18,7 @@ import org.spongepowered.api.plugin.Plugin;
     description = "Makes entities narrate story lines so you can make your own movie in Minecraft",
     url = "https://github.com/vorburger/minecraft-storeys-maker",
 authors = "Michael Vorburger.ch")
-public class NarratorPlugin extends AbstractPlugin {
+public class StoreysPlugin extends AbstractPlugin {
 
     @Inject
     @ConfigDir(sharedRoot = false)
