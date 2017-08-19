@@ -10,6 +10,12 @@ import org.spongepowered.api.text.title.Title.Builder;
 
 public class TitleAction extends TextAction<Void> {
 
+    private static final int FADE_IN_MS = 50;
+    private static final int FADE_IN_TICKS = (int) (FADE_IN_MS * 0.02);
+
+    private static final int FADE_OUT_MS = 100;
+    private static final int FADE_OUT_TICKS = (int) (FADE_OUT_MS * 0.02);
+
     private final ActionWaitHelper actionWaitHelper;
 
     private Text subtitleText;
@@ -25,12 +31,15 @@ public class TitleAction extends TextAction<Void> {
 
     @Override
     public CompletionStage<Void> execute(ActionContext context) {
-        return actionWaitHelper.executeAndWait(2000, () -> {
+        Text bothTexts = text.concat(subtitleText != null ? subtitleText : Text.EMPTY);
+        int msToRead = context.getReadingSpeed().msToRead(bothTexts) + FADE_IN_MS + FADE_OUT_MS;
+
+        return actionWaitHelper.executeAndWait(msToRead, () -> {
             CommandSource commandSource = context.getCommandSource();
             if (commandSource instanceof Viewer) {
                 Viewer srcAsViewer = (Viewer) commandSource;
 
-                Builder titleBuilder = Title.builder().fadeIn(60).stay(500).fadeOut(100);
+                Builder titleBuilder = Title.builder().fadeIn(FADE_IN_TICKS).stay((int) (msToRead * 0.02)).fadeOut(FADE_OUT_TICKS);
                 titleBuilder.title(text);
                 if (subtitleText != null) {
                     titleBuilder.subtitle(subtitleText);

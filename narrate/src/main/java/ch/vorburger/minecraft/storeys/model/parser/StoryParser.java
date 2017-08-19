@@ -72,7 +72,7 @@ public class StoryParser {
                     narrateActionInConstruction.setText(narrateActionInConstruction.getText().concat(Text.NEW_LINE).concat(newText(line)));
                 } else {
                     addActionInConstruction();
-                    actions.add(new MessageAction().setText(newText(line)));
+                    actions.add(new MessageAction(plugin).setText(newText(line)));
                 }
             }
         }

@@ -2,13 +2,14 @@
 [X] Name Tag read/write
 [X] scroll text in name tag
 [X] Splitter fully TDD implemented
-[ ] /narrate -> /story (StoryCommand)
 [X] mv ch.vorburger.minecraft.storeys.narrate to ch.vorburger.minecraft.storeys
 [X] story file and parser
 [X] Story =Header= and ==Subhead==
-[ ] Speed of story - correctly use ReadingSpeed in each Action (with ActionWaitHelper)
+[X] Speed of story - correctly use ReadingSpeed in each Action (with ActionWaitHelper)
+[ ] /narrate -> /story (StoryCommand), with optional <wpm> arg
 [X] Bug "more than 1 entity"
 [ ] Normal (non-OSGi) mod
+[ ] Latest Sponge version
 [ ] README & Video (by D?)
 [ ] CI (incl. also building our deps)
 [ ] Forum
