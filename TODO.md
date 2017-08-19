@@ -7,7 +7,7 @@
 [X] Story =Header= and ==Subhead==
 [X] Speed of story - correctly use ReadingSpeed in each Action (with ActionWaitHelper)
 [X] /narrate -> /story (StoryCommand)
-[ ] Refactor to remove .narrate. from packages, NarratorPlugin -> StoreysPlugin, id = storeys
+[X] Refactor to remove .narrate. from packages, NarratorPlugin -> StoreysPlugin, id = storeys
 [X] Bug "more than 1 entity"
 [X] Normal (non-OSGi) mod (but still work under OSGi as well, for dev)
 [X] Latest Sponge version

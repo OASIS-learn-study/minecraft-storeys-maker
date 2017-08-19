@@ -2,6 +2,6 @@
  * see https://docs.gradle.org/4.1/userguide/multi_project_builds.html
  */
 
-include 'narrate'
+include 'storeys'
 
 rootProject.name = 'minecraft-storeys-maker'
