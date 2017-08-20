@@ -22,7 +22,7 @@ artifacts {
     shadowJar;
 }
 
-build.dependsOn(shadowJar);
+assemble.dependsOn(shadowJar);
 
 // install.dependsOn(shadowJar);
 // install.enabled = false
