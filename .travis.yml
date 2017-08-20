@@ -3,7 +3,7 @@ language: java
 # We use OpenJDK instead of Oracle JDK because ya all should only
 # ever use OpenJDK!  (And get Red Hat's support for it, if
 # you use it professionally.)
-jdk: 
+jdk:
   - openjdk8
 
 before_install:
@@ -11,3 +11,11 @@ before_install:
   - cd ch.vorburger.minecraft.osgi/ch.vorburger.osgi.gradle && ./gradlew install
   - cd .. && ./gradlew install
   - cd ..
+
+# https://docs.travis-ci.com/user/deployment/bintray/
+deploy:
+  provider: bintray
+  file: "./bintray.json"
+  user: vorburger
+  key:
+    secure: ZJiEQ3pVYAVKOAYPyFAKO6/NiD5eVFuuP6J/kDFhqC5E9+r2jfRENVZYPzdpd9Z6AQr9SLQV61yLySlhn0PUm+zfRlmBCIdfcRix8hTpbAOIHKGaV+7QBJbQTKAWucFOBnIHvVRKb1EJ6J2GMlabDV7HbaJ1q7tDD9S4q4xuiH2/PvE6Rj7EVmSNISNNUxA186TPoVNAzm9yj3wL5DNRstMlRPraNIPYV60K+2ChJXXTaG48zftoSv2d7Iv7EW+0PhLojYKSM8dFEPFRm1S6UM8NkHCePmU9T9mi/F28lEDK3ueI4g1ZCJPvr2A3P1fjJ6GqXaKBUiNwBkILTV2C1ZxnkltfUvZwA3h3xuqj+IyPmIK5CJPdIqjH3ZmzL1wzX1TUcbPeywu76uvOlj0GBPV9vw8/H/LIKRUZhwcRvHhUKAt2NkuHeFpECW1fYUCNcFe+/BmDEeYLiERAwtbUxISFLjzOEfdW0N2P6Ed2vj6/UzTMSj2FbQWRJlAqu+FVRk8aSaWjXp8z7iVWegi5Ymm2PisXMuU+yLRayFY6D38wlroAvq93goEi71petMwadVKwg5wet8p8k14xD1pMdo2usMi2UZntZQQGf/mSD8xd/fxh7IoHyCeVyD3elf/u66zHmwejmhMkxdsFbxgOyg6c4pmRd6K8zU7OeLxKpU4=

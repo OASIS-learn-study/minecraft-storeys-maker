@@ -1,0 +1,21 @@
+{
+    "package": {
+        "repo": "minecraft",
+        "name": "minecraft-storeys-maker",
+        "subject": "vorburger"
+    },
+    "version": {
+        "name": "master",
+        "gpgSign": false
+    },
+    "files": [
+        {
+            "includePattern": "storeys/build/libs/*-all.jar",
+            "uploadPattern": "storeys-master-all.jar",
+            "matrixParams": {
+                "override": 1
+            }
+        }
+    ],
+    "publish": true
+}
