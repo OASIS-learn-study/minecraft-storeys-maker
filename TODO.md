@@ -13,7 +13,7 @@
 - [X] Normal (non-OSGi) mod (but still work under OSGi as well, for dev)
 - [X] Latest Sponge version
 - [X] README & Video (by D?)
-- [ ] CI (incl. also building our deps)
+- [X] CI (incl. also building our deps)
 - [ ] LICENSE-HEADER
 - [ ] Forum
 

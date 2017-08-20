@@ -6,17 +6,16 @@ Minecraft extension to make your own stories in, with and for Minecraft - it's l
 " target="_blank"><img src="http://img.youtube.com/vi/ZHHUB7R0gEo/0.jpg"
 alt="Minecraft Stories Maker" width="480" height="360" border="10" /></a>
 
-Licensed under the [GNU Affero General Public License v3.0 (AGPLv3)](LICENSE).  Contributions most welcome.
-
-Tested on Sponge Vanilla 7.0.0 (Minecraft 1.12.1) and Sponge 5.1.0 (Minecraft 1.10.2).
-
 Please do Star & Watch this GitHub project if you like it!
 
 ## Get it
 
-_TODO Download this Mod's JAR file from_ **CI link TBD**
+[Download the latest storeys-master-all.jar file from Bintray](https://bintray.com/vorburger/minecraft/minecraft-storeys-maker#files).
 
-Place it into your [spongepowered.org](https://www.spongepowered.org) Minecraft, e.g. the mods/ directory of a Vanilla server.
+Place it into your [spongepowered.org](https://www.spongepowered.org) Minecraft, typically the `mods/` directory of a Vanilla server.
+
+Tested on Sponge Vanilla 7.0.0 (Minecraft 1.12.1) and Sponge Vanilla 5.1.0 (Minecraft 1.10.2).  Likely works on Sponge Forge as well.
+
 
 ## Use it
 
@@ -63,4 +62,6 @@ You can obviously mix the order and repeat titles, comments, chats, narrations, 
 
 ## FAQ
 
-**Seriously, "storeys" (not _"stories"_), are you mental?** Yeah.. just to avoid any possible confusion with Minecraft Story Mode! ;-)
+**Seriously, "storeys" (not _"stories"_) Maker, are you mental?** Yeah.. just to avoid any possible confusion with Minecraft Story Mode! ;-)
+
+**License? Contributions?** Licensed under the [GNU Affero General Public License v3.0 (AGPLv3)](LICENSE).  Contributions most welcome.
