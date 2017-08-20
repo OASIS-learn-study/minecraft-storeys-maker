@@ -14,8 +14,8 @@
 - [X] Latest Sponge version
 - [X] README & Video (by D?)
 - [X] CI (incl. also building our deps)
-- [ ] LICENSE-HEADER
-- [ ] Forum
+- [X] LICENSE-HEADER
+- [ ] Forum?
 
 ### Features
 
