@@ -10,7 +10,7 @@
     },
     "files": [
         {
-            "includePattern": "storeys/build/libs/*-all.jar",
+            "includePattern": "storeys/build/libs/(.*-all\\.jar)",
             "uploadPattern": "storeys-master-all.jar",
             "matrixParams": {
                 "override": 1
