@@ -25,8 +25,7 @@ Run it with `/story <story-name>` (without .story suffix, so e.g. `/story hello`
 
 ## Story syntax
 
-    # Comment
-    // also comment
+    // Comment
 
     = Title
     == Subtitle

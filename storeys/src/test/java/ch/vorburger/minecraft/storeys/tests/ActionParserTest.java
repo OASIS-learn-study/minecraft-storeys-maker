@@ -27,7 +27,7 @@ public class ActionParserTest {
     }
 
     @Test public void comments() throws SyntaxErrorException {
-        assertThat(parser.parse("# @Entity ... \n // Comment \r\n  ").getActionsList()).isEmpty();;
+        assertThat(parser.parse("\n // Comment \r\n  ").getActionsList()).isEmpty();;
     }
 
     @Test public void titles() throws SyntaxErrorException {

@@ -42,7 +42,7 @@ public class StoryParser {
         for (String line : newLineSplitter.split(MoreStrings.normalizeCRLF(storyScript))) {
             if (line.isEmpty()) {
                 addActionInConstruction();
-            } else if (line.startsWith("#") || line.startsWith("//")) {
+            } else if (line.startsWith("//")) {
                 continue;
             } else if (line.startsWith("==")) {
                 // NB: We HAVE to check for "==" before "=" (cauz "==" also startsWith "=")
