@@ -6,6 +6,7 @@ import ch.vorburger.minecraft.storeys.commands.StoryCommand;
 import ch.vorburger.minecraft.storeys.util.Commands;
 import java.nio.file.Path;
 import javax.inject.Inject;
+import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.config.ConfigDir;
@@ -21,6 +22,9 @@ authors = "Michael Vorburger.ch")
 public class StoreysPlugin extends AbstractPlugin {
 
     @Inject
+    private Logger logger;
+
+    @Inject
     @ConfigDir(sharedRoot = false)
     private Path configDir;
 
@@ -29,14 +33,19 @@ public class StoreysPlugin extends AbstractPlugin {
 
     @Listener
     public void onGameStartingServer(GameStartingServerEvent event) {
+        logger.info("See https://github.com/vorburger/minecraft-storeys-maker for how to use /story and /narrate commands");
         storyCommandMapping = Commands.register(this, new StoryCommand(this, configDir));
         narrateCommandMapping = Commands.register(this, new NarrateCommand(this));
     }
 
     @Listener
     public void onGameStoppingServer(GameStoppingServerEvent event) {
-        Sponge.getCommandManager().removeMapping(narrateCommandMapping);
-        Sponge.getCommandManager().removeMapping(storyCommandMapping);
+        if (narrateCommandMapping != null) {
+            Sponge.getCommandManager().removeMapping(narrateCommandMapping);
+        }
+        if (storyCommandMapping != null) {
+            Sponge.getCommandManager().removeMapping(storyCommandMapping);
+        }
     }
 
 }
