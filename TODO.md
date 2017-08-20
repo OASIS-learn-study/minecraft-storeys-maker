@@ -11,7 +11,7 @@
 [X] Bug "more than 1 entity"
 [X] Normal (non-OSGi) mod (but still work under OSGi as well, for dev)
 [X] Latest Sponge version
-[ ] README & Video (by D?)
+[X] README & Video (by D?)
 [ ] CI (incl. also building our deps)
 [ ] LICENSE-HEADER
 [ ] Forum
@@ -33,6 +33,7 @@
 [ ] webserver, with tokens and REST API support incl. OpenAPI
 [ ] web-based editor, simple
 [ ] live collab web editor
+[ ] add more videos to https://www.youtube.com/playlist?list=PL7PA3zq_6Oqce-C2MhAK4FWb98OTFVrQo
 
 [ ] /story name completion
 [ ] record and store real path of walking around
