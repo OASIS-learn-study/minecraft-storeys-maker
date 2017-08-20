@@ -56,7 +56,7 @@ You can obviously mix the order and repeat titles, comments, chats, narrations, 
 
 ## Commands
 
-* `/story <story-name>` plays a story, read from config/storeys/stories/<story-name>.story
+* `/story <story-name>` plays a story, read from `config/storeys/stories/<story-name>.story`
 * `/narrate <entityName> Text..` makes an entity "narrate" the _Text_
 
 ## FAQ
