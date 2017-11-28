@@ -37,6 +37,7 @@
 
 ### Tech
 
+- [ ] add reporting to https://bstats.org
 - [ ] api artifact with some services interfaces, for other mods
 - [ ] webserver, with tokens and REST API support incl. OpenAPI
 - [ ] web-based editor, simple
@@ -59,6 +60,7 @@
 
 ### World Distribution
 
+- [ ] https://github.com/SpongePowered/Schematic-Specification
 - [ ] world plugin which can load previously saved (parts of SMALL) world dumps
 - [ ] script to create the demo world with Piggy & Chestnut: /summon, /name etc. (How to fence, leash?)
 - [ ] script gen. from existing world?!
