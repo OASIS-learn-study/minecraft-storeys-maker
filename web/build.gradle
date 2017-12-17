@@ -1,0 +1,32 @@
+// see also ../storeys/build.gradle
+
+plugins {
+    id 'com.github.johnrengelman.shadow' version '2.0.1'
+}
+
+ext {
+  vertxVersion = '3.5.0'
+}
+
+dependencies {
+    implementation 'org.osgi:org.osgi.core:6.0.0'
+    implementation 'ch.vorburger.minecraft:ch.vorburger.minecraft.osgi.api:1.0.0-SNAPSHOT'
+
+    compile "io.vertx:vertx-core:$vertxVersion"
+    compile "io.vertx:vertx-web:$vertxVersion"
+    
+    testCompile "io.vertx:vertx-unit:$vertxVersion"
+    testCompile "org.slf4j:slf4j-simple:1.7.21"
+}
+
+shadowJar {
+  dependencies {
+    include(dependency('ch.vorburger.minecraft:ch.vorburger.minecraft.osgi.api'))
+  }
+}
+
+artifacts {
+    shadowJar;
+}
+
+assemble.dependsOn(shadowJar);
