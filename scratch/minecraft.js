@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 (function(ext) {
+    var eb; // the Vert.X EventBus
+
     // Cleanup function when the extension is unloaded
     ext._shutdown = function() {};
 
@@ -30,14 +32,19 @@
     };
 
     ext.doToDo = function() {
-        alert("TODO Not yet implemented");
+        // alert("TODO Not yet implemented");
+        console.log("TODO Implement function...");
+    };
+
+    ext.sendTitle = function(sendTitle) {
+        eb.send("mcs.actions", { "action": "setTitle", "text": sendTitle });
     };
 
     // Block and block menu descriptions <https://github.com/LLK/scratchx/wiki>
     var descriptor = {
         blocks: [
             // TODO Translate labels, like on https://github.com/jbaragry/mcpi-scratch/blob/master/mcpi-scratch.js
-            [" ", "Title %s", "doToDo"],
+            [" ", "Title %s", "sendTitle"],
             [" ", "Subtitle %s", "doToDo"],
             [" ", "%s speak %s", "doToDo"],
             [" ", "/say %s", "doToDo"],
@@ -67,7 +74,7 @@
         ext.loadScript("https://cdnjs.cloudflare.com/ajax/libs/vertx/3.5.0/vertx-eventbus.min.js", function() {
 
             // TODO url must be made configurable
-            var eb = new EventBus("http://localhost:8080/eventbus");
+            eb = new EventBus("http://localhost:8080/eventbus");
             eb.enableReconnect(true);
             eb.onopen = function() {
                 eb.registerHandler("mcs.events", function (error, message) {
@@ -76,7 +83,7 @@
                     console.log("message: " + JSON.stringify(message));
                 });
 
-                eb.send("mcs.actions", "PING");
+                eb.send("mcs.actions", { "action": "ping" });
                 // TODO await "PONG" reply, and set status green
             };
 

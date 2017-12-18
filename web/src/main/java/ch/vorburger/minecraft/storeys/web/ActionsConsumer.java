@@ -20,6 +20,7 @@ package ch.vorburger.minecraft.storeys.web;
 
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,13 +29,27 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michael Vorburger.ch
  */
-public class ActionsConsumer implements Handler<Message<String>> {
+public class ActionsConsumer implements Handler<Message<JsonObject>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActionsConsumer.class);
 
     @Override
-    public void handle(Message<String> message) {
-        LOG.info(message.body());
+    public void handle(Message<JsonObject> message) {
+        LOG.info(message.body().encodePrettily());
+        JsonObject json = message.body();
+        switch (json.getString("action")) {
+        case "ping":
+            message.reply("pong");
+            break;
+
+        case "setTitle":
+            json.getString("text");
+            // TODO create Minecraft title action with text
+            break;
+
+        default:
+            break;
+        }
     }
 
 }
