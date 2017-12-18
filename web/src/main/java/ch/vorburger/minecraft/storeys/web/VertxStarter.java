@@ -40,17 +40,16 @@ public class VertxStarter {
     private static final Logger LOG = LoggerFactory.getLogger(VertxStarter.class);
 
     private Vertx vertx;
-    private String deploymentID;
 
     // TODO Could return Future so that caller knows if start up worked..
     public void start() {
         System.setProperty("vertx.logger-delegate-factory-class-name", SLF4JLogDelegateFactory.class.getName());
         vertx = Vertx.vertx(new VertxOptions().setWorkerPoolSize(23));
+
         vertx.deployVerticle(new MinecraftVerticle(), new DeploymentOptions(), (Handler<AsyncResult<String>>) event -> {
             if (event.failed()) {
                 LOG.error("Failed to start Verticle", event.cause());
             } else {
-                deploymentID = event.result();
                 LOG.info("Verticle started successfully");
             }
         });
@@ -58,9 +57,6 @@ public class VertxStarter {
 
     public void stop() {
         if (vertx != null) {
-            if (deploymentID != null) {
-                vertx.undeploy(deploymentID);
-            }
             vertx.close();
         }
     }

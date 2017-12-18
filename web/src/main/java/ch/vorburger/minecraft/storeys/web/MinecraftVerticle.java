@@ -18,7 +18,16 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
+import com.google.common.collect.ImmutableSet;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.ext.bridge.PermittedOptions;
+import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.CorsHandler;
+import io.vertx.ext.web.handler.sockjs.BridgeOptions;
+import io.vertx.ext.web.handler.sockjs.SockJSHandler;
+import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
+import java.util.Set;
 
 /**
  * Vert.x Verticle for Minecraft Storeys web API, usable e.g. by ScratchX extension.
@@ -27,13 +36,33 @@ import io.vertx.core.AbstractVerticle;
  */
 public class MinecraftVerticle extends AbstractVerticle {
 
+    private static final String EVENTBUS_MINECRAFT_ACTIONS_ADDRESS = "mcs.actions";
+    private static final String EVENTBUS_MINECRAFT_EVENTS_ADDRESS = "mcs.events";
+
+    private static final Set<HttpMethod> ALL_HTTP_METHODS = ImmutableSet.<HttpMethod>builder().add(HttpMethod.values()).build();
+
     @Override
     public void start() throws Exception {
-        vertx.createHttpServer().requestHandler(req -> {
-              req.response()
-                .putHeader("content-type", "text/plain")
-                .end("Hello from Vert.x!");
-            }).listen(8080);
+        // http://vertx.io/docs/vertx-web/java/#_cors_handling
+        Router router = Router.router(vertx);
+        router.route().handler(CorsHandler.create(/* "scratchx\\.org" */ "*").allowedMethods(ALL_HTTP_METHODS)
+            .allowedHeader("Access-Control-Request-Method")
+            .allowedHeader("Access-Control-Allow-Credentials")
+            .allowedHeader("Access-Control-Allow-Origin")
+            .allowedHeader("Access-Control-Allow-Headers")
+            .allowedHeader("Content-Type"));
+
+        vertx.eventBus().consumer(EVENTBUS_MINECRAFT_ACTIONS_ADDRESS, new ActionsConsumer());
+
+        SockJSHandlerOptions sockJSHandleOptions = new SockJSHandlerOptions().setHeartbeatInterval(5432);
+        SockJSHandler sockJSHandler = SockJSHandler.create(vertx, sockJSHandleOptions);
+        PermittedOptions inboundPermitted1 = new PermittedOptions().setAddress(EVENTBUS_MINECRAFT_ACTIONS_ADDRESS);
+        PermittedOptions outboundPermitted1 = new PermittedOptions().setAddress(EVENTBUS_MINECRAFT_EVENTS_ADDRESS);
+        BridgeOptions bridgeOptions = new BridgeOptions().addInboundPermitted(inboundPermitted1).addOutboundPermitted(outboundPermitted1);
+        sockJSHandler.bridge(bridgeOptions);
+        router.route("/eventbus/*").handler(sockJSHandler);
+
+        vertx.createHttpServer().requestHandler(router::accept).listen(8080);
         System.out.println("HTTP server started on port 8080");
     }
 
