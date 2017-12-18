@@ -70,7 +70,14 @@
             var eb = new EventBus("http://localhost:8080/eventbus");
             eb.enableReconnect(true);
             eb.onopen = function() {
-                eb.send("mcs.actions", "HELO");
+                eb.registerHandler("mcs.events", function (error, message) {
+                    // TODO integrate with ScratchX "hat blocks" when Minecraft events are received..
+                    console.log("error: " + error);
+                    console.log("message: " + JSON.stringify(message));
+                });
+
+                eb.send("mcs.actions", "PING");
+                // TODO await "PONG" reply, and set status green
             };
 
             // Register the extension
