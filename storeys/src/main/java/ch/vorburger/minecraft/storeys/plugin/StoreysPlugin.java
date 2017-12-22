@@ -36,11 +36,11 @@ import org.spongepowered.api.plugin.Plugin;
 @Plugin(id = "storeys", name = "Vorburger.ch's Storeys", version = "1.0",
     description = "Makes entities narrate story lines so you can make your own movie in Minecraft",
     url = "https://github.com/vorburger/minecraft-storeys-maker",
-authors = "Michael Vorburger.ch")
+    authors = "Michael Vorburger.ch")
 public class StoreysPlugin extends AbstractPlugin {
 
     @Inject
-    private Logger logger;
+    protected Logger logger;
 
     @Inject
     @ConfigDir(sharedRoot = false)

@@ -33,8 +33,9 @@ public class NarrateAction extends TextAction<Void> {
         this.narrator = narrator;
     }
 
-    public void setEntity(String entityName) {
+    public NarrateAction setEntity(String entityName) {
         this.entityName = entityName;
+        return this;
     }
 
     @Override

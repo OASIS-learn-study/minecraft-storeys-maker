@@ -12,9 +12,11 @@ dependencies {
     implementation 'org.osgi:org.osgi.core:6.0.0'
     implementation 'ch.vorburger.minecraft:ch.vorburger.minecraft.osgi.api:1.0.0-SNAPSHOT'
 
+    implementation project(':storeys')
+
     compile "io.vertx:vertx-core:$vertxVersion"
     compile "io.vertx:vertx-web:$vertxVersion"
-    
+
     testCompile "io.vertx:vertx-unit:$vertxVersion"
     testCompile "org.slf4j:slf4j-simple:1.7.21"
 }

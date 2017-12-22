@@ -42,11 +42,11 @@ public class VertxStarter {
     private Vertx vertx;
 
     // TODO Could return Future so that caller knows if start up worked..
-    public void start() {
+    public void start(int httpPort, ActionsConsumer actionsConsumer) {
         System.setProperty("vertx.logger-delegate-factory-class-name", SLF4JLogDelegateFactory.class.getName());
         vertx = Vertx.vertx(new VertxOptions().setWorkerPoolSize(23));
 
-        vertx.deployVerticle(new MinecraftVerticle(), new DeploymentOptions(), (Handler<AsyncResult<String>>) event -> {
+        vertx.deployVerticle(new MinecraftVerticle(httpPort, actionsConsumer), new DeploymentOptions(), (Handler<AsyncResult<String>>) event -> {
             if (event.failed()) {
                 LOG.error("Failed to start Verticle", event.cause());
             } else {
@@ -64,7 +64,7 @@ public class VertxStarter {
     // This main() is only for quick local testing; the Minecraft Sponge plugin directly uses above and not this
     public static void main(String[] args) throws IOException {
         VertxStarter starter = new VertxStarter();
-        starter.start();
+        starter.start(8080, new ActionsConsumer(null));
 
         System.out.println("Running now... press Enter to Stop.");
         BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));

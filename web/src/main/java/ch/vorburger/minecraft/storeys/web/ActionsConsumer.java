@@ -18,11 +18,20 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
+import ch.vorburger.minecraft.osgi.api.PluginInstance;
+import ch.vorburger.minecraft.storeys.Narrator;
+import ch.vorburger.minecraft.storeys.ReadingSpeed;
+import ch.vorburger.minecraft.storeys.model.Action;
+import ch.vorburger.minecraft.storeys.model.ActionContext;
+import ch.vorburger.minecraft.storeys.model.NarrateAction;
+import ch.vorburger.minecraft.storeys.model.TitleAction;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.text.Text;
 
 /**
  * Vert.x EventBus consumer handler.
@@ -33,23 +42,41 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActionsConsumer.class);
 
+    private final PluginInstance plugin;
+    private final Narrator narrator;
+
+    public ActionsConsumer(PluginInstance plugin) {
+        this.plugin = plugin;
+        this.narrator = new Narrator(plugin);
+    }
+
     @Override
     public void handle(Message<JsonObject> message) {
         LOG.info(message.body().encodePrettily());
         JsonObject json = message.body();
         switch (json.getString("action")) {
-        case "ping":
+        case "ping": {
             message.reply("pong");
             break;
-
-        case "setTitle":
-            json.getString("text");
-            // TODO create Minecraft title action with text
+        }
+        case "setTitle": {
+            String text = json.getString("text");
+            execute(new TitleAction(plugin).setText(Text.of(text)), message);
             break;
-
+        }
+        case "narrate": {
+            String text = json.getString("text");
+            String entity = json.getString("entity");
+            execute(new NarrateAction(narrator).setEntity(entity).setText(Text.of(text)), message);
+        }
         default:
             break;
         }
+    }
+
+    private void execute(Action<Void> action, Message<?> message) {
+        CommandSource commandSource = null; // TODO how to obtain the current player, from some login token?
+        action.execute(new ActionContext(commandSource, new ReadingSpeed())).thenRun(() -> message.reply("done"));
     }
 
 }
