@@ -1,7 +1,7 @@
 // see also ../storeys/build.gradle
 
 plugins {
-    id 'com.github.johnrengelman.shadow' version '2.0.1'
+    id 'com.github.johnrengelman.shadow' version '2.0.2'
 }
 
 ext {
@@ -9,10 +9,10 @@ ext {
 }
 
 dependencies {
+    implementation project(':storeys')
+
     implementation 'org.osgi:org.osgi.core:6.0.0'
     implementation 'ch.vorburger.minecraft:ch.vorburger.minecraft.osgi.api:1.0.0-SNAPSHOT'
-
-    implementation project(':storeys')
 
     compile "io.vertx:vertx-core:$vertxVersion"
     compile "io.vertx:vertx-web:$vertxVersion"
