@@ -19,6 +19,8 @@
 package ch.vorburger.minecraft.storeys.web;
 
 import ch.vorburger.minecraft.storeys.plugin.StoreysPlugin;
+import javax.inject.Inject;
+import org.spongepowered.api.Game;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
@@ -30,6 +32,9 @@ import org.spongepowered.api.plugin.Plugin;
     authors = "Michael Vorburger.ch")
 public class StoreysWebPlugin extends StoreysPlugin {
 
+    @Inject
+    private Game game;
+
     private VertxStarter vertxStarter;
 
     @Override @Listener
@@ -38,7 +43,7 @@ public class StoreysWebPlugin extends StoreysPlugin {
 
         int httpPort = 8080; // TODO read from some configuration
         vertxStarter = new VertxStarter();
-        vertxStarter.start(httpPort, new ActionsConsumer(this));
+        vertxStarter.start(httpPort, new ActionsConsumer(this, game));
     }
 
     @Override @Listener

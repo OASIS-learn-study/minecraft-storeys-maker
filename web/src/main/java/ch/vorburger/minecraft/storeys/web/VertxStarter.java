@@ -64,7 +64,7 @@ public class VertxStarter {
     // This main() is only for quick local testing; the Minecraft Sponge plugin directly uses above and not this
     public static void main(String[] args) throws IOException {
         VertxStarter starter = new VertxStarter();
-        starter.start(8080, new ActionsConsumer(null));
+        starter.start(8080, new ActionsConsumer(null, null));
 
         System.out.println("Running now... press Enter to Stop.");
         BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));

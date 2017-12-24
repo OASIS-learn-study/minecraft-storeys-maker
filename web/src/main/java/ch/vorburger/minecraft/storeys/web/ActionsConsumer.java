@@ -30,6 +30,7 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongepowered.api.Game;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.text.Text;
 
@@ -44,10 +45,12 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
 
     private final PluginInstance plugin;
     private final Narrator narrator;
+    private final Game game;
 
-    public ActionsConsumer(PluginInstance plugin) {
+    public ActionsConsumer(PluginInstance plugin, Game game) {
         this.plugin = plugin;
         this.narrator = new Narrator(plugin);
+        this.game = game;
     }
 
     @Override
@@ -57,6 +60,7 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
         switch (json.getString("action")) {
         case "ping": {
             message.reply("pong");
+            LOG.info("ping & pong ACK reply");
             break;
         }
         case "setTitle": {
@@ -75,7 +79,9 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
     }
 
     private void execute(Action<Void> action, Message<?> message) {
-        CommandSource commandSource = null; // TODO how to obtain the current player, from some login token?
+        // TODO how to obtain the current player, from some login token?
+        // For now we hard-code, but this won't really fly, of course...
+        CommandSource commandSource = game != null ? game.getServer().getPlayer("michaelpapa7").get() : null;
         action.execute(new ActionContext(commandSource, new ReadingSpeed())).thenRun(() -> message.reply("done"));
     }
 
