@@ -23,6 +23,9 @@ dependencies {
 
 shadowJar {
   dependencies {
+    include(project(':storeys'))
+    include(dependency("io.vertx:vertx-core:$vertxVersion"))
+    include(dependency("io.vertx:vertx-web:$vertxVersion"))
     include(dependency('ch.vorburger.minecraft:ch.vorburger.minecraft.osgi.api'))
   }
 }
