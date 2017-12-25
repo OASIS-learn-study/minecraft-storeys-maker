@@ -28,7 +28,7 @@ allprojects  {
     description = 'Make your own stories in, with and for Minecraft!'
 
     apply plugin: 'java-library'
-    apply plugin: 'org.spongepowered.plugin'
+    // apply plugin: 'org.spongepowered.plugin'
     apply plugin: 'com.github.hierynomus.license'
 
     license {
@@ -44,12 +44,16 @@ subprojects {
     apply plugin: 'biz.aQute.bnd.builder'
 
     repositories {
-        // mavenLocal()
+        mavenLocal() // for ch.vorburger.minecraft.osgi.api
         jcenter()
+        maven {
+            name = 'sponge'
+            url = 'https://repo.spongepowered.org/maven'
+        }
     }
 
-
     dependencies {
+        implementation 'org.spongepowered:spongeapi:6.0.0'
         testImplementation 'junit:junit:4.12'
         testImplementation 'com.google.truth:truth:0.30' // NOT 0.31+ which pull 'com.google.guava:guava:20.0', but causes a mess for Gradle's testCompile VS compile; Gradle bug?!
     }
