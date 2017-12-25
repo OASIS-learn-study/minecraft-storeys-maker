@@ -29,7 +29,6 @@ import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
-import java.util.Set;
 
 /**
  * Vert.x Verticle for Minecraft Storeys web API, usable e.g. by ScratchX extension.
@@ -41,7 +40,7 @@ public class MinecraftVerticle extends AbstractVerticle {
     private static final String EVENTBUS_MINECRAFT_ACTIONS_ADDRESS = "mcs.actions";
     private static final String EVENTBUS_MINECRAFT_EVENTS_ADDRESS = "mcs.events";
 
-    private static final Set<HttpMethod> ALL_HTTP_METHODS = ImmutableSet.<HttpMethod>builder().add(HttpMethod.values()).build();
+    private static final ImmutableSet<HttpMethod> ALL_HTTP_METHODS = ImmutableSet.<HttpMethod>builder().add(HttpMethod.values()).build();
 
     private final int httpPort;
     private final ActionsConsumer actionsConsumer;

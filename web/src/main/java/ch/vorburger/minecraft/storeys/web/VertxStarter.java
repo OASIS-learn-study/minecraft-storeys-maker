@@ -18,6 +18,8 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
+import static java.nio.charset.Charset.defaultCharset;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Handler;
@@ -69,7 +71,7 @@ public class VertxStarter {
         starter.start(8080, new ActionsConsumer(null, null)).get();
 
         System.out.println("Running now... press Enter to Stop.");
-        BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));
+        BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in, defaultCharset()));
         buffer.readLine();
 
         starter.stop();

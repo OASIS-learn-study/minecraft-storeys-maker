@@ -93,11 +93,11 @@ public class SplitterTest {
     }
 
     @Test(expected = IllegalArgumentException.class) public void negative() {
-        assertThat(new TextSplitter().split(-1, "hello"));
+        new TextSplitter().split(-1, "hello");
     }
 
     @Test(expected = IllegalArgumentException.class) public void zero() {
-        assertThat(new TextSplitter().split(0, "hello"));
+        new TextSplitter().split(0, "hello");
     }
 
 }
