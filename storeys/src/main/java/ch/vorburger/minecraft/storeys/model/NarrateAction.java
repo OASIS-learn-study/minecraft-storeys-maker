@@ -18,6 +18,8 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
+import static java.util.Objects.requireNonNull;
+
 import ch.vorburger.minecraft.storeys.Narrator;
 import java.util.concurrent.CompletionStage;
 import org.spongepowered.api.world.Locatable;
@@ -34,7 +36,7 @@ public class NarrateAction extends TextAction<Void> {
     }
 
     public NarrateAction setEntity(String entityName) {
-        this.entityName = entityName;
+        this.entityName = requireNonNull(entityName, "entityName");
         return this;
     }
 
@@ -43,7 +45,7 @@ public class NarrateAction extends TextAction<Void> {
         Locatable locatable = (Locatable) context.getCommandSource();
         World world = locatable.getWorld();
 
-        return narrator.narrate(world, entityName, text.toPlain(), context.getReadingSpeed());
+        return narrator.narrate(world, requireNonNull(entityName, "entityName"), getText().toPlain(), context.getReadingSpeed());
     }
 
 }

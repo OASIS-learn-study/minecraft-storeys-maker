@@ -32,8 +32,8 @@ public class MessageAction extends TextAction<Void> {
 
     @Override
     public CompletionStage<Void> execute(ActionContext context) {
-        return actionWaitHelper.executeAndWait(context.getReadingSpeed().msToRead(text), () -> {
-            context.getCommandSource().sendMessage(text);
+        return actionWaitHelper.executeAndWait(context.getReadingSpeed().msToRead(getText()), () -> {
+            context.getCommandSource().sendMessage(getText());
             return null;
         });
     }

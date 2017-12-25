@@ -18,17 +18,19 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
+import static java.util.Objects.requireNonNull;
+
 import org.spongepowered.api.text.Text;
 
 public abstract class TextAction<T> implements Action<T> {
 
-    protected Text text;
+    private Text text;
 
     protected TextAction() {
     }
 
     public Text getText() {
-        return text;
+        return requireNonNull(text, "text");
     }
 
     public TextAction<T> setText(Text text) {
@@ -38,7 +40,7 @@ public abstract class TextAction<T> implements Action<T> {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + ": " + text.toString();
+        return getClass().getSimpleName() + ": " + text != null ? text.toString() : "null";
     }
 
 }

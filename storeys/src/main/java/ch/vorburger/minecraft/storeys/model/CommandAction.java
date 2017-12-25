@@ -18,6 +18,8 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
+import static java.util.Objects.requireNonNull;
+
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandResult;
 
@@ -38,7 +40,7 @@ public class CommandAction implements SynchronousAction<CommandResult> {
 
     @Override
     public CommandResult executeSynchronously(ActionContext context) throws ActionException {
-        return Sponge.getCommandManager().process(context.getCommandSource(), commandLineWithoutSlash);
+        return Sponge.getCommandManager().process(context.getCommandSource(), requireNonNull(commandLineWithoutSlash, "commandLineWithoutSlash"));
     }
 
 }

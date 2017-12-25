@@ -82,7 +82,13 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
         // TODO how to obtain the current player, from some login token?
         // For now we hard-code, but this won't really fly, of course...
         CommandSource commandSource = game != null ? game.getServer().getPlayer("michaelpapa7").get() : null;
-        action.execute(new ActionContext(commandSource, new ReadingSpeed())).thenRun(() -> message.reply("done"));
+        try {
+            action.execute(new ActionContext(commandSource, new ReadingSpeed())).thenRun(() -> message.reply("done"));
+        } catch (Exception e) {
+            // TODO make red etc. like in that command helper
+            commandSource.sendMessage(Text.of(e.getMessage()));
+            throw e;
+        }
     }
 
 }

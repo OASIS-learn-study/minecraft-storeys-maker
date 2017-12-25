@@ -49,7 +49,7 @@ public class TitleAction extends TextAction<Void> {
 
     @Override
     public CompletionStage<Void> execute(ActionContext context) {
-        Text bothTexts = text.concat(subtitleText != null ? subtitleText : Text.EMPTY);
+        Text bothTexts = getText().concat(subtitleText != null ? subtitleText : Text.EMPTY);
         int msToRead = context.getReadingSpeed().msToRead(bothTexts) + FADE_IN_MS + FADE_OUT_MS;
 
         return actionWaitHelper.executeAndWait(msToRead, () -> {
@@ -58,7 +58,7 @@ public class TitleAction extends TextAction<Void> {
                 Viewer srcAsViewer = (Viewer) commandSource;
 
                 Builder titleBuilder = Title.builder().fadeIn(FADE_IN_TICKS).stay((int) (msToRead * 0.02)).fadeOut(FADE_OUT_TICKS);
-                titleBuilder.title(text);
+                titleBuilder.title(getText());
                 if (subtitleText != null) {
                     titleBuilder.subtitle(subtitleText);
                 }
