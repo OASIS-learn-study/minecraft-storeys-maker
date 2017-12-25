@@ -23,9 +23,32 @@ dependencies {
 
 shadowJar {
   dependencies {
+    // http://imperceptiblethoughts.com/shadow/#filtering_dependencies
+    // NB "not being able to filter entire transitive dependency graphs"
+    // so instead of using exclude dependency we just do explicit include:
     include(project(':storeys'))
-    include(dependency("io.vertx:vertx-core:$vertxVersion"))
-    include(dependency("io.vertx:vertx-web:$vertxVersion"))
+    include(dependency("io.vertx:vertx-core"))
+    include(dependency("io.vertx:vertx-web"))
+    include(dependency("io.vertx:vertx-auth-common"))
+    include(dependency("io.vertx:vertx-bridge-common"))
+    // having to repeat all of Vert.x's Netty dependencies here feel stupid,
+    // but there doesn't seem to be an easier way; the alternative would be
+    // to instead of include only use exclude of all of spongepowered's libs.
+    include(dependency("io.netty:netty-common"))
+    include(dependency("io.netty:netty-buffer"))
+    include(dependency("io.netty:netty-transport"))
+    include(dependency("io.netty:netty-resolver"))
+    include(dependency("io.netty:netty-resolver-dns"))
+    include(dependency("io.netty:netty-handler"))
+    include(dependency("io.netty:netty-handler-proxy"))
+    include(dependency("io.netty:netty-codec"))
+    include(dependency("io.netty:netty-codec-dns"))
+    include(dependency("io.netty:netty-codec-socks"))
+    include(dependency("io.netty:netty-codec-http"))
+    include(dependency("io.netty:netty-codec-http2"))
+    include(dependency("com.fasterxml.jackson.core:jackson-core"))
+    include(dependency("com.fasterxml.jackson.core:jackson-databind"))
+    include(dependency("com.fasterxml.jackson.core:jackson-annotations"))
     include(dependency('ch.vorburger.minecraft:ch.vorburger.minecraft.osgi.api'))
   }
 }
