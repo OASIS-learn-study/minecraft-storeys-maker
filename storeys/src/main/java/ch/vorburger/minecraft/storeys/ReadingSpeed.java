@@ -18,7 +18,6 @@
  */
 package ch.vorburger.minecraft.storeys;
 
-import com.google.common.base.Preconditions;
 import org.spongepowered.api.text.Text;
 
 public class ReadingSpeed {
@@ -35,8 +34,9 @@ public class ReadingSpeed {
     public ReadingSpeed(int wordsPerMinute) {
         super();
         this.wpm = wordsPerMinute;
-        Preconditions.checkArgument(wpm > 5, "Words per minute > 5, was: %s", wpm);
-        Preconditions.checkArgument(wpm < 500, "Words per minute < 500, was: %s", wpm);
+        // TODO Figure out NoSuchMethodError: com.google.common.base.Preconditions.checkArgument(ZLjava/lang/String;I)V
+        // Preconditions.checkArgument(wpm > 5, "Words per minute > 5, was: %s", wpm);
+        // Preconditions.checkArgument(wpm < 500, "Words per minute < 500, was: %s", wpm);
     }
 
     public ReadingSpeed by(double factor) {
