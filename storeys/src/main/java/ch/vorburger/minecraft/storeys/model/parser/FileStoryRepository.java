@@ -35,7 +35,7 @@ public class FileStoryRepository implements StoryRepository {
 
     @Override
     public String getStoryScript(String storyName) throws IOException {
-        return Files.toString(new File(rootDirectory, storyName + ".story"), UTF_8);
+        return Files.asCharSource(new File(rootDirectory, storyName + ".story"), UTF_8).read();
     }
 
 }
