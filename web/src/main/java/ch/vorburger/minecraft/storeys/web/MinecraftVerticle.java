@@ -20,6 +20,7 @@ package ch.vorburger.minecraft.storeys.web;
 
 import com.google.common.collect.ImmutableSet;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.ext.bridge.PermittedOptions;
@@ -57,7 +58,7 @@ public class MinecraftVerticle extends AbstractVerticle {
     }
 
     @Override
-    public void start() throws Exception {
+    public void start(Future<Void> startFuture) throws Exception {
         // http://vertx.io/docs/vertx-web/java/#_cors_handling
         Router router = Router.router(vertx);
         router.route().handler(CorsHandler.create(/* "scratchx\\.org" */ "*").allowedMethods(ALL_HTTP_METHODS)
@@ -81,8 +82,10 @@ public class MinecraftVerticle extends AbstractVerticle {
         httpServer.requestHandler(router::accept).listen(httpPort, asyncResult -> {
             if (asyncResult.succeeded()) {
                 LOG.info("HTTP server started on port {}", httpPort);
+                startFuture.complete();
             } else {
                 LOG.error("Failed to start HTTP server on port {}", httpPort, asyncResult.cause());
+                startFuture.fail(asyncResult.cause());
             }
         });
     }
