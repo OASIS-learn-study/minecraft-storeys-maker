@@ -46,7 +46,6 @@ public class StoreysWebPlugin extends StoreysPlugin {
         vertxStarter = new VertxStarter();
         try {
             vertxStarter.start(httpPort, new ActionsConsumer(this, game)).get();
-            logger.info("Started Vert.x distributed BiDi event-bus HTTP server on port {}", httpPort);
         } catch (ExecutionException  | InterruptedException e) {
             throw new IllegalStateException("Vert.x start-up failed", e);
         }

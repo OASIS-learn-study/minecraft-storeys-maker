@@ -27,6 +27,8 @@ import io.vertx.core.logging.SLF4JLogDelegateFactory;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.concurrent.CompletableFuture;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Launcher for Vert.x.
@@ -34,6 +36,8 @@ import java.util.concurrent.CompletableFuture;
  * @author Michael Vorburger.ch
  */
 public class VertxStarter {
+
+    private static final Logger LOG = LoggerFactory.getLogger(VertxStarter.class);
 
     private Vertx vertx;
 
@@ -45,6 +49,7 @@ public class VertxStarter {
         vertx.deployVerticle(new MinecraftVerticle(httpPort, actionsConsumer), new DeploymentOptions(), (Handler<AsyncResult<String>>) result -> {
             if (result.succeeded()) {
                 future.complete(null);
+                LOG.info("Started Vert.x distributed BiDi event-bus HTTP server on port {}", httpPort);
             } else {
                 future.completeExceptionally(result.cause());
             }
