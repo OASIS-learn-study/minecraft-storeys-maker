@@ -18,7 +18,7 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
-import ch.vorburger.minecraft.storeys.plugin.StoreysPlugin;
+import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import org.spongepowered.api.Game;
@@ -31,7 +31,8 @@ import org.spongepowered.api.plugin.Plugin;
     description = "Makes entities narrate story lines so you can make your own movie in Minecraft",
     url = "https://github.com/vorburger/minecraft-storeys-maker",
     authors = "Michael Vorburger.ch")
-public class StoreysWebPlugin extends StoreysPlugin {
+public class StoreysWebPlugin extends AbstractStoreysPlugin {
+    // do not extend StoreysPlugin, because we exclude that class in shadowJar
 
     @Inject
     private Game game;
