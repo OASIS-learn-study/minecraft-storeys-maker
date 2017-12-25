@@ -35,13 +35,14 @@
         // alert("TODO Not yet implemented");
         console.log("TODO Implement function...");
     };
-
     ext.sendTitle = function(sendTitle) {
         eb.send("mcs.actions", { "action": "setTitle", "text": sendTitle });
     };
-
     ext.narrate = function(entity, text) {
         eb.send("mcs.actions", { "action": "narrate", "entity": entity, "text": text });
+    };
+    ext.minecraftCommand = function(command) {
+        eb.send("mcs.actions", { "action": "command", "command": command });
     };
 
     // Block and block menu descriptions <https://github.com/LLK/scratchx/wiki>
@@ -51,8 +52,8 @@
             [" ", "Title %s", "sendTitle"],
             // [" ", "Subtitle %s", "doToDo"],
             [" ", "%s speak %s", "narrate"],
-            [" ", "/say %s", "doToDo"],
-            [" ", "/%s", "doToDo"],
+            // [" ", "/say %s", "doToDo"],
+            [" ", "/%s", "minecraftCommand"],
         ],
         url: "https://github.com/vorburger/minecraft-storeys-maker/"
     };

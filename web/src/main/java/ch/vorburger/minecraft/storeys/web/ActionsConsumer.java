@@ -23,15 +23,18 @@ import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.ActionContext;
+import ch.vorburger.minecraft.storeys.model.CommandAction;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
 import ch.vorburger.minecraft.storeys.model.TitleAction;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 
 /**
@@ -56,39 +59,48 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
     @Override
     public void handle(Message<JsonObject> message) {
         LOG.info(message.body().encodePrettily());
-        JsonObject json = message.body();
-        switch (json.getString("action")) {
-        case "ping": {
-            message.reply("pong");
-            LOG.info("ping & pong ACK reply");
-            break;
-        }
-        case "setTitle": {
-            String text = json.getString("text");
-            execute(new TitleAction(plugin).setText(Text.of(text)), message);
-            break;
-        }
-        case "narrate": {
-            String text = json.getString("text");
-            String entity = json.getString("entity");
-            execute(new NarrateAction(narrator).setEntity(entity).setText(Text.of(text)), message);
-        }
-        default:
-            break;
+
+        // TODO how to obtain the current player, from some login token?
+        // For now we hard-code, but this won't really fly, of course...
+        Optional<Player> optPlayer = game != null ? game.getServer().getPlayer("michaelpapa7") : Optional.empty();
+
+        try {
+            JsonObject json = message.body();
+            switch (json.getString("action")) {
+            case "ping": {
+                message.reply("pong");
+                LOG.info("ping & pong ACK reply");
+                break;
+            }
+            case "setTitle": {
+                String text = json.getString("text");
+                execute(optPlayer.get(), new TitleAction(plugin).setText(Text.of(text)), message);
+                break;
+            }
+            case "narrate": {
+                String text = json.getString("text");
+                String entity = json.getString("entity");
+                execute(optPlayer.get(), new NarrateAction(narrator).setEntity(entity).setText(Text.of(text)), message);
+                break;
+            }
+            case "command": {
+                String command = json.getString("command");
+                execute(optPlayer.get(), new CommandAction().setCommand(command), message);
+                break;
+            }
+            default:
+                LOG.error("Unknown action in message: " + message.body().encodePrettily());
+                break;
+            }
+        } catch (Exception e) {
+            // TODO make red etc. like in that command helper
+            optPlayer.ifPresent(player -> player.sendMessage(Text.of(e.getMessage())));
+            throw e;
         }
     }
 
-    private void execute(Action<Void> action, Message<?> message) {
-        // TODO how to obtain the current player, from some login token?
-        // For now we hard-code, but this won't really fly, of course...
-        CommandSource commandSource = game != null ? game.getServer().getPlayer("michaelpapa7").get() : null;
-        try {
-            action.execute(new ActionContext(commandSource, new ReadingSpeed())).thenRun(() -> message.reply("done"));
-        } catch (Exception e) {
-            // TODO make red etc. like in that command helper
-            commandSource.sendMessage(Text.of(e.getMessage()));
-            throw e;
-        }
+    private void execute(CommandSource commandSource, Action<?> action, Message<?> message) {
+        action.execute(new ActionContext(commandSource, new ReadingSpeed())).thenRun(() -> message.reply("done"));
     }
 
 }

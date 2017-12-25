@@ -31,7 +31,7 @@ public class CommandAction implements SynchronousAction<CommandResult> {
     private String commandLineWithoutSlash;
 
     public CommandAction setCommand(String commandLine) {
-        this.commandLineWithoutSlash = commandLine.trim();
+        this.commandLineWithoutSlash = requireNonNull(commandLine, "commandLine").trim();
         if (commandLineWithoutSlash.startsWith("/")) {
             commandLineWithoutSlash = commandLineWithoutSlash.substring(1);
         }
