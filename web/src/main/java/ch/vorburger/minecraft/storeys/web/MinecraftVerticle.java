@@ -21,6 +21,7 @@ package ch.vorburger.minecraft.storeys.web;
 import com.google.common.collect.ImmutableSet;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServer;
 import io.vertx.ext.bridge.PermittedOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.CorsHandler;
@@ -48,6 +49,8 @@ public class MinecraftVerticle extends AbstractVerticle {
     private final int httpPort;
     private final ActionsConsumer actionsConsumer;
 
+    private HttpServer httpServer;
+
     public MinecraftVerticle(int httpPort, ActionsConsumer actionsConsumer) {
         this.httpPort = httpPort;
         this.actionsConsumer = actionsConsumer;
@@ -74,9 +77,19 @@ public class MinecraftVerticle extends AbstractVerticle {
         sockJSHandler.bridge(bridgeOptions);
         router.route("/eventbus/*").handler(sockJSHandler);
 
-        vertx.createHttpServer().requestHandler(router::accept).listen(httpPort);
+        httpServer = vertx.createHttpServer();
+        httpServer.requestHandler(router::accept).listen(httpPort, asyncResult -> {
+            if (asyncResult.succeeded()) {
+                LOG.info("HTTP server started on port {}", httpPort);
+            } else {
+                LOG.error("Failed to start HTTP server on port {}", httpPort, asyncResult.cause());
+            }
+        });
+    }
 
-        LOG.info("HTTP server started on port {}", httpPort);
+    @Override
+    public void stop() throws Exception {
+        httpServer.close();
     }
 
 }
