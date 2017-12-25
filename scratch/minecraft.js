@@ -40,13 +40,17 @@
         eb.send("mcs.actions", { "action": "setTitle", "text": sendTitle });
     };
 
+    ext.narrate = function(entity, text) {
+        eb.send("mcs.actions", { "action": "narrate", "entity": entity, "text": text });
+    };
+
     // Block and block menu descriptions <https://github.com/LLK/scratchx/wiki>
     var descriptor = {
         blocks: [
             // TODO Translate labels, like on https://github.com/jbaragry/mcpi-scratch/blob/master/mcpi-scratch.js
             [" ", "Title %s", "sendTitle"],
-            [" ", "Subtitle %s", "doToDo"],
-            [" ", "%s speak %s", "doToDo"],
+            // [" ", "Subtitle %s", "doToDo"],
+            [" ", "%s speak %s", "narrate"],
             [" ", "/say %s", "doToDo"],
             [" ", "/%s", "doToDo"],
         ],
