@@ -25,10 +25,8 @@ import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.logging.SLF4JLogDelegateFactory;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Launcher for Vert.x.
@@ -37,22 +35,21 @@ import org.slf4j.LoggerFactory;
  */
 public class VertxStarter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(VertxStarter.class);
-
     private Vertx vertx;
 
-    // TODO Could return Future so that caller knows if start up worked..
-    public void start(int httpPort, ActionsConsumer actionsConsumer) {
+    public java.util.concurrent.Future<Void> start(int httpPort, ActionsConsumer actionsConsumer) {
         System.setProperty("vertx.logger-delegate-factory-class-name", SLF4JLogDelegateFactory.class.getName());
         vertx = Vertx.vertx(new VertxOptions().setWorkerPoolSize(23));
 
-        vertx.deployVerticle(new MinecraftVerticle(httpPort, actionsConsumer), new DeploymentOptions(), (Handler<AsyncResult<String>>) event -> {
-            if (event.failed()) {
-                LOG.error("Failed to start Verticle", event.cause());
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        vertx.deployVerticle(new MinecraftVerticle(httpPort, actionsConsumer), new DeploymentOptions(), (Handler<AsyncResult<String>>) result -> {
+            if (result.succeeded()) {
+                future.complete(null);
             } else {
-                LOG.info("Verticle started successfully");
+                future.completeExceptionally(result.cause());
             }
         });
+        return future;
     }
 
     public void stop() {
@@ -62,9 +59,9 @@ public class VertxStarter {
     }
 
     // This main() is only for quick local testing; the Minecraft Sponge plugin directly uses above and not this
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         VertxStarter starter = new VertxStarter();
-        starter.start(8080, new ActionsConsumer(null, null));
+        starter.start(8080, new ActionsConsumer(null, null)).get();
 
         System.out.println("Running now... press Enter to Stop.");
         BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));

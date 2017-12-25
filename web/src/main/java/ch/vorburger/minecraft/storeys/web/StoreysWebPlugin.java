@@ -19,6 +19,7 @@
 package ch.vorburger.minecraft.storeys.web;
 
 import ch.vorburger.minecraft.storeys.plugin.StoreysPlugin;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.event.Listener;
@@ -43,7 +44,11 @@ public class StoreysWebPlugin extends StoreysPlugin {
 
         int httpPort = 8080; // TODO read from some configuration
         vertxStarter = new VertxStarter();
-        vertxStarter.start(httpPort, new ActionsConsumer(this, game));
+        try {
+            vertxStarter.start(httpPort, new ActionsConsumer(this, game)).get();
+        } catch (ExecutionException  | InterruptedException e) {
+            throw new IllegalStateException("Vert.x start-up failed", e);
+        }
     }
 
     @Override @Listener

@@ -30,8 +30,6 @@ import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Vert.x Verticle for Minecraft Storeys web API, usable e.g. by ScratchX extension.
@@ -39,8 +37,6 @@ import org.slf4j.LoggerFactory;
  * @author Michael Vorburger.ch
  */
 public class MinecraftVerticle extends AbstractVerticle {
-
-    private static final Logger LOG = LoggerFactory.getLogger(MinecraftVerticle.class);
 
     private static final String EVENTBUS_MINECRAFT_ACTIONS_ADDRESS = "mcs.actions";
     private static final String EVENTBUS_MINECRAFT_EVENTS_ADDRESS = "mcs.events";
@@ -80,13 +76,7 @@ public class MinecraftVerticle extends AbstractVerticle {
 
         httpServer = vertx.createHttpServer();
         httpServer.requestHandler(router::accept).listen(httpPort, asyncResult -> {
-            if (asyncResult.succeeded()) {
-                LOG.info("HTTP server started on port {}", httpPort);
-                startFuture.complete();
-            } else {
-                LOG.error("Failed to start HTTP server on port {}", httpPort, asyncResult.cause());
-                startFuture.fail(asyncResult.cause());
-            }
+            startFuture.handle(asyncResult.mapEmpty());
         });
     }
 
