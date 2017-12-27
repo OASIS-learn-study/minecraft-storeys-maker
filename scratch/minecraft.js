@@ -54,10 +54,10 @@
     var descriptor = {
         blocks: [
             // TODO Translate labels, like on https://github.com/jbaragry/mcpi-scratch/blob/master/mcpi-scratch.js
-            ["w", "Title %s", "sendTitle"],
-            ["w", "%s speak %s", "narrate"],
+            ["w", "Title %s", "sendTitle", "Welcome!"],
+            ["w", "%s speak %s", "narrate", "entity", "text"],
             // [" ", "/say %s", "doToDo"],
-            [" ", "/%s", "minecraftCommand"],
+            [" ", "/%s", "minecraftCommand", "command"],
         ],
         url: "https://github.com/vorburger/minecraft-storeys-maker/"
     };
