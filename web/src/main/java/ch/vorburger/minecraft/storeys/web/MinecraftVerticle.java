@@ -84,4 +84,7 @@ public class MinecraftVerticle extends AbstractVerticle {
         httpServer.close();
     }
 
+    public void send(Object message) {
+        vertx.eventBus().send(EVENTBUS_MINECRAFT_EVENTS_ADDRESS, message);
+    }
 }

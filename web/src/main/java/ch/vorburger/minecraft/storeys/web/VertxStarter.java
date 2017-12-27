@@ -42,13 +42,16 @@ public class VertxStarter {
     private static final Logger LOG = LoggerFactory.getLogger(VertxStarter.class);
 
     private Vertx vertx;
+    private MinecraftVerticle verticle;
 
     public java.util.concurrent.Future<Void> start(int httpPort, ActionsConsumer actionsConsumer) {
         System.setProperty("vertx.logger-delegate-factory-class-name", SLF4JLogDelegateFactory.class.getName());
         vertx = Vertx.vertx(new VertxOptions().setWorkerPoolSize(23));
 
+        verticle = new MinecraftVerticle(httpPort, actionsConsumer);
+
         CompletableFuture<Void> future = new CompletableFuture<>();
-        vertx.deployVerticle(new MinecraftVerticle(httpPort, actionsConsumer), new DeploymentOptions(), (Handler<AsyncResult<String>>) result -> {
+        vertx.deployVerticle(verticle, new DeploymentOptions(), (Handler<AsyncResult<String>>) result -> {
             if (result.succeeded()) {
                 future.complete(null);
                 LOG.info("Started Vert.x distributed BiDi event-bus HTTP server on port {}", httpPort);
@@ -63,6 +66,10 @@ public class VertxStarter {
         if (vertx != null) {
             vertx.close();
         }
+    }
+
+    public void send(Object message) {
+        verticle.send(message);
     }
 
     // This main() is only for quick local testing; the Minecraft Sponge plugin directly uses above and not this

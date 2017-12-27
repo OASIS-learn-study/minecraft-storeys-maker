@@ -19,12 +19,14 @@
 package ch.vorburger.minecraft.storeys.web;
 
 import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
+import io.vertx.core.json.JsonObject;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
 import org.spongepowered.api.plugin.Plugin;
 
 @Plugin(id = "storeys-web", name = "Vorburger.ch's Storeys with Web API", version = "1.0",
@@ -57,6 +59,13 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin {
         super.onGameStoppingServer(event);
 
         vertxStarter.stop();
+    }
+
+    @Listener
+    // TODO Other Event registrations should later go up into AbstractStoreysPlugin so that Script can have Event triggers as well, but for now:
+    public void onPlayerJoin(Join event) {
+        JsonObject message = new JsonObject().put("event", "playerJoined").put("player", event.getTargetEntity().getName());
+        vertxStarter.send(message);
     }
 
 }

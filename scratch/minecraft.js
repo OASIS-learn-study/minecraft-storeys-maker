@@ -17,7 +17,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 (function(ext) {
+    // Block and block menu descriptions <https://github.com/LLK/scratchx/wiki>
+    var descriptor = {
+        blocks: [
+            // TODO Translate labels, like on https://github.com/jbaragry/mcpi-scratch/blob/master/mcpi-scratch.js
+            ["h", "when %m.event",      "when_event",             "event"],
+            ["r", "last joined Player", "get_player_last_joined"],
+            ["w", "title %s",           "sendTitle",              "Welcome!"],
+            ["w", "%s speak %s",        "narrate",                "entity", "text"],
+            [" ", "/%s",                "minecraftCommand",       "command"],
+            // [" ", "/say %s", "doToDo"],
+        ],
+        menus: {
+            event: ["Player joins"]
+        },
+        url: "https://github.com/vorburger/minecraft-storeys-maker/"
+    };
+
     var eb; // the Vert.X EventBus
+    var eventsReceived = { };
+    var player_last_joined;
+
+    descriptor.menus.event.forEach(function(eventLabel) {
+        eventsReceived[eventLabel] = false;
+    });
 
     // Cleanup function when the extension is unloaded
     ext._shutdown = function() {};
@@ -49,17 +72,13 @@
     ext.minecraftCommand = function(command) {
         eb.send("mcs.actions", { "action": "command", "command": command });
     };
-
-    // Block and block menu descriptions <https://github.com/LLK/scratchx/wiki>
-    var descriptor = {
-        blocks: [
-            // TODO Translate labels, like on https://github.com/jbaragry/mcpi-scratch/blob/master/mcpi-scratch.js
-            ["w", "Title %s", "sendTitle", "Welcome!"],
-            ["w", "%s speak %s", "narrate", "entity", "text"],
-            // [" ", "/say %s", "doToDo"],
-            [" ", "/%s", "minecraftCommand", "command"],
-        ],
-        url: "https://github.com/vorburger/minecraft-storeys-maker/"
+    ext.when_event = function(event) {
+        var was = eventsReceived[event];
+        eventsReceived[event] = false;
+        return was;
+    };
+    ext.get_player_last_joined = function() {
+        return player_last_joined;
     };
 
     $.ajaxSetup({
@@ -87,9 +106,18 @@
             eb.enableReconnect(true);
             eb.onopen = function() {
                 eb.registerHandler("mcs.events", function (error, message) {
-                    // TODO integrate with ScratchX "hat blocks" when Minecraft events are received..
-                    console.log("error: " + error);
-                    console.log("message: " + JSON.stringify(message));
+                    if (error != null) {
+                        console.log("Vert.x Event Bus received error: " + error);
+                    } else {
+                        console.log("Vert.x Event Bus received message: " + message);
+                        if (message.body.event == "playerJoined") {
+                            // This is how all the Hat blocks receive events from the server side
+                            eventsReceived[descriptor.menus.event[0]] = true;
+                            player_last_joined = message.body.player;
+                        } else {
+                            console.log("Vert.x Event Bus received message with unknown event type: " + message);
+                        }
+                    }
                 });
 
                 eb.send("mcs.actions", { "action": "ping" });
