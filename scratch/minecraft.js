@@ -35,11 +35,16 @@
         // alert("TODO Not yet implemented");
         console.log("TODO Implement function...");
     };
-    ext.sendTitle = function(sendTitle) {
-        eb.send("mcs.actions", { "action": "setTitle", "text": sendTitle });
+    ext.sendTitle = function(sendTitle, callback) {
+        eb.send("mcs.actions", { "action": "setTitle", "text": sendTitle }, function(reply) {
+            callback();
+        });
     };
-    ext.narrate = function(entity, text) {
-        eb.send("mcs.actions", { "action": "narrate", "entity": entity, "text": text });
+    ext.narrate = function(entity, text, callack) {
+        eb.send("mcs.actions", { "action": "narrate", "entity": entity, "text": text }, function(reply) {
+            callack();
+        });
+
     };
     ext.minecraftCommand = function(command) {
         eb.send("mcs.actions", { "action": "command", "command": command });
@@ -49,9 +54,8 @@
     var descriptor = {
         blocks: [
             // TODO Translate labels, like on https://github.com/jbaragry/mcpi-scratch/blob/master/mcpi-scratch.js
-            [" ", "Title %s", "sendTitle"],
-            // [" ", "Subtitle %s", "doToDo"],
-            [" ", "%s speak %s", "narrate"],
+            ["w", "Title %s", "sendTitle"],
+            ["w", "%s speak %s", "narrate"],
             // [" ", "/say %s", "doToDo"],
             [" ", "/%s", "minecraftCommand"],
         ],
@@ -90,6 +94,9 @@
 
                 eb.send("mcs.actions", { "action": "ping" });
                 // TODO await "PONG" reply, and set status green
+            };
+            eb.onclose = function() {
+                console.log("Vert.x Event Bus Connection Close");
             };
 
             // Register the extension
