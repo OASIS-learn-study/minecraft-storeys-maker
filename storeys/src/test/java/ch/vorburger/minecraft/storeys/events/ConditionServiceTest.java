@@ -73,11 +73,6 @@ public class ConditionServiceTest {
         conditionService.run();
         assertThat(hits.get()).isEqualTo(2);
 
-        // We do one last toggle mainly to make sure that the following unregister is not affected by the state change
-        isHitting.set(false);
-        conditionService.run();
-        assertThat(hits.get()).isEqualTo(2);
-
         registration.unregister();
         conditionService.run();
         assertThat(hits.get()).isEqualTo(2);
