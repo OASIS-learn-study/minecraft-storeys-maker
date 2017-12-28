@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.scheduler.Task;
@@ -36,10 +36,19 @@ public class ConditionService implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConditionService.class);
 
-    public class ConditionServiceRegistration {
-        private final Pair<Condition, Callback> entry;
+    private static class BooleanWrapper {
+        // We're not using AtomicBoolean because we don't need the atomicity
+        // We're not simply using Boolean because we don't want the hashCode & equals of the Triple<> to change
 
-        private ConditionServiceRegistration(Pair<Condition, Callback> entry) {
+        boolean value = false;
+
+        // Do *NOT* implement hashCode/equals here!
+    }
+
+    public class ConditionServiceRegistration {
+        private final Triple<Condition, BooleanWrapper, Callback> entry;
+
+        private ConditionServiceRegistration(Triple<Condition, BooleanWrapper, Callback> entry) {
             this.entry = entry;
         }
 
@@ -48,7 +57,7 @@ public class ConditionService implements AutoCloseable {
         }
     }
 
-    private final Set<Pair<Condition, Callback>> checks = new CopyOnWriteArraySet<>();
+    private final Set<Triple<Condition, BooleanWrapper, Callback>> checks = new CopyOnWriteArraySet<>();
     private final @Nullable Task task;
 
     public ConditionService(PluginInstance plugin) {
@@ -66,20 +75,26 @@ public class ConditionService implements AutoCloseable {
     }
 
     public ConditionServiceRegistration register(Condition condition, Callback callback) {
-        Pair<Condition, Callback> entry = Pair.of(condition, callback);
+        Triple<Condition, BooleanWrapper, Callback> entry = Triple.of(condition, new BooleanWrapper(), callback);
         checks.add(entry);
         return new ConditionServiceRegistration(entry);
     }
 
     @VisibleForTesting
     void run() {
-        for (Pair<Condition, Callback> check : checks) {
-            if (check.getLeft().isHot()) {
+        for (Triple<Condition, BooleanWrapper, Callback> check : checks) {
+            final Condition condition = check.getLeft();
+            final boolean isHot = condition.isHot();
+            final boolean wasHot = check.getMiddle().value;
+            if (!wasHot && isHot) {
                 try {
                     check.getRight().call();
                 } catch (Exception e) {
-                    LOG.error("Condition failed: {}", check.getLeft(), e);
+                    LOG.error("Condition failed: {}", condition, e);
                 }
+                check.getMiddle().value = true;
+            } else if (wasHot) {
+                check.getMiddle().value = false;
             }
         }
     }

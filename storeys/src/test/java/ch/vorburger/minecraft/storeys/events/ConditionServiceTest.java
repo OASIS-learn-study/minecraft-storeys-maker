@@ -19,20 +19,65 @@
 package ch.vorburger.minecraft.storeys.events;
 
 import static com.google.common.truth.Truth.assertThat;
+
+import ch.vorburger.minecraft.storeys.events.ConditionService.ConditionServiceRegistration;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 
 public class ConditionServiceTest {
 
     @Test
-    public final void testConditionService() {
+    public final void testConditionServiceBasics() {
         @SuppressWarnings("resource")
         ConditionService conditionService = new ConditionService();
         final AtomicBoolean hit = new AtomicBoolean(false);
 
-        conditionService.register(() -> true, () -> hit.set(true));
+        ConditionServiceRegistration registration = conditionService.register(() -> true, () -> hit.set(true));
         conditionService.run();
         assertThat(hit.get()).isTrue();
+
+        registration.unregister();
+        hit.set(false);
+        conditionService.run();
+        assertThat(hit.get()).isFalse();
+    }
+
+    @Test
+    public final void testConditionServiceFiresOnlyOnChange() {
+        @SuppressWarnings("resource")
+        ConditionService conditionService = new ConditionService();
+        final AtomicBoolean isHitting = new AtomicBoolean(false);
+        final AtomicInteger hits = new AtomicInteger(0);
+        ConditionServiceRegistration registration = conditionService.register(() -> isHitting.get(), () -> hits.incrementAndGet());
+
+        conditionService.run();
+        assertThat(hits.get()).isEqualTo(0);
+
+        isHitting.set(true);
+        conditionService.run();
+        assertThat(hits.get()).isEqualTo(1);
+
+        conditionService.run();
+        // It must still be 1 and not 2 now!
+        assertThat(hits.get()).isEqualTo(1);
+
+        isHitting.set(false);
+        conditionService.run();
+        assertThat(hits.get()).isEqualTo(1);
+
+        isHitting.set(true);
+        conditionService.run();
+        assertThat(hits.get()).isEqualTo(2);
+
+        // We do one last toggle mainly to make sure that the following unregister is not affected by the state change
+        isHitting.set(false);
+        conditionService.run();
+        assertThat(hits.get()).isEqualTo(2);
+
+        registration.unregister();
+        conditionService.run();
+        assertThat(hits.get()).isEqualTo(2);
     }
 
 }
