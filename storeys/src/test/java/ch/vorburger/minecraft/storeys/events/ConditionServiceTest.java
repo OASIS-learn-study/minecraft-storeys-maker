@@ -62,6 +62,9 @@ public class ConditionServiceTest {
         // It must still be 1 and not 2 now!
         assertThat(hits.get()).isEqualTo(1);
 
+        conditionService.run();
+        assertThat(hits.get()).isEqualTo(1);
+
         isHitting.set(false);
         conditionService.run();
         assertThat(hits.get()).isEqualTo(1);

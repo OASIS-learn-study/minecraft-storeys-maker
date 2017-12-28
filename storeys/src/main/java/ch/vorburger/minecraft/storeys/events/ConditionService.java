@@ -93,7 +93,7 @@ public class ConditionService implements AutoCloseable {
                     LOG.error("Condition failed: {}", condition, e);
                 }
                 check.getMiddle().value = true;
-            } else if (wasHot) {
+            } else if (wasHot && !isHot) {
                 check.getMiddle().value = false;
             }
         }
