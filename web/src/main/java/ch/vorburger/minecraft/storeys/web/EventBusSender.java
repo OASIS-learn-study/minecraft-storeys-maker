@@ -18,20 +18,8 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
-import org.junit.Test;
+interface EventBusSender {
 
-/**
- * Test the {@link VertxStarter}.
- *
- * @author Michael Vorburger.ch
- */
-public class VertxStarterTest {
-
-    @Test
-    public final void testVertxStarter() throws Exception {
-        VertxStarter vertxStarter = new VertxStarter();
-        vertxStarter.start(9876, new ActionsConsumer(null, null, null, null)).get();
-        vertxStarter.stop();
-    }
+    void send(Object message);
 
 }

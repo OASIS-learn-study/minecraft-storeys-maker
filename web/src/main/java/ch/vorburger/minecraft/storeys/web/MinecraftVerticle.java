@@ -29,13 +29,17 @@ import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Vert.x Verticle for Minecraft Storeys web API, usable e.g. by ScratchX extension.
  *
  * @author Michael Vorburger.ch
  */
-public class MinecraftVerticle extends AbstractVerticle {
+public class MinecraftVerticle extends AbstractVerticle implements EventBusSender {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MinecraftVerticle.class);
 
     private static final String EVENTBUS_MINECRAFT_ACTIONS_ADDRESS = "mcs.actions";
     private static final String EVENTBUS_MINECRAFT_EVENTS_ADDRESS = "mcs.events";
@@ -84,7 +88,9 @@ public class MinecraftVerticle extends AbstractVerticle {
         httpServer.close();
     }
 
+    @Override
     public void send(Object message) {
         vertx.eventBus().send(EVENTBUS_MINECRAFT_EVENTS_ADDRESS, message);
+        LOG.info("Sent to EventBus: {}", message);
     }
 }

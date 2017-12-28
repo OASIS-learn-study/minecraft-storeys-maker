@@ -18,24 +18,38 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
+import static java.lang.Integer.parseInt;
+import static java.util.Objects.requireNonNull;
+
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.ReadingSpeed;
+import ch.vorburger.minecraft.storeys.events.Condition;
+import ch.vorburger.minecraft.storeys.events.ConditionService;
+import ch.vorburger.minecraft.storeys.events.ConditionService.ConditionServiceRegistration;
+import ch.vorburger.minecraft.storeys.events.LocatableInBoxCondition;
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.ActionContext;
 import ch.vorburger.minecraft.storeys.model.CommandAction;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
 import ch.vorburger.minecraft.storeys.model.TitleAction;
+import com.google.common.base.Splitter;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 /**
  * Vert.x EventBus consumer handler.
@@ -46,23 +60,32 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActionsConsumer.class);
 
-    private final PluginInstance plugin;
-    private final Narrator narrator;
-    private final Game game;
+    private static final Splitter SLASH_SPLITTER = Splitter.on('/');
 
-    public ActionsConsumer(PluginInstance plugin, Game game) {
+    private final PluginInstance plugin;
+    private final Game game;
+    private final Narrator narrator;
+    private final ConditionService conditionService;
+    private final EventBusSender eventBusSender;
+
+    private final Map<String, ConditionServiceRegistration> conditionRegistrations = new ConcurrentHashMap<>();
+
+    public ActionsConsumer(PluginInstance plugin, Game game, ConditionService conditionService, EventBusSender eventBusSender) {
         this.plugin = plugin;
-        this.narrator = new Narrator(plugin);
         this.game = game;
+        this.eventBusSender = eventBusSender;
+
+        this.narrator = new Narrator(plugin);
+        this.conditionService = conditionService;
     }
 
     @Override
     public void handle(Message<JsonObject> message) {
-        LOG.info(message.body().encodePrettily());
+        LOG.info("Handling message received on EventBus: {}", message.body().encodePrettily());
 
         // TODO how to obtain the current player, from some login token?
         // For now we hard-code, but this won't really fly, of course...
-        Optional<Player> optPlayer = game != null ? game.getServer().getPlayer("michaelpapa7") : Optional.empty();
+        Optional<Player> optPlayer = game != null ? game.getServer().getPlayer(UUID.fromString("73551f35-7acb-45c0-bc65-8083c53eec69")) : Optional.empty();
 
         try {
             JsonObject json = message.body();
@@ -88,6 +111,10 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
                 execute(optPlayer.get(), new CommandAction().setCommand(command), message);
                 break;
             }
+            case "registerCondition": {
+                registerCondition(optPlayer.get(), requireNonNull(json.getString("condition"), "condition"));
+                break;
+            }
             default:
                 LOG.error("Unknown action in message: " + message.body().encodePrettily());
                 break;
@@ -101,6 +128,24 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
 
     private void execute(CommandSource commandSource, Action<?> action, Message<?> message) {
         action.execute(new ActionContext(commandSource, new ReadingSpeed())).thenRun(() -> message.reply("done"));
+    }
+
+    private void registerCondition(Player player, String conditionAsText) {
+        String MY_PLAYER_INSIDE = "myPlayer_inside_";
+        if (conditionAsText.startsWith(MY_PLAYER_INSIDE)) {
+            World world = player.getLocation().getExtent();
+            String args = conditionAsText.substring(MY_PLAYER_INSIDE.length());
+            Iterator<String> ints = SLASH_SPLITTER.split(args).iterator();
+            Location<World> cornerA = new Location<>(world, parseInt(ints.next()), parseInt(ints.next()), parseInt(ints.next()));
+            Location<World> cornerB = new Location<>(world, parseInt(ints.next()), parseInt(ints.next()), parseInt(ints.next()));
+            Condition condition = new LocatableInBoxCondition(player, cornerA, cornerB);
+            ConditionServiceRegistration registration = conditionService.register(condition, () -> {
+                eventBusSender.send(new JsonObject().put("event", conditionAsText));
+            });
+            conditionRegistrations.put(conditionAsText, registration);
+        } else {
+            LOG.error("Unknown condition: " + conditionAsText);
+        }
     }
 
 }

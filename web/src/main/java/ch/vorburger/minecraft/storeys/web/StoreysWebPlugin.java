@@ -18,6 +18,7 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
+import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
 import io.vertx.core.json.JsonObject;
 import java.util.concurrent.ExecutionException;
@@ -48,7 +49,7 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin {
         int httpPort = 8080; // TODO read from some configuration
         vertxStarter = new VertxStarter();
         try {
-            vertxStarter.start(httpPort, new ActionsConsumer(this, game)).get();
+            vertxStarter.start(httpPort, new ActionsConsumer(this, game, new ConditionService(this), vertxStarter)).get();
         } catch (ExecutionException  | InterruptedException e) {
             throw new IllegalStateException("Vert.x start-up failed", e);
         }

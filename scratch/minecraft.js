@@ -22,13 +22,15 @@
         blocks: [
             // TODO Translate labels, like on https://github.com/jbaragry/mcpi-scratch/blob/master/mcpi-scratch.js
             ["h", "when %m.event",      "when_event",             "event"],
+            ["h", "when inside %n %n %n, %n %n %n", "when_inside"],
             ["r", "last joined Player", "get_player_last_joined"],
             ["w", "title %s",           "sendTitle",              "Welcome!"],
             ["w", "%s speak %s",        "narrate",                "entity", "text"],
             [" ", "/%s",                "minecraftCommand",       "command"],
-            // [" ", "/say %s", "doToDo"],
+            // [" ", "/say %s", "TODO"],
         ],
         menus: {
+            // NB: The order of the events here matters and is hard-coded in the registerHandler("mcs.events") below..
             event: ["Player joins"]
         },
         url: "https://github.com/vorburger/minecraft-storeys-maker/"
@@ -37,27 +39,12 @@
     var eb; // the Vert.X EventBus
     var eventsReceived = { };
     var player_last_joined;
+    var registeredConditions = new Set();
 
     descriptor.menus.event.forEach(function(eventLabel) {
         eventsReceived[eventLabel] = false;
     });
 
-    // Cleanup function when the extension is unloaded
-    ext._shutdown = function() {};
-
-    // Status reporting code
-    // Return any message to be displayed as a tooltip.
-    // Use this to report missing hardware, plugin or unsupported browser
-    // Status values: 0 = error (red), 1 = warning (yellow), 2 = ready (green)
-    ext._getStatus = function() {
-        // TODO implement based on JS getScript loading and eventBus connection!
-        return { status: 2, msg: "Ready" };
-    };
-
-    ext.doToDo = function() {
-        // alert("TODO Not yet implemented");
-        console.log("TODO Implement function...");
-    };
     ext.sendTitle = function(sendTitle, callback) {
         eb.send("mcs.actions", { "action": "setTitle", "text": sendTitle }, function(reply) {
             callback();
@@ -72,13 +59,59 @@
     ext.minecraftCommand = function(command) {
         eb.send("mcs.actions", { "action": "command", "command": command });
     };
+
+    //
+    // Hat Blocks Condition Events related stuff here...
+    //
+    ext.eventReceived = function(message) {
+        console.log("Vert.x Event Bus received message: " + JSON.stringify(message));
+        // because the descriptor.menus.event[] will be translated, we have to "map" these:
+        if (message.body.event == "playerJoined") {
+            eventsReceived[descriptor.menus.event[0]] = true; // event[0] is "Player joins"
+            player_last_joined = message.body.player;
+        } else {
+            // This is for all the whenCondition events...
+            eventsReceived[message.body.event] = true;
+            console.log("eventsReceived[" + message.body.event + "] = true");
+        }
+    };
     ext.when_event = function(event) {
         var was = eventsReceived[event];
+        // TODO if was is null/nil (?) then false (and remove pre-init)
+        if (was == true) {
+            console.log("when_event: was = " + was);
+        }
         eventsReceived[event] = false;
         return was;
     };
+    ext.whenCondition = function(condition) {
+        if (!registeredConditions.has(condition)) {
+            eb.send("mcs.actions", { "action": "registerCondition", "condition": condition }, function(reply) {
+            });
+            // We do this immediately after instead of inside the callback above, because we want it only once,
+            // and callback may take a moment, but this gets called a lot; the chance that the send() failed is minimal.
+            registeredConditions.add(condition);
+        } else {
+            return ext.when_event(condition);
+        }
+    };
+    ext.when_inside = function(x1, y1, z1, x2, y2, z2) {
+        return ext.whenCondition("myPlayer_inside_" + x1 + "/" + y1 + "/" + z1 + "/" + x2 + "/" + y2 + "/" + z2 + "/");
+    };
     ext.get_player_last_joined = function() {
         return player_last_joined;
+    };
+
+    // Cleanup function when the extension is unloaded
+    ext._shutdown = function() {};
+
+    // Status reporting code
+    // Return any message to be displayed as a tooltip.
+    // Use this to report missing hardware, plugin or unsupported browser
+    // Status values: 0 = error (red), 1 = warning (yellow), 2 = ready (green)
+    ext._getStatus = function() {
+        // TODO implement based on JS getScript loading and eventBus connection!
+        return { status: 2, msg: "Ready" };
     };
 
     $.ajaxSetup({
@@ -109,14 +142,7 @@
                     if (error != null) {
                         console.log("Vert.x Event Bus received error: " + error);
                     } else {
-                        console.log("Vert.x Event Bus received message: " + message);
-                        if (message.body.event == "playerJoined") {
-                            // This is how all the Hat blocks receive events from the server side
-                            eventsReceived[descriptor.menus.event[0]] = true;
-                            player_last_joined = message.body.player;
-                        } else {
-                            console.log("Vert.x Event Bus received message with unknown event type: " + message);
-                        }
+                        ext.eventReceived(message);
                     }
                 });
 

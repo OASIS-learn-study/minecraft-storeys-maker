@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michael Vorburger.ch
  */
-public class VertxStarter {
+public class VertxStarter implements EventBusSender {
 
     private static final Logger LOG = LoggerFactory.getLogger(VertxStarter.class);
 
@@ -68,6 +68,7 @@ public class VertxStarter {
         }
     }
 
+    @Override
     public void send(Object message) {
         verticle.send(message);
     }
@@ -75,7 +76,7 @@ public class VertxStarter {
     // This main() is only for quick local testing; the Minecraft Sponge plugin directly uses above and not this
     public static void main(String[] args) throws Exception {
         VertxStarter starter = new VertxStarter();
-        starter.start(8080, new ActionsConsumer(null, null)).get();
+        starter.start(8080, new ActionsConsumer(null, null, null, null)).get();
 
         System.out.println("Running now... press Enter to Stop.");
         BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in, defaultCharset()));
