@@ -18,7 +18,6 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
-import static java.lang.Integer.parseInt;
 import static java.util.Objects.requireNonNull;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
@@ -33,11 +32,9 @@ import ch.vorburger.minecraft.storeys.model.ActionContext;
 import ch.vorburger.minecraft.storeys.model.CommandAction;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
 import ch.vorburger.minecraft.storeys.model.TitleAction;
-import com.google.common.base.Splitter;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -48,8 +45,6 @@ import org.spongepowered.api.Game;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
 
 /**
  * Vert.x EventBus consumer handler.
@@ -59,8 +54,6 @@ import org.spongepowered.api.world.World;
 public class ActionsConsumer implements Handler<Message<JsonObject>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActionsConsumer.class);
-
-    private static final Splitter SLASH_SPLITTER = Splitter.on('/');
 
     private final PluginInstance plugin;
     private final Game game;
@@ -133,12 +126,8 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
     private void registerCondition(Player player, String conditionAsText) {
         String MY_PLAYER_INSIDE = "myPlayer_inside_";
         if (conditionAsText.startsWith(MY_PLAYER_INSIDE)) {
-            World world = player.getLocation().getExtent();
             String args = conditionAsText.substring(MY_PLAYER_INSIDE.length());
-            Iterator<String> ints = SLASH_SPLITTER.split(args).iterator();
-            Location<World> cornerA = new Location<>(world, parseInt(ints.next()), parseInt(ints.next()), parseInt(ints.next()));
-            Location<World> cornerB = new Location<>(world, parseInt(ints.next()), parseInt(ints.next()), parseInt(ints.next()));
-            Condition condition = new LocatableInBoxCondition(player, cornerA, cornerB);
+            Condition condition = new LocatableInBoxCondition(player, args);
             ConditionServiceRegistration registration = conditionService.register(condition, () -> {
                 eventBusSender.send(new JsonObject().put("event", conditionAsText));
             });

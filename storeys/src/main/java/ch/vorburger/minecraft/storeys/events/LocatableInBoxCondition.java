@@ -18,20 +18,25 @@
  */
 package ch.vorburger.minecraft.storeys.events;
 
+import static java.lang.Integer.parseInt;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.base.Splitter;
+import java.util.Iterator;
+import org.apache.commons.lang3.tuple.Pair;
 import org.spongepowered.api.world.Locatable;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
-import org.spongepowered.api.world.extent.Extent;
 
 public class LocatableInBoxCondition implements Condition {
 
+    private static final Splitter SLASH_SPLITTER = Splitter.on('/');
+
     private final Locatable locatable;
 
-    private final Extent world;
+    private final World world;
     private final int minX, maxX, minY, maxY, minZ, maxZ;
 
     public LocatableInBoxCondition(Locatable locatable, Location<World> boxCorner1, Location<World> boxCorner2) {
@@ -39,13 +44,31 @@ public class LocatableInBoxCondition implements Condition {
         if (!boxCorner1.inExtent(boxCorner2.getExtent())) {
             throw new IllegalArgumentException("boxCorner1 & boxCorner2 are not in the same World Extent");
         }
-        world = boxCorner1.getExtent();
+        this.world = locatable.getWorld();
+        if (!boxCorner1.inExtent(this.world)) {
+            throw new IllegalArgumentException("boxCorner is not in the same World Extent as Locatable (Player)");
+        }
         minX = min(boxCorner1.getBlockX(), boxCorner2.getBlockX());
         maxX = max(boxCorner1.getBlockX(), boxCorner2.getBlockX());
         minY = min(boxCorner1.getBlockY(), boxCorner2.getBlockY());
         maxY = max(boxCorner1.getBlockY(), boxCorner2.getBlockY());
         minZ = min(boxCorner1.getBlockZ(), boxCorner2.getBlockZ());
         maxZ = max(boxCorner1.getBlockZ(), boxCorner2.getBlockZ());
+    }
+
+    public LocatableInBoxCondition(Locatable locatable, String coordinates) {
+        this(locatable, getCornerLocations(locatable, coordinates));
+    }
+
+    private LocatableInBoxCondition(Locatable locatable, Pair<Location<World>, Location<World>> corners) {
+        this(locatable, corners.getLeft(), corners.getRight());
+    }
+
+    private static Pair<Location<World>, Location<World>> getCornerLocations(Locatable locatable, String coordinates) {
+        Iterator<String> ints = SLASH_SPLITTER.split(coordinates).iterator();
+        Location<World> cornerA = new Location<>(locatable.getWorld(), parseInt(ints.next()), parseInt(ints.next()), parseInt(ints.next()));
+        Location<World> cornerB = new Location<>(locatable.getWorld(), parseInt(ints.next()), parseInt(ints.next()), parseInt(ints.next()));
+        return Pair.of(cornerA, cornerB);
     }
 
     @Override
