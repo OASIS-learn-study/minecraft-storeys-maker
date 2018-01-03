@@ -26,11 +26,10 @@ import java.util.concurrent.CompletionStage;
 
 public class StoryPlayer {
 
-    private final PluginInstance plugin;
+    // private final PluginInstance plugin;
 
     public StoryPlayer(PluginInstance plugin) {
-        super();
-        this.plugin = plugin;
+        // this.plugin = plugin;
     }
 
     public CompletionStage<?> play(ActionContext context, Story story) {
