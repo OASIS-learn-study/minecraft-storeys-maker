@@ -41,6 +41,7 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin {
     private Game game;
 
     private VertxStarter vertxStarter;
+    private ActionsConsumer actionsConsumer;
 
     @Override @Listener
     public void onGameStartingServer(GameStartingServerEvent event) {
@@ -49,7 +50,8 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin {
         int httpPort = 8080; // TODO read from some configuration
         vertxStarter = new VertxStarter();
         try {
-            vertxStarter.start(httpPort, new ActionsConsumer(this, game, new ConditionService(this), vertxStarter)).get();
+            actionsConsumer = new ActionsConsumer(this, game, new ConditionService(this), vertxStarter);
+            vertxStarter.start(httpPort, actionsConsumer).get();
         } catch (ExecutionException  | InterruptedException e) {
             throw new IllegalStateException("Vert.x start-up failed", e);
         }
@@ -57,9 +59,9 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin {
 
     @Override @Listener
     public void onGameStoppingServer(GameStoppingServerEvent event) {
-        super.onGameStoppingServer(event);
-
+        actionsConsumer.stop();
         vertxStarter.stop();
+        super.onGameStoppingServer(event);
     }
 
     @Listener

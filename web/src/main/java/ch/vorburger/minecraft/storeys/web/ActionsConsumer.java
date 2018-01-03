@@ -120,6 +120,12 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
         }
     }
 
+    public void stop() {
+        for (ConditionServiceRegistration reg : conditionRegistrations.values()) {
+            reg.unregister();
+        }
+    }
+
     private void execute(CommandSource commandSource, Action<?> action, Message<?> message) {
         action.execute(new ActionContext(commandSource, new ReadingSpeed())).thenRun(() -> message.reply("done"));
     }
