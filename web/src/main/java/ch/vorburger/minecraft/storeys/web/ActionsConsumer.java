@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Game;
@@ -124,16 +125,25 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
     }
 
     private void registerCondition(Player player, String conditionAsText) {
-        String MY_PLAYER_INSIDE = "myPlayer_inside_";
-        if (conditionAsText.startsWith(MY_PLAYER_INSIDE)) {
-            String args = conditionAsText.substring(MY_PLAYER_INSIDE.length());
+        if (runIfStartsWith(conditionAsText, "myPlayer_inside_", args -> {
             Condition condition = new LocatableInBoxCondition(player, args);
             ConditionServiceRegistration registration = conditionService.register(condition, () -> {
                 eventBusSender.send(new JsonObject().put("event", conditionAsText));
             });
             conditionRegistrations.put(conditionAsText, registration);
-        } else {
+        })) {} else if (runIfStartsWith(conditionAsText, "newCmd", args -> {
+        })) {} else {
             LOG.error("Unknown condition: " + conditionAsText);
+        }
+    }
+
+    private boolean runIfStartsWith(String conditionAsText, String prefix, Consumer<String> consumer) {
+        if (conditionAsText.startsWith(prefix)) {
+            String args = conditionAsText.substring(prefix.length());
+            consumer.accept(args);
+            return true;
+        } else {
+            return false;
         }
     }
 
