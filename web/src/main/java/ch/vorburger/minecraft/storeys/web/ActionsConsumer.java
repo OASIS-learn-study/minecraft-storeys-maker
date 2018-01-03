@@ -27,6 +27,8 @@ import ch.vorburger.minecraft.storeys.events.Condition;
 import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.events.ConditionService.ConditionServiceRegistration;
 import ch.vorburger.minecraft.storeys.events.LocatableInBoxCondition;
+import ch.vorburger.minecraft.storeys.events.ScriptCommand;
+import ch.vorburger.minecraft.storeys.events.Unregisterable;
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.ActionContext;
 import ch.vorburger.minecraft.storeys.model.CommandAction;
@@ -62,7 +64,7 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
     private final ConditionService conditionService;
     private final EventBusSender eventBusSender;
 
-    private final Map<String, ConditionServiceRegistration> conditionRegistrations = new ConcurrentHashMap<>();
+    private final Map<String, Unregisterable> conditionRegistrations = new ConcurrentHashMap<>();
 
     public ActionsConsumer(PluginInstance plugin, Game game, ConditionService conditionService, EventBusSender eventBusSender) {
         this.plugin = plugin;
@@ -121,7 +123,7 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
     }
 
     public void stop() {
-        for (ConditionServiceRegistration reg : conditionRegistrations.values()) {
+        for (Unregisterable reg : conditionRegistrations.values()) {
             reg.unregister();
         }
     }
@@ -131,13 +133,17 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
     }
 
     private void registerCondition(Player player, String conditionAsText) {
-        if (runIfStartsWith(conditionAsText, "myPlayer_inside_", args -> {
-            Condition condition = new LocatableInBoxCondition(player, args);
+        if (runIfStartsWith(conditionAsText, "myPlayer_inside_", coordinates -> {
+            Condition condition = new LocatableInBoxCondition(player, coordinates);
             ConditionServiceRegistration registration = conditionService.register(condition, () -> {
                 eventBusSender.send(new JsonObject().put("event", conditionAsText));
             });
             conditionRegistrations.put(conditionAsText, registration);
-        })) {} else if (runIfStartsWith(conditionAsText, "newCmd", args -> {
+        })) {} else if (runIfStartsWith(conditionAsText, "newCmd", commandName -> {
+            ScriptCommand scriptCommand = new ScriptCommand(commandName, plugin, () -> {
+                eventBusSender.send(new JsonObject().put("event", conditionAsText));
+            });
+            conditionRegistrations.put(conditionAsText, scriptCommand);
         })) {} else {
             LOG.error("Unknown condition: " + conditionAsText);
         }

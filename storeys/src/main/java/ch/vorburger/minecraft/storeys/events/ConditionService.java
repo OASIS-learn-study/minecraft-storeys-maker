@@ -67,14 +67,15 @@ public class ConditionService implements AutoCloseable {
     }
 
 
-    public class ConditionServiceRegistration {
+    public class ConditionServiceRegistration implements Unregisterable {
         private final Triple<Condition, AtomicBoolean, Callback> entry;
 
         private ConditionServiceRegistration(Triple<Condition, AtomicBoolean, Callback> entry) {
             this.entry = entry;
         }
 
-        public void unregister() {
+        @Override
+		public void unregister() {
             checks.remove(entry);
         }
     }

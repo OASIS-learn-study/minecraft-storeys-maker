@@ -21,6 +21,7 @@
     var descriptor = {
         blocks: [
             // TODO Translate labels, like on https://github.com/jbaragry/mcpi-scratch/blob/master/mcpi-scratch.js
+            ["h", "Command /%s",        "when_command",           "demo"],
             ["h", "when %m.event",      "when_event",             "event"],
             ["h", "when inside %n %n %n, %n %n %n", "when_inside"],
             ["r", "last joined Player", "get_player_last_joined"],
@@ -94,6 +95,9 @@
         } else {
             return ext.when_event(condition);
         }
+    };
+    ext.when_command = function(command) {
+        return ext.whenCondition("newCmd" + command);
     };
     ext.when_inside = function(x1, y1, z1, x2, y2, z2) {
         return ext.whenCondition("myPlayer_inside_" + x1 + "/" + y1 + "/" + z1 + "/" + x2 + "/" + y2 + "/" + z2 + "/");
