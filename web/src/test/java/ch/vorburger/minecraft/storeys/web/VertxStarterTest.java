@@ -18,6 +18,9 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
+import static org.mockito.Mockito.mock;
+
+import ch.vorburger.minecraft.storeys.events.EventService;
 import org.junit.Test;
 
 /**
@@ -30,7 +33,7 @@ public class VertxStarterTest {
     @Test
     public final void testVertxStarter() throws Exception {
         VertxStarter vertxStarter = new VertxStarter();
-        vertxStarter.start(9876, new ActionsConsumer(null, null, null, null)).get();
+        vertxStarter.start(9876, new ActionsConsumer(null, null, mock(EventService.class), null, null)).get();
         vertxStarter.stop();
     }
 

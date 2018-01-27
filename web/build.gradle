@@ -18,7 +18,6 @@ dependencies {
     compile "io.vertx:vertx-web:$vertxVersion"
 
     testCompile "io.vertx:vertx-unit:$vertxVersion"
-    testCompile "org.slf4j:slf4j-simple:1.7.21"
 }
 
 shadowJar {

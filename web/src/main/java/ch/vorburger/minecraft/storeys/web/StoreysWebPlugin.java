@@ -19,12 +19,13 @@
 package ch.vorburger.minecraft.storeys.web;
 
 import ch.vorburger.minecraft.storeys.events.ConditionService;
+import ch.vorburger.minecraft.storeys.events.EventService;
 import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
-import io.vertx.core.json.JsonObject;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
@@ -41,6 +42,7 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin {
     private Game game;
 
     private VertxStarter vertxStarter;
+    private EventService eventService;
     private ActionsConsumer actionsConsumer;
 
     @Override @Listener
@@ -49,8 +51,9 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin {
 
         int httpPort = 8080; // TODO read from some configuration
         vertxStarter = new VertxStarter();
+        eventService = new EventService(this);
         try {
-            actionsConsumer = new ActionsConsumer(this, game, new ConditionService(this), vertxStarter);
+            actionsConsumer = new ActionsConsumer(this, game, eventService, new ConditionService(this), vertxStarter);
             vertxStarter.start(httpPort, actionsConsumer).get();
         } catch (ExecutionException  | InterruptedException e) {
             throw new IllegalStateException("Vert.x start-up failed", e);
@@ -64,11 +67,21 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin {
         super.onGameStoppingServer(event);
     }
 
-    @Listener
     // TODO Other Event registrations should later go up into AbstractStoreysPlugin so that Script can have Event triggers as well, but for now:
-    public void onPlayerJoin(Join event) {
-        JsonObject message = new JsonObject().put("event", "playerJoined").put("player", event.getTargetEntity().getName());
-        vertxStarter.send(message);
+
+    @Listener
+    public void onPlayerJoin(Join event) throws Exception {
+        eventService.onPlayerJoin(event);
     }
+
+    @Listener
+    public void onInteractEntityEvent(InteractEntityEvent event) {
+        eventService.onInteractEntityEvent(event);
+    }
+
+//  @Listener
+//  public void onInteractItemEvent(InteractItemEvent event) {
+//      logger.info("InteractItemEvent: {}", event);
+//  }
 
 }

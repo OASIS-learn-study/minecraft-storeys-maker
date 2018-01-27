@@ -21,18 +21,24 @@
     var descriptor = {
         blocks: [
             // TODO Translate labels, like on https://github.com/jbaragry/mcpi-scratch/blob/master/mcpi-scratch.js
-            ["h", "Command /%s",        "when_command",           "demo"],
             ["h", "when %m.event",      "when_event",             "event"],
+            ["h", "when %s %m.interaction", "when_entity",        "entity", "right clicked"],
             ["h", "when inside %n %n %n, %n %n %n", "when_inside"],
-            ["r", "last joined Player", "get_player_last_joined"],
-            ["w", "title %s",           "sendTitle",              "Welcome!"],
+            ["h", "Command /%s",        "when_command",           "demo"],
             ["w", "%s speak %s",        "narrate",                "entity", "text"],
             [" ", "/%s",                "minecraftCommand",       "command"],
-            // [" ", "/say %s", "TODO"],
+            ["w", "title %s",           "sendTitle",              "Welcome!"],
+            ["r", "last joined Player", "get_player_last_joined"],
+            ["r", "Item held", "get_player_item_held"],
+            ["r", "%m.item", "get_item_name", "Apple"]
         ],
         menus: {
             // NB: The order of the events here matters and is hard-coded in the registerHandler("mcs.events") below..
-            event: ["Player joins"]
+            event: ["Player joins"],
+            interaction: [/*"left clicked", */ "right clicked"],
+            item: ["Apple", "Bed", "Beef", "Beetroot", "Boat", "Book", "Bow", "Bowl", "Bread", "Bucket",
+                "Cactus", "Cake", "Carrot", "Cauldron", "Chicken", "Clock", "Cookie",
+                "Door", "Mushroom"]
         },
         url: "https://github.com/vorburger/minecraft-storeys-maker/"
     };
@@ -68,8 +74,8 @@
         console.log("Vert.x Event Bus received message: " + JSON.stringify(message));
         // because the descriptor.menus.event[] will be translated, we have to "map" these:
         if (message.body.event == "playerJoined") {
-            eventsReceived[descriptor.menus.event[0]] = true; // event[0] is "Player joins"
             player_last_joined = message.body.player;
+            eventsReceived[descriptor.menus.event[0]] = true; // event[0] is "Player joins"
         } else {
             // This is for all the whenCondition events...
             eventsReceived[message.body.event] = true;
@@ -102,12 +108,21 @@
     ext.when_inside = function(x1, y1, z1, x2, y2, z2) {
         return ext.whenCondition("myPlayer_inside_" + x1 + "/" + y1 + "/" + z1 + "/" + x2 + "/" + y2 + "/" + z2 + "/");
     };
+    ext.when_entity = function(entity, interaction) {
+        return ext.whenCondition("entity_interaction:" + entity + "/" + interaction);
+    };
     ext.get_player_last_joined = function() {
         return player_last_joined;
     };
+    ext.get_item_name = function(itemName) {
+        // Support translations here too...
+        return itemName;
+    };
 
     // Cleanup function when the extension is unloaded
-    ext._shutdown = function() {};
+    ext._shutdown = function() {
+        // TODO eb. has no close(); ?!
+    };
 
     // Status reporting code
     // Return any message to be displayed as a tooltip.

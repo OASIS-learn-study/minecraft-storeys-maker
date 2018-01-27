@@ -26,6 +26,7 @@ import ch.vorburger.minecraft.storeys.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.events.Condition;
 import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.events.ConditionService.ConditionServiceRegistration;
+import ch.vorburger.minecraft.storeys.events.EventService;
 import ch.vorburger.minecraft.storeys.events.LocatableInBoxCondition;
 import ch.vorburger.minecraft.storeys.events.ScriptCommand;
 import ch.vorburger.minecraft.storeys.events.Unregisterable;
@@ -34,9 +35,11 @@ import ch.vorburger.minecraft.storeys.model.ActionContext;
 import ch.vorburger.minecraft.storeys.model.CommandAction;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
 import ch.vorburger.minecraft.storeys.model.TitleAction;
+import com.google.common.base.Splitter;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -57,22 +60,30 @@ import org.spongepowered.api.text.Text;
 public class ActionsConsumer implements Handler<Message<JsonObject>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActionsConsumer.class);
+    private static final Splitter SLASH_SPLITTER = Splitter.on('/');
 
     private final PluginInstance plugin;
     private final Game game;
     private final Narrator narrator;
+    private final EventService eventService;
     private final ConditionService conditionService;
     private final EventBusSender eventBusSender;
 
     private final Map<String, Unregisterable> conditionRegistrations = new ConcurrentHashMap<>();
 
-    public ActionsConsumer(PluginInstance plugin, Game game, ConditionService conditionService, EventBusSender eventBusSender) {
+    public ActionsConsumer(PluginInstance plugin, Game game, EventService eventService, ConditionService conditionService, EventBusSender eventBusSender) {
         this.plugin = plugin;
         this.game = game;
         this.eventBusSender = eventBusSender;
 
         this.narrator = new Narrator(plugin);
+        this.eventService = eventService;
         this.conditionService = conditionService;
+
+        eventService.registerPlayerJoin(event -> {
+            JsonObject message = new JsonObject().put("event", "playerJoined").put("player", event.getTargetEntity().getName());
+            eventBusSender.send(message);
+        });
     }
 
     @Override
@@ -144,6 +155,13 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
                 eventBusSender.send(new JsonObject().put("event", conditionAsText));
             });
             conditionRegistrations.put(conditionAsText, scriptCommand);
+        })) {} else if (runIfStartsWith(conditionAsText, "entity_interaction:", entityNameSlashInteraction -> {
+            Iterator<String> parts = SLASH_SPLITTER.split(entityNameSlashInteraction).iterator();
+            String entityName = parts.next();
+            // String interaction = parts.next();
+            conditionRegistrations.put(conditionAsText, eventService.registerInteractEntity(entityName, () -> {
+                eventBusSender.send(new JsonObject().put("event", conditionAsText));
+            }));
         })) {} else {
             LOG.error("Unknown condition: " + conditionAsText);
         }
