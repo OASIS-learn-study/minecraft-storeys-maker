@@ -58,7 +58,7 @@ public class StoryCommand implements Command {
         if (!storiesDir.exists()) {
             storiesDir.mkdirs();
         }
-        storyRepository = new FileStoryRepository(storiesDir );
+        storyRepository = new FileStoryRepository(storiesDir);
         actionParser = new StoryParser(plugin, new Narrator(plugin));
         storyPlayer = new StoryPlayer(plugin);
     }

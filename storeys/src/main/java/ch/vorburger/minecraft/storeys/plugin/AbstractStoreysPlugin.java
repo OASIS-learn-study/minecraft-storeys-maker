@@ -19,12 +19,14 @@
 package ch.vorburger.minecraft.storeys.plugin;
 
 import ch.vorburger.minecraft.osgi.api.AbstractPlugin;
+import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.commands.NarrateCommand;
 import ch.vorburger.minecraft.storeys.commands.StoryCommand;
 import ch.vorburger.minecraft.storeys.util.Commands;
 import java.nio.file.Path;
 import javax.inject.Inject;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.config.ConfigDir;
@@ -35,8 +37,7 @@ import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 // Do *NOT* annotate this class with @Plugin
 public abstract class AbstractStoreysPlugin extends AbstractPlugin {
 
-    @Inject
-    protected Logger logger;
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractStoreysPlugin.class);
 
     @Inject
     @ConfigDir(sharedRoot = false)
@@ -47,13 +48,21 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
 
     @Listener
     public void onGameStartingServer(GameStartingServerEvent event) {
-        logger.info("See https://github.com/vorburger/minecraft-storeys-maker for how to use /story and /narrate commands");
-        storyCommandMapping = Commands.register(this, new StoryCommand(this, configDir));
-        narrateCommandMapping = Commands.register(this, new NarrateCommand(this));
+        LOG.info("See https://github.com/vorburger/minecraft-storeys-maker for how to use /story and /narrate commands");
+        start(this, this.configDir);
+    }
+
+    protected void start(PluginInstance plugin, @SuppressWarnings("hiding") Path configDir) {
+        storyCommandMapping = Commands.register(plugin, new StoryCommand(plugin, configDir));
+        narrateCommandMapping = Commands.register(plugin, new NarrateCommand(plugin));
     }
 
     @Listener
     public void onGameStoppingServer(GameStoppingServerEvent event) {
+        stop();
+    }
+
+    protected void stop() {
         if (narrateCommandMapping != null) {
             Sponge.getCommandManager().removeMapping(narrateCommandMapping);
         }
@@ -61,5 +70,4 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
             Sponge.getCommandManager().removeMapping(storyCommandMapping);
         }
     }
-
 }

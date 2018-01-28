@@ -18,20 +18,22 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
+import ch.vorburger.minecraft.osgi.api.Listeners;
+import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.events.EventService;
 import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
+import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import javax.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.data.type.HandType;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
-import org.spongepowered.api.event.game.state.GameStartingServerEvent;
-import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
 import org.spongepowered.api.plugin.Plugin;
@@ -40,36 +42,44 @@ import org.spongepowered.api.plugin.Plugin;
     description = "Makes entities narrate story lines so you can make your own movie in Minecraft",
     url = "https://github.com/vorburger/minecraft-storeys-maker",
     authors = "Michael Vorburger.ch")
-public class StoreysWebPlugin extends AbstractStoreysPlugin {
+public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners {
     // do not extend StoreysPlugin, because we exclude that class in shadowJar
 
-    @Inject
-    private Game game;
+    private static final Logger LOG = LoggerFactory.getLogger(StoreysWebPlugin.class);
+
+    // no @Inject but ugly static, so that this works from the Activator as well
+    private final Game game = Sponge.getGame();
 
     private VertxStarter vertxStarter;
     private EventService eventService;
     private ActionsConsumer actionsConsumer;
 
-    @Override @Listener
-    public void onGameStartingServer(GameStartingServerEvent event) {
-        super.onGameStartingServer(event);
-
-        int httpPort = 8080; // TODO read from some configuration
-        vertxStarter = new VertxStarter();
-        eventService = new EventService(this);
+    @Override
+    public void start(PluginInstance plugin, Path configDir) {
+        super.start(plugin, configDir);
         try {
-            actionsConsumer = new ActionsConsumer(this, game, eventService, new ConditionService(this), vertxStarter);
-            vertxStarter.start(httpPort, actionsConsumer).get();
-        } catch (ExecutionException  | InterruptedException e) {
-            throw new IllegalStateException("Vert.x start-up failed", e);
+            int httpPort = 8080; // TODO read from some configuration
+            vertxStarter = new VertxStarter();
+            eventService = new EventService(plugin);
+            try {
+                actionsConsumer = new ActionsConsumer(plugin, game, eventService, new ConditionService(plugin), vertxStarter);
+                vertxStarter.start(httpPort, actionsConsumer).get();
+            } catch (ExecutionException  | InterruptedException e) {
+                throw new IllegalStateException("Vert.x start-up failed", e);
+            }
+        } catch (RuntimeException e) {
+            // If something went wrong during the Vert.x set up, we must unregister the commands registered in super.start()
+            // so that, under OSGi, we'll manage to cleanly restart when whatever problem caused the start up to fail is fixed again.
+            super.stop();
+            throw e;
         }
     }
 
-    @Override @Listener
-    public void onGameStoppingServer(GameStoppingServerEvent event) {
+    @Override
+    public void stop() {
         actionsConsumer.stop();
         vertxStarter.stop();
-        super.onGameStoppingServer(event);
+        super.stop();
     }
 
     // TODO Other Event registrations should later go up into AbstractStoreysPlugin so that Script can have Event triggers as well, but for now:
@@ -86,13 +96,16 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin {
 
     @Listener
     public void onChangeInventoryEvent(ChangeInventoryEvent.Held event) {
-    	Optional<Player> optPlayer = event.getCause().first(Player.class);
-    	optPlayer.ifPresent(player -> {
-    		player.getItemInHand(HandTypes.MAIN_HAND).get().getItem().;
-    	});
+        LOG.info("onChangeInventory event={}", event);
+        LOG.info("onChangeInventory event={}", event.getTargetInventory().first().toString());
 
-    	logger.info("onChangeInventory event={}", event);
-    	logger.info("onChangeInventory event={}", event.getTargetInventory().first().toString());
+        Optional<Player> optPlayer = event.getCause().first(Player.class);
+        optPlayer.ifPresent(player -> {
+            LOG.info("onChangeInventory item.id={}", player.getItemInHand(HandTypes.MAIN_HAND).get().getItem().getId());
+            LOG.info("onChangeInventory item.name={}", player.getItemInHand(HandTypes.MAIN_HAND).get().getItem().getName());
+            LOG.info("onChangeInventory item.type.id={}", player.getItemInHand(HandTypes.MAIN_HAND).get().getItem().getType().getId());
+            LOG.info("onChangeInventory item.type.name={}", player.getItemInHand(HandTypes.MAIN_HAND).get().getItem().getType().getName());
+        });
     }
 
 //  @Listener

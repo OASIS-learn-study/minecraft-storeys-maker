@@ -18,17 +18,46 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
+import ch.vorburger.minecraft.osgi.api.PluginInstance;
+import java.nio.file.Paths;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spongepowered.api.Sponge;
 
 public class Activator implements BundleActivator {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Activator.class);
+
+    private StoreysWebPlugin plugin;
+    private ServiceReference<PluginInstance> pluginInstanceServiceRef;
+
     @Override
     public void start(BundleContext context) throws Exception {
+        LOG.info("storeys.web start()");
+        pluginInstanceServiceRef = context.getServiceReference(PluginInstance.class);
+        PluginInstance realPluginInstance = context.getService(pluginInstanceServiceRef);
+
+        plugin = new StoreysWebPlugin();
+        plugin.start(realPluginInstance, Paths.get("config", "storeys"));
+
+        try {
+            Sponge.getEventManager().registerListeners(realPluginInstance, plugin);
+        } catch (Throwable t) {
+            // catch Throwable for NoClassDefFoundError (a LinkageError) due to https://github.com/SpongePowered/SpongeCommon/pull/1090
+            // see plugin.start() why it is important that we stop() to unregister.
+            stop(context);
+            throw t;
+        }
     }
 
     @Override
     public void stop(BundleContext context) throws Exception {
+        LOG.info("storeys.web stop()");
+        plugin.stop();
+        context.ungetService(pluginInstanceServiceRef);
     }
 
 }

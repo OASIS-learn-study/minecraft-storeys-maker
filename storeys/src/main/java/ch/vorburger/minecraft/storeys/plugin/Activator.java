@@ -29,6 +29,10 @@ import org.osgi.framework.ServiceReference;
 
 public class Activator implements BundleActivator {
 
+    // Bundle-Activator is commented out in bnd.bnd,
+    // because the base storeys/ VS web/ currently cannot (should not) be installed together..
+    // To make this possibly cleanly, the base storeys would have to expose services which web uses, instead of subclassing the Plugin..
+
     private ServiceReference<PluginInstance> pluginInstanceServiceReference;
 
     @Override

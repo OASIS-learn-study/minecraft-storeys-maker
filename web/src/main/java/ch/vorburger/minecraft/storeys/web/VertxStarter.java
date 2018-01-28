@@ -45,8 +45,15 @@ public class VertxStarter implements EventBusSender {
     private MinecraftVerticle verticle;
 
     public java.util.concurrent.Future<Void> start(int httpPort, ActionsConsumer actionsConsumer) {
-        System.setProperty("vertx.logger-delegate-factory-class-name", SLF4JLogDelegateFactory.class.getName());
-        vertx = Vertx.vertx(new VertxOptions().setWorkerPoolSize(23));
+        // see https://github.com/eclipse/vert.x/issues/2298 ...
+        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+        try {
+            System.setProperty("vertx.logger-delegate-factory-class-name", SLF4JLogDelegateFactory.class.getName());
+            vertx = Vertx.vertx(new VertxOptions().setWorkerPoolSize(23));
+        } finally {
+            Thread.currentThread().setContextClassLoader(tccl);
+        }
 
         verticle = new MinecraftVerticle(httpPort, actionsConsumer);
 

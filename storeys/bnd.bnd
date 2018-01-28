@@ -1,1 +1,9 @@
-Bundle-Activator: ${classes;IMPLEMENTS;org.osgi.framework.BundleActivator}
+# see ch.vorburger.minecraft.storeys.plugin.Activator why it's commented out
+# Bundle-Activator: ${classes;IMPLEMENTS;org.osgi.framework.BundleActivator}
+
+Export-Package: \
+    ch.vorburger.minecraft.storeys,\
+    ch.vorburger.minecraft.storeys.events,\
+    ch.vorburger.minecraft.storeys.model,\
+    ch.vorburger.minecraft.storeys.plugin,\
+    ch.vorburger.minecraft.storeys.util
