@@ -21,13 +21,18 @@ package ch.vorburger.minecraft.storeys.web;
 import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.events.EventService;
 import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.data.type.HandType;
+import org.spongepowered.api.data.type.HandTypes;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
 import org.spongepowered.api.plugin.Plugin;
 
@@ -77,6 +82,17 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin {
     @Listener
     public void onInteractEntityEvent(InteractEntityEvent event) {
         eventService.onInteractEntityEvent(event);
+    }
+
+    @Listener
+    public void onChangeInventoryEvent(ChangeInventoryEvent.Held event) {
+    	Optional<Player> optPlayer = event.getCause().first(Player.class);
+    	optPlayer.ifPresent(player -> {
+    		player.getItemInHand(HandTypes.MAIN_HAND).get().getItem().;
+    	});
+
+    	logger.info("onChangeInventory event={}", event);
+    	logger.info("onChangeInventory event={}", event.getTargetInventory().first().toString());
     }
 
 //  @Listener
