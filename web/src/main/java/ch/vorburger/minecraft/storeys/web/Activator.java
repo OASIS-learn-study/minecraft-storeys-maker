@@ -25,7 +25,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongepowered.api.Sponge;
 
 public class Activator implements BundleActivator {
 
@@ -42,15 +41,6 @@ public class Activator implements BundleActivator {
 
         plugin = new StoreysWebPlugin();
         plugin.start(realPluginInstance, Paths.get("config", "storeys"));
-
-        try {
-            Sponge.getEventManager().registerListeners(realPluginInstance, plugin);
-        } catch (Throwable t) {
-            // catch Throwable for NoClassDefFoundError (a LinkageError) due to https://github.com/SpongePowered/SpongeCommon/pull/1090
-            // see plugin.start() why it is important that we stop() to unregister.
-            stop(context);
-            throw t;
-        }
     }
 
     @Override

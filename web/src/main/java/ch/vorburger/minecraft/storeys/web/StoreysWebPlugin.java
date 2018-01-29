@@ -24,15 +24,10 @@ import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.events.EventService;
 import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.type.HandTypes;
-import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
@@ -45,8 +40,6 @@ import org.spongepowered.api.plugin.Plugin;
 public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners {
     // do not extend StoreysPlugin, because we exclude that class in shadowJar
 
-    private static final Logger LOG = LoggerFactory.getLogger(StoreysWebPlugin.class);
-
     // no @Inject but ugly static, so that this works from the Activator as well
     private final Game game = Sponge.getGame();
 
@@ -57,6 +50,14 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
     @Override
     public void start(PluginInstance plugin, Path configDir) {
         super.start(plugin, configDir);
+
+        // TODO Other Event registrations should later go up into AbstractStoreysPlugin so that Script can have Event triggers as well, but for now:
+        EventManager eventManager = Sponge.getEventManager();
+        eventManager.registerListener(plugin, Join.class, event -> eventService.onPlayerJoin(event));
+        eventManager.registerListener(plugin, InteractEntityEvent.class, event -> eventService.onInteractEntityEvent(event));
+        eventManager.registerListener(plugin, ChangeInventoryEvent.Held.class, event -> eventService.onChangeInventoryHeldEvent(event));
+        // InteractItemEvent ?
+
         try {
             int httpPort = 8080; // TODO read from some configuration
             vertxStarter = new VertxStarter();
@@ -81,36 +82,5 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
         vertxStarter.stop();
         super.stop();
     }
-
-    // TODO Other Event registrations should later go up into AbstractStoreysPlugin so that Script can have Event triggers as well, but for now:
-
-    @Listener
-    public void onPlayerJoin(Join event) throws Exception {
-        eventService.onPlayerJoin(event);
-    }
-
-    @Listener
-    public void onInteractEntityEvent(InteractEntityEvent event) {
-        eventService.onInteractEntityEvent(event);
-    }
-
-    @Listener
-    public void onChangeInventoryEvent(ChangeInventoryEvent.Held event) {
-        LOG.info("onChangeInventory event={}", event);
-        LOG.info("onChangeInventory event={}", event.getTargetInventory().first().toString());
-
-        Optional<Player> optPlayer = event.getCause().first(Player.class);
-        optPlayer.ifPresent(player -> {
-            LOG.info("onChangeInventory item.id={}", player.getItemInHand(HandTypes.MAIN_HAND).get().getItem().getId());
-            LOG.info("onChangeInventory item.name={}", player.getItemInHand(HandTypes.MAIN_HAND).get().getItem().getName());
-            LOG.info("onChangeInventory item.type.id={}", player.getItemInHand(HandTypes.MAIN_HAND).get().getItem().getType().getId());
-            LOG.info("onChangeInventory item.type.name={}", player.getItemInHand(HandTypes.MAIN_HAND).get().getItem().getType().getName());
-        });
-    }
-
-//  @Listener
-//  public void onInteractItemEvent(InteractItemEvent event) {
-//      logger.info("InteractItemEvent: {}", event);
-//  }
 
 }

@@ -27,7 +27,10 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.type.HandTypes;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
+import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
 import org.spongepowered.api.text.Text;
 
@@ -69,6 +72,19 @@ public class EventService implements AutoCloseable {
         LOG.info("InteractEntityEvent: entityName={}; event={}", optEntityNameText, event);
         optEntityNameText.ifPresent(entityNameText ->
             onInteractEntityEventCallbacks.getOrDefault(entityNameText.toPlain(), () -> {}).run());
+    }
+
+    public void onChangeInventoryHeldEvent(ChangeInventoryEvent.Held event) {
+        LOG.info("onChangeInventory event={}", event);
+        LOG.info("onChangeInventory event={}", event.getTargetInventory().first().toString());
+
+        Optional<Player> optPlayer = event.getCause().first(Player.class);
+        optPlayer.ifPresent(player -> {
+            LOG.info("onChangeInventory item.id={}", player.getItemInHand(HandTypes.MAIN_HAND).get().getItem().getId());
+            LOG.info("onChangeInventory item.name={}", player.getItemInHand(HandTypes.MAIN_HAND).get().getItem().getName());
+            LOG.info("onChangeInventory item.type.id={}", player.getItemInHand(HandTypes.MAIN_HAND).get().getItem().getType().getId());
+            LOG.info("onChangeInventory item.type.name={}", player.getItemInHand(HandTypes.MAIN_HAND).get().getItem().getType().getName());
+        });
     }
 
 }
