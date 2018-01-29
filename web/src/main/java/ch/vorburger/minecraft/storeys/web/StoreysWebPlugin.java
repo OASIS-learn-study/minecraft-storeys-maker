@@ -78,8 +78,12 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
 
     @Override
     public void stop() {
-        actionsConsumer.stop();
-        vertxStarter.stop();
+        if (actionsConsumer != null) {
+            actionsConsumer.stop();
+        }
+        if (vertxStarter != null) {
+			vertxStarter.stop();
+		}
         super.stop();
     }
 
