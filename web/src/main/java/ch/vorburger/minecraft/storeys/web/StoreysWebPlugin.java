@@ -48,7 +48,7 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
     private ActionsConsumer actionsConsumer;
 
     @Override
-    public void start(PluginInstance plugin, Path configDir) {
+    public void start(PluginInstance plugin, Path configDir) throws Exception {
         super.start(plugin, configDir);
 
         // TODO Other Event registrations should later go up into AbstractStoreysPlugin so that Script can have Event triggers as well, but for now:
@@ -77,13 +77,13 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
     }
 
     @Override
-    public void stop() {
+    public void stop() throws Exception {
         if (actionsConsumer != null) {
             actionsConsumer.stop();
         }
         if (vertxStarter != null) {
-			vertxStarter.stop();
-		}
+            vertxStarter.stop();
+        }
         super.stop();
     }
 

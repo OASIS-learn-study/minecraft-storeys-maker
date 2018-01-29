@@ -47,22 +47,22 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
     private CommandMapping storyCommandMapping;
 
     @Listener
-    public void onGameStartingServer(GameStartingServerEvent event) {
+    public void onGameStartingServer(GameStartingServerEvent event) throws Exception {
         LOG.info("See https://github.com/vorburger/minecraft-storeys-maker for how to use /story and /narrate commands");
         start(this, this.configDir);
     }
 
-    protected void start(PluginInstance plugin, @SuppressWarnings("hiding") Path configDir) {
+    protected void start(PluginInstance plugin, @SuppressWarnings("hiding") Path configDir) throws Exception {
         storyCommandMapping = Commands.register(plugin, new StoryCommand(plugin, configDir));
         narrateCommandMapping = Commands.register(plugin, new NarrateCommand(plugin));
     }
 
     @Listener
-    public void onGameStoppingServer(GameStoppingServerEvent event) {
+    public void onGameStoppingServer(GameStoppingServerEvent event) throws Exception {
         stop();
     }
 
-    protected void stop() {
+    protected void stop() throws Exception {
         if (narrateCommandMapping != null) {
             Sponge.getCommandManager().removeMapping(narrateCommandMapping);
         }

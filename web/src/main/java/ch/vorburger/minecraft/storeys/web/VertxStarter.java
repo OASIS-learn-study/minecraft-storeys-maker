@@ -69,7 +69,10 @@ public class VertxStarter implements EventBusSender {
         return future;
     }
 
-    public void stop() {
+    public void stop() throws Exception {
+        if (verticle != null) {
+            verticle.stop();
+        }
         if (vertx != null) {
             vertx.close();
         }
