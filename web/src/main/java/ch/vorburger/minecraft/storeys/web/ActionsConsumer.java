@@ -90,12 +90,17 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
     public void handle(Message<JsonObject> message) {
         LOG.info("Handling message received on EventBus: {}", message.body().encodePrettily());
 
-        // TODO how to obtain the current player, from some login token?
-        // For now we hard-code, but this won't really fly, of course...
-        Optional<Player> optPlayer = game != null ? game.getServer().getPlayer(UUID.fromString("73551f35-7acb-45c0-bc65-8083c53eec69")) : Optional.empty();
+        JsonObject json = message.body();
+
+        String code = json.getString("code");
+        String playerUUID = LoginCommand.VALID_LOGINS.get(code);
+        if (playerUUID == null) {
+            throw new NotLoggedInException();
+        }
+        Optional<Player> optPlayer = game != null ? game.getServer().getPlayer(UUID.fromString(playerUUID)) : Optional.empty();
 
         try {
-            JsonObject json = message.body();
+
             switch (json.getString("action")) {
             case "ping": {
                 message.reply("pong");
@@ -104,18 +109,21 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
             }
             case "setTitle": {
                 String text = json.getString("text");
-                execute(optPlayer.get(), new TitleAction(plugin).setText(Text.of(text)), message);
+                execute(optPlayer.orElseThrow(NotLoggedInException::new), 
+                        new TitleAction(plugin).setText(Text.of(text)), message);
                 break;
             }
             case "narrate": {
                 String text = json.getString("text");
                 String entity = json.getString("entity");
-                execute(optPlayer.get(), new NarrateAction(narrator).setEntity(entity).setText(Text.of(text)), message);
+                execute(optPlayer.orElseThrow(NotLoggedInException::new), 
+                        new NarrateAction(narrator).setEntity(entity).setText(Text.of(text)), message);
                 break;
             }
             case "command": {
                 String command = json.getString("command");
-                execute(optPlayer.get(), new CommandAction().setCommand(command), message);
+                execute(optPlayer.orElseThrow(NotLoggedInException::new), 
+                        new CommandAction().setCommand(command), message);
                 break;
             }
             case "registerCondition": {

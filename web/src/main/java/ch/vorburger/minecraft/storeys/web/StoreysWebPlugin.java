@@ -23,10 +23,12 @@ import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.events.EventService;
 import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
+import ch.vorburger.minecraft.storeys.util.Commands;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
@@ -46,6 +48,8 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
     private VertxStarter vertxStarter;
     private EventService eventService;
     private ActionsConsumer actionsConsumer;
+    
+    private CommandMapping loginCommandMapping;
 
     @Override
     public void start(PluginInstance plugin, Path configDir) throws Exception {
@@ -58,6 +62,8 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
         eventManager.registerListener(plugin, ChangeInventoryEvent.Held.class, event -> eventService.onChangeInventoryHeldEvent(event));
         // InteractItemEvent ?
 
+        loginCommandMapping = Commands.register(plugin, new LoginCommand());
+        
         try {
             int httpPort = 8080; // TODO read from some configuration
             vertxStarter = new VertxStarter();
@@ -78,6 +84,9 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
 
     @Override
     public void stop() throws Exception {
+        if (loginCommandMapping != null) {
+            Sponge.getCommandManager().removeMapping(loginCommandMapping);
+        }        
         if (actionsConsumer != null) {
             actionsConsumer.stop();
         }

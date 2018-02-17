@@ -43,6 +43,16 @@
         url: "https://github.com/vorburger/minecraft-storeys-maker/"
     };
 
+    var match,
+        pl     = /\+/g,  // Regex for replacing addition symbol with a space
+        search = /([^&=]+)=?([^&]*)/g,
+        decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+        query  = window.location.search.substring(1);
+
+    var urlParams = {};
+    while (match = search.exec(query))
+    urlParams[decode(match[1])] = decode(match[2]);
+
     var eb; // the Vert.X EventBus
     var eventsReceived = { };
     var player_last_joined;
@@ -53,18 +63,18 @@
     });
 
     ext.sendTitle = function(sendTitle, callback) {
-        eb.send("mcs.actions", { "action": "setTitle", "text": sendTitle }, function(reply) {
+        eb.send("mcs.actions", { "action": "setTitle", "text": sendTitle, code: urlParams.code }, function(reply) {
             callback();
         });
     };
     ext.narrate = function(entity, text, callack) {
-        eb.send("mcs.actions", { "action": "narrate", "entity": entity, "text": text }, function(reply) {
+        eb.send("mcs.actions", { "action": "narrate", "entity": entity, "text": text, code: urlParams.code }, function(reply) {
             callack();
         });
 
     };
     ext.minecraftCommand = function(command) {
-        eb.send("mcs.actions", { "action": "command", "command": command });
+        eb.send("mcs.actions", { "action": "command", "command": command, code: urlParams.code });
     };
 
     //
@@ -93,7 +103,7 @@
     };
     ext.whenCondition = function(condition) {
         if (!registeredConditions.has(condition)) {
-            eb.send("mcs.actions", { "action": "registerCondition", "condition": condition }, function(reply) {
+            eb.send("mcs.actions", { "action": "registerCondition", "condition": condition, code: urlParams.code }, function(reply) {
             });
             // We do this immediately after instead of inside the callback above, because we want it only once,
             // and callback may take a moment, but this gets called a lot; the chance that the send() failed is minimal.
@@ -165,7 +175,7 @@
                     }
                 });
 
-                eb.send("mcs.actions", { "action": "ping" });
+                eb.send("mcs.actions", { "action": "ping", code: urlParams.code });
                 // TODO await "PONG" reply, and set status green
             };
             eb.onclose = function() {

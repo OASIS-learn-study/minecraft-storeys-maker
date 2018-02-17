@@ -9,3 +9,4 @@ xtend-gen/
 .gradle/
 build/
 .gradletasknamecache
+/.nb-gradle/
