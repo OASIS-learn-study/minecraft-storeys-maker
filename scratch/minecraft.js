@@ -57,24 +57,25 @@
     var eventsReceived = { };
     var player_last_joined;
     var registeredConditions = new Set();
+    var code;
 
     descriptor.menus.event.forEach(function(eventLabel) {
         eventsReceived[eventLabel] = false;
     });
 
     ext.sendTitle = function(sendTitle, callback) {
-        eb.send("mcs.actions", { "action": "setTitle", "text": sendTitle, code: urlParams.code }, function(reply) {
+        eb.send("mcs.actions", { "action": "setTitle", "text": sendTitle, "code": code }, function(reply) {
             callback();
         });
     };
     ext.narrate = function(entity, text, callack) {
-        eb.send("mcs.actions", { "action": "narrate", "entity": entity, "text": text, code: urlParams.code }, function(reply) {
+        eb.send("mcs.actions", { "action": "narrate", "entity": entity, "text": text, "code": code }, function(reply) {
             callack();
         });
 
     };
     ext.minecraftCommand = function(command) {
-        eb.send("mcs.actions", { "action": "command", "command": command, code: urlParams.code });
+        eb.send("mcs.actions", { "action": "command", "command": command, "code": code });
     };
 
     //
@@ -103,7 +104,7 @@
     };
     ext.whenCondition = function(condition) {
         if (!registeredConditions.has(condition)) {
-            eb.send("mcs.actions", { "action": "registerCondition", "condition": condition, code: urlParams.code }, function(reply) {
+            eb.send("mcs.actions", { "action": "registerCondition", "condition": condition, "code": code }, function(reply) {
             });
             // We do this immediately after instead of inside the callback above, because we want it only once,
             // and callback may take a moment, but this gets called a lot; the chance that the send() failed is minimal.
@@ -162,7 +163,9 @@
 
     ext.loadScript("http://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js", function() {
         ext.loadScript("https://cdnjs.cloudflare.com/ajax/libs/vertx/3.5.0/vertx-eventbus.min.js", function() {
+          ext.loadScript("http://travistidwell.com/jsencrypt/bin/jsencrypt.js", function() {
 
+            var crypt = new JSEncrypt(512);
             // TODO url must be made configurable
             eb = new EventBus("http://localhost:8080/eventbus");
             eb.enableReconnect(true);
@@ -170,12 +173,24 @@
                 eb.registerHandler("mcs.events", function (error, message) {
                     if (error != null) {
                         console.log("Vert.x Event Bus received error: " + error);
-                    } else {
+                    } else if (message.body.event === 'loggedIn') {
+                        var id = crypt.decrypt(message.body.secret);
+                        var key = message.body.key;
+                        crypt = new JSEncrypt();
+                        crypt.setPublicKey(key);
+                        code = crypt.encrypt(id);
+                  } else {
                         ext.eventReceived(message);
                     }
                 });
 
-                eb.send("mcs.actions", { "action": "ping", code: urlParams.code });
+                if (typeof (urlParams.code !== 'undefined')) {
+                    crypt.getKey(function() {
+                      eb.send("mcs.actions", { action: "login", token: urlParams.code, key: crypt.getPublicKeyB64()});
+                    });
+                }
+
+                eb.send("mcs.actions", { "action": "ping" });
                 // TODO await "PONG" reply, and set status green
             };
             eb.onclose = function() {
@@ -184,6 +199,7 @@
 
             // Register the extension
             ScratchExtensions.register("Minecraft", descriptor, ext);
+          });
         });
     });
 })({});

@@ -18,7 +18,13 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
-import static java.util.Objects.requireNonNull;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.Narrator;
@@ -39,18 +45,14 @@ import com.google.common.base.Splitter;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Vert.x EventBus consumer handler.
@@ -68,6 +70,9 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
     private final EventService eventService;
     private final ConditionService conditionService;
     private final EventBusSender eventBusSender;
+
+    private final Map<String, Player> activeSessions = new HashMap<>();
+    private RSAUtil rsaUtil = new RSAUtil();
 
     private final Map<String, Unregisterable> conditionRegistrations = new ConcurrentHashMap<>();
 
@@ -91,16 +96,10 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
         LOG.info("Handling message received on EventBus: {}", message.body().encodePrettily());
 
         JsonObject json = message.body();
-
-        String code = json.getString("code");
-        String playerUUID = LoginCommand.VALID_LOGINS.get(code);
-        if (playerUUID == null) {
-            throw new NotLoggedInException();
-        }
-        Optional<Player> optPlayer = game != null ? game.getServer().getPlayer(UUID.fromString(playerUUID)) : Optional.empty();
+        String secureCode = json.getString("code");
+        Optional<Player> optPlayer = secureCode != null ? Optional.ofNullable(activeSessions.get(rsaUtil.decrypt(secureCode))) : Optional.empty();
 
         try {
-
             switch (json.getString("action")) {
             case "ping": {
                 message.reply("pong");
@@ -127,7 +126,24 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
                 break;
             }
             case "registerCondition": {
-                registerCondition(optPlayer.get(), requireNonNull(json.getString("condition"), "condition"));
+                registerCondition(optPlayer.orElseThrow(NotLoggedInException::new),
+                                  requireNonNull(json.getString("condition"), "condition"));
+                break;
+            }
+            case "login": {
+                String code = json.getString("token");
+                String playerUUID = LoginCommand.VALID_LOGINS.remove(code);
+                if (playerUUID == null) {
+                    throw new NotLoggedInException();
+                }
+                optPlayer = game != null ? game.getServer().getPlayer(UUID.fromString(playerUUID)) : Optional.empty();
+                String secret = UUID.randomUUID().toString();
+
+                String encrypted = rsaUtil.encrypt(secret, json.getString("key"));
+
+                eventBusSender.send(new JsonObject().put("event", "loggedIn").put("secret", encrypted)
+                    .put("key", rsaUtil.getBase64PublicKey()));
+                activeSessions.put(secret, optPlayer.orElse(null));
                 break;
             }
             default:
