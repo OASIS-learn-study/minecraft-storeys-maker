@@ -18,9 +18,12 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
+import static java.nio.charset.Charset.defaultCharset;
 import static org.mockito.Mockito.mock;
 
 import ch.vorburger.minecraft.storeys.events.EventService;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import org.junit.Test;
 
 /**
@@ -33,7 +36,19 @@ public class VertxStarterTest {
     @Test
     public final void testVertxStarter() throws Exception {
         VertxStarter vertxStarter = new VertxStarter();
-        vertxStarter.start(9876, new ActionsConsumer(null, null, mock(EventService.class), null, null)).get();
+        vertxStarter.start(9876, new ActionsConsumer(null, null, mock(EventService.class), null, vertxStarter)).get();
+        vertxStarter.stop();
+    }
+
+    // This main() is only for quick local testing
+    public static void main(String[] args) throws Exception {
+        VertxStarter vertxStarter = new VertxStarter();
+        vertxStarter.start(8080, new ActionsConsumer(null, null, mock(EventService.class), null, vertxStarter)).get();
+
+        System.out.println("Running now... press Enter to Stop.");
+        BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in, defaultCharset()));
+        buffer.readLine();
+
         vertxStarter.stop();
     }
 
