@@ -18,6 +18,7 @@ dependencies {
     compile "io.vertx:vertx-web:$vertxVersion"
 
     testCompile "io.vertx:vertx-unit:$vertxVersion"
+    testCompile "org.seleniumhq.selenium:selenium-java:3.10.0"
 }
 
 shadowJar {
