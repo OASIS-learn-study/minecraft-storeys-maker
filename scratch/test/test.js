@@ -7,3 +7,4 @@ ScratchExtensions = {
         console.log("ScratchX extension registered: " + !(scratchMinecraftExtension === undefined));
     }
 };
+
