@@ -18,8 +18,6 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
-import static java.nio.charset.Charset.defaultCharset;
-
 import io.vertx.core.AsyncResult;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Handler;
@@ -27,8 +25,6 @@ import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.logging.SLF4JLogDelegateFactory;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import org.slf4j.Logger;
@@ -84,20 +80,6 @@ public class VertxStarter implements EventBusSender {
     public void send(Object message) {
         LOG.info("Sending message: {}", message);
         minecraftVerticle.send(message);
-    }
-
-    // This main() is only for quick local testing; the Minecraft Sponge plugin directly uses above and not this
-    public static void main(String[] args) throws Exception {
-        VertxStarter starter = new VertxStarter();
-        starter.start(8080, new ActionsConsumer(null, null, null, null, null)).toCompletableFuture().get();
-
-        // starter.deployVerticle(new StaticWebServerVerticle(9090, new File("../scratch")));
-
-        System.out.println("Running now... press Enter to Stop.");
-        BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in, defaultCharset()));
-        buffer.readLine();
-
-        starter.stop();
     }
 
 }
