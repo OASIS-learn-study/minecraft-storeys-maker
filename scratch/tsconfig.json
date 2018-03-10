@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "declaration": true,
+    "sourceMap": true,
+    "emitDecoratorMetadata": false,
+    "experimentalDecorators": false,
+    "lib": [
+      "es2015",
+      "dom"
+    ],
+    "noImplicitAny": false,
+    "suppressImplicitAnyIndexErrors": true
+  },
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
