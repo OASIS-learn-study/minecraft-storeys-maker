@@ -26,6 +26,9 @@ import ch.vorburger.minecraft.storeys.events.EventService;
 import java.time.Duration;
 import java.util.Date;
 import java.util.logging.Level;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -57,21 +60,18 @@ public class SeleniumTest {
     //    find some trick to pipe from http://scratchx.org to be able to load local file...
     //    then open http://scratchx.org/?url=... ? (Or does that only work for SBX, not .js ?)
 
+    @BeforeClass
+    public static void setupClass() {
+        WebDriverManager.chromedriver().setup();
+    }
+
     @Test
     public void testFunctionality() throws Exception {
         VertxStarter vertxStarter = new VertxStarter();
         // TODO use another (random) port and pass URL to minecraft.js via argument
         vertxStarter.start(8080, new ActionsConsumer(null, null, mock(EventService.class), null, vertxStarter)).get();
 
-        // System.setProperty("webdriver.gecko.driver", "/home/vorburger/bin/geckodriver");
-        System.setProperty("webdriver.chrome.driver", "/home/vorburger/bin/chromedriver");
-        DesiredCapabilities caps = DesiredCapabilities.chrome();
-        LoggingPreferences logPrefs = new LoggingPreferences();
-        logPrefs.enable(LogType.BROWSER, Level.ALL);
-        caps.setCapability(CapabilityType.LOGGING_PREFS, logPrefs);
-
-        // TODO how to resolve this deprecated correctly?
-        WebDriver webDriver = new ChromeDriver(caps);
+        WebDriver webDriver = new ChromeDriver();
         JavascriptExecutor js = (JavascriptExecutor) webDriver;
         FluentWait<WebDriver> await = new WebDriverWait(webDriver, 3).pollingEvery(Duration.ofMillis(100));
         try {
