@@ -19,6 +19,7 @@ dependencies {
 
     testCompile "io.vertx:vertx-unit:$vertxVersion"
     testCompile "org.seleniumhq.selenium:selenium-java:3.10.0"
+    testCompile 'io.github.bonigarcia:webdrivermanager:2.1.0'
 }
 
 shadowJar {
