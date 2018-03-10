@@ -97,7 +97,7 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
 
         JsonObject json = message.body();
         String secureCode = json.getString("code");
-        Optional<Player> optPlayer = secureCode != null ? Optional.ofNullable(activeSessions.get(rsaUtil.decrypt(secureCode))) : Optional.empty();
+        Optional<Player> optPlayer = getOptPlayer(secureCode);
 
         try {
             switch (json.getString("action")) {
@@ -155,6 +155,10 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
             optPlayer.ifPresent(player -> player.sendMessage(Text.of(e.getMessage())));
             throw e;
         }
+    }
+
+    Optional<Player> getOptPlayer(String secureCode) {
+        return secureCode != null ? Optional.ofNullable(activeSessions.get(rsaUtil.decrypt(secureCode))) : Optional.empty();
     }
 
     public void stop() {

@@ -18,14 +18,16 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
-import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-
-import ch.vorburger.minecraft.storeys.events.EventService;
 import java.time.Duration;
 import java.util.Date;
+import java.util.Optional;
 import java.util.logging.Level;
+
+import ch.vorburger.minecraft.osgi.api.PluginInstance;
+import ch.vorburger.minecraft.storeys.events.ConditionService;
+import ch.vorburger.minecraft.storeys.events.EventService;
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -33,12 +35,15 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogEntry;
 import org.openqa.selenium.logging.LogType;
-import org.openqa.selenium.logging.LoggingPreferences;
-import org.openqa.selenium.remote.CapabilityType;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.spongepowered.api.Game;
+import org.spongepowered.api.entity.living.player.Player;
+
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 /**
  * Integration test, based on WebDriver.
@@ -49,7 +54,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 public class SeleniumTest {
 
     // TODO start Vert.x-based web server serving static content from ../scratch/
-    // but for now just use e.g. "python -m SimpleHTTPServer 8080"
+    // but for now just use e.g. "python -m SimpleHTTPServer 9090"
 
     // TODO use https://www.testcontainers.org
 
@@ -61,7 +66,8 @@ public class SeleniumTest {
     public void testFunctionality() throws Exception {
         VertxStarter vertxStarter = new VertxStarter();
         // TODO use another (random) port and pass URL to minecraft.js via argument
-        vertxStarter.start(8080, new ActionsConsumer(null, null, mock(EventService.class), null, vertxStarter)).get();
+        MockHandler handler = new MockHandler(null, null, mock(EventService.class), null, vertxStarter);
+        vertxStarter.start(8080, handler).get();
 
         // System.setProperty("webdriver.gecko.driver", "/home/vorburger/bin/geckodriver");
         System.setProperty("webdriver.chrome.driver", "/home/vorburger/bin/chromedriver");
@@ -83,18 +89,19 @@ public class SeleniumTest {
             long number = (Long) js.executeScript("return 1 + 2;");
             assertEquals(3, number);
 
-            Object value = js.executeScript("return !(scratchMinecraftExtension === undefined);");
-            assertThat(value).isInstanceOf(Boolean.class);
-            assertThat(value).isNotNull();
             await.withMessage("scratchMinecraftExtension not ready")
-                    .until(ExpectedConditions.jsReturnsValue("return !(scratchMinecraftExtension === undefined);"));
+                    .until(ExpectedConditions.jsReturnsValue("return scratchMinecraftExtension !== undefined"));
             // TODO why does await above not work and we need to sleep() anyway?!
             // Without this the next executeScript (sometimes, timing..) fails with "WebDriverException: unknown error: INVALID_STATE_ERR"
             Thread.sleep(500);
+            //INVALID_STATE_ERR is a websocket problem
 
-            js.executeScript("return scratchMinecraftExtension.sendTitle('hello, world', function(){});");
+            js.executeScript("return scratchMinecraftExtension.sendTitle('hello, world', function(){ window.sendTitle = true });");
+            await.until(ExpectedConditions.jsReturnsValue("return window.sendTitle === true"));
 
             // TODO assert we really ran a showTitle on the server side...
+            // now it fails cause we are not running a server and Test.toPlain is using a DummyClass that throws an exception
+            // this is hard to mock because it's a static class
 
         } finally {
             webDriver.close();
@@ -118,4 +125,16 @@ public class SeleniumTest {
         }
     }
 
+    class MockHandler extends ActionsConsumer {
+        private Player player = mock(Player.class);
+
+        MockHandler(PluginInstance plugin, Game game, EventService eventService, ConditionService conditionService, EventBusSender eventBusSender) {
+            super(plugin, game, eventService, conditionService, eventBusSender);
+        }
+
+        @Override
+        Optional<Player> getOptPlayer(String secureCode) {
+            return Optional.of(player);
+        }
+    }
 }
