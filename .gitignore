@@ -8,5 +8,13 @@ xtend-gen/
 
 .gradle/
 build/
+out/
 .gradletasknamecache
 /.nb-gradle/
+
+.idea/
+*.iml
+
+node_modules/
+coverage/
+*d.ts
