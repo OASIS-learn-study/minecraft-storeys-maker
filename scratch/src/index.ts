@@ -164,6 +164,6 @@ let ScratchExtensions: any;
     };
 
     // Register the extension
-    ScratchExtensions.register("Minecraft", descriptor, ext);
+    (<any>window).ScratchExtensions.register("Minecraft", descriptor, ext);
 
 })({});
