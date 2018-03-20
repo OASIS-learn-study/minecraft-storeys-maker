@@ -9,13 +9,12 @@
   <title>
     <%= htmlWebpackPlugin.options.title %>
   </title>
-
-  <meta name="description" content="<%= htmlWebpackPlugin.options.title %>">
-
+  <script src="<%= htmlWebpackPlugin.files.chunks.test.entry %>"></script>
+  <script src="<%= htmlWebpackPlugin.files.chunks.minecraft.entry %>"></script>
 </head>
 
 <body>
-  <div> You have successfully started your Typescript application using Webpack. Open your console to see your printed message from the index.ts file </div>
+  <button id="sendTitle" onclick="ext.scratchMinecraftExtension.sendTitle('hello, world', ext.callback(this.id))">Send Title</button>
 </body>
 
 </html>

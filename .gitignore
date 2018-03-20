@@ -5,12 +5,12 @@
 bin/
 .apt_generated/
 xtend-gen/
-
 .gradle/
 build/
 out/
 .gradletasknamecache
 /.nb-gradle/
+dist/
 
 .idea/
 *.iml

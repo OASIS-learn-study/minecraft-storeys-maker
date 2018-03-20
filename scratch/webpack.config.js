@@ -29,12 +29,8 @@ const plugins = [
   }),
   new HtmlWebpackPlugin({
     title: 'Typescript Webpack Starter',
-    template: '!!ejs-loader!src/index.html'
-  }),
-  new webpack.optimize.CommonsChunkPlugin({
-    name: 'vendor',
-    minChunks: Infinity,
-    filename: 'vendor.bundle.js'
+    template: '!!ejs-loader!src/index.html',
+    inject: false
   }),
   new webpack.LoaderOptionsPlugin({
       options: {
@@ -54,13 +50,13 @@ var config = {
   devtool: isProd ? 'hidden-source-map' : 'source-map',
   context: path.resolve('./src'),
   entry: {
-    app: './index.ts',
-    vendor: './vendor.ts'
+    'minecraft': './index.ts',
+    'test': './test.ts'
   },
   output: {
     path: path.resolve('./dist'),
-    filename: '[name].bundle.js',
-    sourceMapFilename: '[name].bundle.map',
+    filename: '[name].scratchx.js',
+    sourceMapFilename: '[name].scratchx.map',
     devtoolModuleFilenameTemplate: function(info) {
       return 'file:///' + info.absoluteResourcePath
     }
