@@ -48,7 +48,7 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
     private VertxStarter vertxStarter;
     private EventService eventService;
     private ActionsConsumer actionsConsumer;
-    
+
     private CommandMapping loginCommandMapping;
 
     @Override
@@ -63,14 +63,14 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
         // InteractItemEvent ?
 
         loginCommandMapping = Commands.register(plugin, new LoginCommand());
-        
+
         try {
             int httpPort = 8080; // TODO read from some configuration
             vertxStarter = new VertxStarter();
             eventService = new EventService(plugin);
             try {
                 actionsConsumer = new ActionsConsumer(plugin, game, eventService, new ConditionService(plugin), vertxStarter);
-                vertxStarter.start(httpPort, actionsConsumer).get();
+                vertxStarter.start(httpPort, actionsConsumer).toCompletableFuture().get();
             } catch (ExecutionException  | InterruptedException e) {
                 throw new IllegalStateException("Vert.x start-up failed", e);
             }
@@ -86,7 +86,7 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
     public void stop() throws Exception {
         if (loginCommandMapping != null) {
             Sponge.getCommandManager().removeMapping(loginCommandMapping);
-        }        
+        }
         if (actionsConsumer != null) {
             actionsConsumer.stop();
         }

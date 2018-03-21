@@ -33,7 +33,7 @@ public class VertxStarterTest {
     @Test
     public final void testVertxStarter() throws Exception {
         VertxStarter vertxStarter = new VertxStarter();
-        vertxStarter.start(9876, new ActionsConsumer(null, null, mock(EventService.class), null, null)).get();
+        vertxStarter.start(9876, new ActionsConsumer(null, null, mock(EventService.class), null, null)).toCompletableFuture().get();
         vertxStarter.stop();
     }
 
