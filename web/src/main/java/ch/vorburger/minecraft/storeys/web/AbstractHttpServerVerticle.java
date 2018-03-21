@@ -35,7 +35,7 @@ public abstract class AbstractHttpServerVerticle extends AbstractVerticle {
 
     private static final ImmutableSet<HttpMethod> ALL_HTTP_METHODS = ImmutableSet.<HttpMethod>builder().add(HttpMethod.values()).build();
 
-    private final int httpPort;
+    protected final int httpPort;
     private HttpServer httpServer;
 
     protected AbstractHttpServerVerticle(int httpPort) {
