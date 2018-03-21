@@ -18,14 +18,8 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
-import com.google.common.collect.ImmutableSet;
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
-import io.vertx.core.http.HttpMethod;
-import io.vertx.core.http.HttpServer;
 import io.vertx.ext.bridge.PermittedOptions;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
@@ -37,36 +31,22 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michael Vorburger.ch
  */
-public class MinecraftVerticle extends AbstractVerticle implements EventBusSender {
+public class MinecraftVerticle extends AbstractHttpServerVerticle implements EventBusSender {
 
     private static final Logger LOG = LoggerFactory.getLogger(MinecraftVerticle.class);
 
     private static final String EVENTBUS_MINECRAFT_ACTIONS_ADDRESS = "mcs.actions";
     private static final String EVENTBUS_MINECRAFT_EVENTS_ADDRESS = "mcs.events";
 
-    private static final ImmutableSet<HttpMethod> ALL_HTTP_METHODS = ImmutableSet.<HttpMethod>builder().add(HttpMethod.values()).build();
-
-    private final int httpPort;
     private final ActionsConsumer actionsConsumer;
 
-    private HttpServer httpServer;
-
     public MinecraftVerticle(int httpPort, ActionsConsumer actionsConsumer) {
-        this.httpPort = httpPort;
+        super(httpPort);
         this.actionsConsumer = actionsConsumer;
     }
 
     @Override
-    public void start(Future<Void> startFuture) throws Exception {
-        // http://vertx.io/docs/vertx-web/java/#_cors_handling
-        Router router = Router.router(vertx);
-        router.route().handler(CorsHandler.create(/* "scratchx\\.org" */ "*").allowedMethods(ALL_HTTP_METHODS)
-            .allowedHeader("Access-Control-Request-Method")
-            .allowedHeader("Access-Control-Allow-Credentials")
-            .allowedHeader("Access-Control-Allow-Origin")
-            .allowedHeader("Access-Control-Allow-Headers")
-            .allowedHeader("Content-Type"));
-
+    protected void addRoutes(Router router) {
         vertx.eventBus().consumer(EVENTBUS_MINECRAFT_ACTIONS_ADDRESS, actionsConsumer);
 
         SockJSHandlerOptions sockJSHandleOptions = new SockJSHandlerOptions().setHeartbeatInterval(5432);
@@ -76,16 +56,6 @@ public class MinecraftVerticle extends AbstractVerticle implements EventBusSende
         BridgeOptions bridgeOptions = new BridgeOptions().addInboundPermitted(inboundPermitted1).addOutboundPermitted(outboundPermitted1);
         sockJSHandler.bridge(bridgeOptions);
         router.route("/eventbus/*").handler(sockJSHandler);
-
-        httpServer = vertx.createHttpServer();
-        httpServer.requestHandler(router::accept).listen(httpPort, asyncResult -> {
-            startFuture.handle(asyncResult.mapEmpty());
-        });
-    }
-
-    @Override
-    public void stop() throws Exception {
-        httpServer.close();
     }
 
     @Override
