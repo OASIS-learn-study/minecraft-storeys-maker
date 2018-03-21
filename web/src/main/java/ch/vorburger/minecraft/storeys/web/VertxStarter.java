@@ -23,12 +23,16 @@ import static java.nio.charset.Charset.defaultCharset;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Handler;
+import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.logging.SLF4JLogDelegateFactory;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,9 +46,10 @@ public class VertxStarter implements EventBusSender {
     private static final Logger LOG = LoggerFactory.getLogger(VertxStarter.class);
 
     private Vertx vertx;
-    private MinecraftVerticle verticle;
+    private MinecraftVerticle minecraftVerticle;
+    private final Queue<String> allVerticleDeploymentIDsToStop = new ConcurrentLinkedQueue<>();
 
-    public java.util.concurrent.Future<Void> start(int httpPort, ActionsConsumer actionsConsumer) {
+    public CompletionStage<Void> start(int httpPort, ActionsConsumer actionsConsumer) {
         // see https://github.com/eclipse/vert.x/issues/2298 ...
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
@@ -55,13 +60,17 @@ public class VertxStarter implements EventBusSender {
             Thread.currentThread().setContextClassLoader(tccl);
         }
 
-        verticle = new MinecraftVerticle(httpPort, actionsConsumer);
+        minecraftVerticle = new MinecraftVerticle(httpPort, actionsConsumer);
+        return deployVerticle(minecraftVerticle)
+            .thenRun(() -> LOG.info("Started Vert.x distributed BiDi event-bus HTTP server on port {}", httpPort));
+    }
 
+    public CompletionStage<Void> deployVerticle(Verticle newVerticle) {
         CompletableFuture<Void> future = new CompletableFuture<>();
-        vertx.deployVerticle(verticle, new DeploymentOptions(), (Handler<AsyncResult<String>>) result -> {
+        vertx.deployVerticle(newVerticle, new DeploymentOptions(), (Handler<AsyncResult<String>>) result -> {
             if (result.succeeded()) {
+                allVerticleDeploymentIDsToStop.add(result.result());
                 future.complete(null);
-                LOG.info("Started Vert.x distributed BiDi event-bus HTTP server on port {}", httpPort);
             } else {
                 future.completeExceptionally(result.cause());
             }
@@ -70,8 +79,8 @@ public class VertxStarter implements EventBusSender {
     }
 
     public void stop() throws Exception {
-        if (verticle != null) {
-            verticle.stop();
+        for (String deploymentID : allVerticleDeploymentIDsToStop) {
+            vertx.undeploy(deploymentID);
         }
         if (vertx != null) {
             vertx.close();
@@ -81,13 +90,13 @@ public class VertxStarter implements EventBusSender {
     @Override
     public void send(Object message) {
         LOG.info("Sending message: {}", message);
-        verticle.send(message);
+        minecraftVerticle.send(message);
     }
 
     // This main() is only for quick local testing; the Minecraft Sponge plugin directly uses above and not this
     public static void main(String[] args) throws Exception {
         VertxStarter starter = new VertxStarter();
-        starter.start(8080, new ActionsConsumer(null, null, null, null, null)).get();
+        starter.start(8080, new ActionsConsumer(null, null, null, null, null)).toCompletableFuture().get();
 
         System.out.println("Running now... press Enter to Stop.");
         BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in, defaultCharset()));
