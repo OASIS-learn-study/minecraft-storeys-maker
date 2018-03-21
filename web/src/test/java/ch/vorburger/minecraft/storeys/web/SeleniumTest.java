@@ -23,11 +23,10 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 import ch.vorburger.minecraft.storeys.events.EventService;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import java.time.Duration;
 import java.util.Date;
 import java.util.logging.Level;
-
-import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openqa.selenium.JavascriptExecutor;
@@ -52,7 +51,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 public class SeleniumTest {
 
     // TODO start Vert.x-based web server serving static content from ../scratch/
-    // but for now just use e.g. "python -m SimpleHTTPServer 8080"
+    // but for now just use e.g. "python -m SimpleHTTPServer 9090"
 
     // TODO use https://www.testcontainers.org
 
@@ -62,6 +61,7 @@ public class SeleniumTest {
 
     @BeforeClass
     public static void setupClass() {
+        // see https://github.com/bonigarcia/webdrivermanager
         WebDriverManager.chromedriver().setup();
     }
 
@@ -71,7 +71,12 @@ public class SeleniumTest {
         // TODO use another (random) port and pass URL to minecraft.js via argument
         vertxStarter.start(8080, new ActionsConsumer(null, null, mock(EventService.class), null, vertxStarter)).get();
 
-        WebDriver webDriver = new ChromeDriver();
+        DesiredCapabilities caps = DesiredCapabilities.chrome();
+        LoggingPreferences logPrefs = new LoggingPreferences();
+        logPrefs.enable(LogType.BROWSER, Level.ALL);
+        caps.setCapability(CapabilityType.LOGGING_PREFS, logPrefs);
+        // TODO how to resolve this deprecated correctly?
+        WebDriver webDriver = new ChromeDriver(caps);
         JavascriptExecutor js = (JavascriptExecutor) webDriver;
         FluentWait<WebDriver> await = new WebDriverWait(webDriver, 3).pollingEvery(Duration.ofMillis(100));
         try {
