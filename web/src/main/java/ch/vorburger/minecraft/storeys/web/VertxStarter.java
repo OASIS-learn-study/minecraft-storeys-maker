@@ -29,10 +29,8 @@ import io.vertx.core.VertxOptions;
 import io.vertx.core.logging.SLF4JLogDelegateFactory;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +45,6 @@ public class VertxStarter implements EventBusSender {
 
     private Vertx vertx;
     private MinecraftVerticle minecraftVerticle;
-    private final Queue<String> allVerticleDeploymentIDsToStop = new ConcurrentLinkedQueue<>();
 
     public CompletionStage<Void> start(int httpPort, ActionsConsumer actionsConsumer) {
         // see https://github.com/eclipse/vert.x/issues/2298 ...
@@ -69,7 +66,6 @@ public class VertxStarter implements EventBusSender {
         CompletableFuture<Void> future = new CompletableFuture<>();
         vertx.deployVerticle(newVerticle, new DeploymentOptions(), (Handler<AsyncResult<String>>) result -> {
             if (result.succeeded()) {
-                allVerticleDeploymentIDsToStop.add(result.result());
                 future.complete(null);
             } else {
                 future.completeExceptionally(result.cause());
@@ -79,9 +75,6 @@ public class VertxStarter implements EventBusSender {
     }
 
     public void stop() throws Exception {
-        for (String deploymentID : allVerticleDeploymentIDsToStop) {
-            vertx.undeploy(deploymentID);
-        }
         if (vertx != null) {
             vertx.close();
         }
