@@ -18,26 +18,32 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
-import static org.mockito.Mockito.mock;
-
-import ch.vorburger.minecraft.storeys.events.EventService;
+import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.StaticHandler;
 import java.io.File;
-import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Test the {@link VertxStarter}.
+ * Vert.x Verticle serving static content.
  *
  * @author Michael Vorburger.ch
  */
-public class VertxStarterTest {
+public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
 
-    @Test
-    public final void testVertxStarter() throws Exception {
-        VertxStarter vertxStarter = new VertxStarter();
-        vertxStarter.start(9876, new ActionsConsumer(null, null, mock(EventService.class), null, null)).toCompletableFuture().get();
-        vertxStarter.deployVerticle(new StaticWebServerVerticle(9090, new File("../scratch"))).toCompletableFuture().get();
-        // new BufferedReader(new InputStreamReader(System.in, defaultCharset())).readLine();
-        vertxStarter.stop();
+    private static final Logger LOG = LoggerFactory.getLogger(StaticWebServerVerticle.class);
+
+    private final File webRoot;
+
+    public StaticWebServerVerticle(int httpPort, File webRoot) {
+        super(httpPort);
+        this.webRoot = webRoot;
+    }
+
+    @Override
+    protected void addRoutes(Router router) {
+        router.route("/*").handler(StaticHandler.create().setDirectoryListing(true).setWebRoot(webRoot.getPath()));
+        LOG.info("Going to serve static web content from {} on port {}", webRoot.getAbsolutePath(), httpPort);
     }
 
 }

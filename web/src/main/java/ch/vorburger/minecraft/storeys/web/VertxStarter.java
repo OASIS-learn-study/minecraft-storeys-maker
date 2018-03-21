@@ -98,6 +98,8 @@ public class VertxStarter implements EventBusSender {
         VertxStarter starter = new VertxStarter();
         starter.start(8080, new ActionsConsumer(null, null, null, null, null)).toCompletableFuture().get();
 
+        // starter.deployVerticle(new StaticWebServerVerticle(9090, new File("../scratch")));
+
         System.out.println("Running now... press Enter to Stop.");
         BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in, defaultCharset()));
         buffer.readLine();
