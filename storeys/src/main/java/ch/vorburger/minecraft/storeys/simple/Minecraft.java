@@ -16,28 +16,19 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys.simple.impl;
+package ch.vorburger.minecraft.storeys.simple;
 
-import ch.vorburger.minecraft.storeys.simple.Token;
-import java.util.Optional;
-import org.spongepowered.api.entity.living.player.Player;
+import java.util.concurrent.CompletionStage;
 
 /**
- * Implementation of {@link Token} holding Minecraft Player object.
+ * Simple Minecraft API.
+ *
+ * <p>Intended to be used by "scripts", possibly remotely.
  *
  * @author Michael Vorburger.ch
  */
-// TODO /* intentionally package local */
-public class PlayerTokenImpl implements Token {
+public interface Minecraft {
 
-    private final Optional<Player> optPlayer;
-
-    PlayerTokenImpl(Optional<Player> optPlayer) {
-        this.optPlayer = optPlayer;
-    }
-
-    public Optional<Player> getOptionalPlayer() {
-        return optPlayer;
-    }
+    CompletionStage<Void> setTitle(Token token, String title);
 
 }

@@ -24,6 +24,7 @@ import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.events.EventService;
 import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
+import ch.vorburger.minecraft.storeys.simple.impl.MinecraftImpl;
 import ch.vorburger.minecraft.storeys.simple.impl.TokenProviderImpl;
 import ch.vorburger.minecraft.storeys.util.Commands;
 import java.nio.file.Path;
@@ -65,6 +66,7 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
         // InteractItemEvent ?
 
         TokenProvider tokenProvider = new TokenProviderImpl(game);
+        MinecraftImpl minecraft = new MinecraftImpl(plugin, tokenProvider);
         loginCommandMapping = Commands.register(plugin, new LoginCommand(tokenProvider));
 
         try {
@@ -72,7 +74,7 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
             vertxStarter = new VertxStarter();
             eventService = new EventService(plugin);
             try {
-                actionsConsumer = new ActionsConsumer(plugin, game, eventService, new ConditionService(plugin), vertxStarter, tokenProvider);
+                actionsConsumer = new ActionsConsumer(plugin, eventService, new ConditionService(plugin), vertxStarter, tokenProvider, minecraft);
                 vertxStarter.start(httpPort, actionsConsumer).toCompletableFuture().get();
             } catch (ExecutionException  | InterruptedException e) {
                 throw new IllegalStateException("Vert.x start-up failed", e);

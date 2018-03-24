@@ -85,4 +85,23 @@ public class TokenProviderImpl implements TokenProvider {
         return new PlayerTokenImpl(tokenAsText != null ? Optional.ofNullable(activeSessions.get(rsaUtil.decrypt(tokenAsText))) : Optional.empty());
     }
 
+    @Override
+    public Optional<Player> getOptionalPlayer(Token token) {
+        return ((PlayerTokenImpl) token).optPlayer;
+    }
+
+    @Override
+    public Player getPlayer(Token token) throws NotLoggedInException {
+        return getOptionalPlayer(token).orElseThrow(NotLoggedInException::new);
+    }
+
+    private static class PlayerTokenImpl implements Token {
+
+        final Optional<Player> optPlayer;
+
+        PlayerTokenImpl(Optional<Player> optPlayer) {
+            this.optPlayer = optPlayer;
+        }
+
+    }
 }

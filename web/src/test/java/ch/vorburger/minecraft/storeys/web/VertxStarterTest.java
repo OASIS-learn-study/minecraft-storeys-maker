@@ -37,7 +37,7 @@ public class VertxStarterTest {
     @Test
     public final void testVertxStarter() throws Exception {
         VertxStarter vertxStarter = new VertxStarter();
-        vertxStarter.start(9876, new ActionsConsumer(null, null, mock(EventService.class), null, vertxStarter, null)).toCompletableFuture().get();
+        vertxStarter.start(9876, new ActionsConsumer(null, mock(EventService.class), null, vertxStarter, null, null)).toCompletableFuture().get();
         vertxStarter.deployVerticle(new StaticWebServerVerticle(9090, new File("../scratch"))).toCompletableFuture().get();
         // new BufferedReader(new InputStreamReader(System.in, defaultCharset())).readLine();
         vertxStarter.stop();
@@ -46,7 +46,7 @@ public class VertxStarterTest {
     // This main() is only for quick local testing
     public static void main(String[] args) throws Exception {
         VertxStarter vertxStarter = new VertxStarter();
-        vertxStarter.start(8080, new ActionsConsumer(null, null, mock(EventService.class), null, vertxStarter, null)).toCompletableFuture().get();
+        vertxStarter.start(8080, new ActionsConsumer(null, mock(EventService.class), null, vertxStarter, null, null)).toCompletableFuture().get();
 
         vertxStarter.deployVerticle(new StaticWebServerVerticle(9090, new File("../scratch"))).toCompletableFuture().get();
 

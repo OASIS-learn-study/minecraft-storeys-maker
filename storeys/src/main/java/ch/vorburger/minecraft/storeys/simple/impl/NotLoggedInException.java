@@ -24,4 +24,6 @@ package ch.vorburger.minecraft.storeys.simple.impl;
  */
 public class NotLoggedInException extends RuntimeException {
 
+    private static final long serialVersionUID = 1L;
+
 }
