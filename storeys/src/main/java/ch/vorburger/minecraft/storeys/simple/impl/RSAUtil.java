@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys.web;
+package ch.vorburger.minecraft.storeys.simple.impl;
 
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
@@ -32,7 +32,12 @@ import java.util.Base64;
 
 import javax.crypto.Cipher;
 
-public class RSAUtil {
+/**
+ * RSA related utilities.
+ *
+ * @author edewit
+ */
+/* intentionally package local */ class RSAUtil {
 
     private static final String RSA_ECB_PKCS1_PADDING = "RSA/ECB/PKCS1Padding";
     private static final String ALGORITHM = "RSA";

@@ -23,6 +23,8 @@ import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.events.EventService;
 import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
+import ch.vorburger.minecraft.storeys.simple.TokenProvider;
+import ch.vorburger.minecraft.storeys.simple.impl.TokenProviderImpl;
 import ch.vorburger.minecraft.storeys.util.Commands;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
@@ -62,14 +64,15 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
         eventManager.registerListener(plugin, ChangeInventoryEvent.Held.class, event -> eventService.onChangeInventoryHeldEvent(event));
         // InteractItemEvent ?
 
-        loginCommandMapping = Commands.register(plugin, new LoginCommand());
+        TokenProvider tokenProvider = new TokenProviderImpl(game);
+        loginCommandMapping = Commands.register(plugin, new LoginCommand(tokenProvider));
 
         try {
             int httpPort = 8080; // TODO read from some configuration
             vertxStarter = new VertxStarter();
             eventService = new EventService(plugin);
             try {
-                actionsConsumer = new ActionsConsumer(plugin, game, eventService, new ConditionService(plugin), vertxStarter);
+                actionsConsumer = new ActionsConsumer(plugin, game, eventService, new ConditionService(plugin), vertxStarter, tokenProvider);
                 vertxStarter.start(httpPort, actionsConsumer).toCompletableFuture().get();
             } catch (ExecutionException  | InterruptedException e) {
                 throw new IllegalStateException("Vert.x start-up failed", e);
