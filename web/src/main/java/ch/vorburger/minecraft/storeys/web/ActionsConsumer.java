@@ -38,18 +38,17 @@ import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.ActionContext;
 import ch.vorburger.minecraft.storeys.model.CommandAction;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
-import ch.vorburger.minecraft.storeys.model.TitleAction;
+import ch.vorburger.minecraft.storeys.simple.Minecraft;
+import ch.vorburger.minecraft.storeys.simple.Token;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider.SecretPublicKeyPair;
 import ch.vorburger.minecraft.storeys.simple.impl.NotLoggedInException;
-import ch.vorburger.minecraft.storeys.simple.impl.PlayerTokenImpl;
 import com.google.common.base.Splitter;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongepowered.api.Game;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
@@ -68,20 +67,19 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
 
     // TODO Most of these should completely move into MinecraftImpl...
     private final PluginInstance plugin;
-    private final Game game;
     private final Narrator narrator;
     private final EventService eventService;
     private final ConditionService conditionService;
     private final EventBusSender eventBusSender;
     private final TokenProvider tokenProvider;
+    private final Minecraft minecraft;
 
     private final Map<String, Unregisterable> conditionRegistrations = new ConcurrentHashMap<>();
 
-    public ActionsConsumer(PluginInstance plugin, Game game, EventService eventService,
+    public ActionsConsumer(PluginInstance plugin, EventService eventService,
             ConditionService conditionService, EventBusSender eventBusSender,
-            TokenProvider tokenProvider) {
+            TokenProvider tokenProvider, Minecraft minecraft) {
         this.plugin = plugin;
-        this.game = game;
         this.eventBusSender = eventBusSender;
 
         this.narrator = new Narrator(plugin);
@@ -89,6 +87,7 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
         this.conditionService = conditionService;
 
         this.tokenProvider = tokenProvider;
+        this.minecraft = minecraft;
 
         eventService.registerPlayerJoin(event -> {
             JsonObject message = new JsonObject().put("event", "playerJoined").put("player", event.getTargetEntity().getName());
@@ -102,7 +101,8 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
 
         JsonObject json = message.body();
         String secureCode = json.getString("code");
-        Optional<Player> optPlayer = ((PlayerTokenImpl) tokenProvider.getToken(secureCode)).getOptionalPlayer();
+        Token token = tokenProvider.getToken(secureCode);
+        Optional<Player> optPlayer = tokenProvider.getOptionalPlayer(token);
 
         try {
             switch (json.getString("action")) {
@@ -113,8 +113,7 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
             }
             case "setTitle": {
                 String text = json.getString("text");
-                execute(optPlayer.orElseThrow(NotLoggedInException::new),
-                        new TitleAction(plugin).setText(Text.of(text)), message);
+                minecraft.setTitle(token, text).thenRun(() -> message.reply("done"));
                 break;
             }
             case "narrate": {

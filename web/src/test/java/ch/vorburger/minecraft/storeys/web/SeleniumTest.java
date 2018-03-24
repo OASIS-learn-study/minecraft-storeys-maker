@@ -23,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 import ch.vorburger.minecraft.storeys.events.EventService;
+import ch.vorburger.minecraft.storeys.simple.Minecraft;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import java.io.File;
 import java.time.Duration;
@@ -65,9 +66,11 @@ public class SeleniumTest {
 
     @Test
     public void testFunctionality() throws Exception {
+        Minecraft minecraft = null; // TODO TestMinecraftImpl
+
         VertxStarter vertxStarter = new VertxStarter();
         // TODO use another (random) port and pass URL to minecraft.js via argument
-        vertxStarter.start(8080, new ActionsConsumer(null, null, mock(EventService.class), null, vertxStarter, null)).toCompletableFuture().get();
+        vertxStarter.start(8080, new ActionsConsumer(null, mock(EventService.class), null, vertxStarter, null, minecraft )).toCompletableFuture().get();
         vertxStarter.deployVerticle(new StaticWebServerVerticle(9090, new File("../scratch"))).toCompletableFuture().get();
 
         DesiredCapabilities caps = DesiredCapabilities.chrome();
