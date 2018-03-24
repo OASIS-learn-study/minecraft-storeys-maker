@@ -16,12 +16,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys.web;
+package ch.vorburger.minecraft.storeys.simple;
 
 /**
- * Thrown when the user is not logged in
- * @author edewit
+ * Token identifying a Minecraft player user.
+ *
+ * @author Michael Vorburger.ch
  */
-public class NotLoggedInException extends RuntimeException {
-    
-}
+public interface Token {}

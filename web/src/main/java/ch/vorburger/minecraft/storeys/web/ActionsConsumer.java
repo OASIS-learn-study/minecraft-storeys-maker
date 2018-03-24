@@ -18,11 +18,9 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -41,6 +39,10 @@ import ch.vorburger.minecraft.storeys.model.ActionContext;
 import ch.vorburger.minecraft.storeys.model.CommandAction;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
 import ch.vorburger.minecraft.storeys.model.TitleAction;
+import ch.vorburger.minecraft.storeys.simple.TokenProvider;
+import ch.vorburger.minecraft.storeys.simple.TokenProvider.SecretPublicKeyPair;
+import ch.vorburger.minecraft.storeys.simple.impl.NotLoggedInException;
+import ch.vorburger.minecraft.storeys.simple.impl.PlayerTokenImpl;
 import com.google.common.base.Splitter;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
@@ -64,19 +66,20 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
     private static final Logger LOG = LoggerFactory.getLogger(ActionsConsumer.class);
     private static final Splitter SLASH_SPLITTER = Splitter.on('/');
 
+    // TODO Most of these should completely move into MinecraftImpl...
     private final PluginInstance plugin;
     private final Game game;
     private final Narrator narrator;
     private final EventService eventService;
     private final ConditionService conditionService;
     private final EventBusSender eventBusSender;
-
-    private final Map<String, Player> activeSessions = new HashMap<>();
-    private RSAUtil rsaUtil = new RSAUtil();
+    private final TokenProvider tokenProvider;
 
     private final Map<String, Unregisterable> conditionRegistrations = new ConcurrentHashMap<>();
 
-    public ActionsConsumer(PluginInstance plugin, Game game, EventService eventService, ConditionService conditionService, EventBusSender eventBusSender) {
+    public ActionsConsumer(PluginInstance plugin, Game game, EventService eventService,
+            ConditionService conditionService, EventBusSender eventBusSender,
+            TokenProvider tokenProvider) {
         this.plugin = plugin;
         this.game = game;
         this.eventBusSender = eventBusSender;
@@ -84,6 +87,8 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
         this.narrator = new Narrator(plugin);
         this.eventService = eventService;
         this.conditionService = conditionService;
+
+        this.tokenProvider = tokenProvider;
 
         eventService.registerPlayerJoin(event -> {
             JsonObject message = new JsonObject().put("event", "playerJoined").put("player", event.getTargetEntity().getName());
@@ -97,7 +102,7 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
 
         JsonObject json = message.body();
         String secureCode = json.getString("code");
-        Optional<Player> optPlayer = secureCode != null ? Optional.ofNullable(activeSessions.get(rsaUtil.decrypt(secureCode))) : Optional.empty();
+        Optional<Player> optPlayer = ((PlayerTokenImpl) tokenProvider.getToken(secureCode)).getOptionalPlayer();
 
         try {
             switch (json.getString("action")) {
@@ -108,20 +113,20 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
             }
             case "setTitle": {
                 String text = json.getString("text");
-                execute(optPlayer.orElseThrow(NotLoggedInException::new), 
+                execute(optPlayer.orElseThrow(NotLoggedInException::new),
                         new TitleAction(plugin).setText(Text.of(text)), message);
                 break;
             }
             case "narrate": {
                 String text = json.getString("text");
                 String entity = json.getString("entity");
-                execute(optPlayer.orElseThrow(NotLoggedInException::new), 
+                execute(optPlayer.orElseThrow(NotLoggedInException::new),
                         new NarrateAction(narrator).setEntity(entity).setText(Text.of(text)), message);
                 break;
             }
             case "command": {
                 String command = json.getString("command");
-                execute(optPlayer.orElseThrow(NotLoggedInException::new), 
+                execute(optPlayer.orElseThrow(NotLoggedInException::new),
                         new CommandAction().setCommand(command), message);
                 break;
             }
@@ -132,18 +137,14 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
             }
             case "login": {
                 String code = json.getString("token");
-                String playerUUID = LoginCommand.VALID_LOGINS.remove(code);
-                if (playerUUID == null) {
-                    throw new NotLoggedInException();
-                }
-                optPlayer = game != null ? game.getServer().getPlayer(UUID.fromString(playerUUID)) : Optional.empty();
-                String secret = UUID.randomUUID().toString();
+                String key = json.getString("key");
 
-                String encrypted = rsaUtil.encrypt(secret, json.getString("key"));
+                SecretPublicKeyPair secretAndPublicKey = tokenProvider.login(code, key);
 
-                eventBusSender.send(new JsonObject().put("event", "loggedIn").put("secret", encrypted)
-                    .put("key", rsaUtil.getBase64PublicKey()));
-                activeSessions.put(secret, optPlayer.orElse(null));
+                eventBusSender.send(new JsonObject()
+                        .put("event", "loggedIn")
+                        .put("secret", secretAndPublicKey.getSecret())
+                        .put("key", secretAndPublicKey.getBase64PublicKey()));
                 break;
             }
             default:

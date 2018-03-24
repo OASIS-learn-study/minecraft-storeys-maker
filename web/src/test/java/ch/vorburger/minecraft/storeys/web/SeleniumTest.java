@@ -67,13 +67,14 @@ public class SeleniumTest {
     public void testFunctionality() throws Exception {
         VertxStarter vertxStarter = new VertxStarter();
         // TODO use another (random) port and pass URL to minecraft.js via argument
-        vertxStarter.start(8080, new ActionsConsumer(null, null, mock(EventService.class), null, vertxStarter)).toCompletableFuture().get();
+        vertxStarter.start(8080, new ActionsConsumer(null, null, mock(EventService.class), null, vertxStarter, null)).toCompletableFuture().get();
         vertxStarter.deployVerticle(new StaticWebServerVerticle(9090, new File("../scratch"))).toCompletableFuture().get();
 
         DesiredCapabilities caps = DesiredCapabilities.chrome();
         LoggingPreferences logPrefs = new LoggingPreferences();
         logPrefs.enable(LogType.BROWSER, Level.ALL);
         caps.setCapability(CapabilityType.LOGGING_PREFS, logPrefs);
+
         // TODO how to resolve this deprecated correctly?
         WebDriver webDriver = new ChromeDriver(caps);
         JavascriptExecutor js = (JavascriptExecutor) webDriver;
@@ -87,6 +88,8 @@ public class SeleniumTest {
             long number = (Long) js.executeScript("return 1 + 2;");
             assertEquals(3, number);
 
+            // TODO refactor to have several @Test and make one which provokes a js.executeScript() failure and asserts BrowserConsoleLogErrors
+
             Object value = js.executeScript("return !(scratchMinecraftExtension === undefined);");
             assertThat(value).isInstanceOf(Boolean.class);
             assertThat(value).isNotNull();
@@ -97,7 +100,7 @@ public class SeleniumTest {
             Thread.sleep(500);
 
             js.executeScript("return scratchMinecraftExtension.sendTitle('hello, world', function(){});");
-
+            // TODO await callback, by setting global variable instead of function(){}
             // TODO assert we really ran a showTitle on the server side...
 
         } finally {
