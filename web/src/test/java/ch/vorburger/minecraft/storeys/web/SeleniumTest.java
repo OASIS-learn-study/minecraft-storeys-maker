@@ -23,7 +23,8 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 import ch.vorburger.minecraft.storeys.events.EventService;
-import ch.vorburger.minecraft.storeys.simple.Minecraft;
+import ch.vorburger.minecraft.storeys.simple.TokenProvider;
+import ch.vorburger.minecraft.storeys.simple.impl.TestMinecraft;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import java.io.File;
 import java.time.Duration;
@@ -66,11 +67,12 @@ public class SeleniumTest {
 
     @Test
     public void testFunctionality() throws Exception {
-        Minecraft minecraft = null; // TODO TestMinecraftImpl
+        TestMinecraft testMinecraft = new TestMinecraft();
+        TokenProvider testTokenProvider = new TestTokenProvider();
 
         VertxStarter vertxStarter = new VertxStarter();
         // TODO use another (random) port and pass URL to minecraft.js via argument
-        vertxStarter.start(8080, new ActionsConsumer(null, mock(EventService.class), null, vertxStarter, null, minecraft )).toCompletableFuture().get();
+        vertxStarter.start(8080, new ActionsConsumer(null, mock(EventService.class), null, vertxStarter, testTokenProvider, testMinecraft)).toCompletableFuture().get();
         vertxStarter.deployVerticle(new StaticWebServerVerticle(9090, new File("../scratch"))).toCompletableFuture().get();
 
         DesiredCapabilities caps = DesiredCapabilities.chrome();
@@ -102,9 +104,14 @@ public class SeleniumTest {
             // Without this the next executeScript (sometimes, timing..) fails with "WebDriverException: unknown error: INVALID_STATE_ERR"
             Thread.sleep(500);
 
-            js.executeScript("return scratchMinecraftExtension.sendTitle('hello, world', function(){});");
-            // TODO await callback, by setting global variable instead of function(){}
-            // TODO assert we really ran a showTitle on the server side...
+            js.executeScript("return scratchMinecraftExtension.sendTitle('hello, world', function(){ callbackInvoked = true; });");
+            // TODO replace sleep with something like this, which is not yet working for some reason I don't yet understand:
+            // await.withMessage("callback not yet invoked")
+            //          .until(ExpectedConditions.jsReturnsValue("return callbackInvoked === true);"));
+            Thread.sleep(1000);
+            assertThat(testMinecraft.lastTitle).isEqualTo("hello, world");
+
+            // TODO why is this ^^^ not yet working?
 
         } finally {
             webDriver.close();
