@@ -1,4 +1,6 @@
 
+var callbackInvoked;
+
 var scratchMinecraftExtension;
 
 ScratchExtensions = {
