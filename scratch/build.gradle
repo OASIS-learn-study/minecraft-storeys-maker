@@ -1,0 +1,17 @@
+plugins {
+  id "com.moowork.node" version "1.2.0"
+}
+
+task copyIcon(type: Copy) {
+    from 'favicon.ico'
+    into 'dist/'
+}
+
+task npmBuildProd(type: NpmTask) {
+  args = ['run', 'build:prod']
+}
+
+task install {
+    dependsOn copyIcon
+    dependsOn npmBuildProd
+}
