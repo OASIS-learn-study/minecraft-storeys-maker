@@ -28,7 +28,7 @@ const plugins = [
     }
   }),
   new HtmlWebpackPlugin({
-    title: 'Typescript Webpack Starter',
+    title: 'Test',
     template: '!!ejs-loader!src/index.html',
     inject: false
   }),
