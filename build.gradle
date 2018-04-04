@@ -68,4 +68,11 @@ subprojects {
         testImplementation 'org.slf4j:slf4j-simple:1.7.21'
         testImplementation 'org.mockito:mockito-core:2.13.0'
     }
+
+    test {
+        testLogging {
+            events "failed" // , "passed", "skipped"
+            exceptionFormat "full"
+        }
+    }
 }
