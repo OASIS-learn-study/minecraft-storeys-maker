@@ -37,8 +37,9 @@ public class VertxStarterTest {
     @Test
     public final void testVertxStarter() throws Exception {
         VertxStarter vertxStarter = new VertxStarter();
-        vertxStarter.start(9876, new ActionsConsumer(null, mock(EventService.class), null, vertxStarter, null, null)).toCompletableFuture().get();
-        vertxStarter.deployVerticle(new StaticWebServerVerticle(9090, new File("../scratch"))).toCompletableFuture().get();
+        vertxStarter.start(6789, new ActionsConsumer(null, mock(EventService.class), null, vertxStarter, null, null)).toCompletableFuture().get();
+
+        vertxStarter.deployVerticle(new StaticWebServerVerticle(2020, new File("../scratch"))).toCompletableFuture().get();
         // new BufferedReader(new InputStreamReader(System.in, defaultCharset())).readLine();
         vertxStarter.stop();
     }
