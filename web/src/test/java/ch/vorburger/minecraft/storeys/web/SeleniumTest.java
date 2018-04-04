@@ -35,12 +35,12 @@ import org.junit.Test;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogEntry;
 import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.remote.CapabilityType;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -75,13 +75,16 @@ public class SeleniumTest {
         vertxStarter.start(8080, new ActionsConsumer(null, mock(EventService.class), null, vertxStarter, testTokenProvider, testMinecraft)).toCompletableFuture().get();
         vertxStarter.deployVerticle(new StaticWebServerVerticle(9090, new File("../scratch"))).toCompletableFuture().get();
 
-        DesiredCapabilities caps = DesiredCapabilities.chrome();
+
         LoggingPreferences logPrefs = new LoggingPreferences();
         logPrefs.enable(LogType.BROWSER, Level.ALL);
-        caps.setCapability(CapabilityType.LOGGING_PREFS, logPrefs);
 
-        // TODO how to resolve this deprecated correctly?
-        WebDriver webDriver = new ChromeDriver(caps);
+        ChromeOptions options = new ChromeOptions();
+        options.setCapability(CapabilityType.LOGGING_PREFS, logPrefs);
+        options.addArguments("--headless");
+        options.addArguments("--disable-gpu");
+
+        WebDriver webDriver = new ChromeDriver(options);
         JavascriptExecutor js = (JavascriptExecutor) webDriver;
         FluentWait<WebDriver> await = new WebDriverWait(webDriver, 3).pollingEvery(Duration.ofMillis(100));
         try {
