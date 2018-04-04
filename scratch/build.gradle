@@ -8,10 +8,13 @@ task copyIcon(type: Copy) {
 }
 
 task npmBuildProd(type: NpmTask) {
-  args = ['run', 'build:prod']
+    dependsOn npm_install
+    args = ['run', 'build:prod']
 }
 
 task install {
     dependsOn copyIcon
     dependsOn npmBuildProd
 }
+
+assemble.dependsOn(install)
