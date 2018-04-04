@@ -1,12 +1,12 @@
 export class Test {
-    private callbacksCalled: Function[] = [];
+    private callbacksCalled: boolean[] = [];
     scratchMinecraftExtension: any;
 
     callback(index): Function {
-        if (!this.callbacksCalled[index]) {
-            this.callbacksCalled[index] = () => console.log('callback called', index);
+        return () => {
+            console.log('callback called', index);
+            this.callbacksCalled[index] = true;
         }
-        return this.callbacksCalled[index];
     }
     
     isCallbackCalled(index: string): boolean {
@@ -21,6 +21,6 @@ let test = new Test();
 (<any>window).ScratchExtensions = {
     register: function(extensionName, descriptor, ext) {
         test.scratchMinecraftExtension = ext;
-        console.log("ScratchX extension registered: " + !(test.scratchMinecraftExtension === undefined));
+        console.log("ScratchX extension registered:", extensionName, ext !== undefined);
     }
 };

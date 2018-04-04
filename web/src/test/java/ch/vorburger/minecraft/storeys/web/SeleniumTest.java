@@ -73,7 +73,7 @@ public class SeleniumTest {
         VertxStarter vertxStarter = new VertxStarter();
         // TODO use another (random) port and pass URL to minecraft.js via argument
         vertxStarter.start(8080, new ActionsConsumer(null, mock(EventService.class), null, vertxStarter, testTokenProvider, testMinecraft)).toCompletableFuture().get();
-        vertxStarter.deployVerticle(new StaticWebServerVerticle(9090, new File("../scratch"))).toCompletableFuture().get();
+        vertxStarter.deployVerticle(new StaticWebServerVerticle(9090, new File("../scratch/dist"))).toCompletableFuture().get();
 
 
         LoggingPreferences logPrefs = new LoggingPreferences();
@@ -89,7 +89,7 @@ public class SeleniumTest {
         JavascriptExecutor js = (JavascriptExecutor) webDriver;
         FluentWait<WebDriver> await = new WebDriverWait(webDriver, 3).pollingEvery(Duration.ofMillis(100));
         try {
-            webDriver.get("http://localhost:9090/test/test.html");
+            webDriver.get("http://localhost:9090/index.html");
             assertThat(webDriver.getTitle()).isEqualTo("Test");
             assertNoBrowserConsoleLogErrors(webDriver);
 
@@ -97,22 +97,19 @@ public class SeleniumTest {
             long number = (Long) js.executeScript("return 1 + 2;");
             assertEquals(3, number);
 
-            // TODO refactor to have several @Test and make one which provokes a js.executeScript() failure and asserts BrowserConsoleLogErrors
-
-            Object value = js.executeScript("return scratchMinecraftExtension !== undefined");
+            Object value = js.executeScript("return ext !== undefined");
             assertThat(value).isInstanceOf(Boolean.class);
             assertThat(value).isNotNull();
             await.withMessage("scratchMinecraftExtension not ready")
-                    .until(ExpectedConditions.jsReturnsValue("return scratchMinecraftExtension !== undefined"));
+                    .until(ExpectedConditions.jsReturnsValue("return ext !== undefined") );
             // TODO why does await above not work and we need to sleep() anyway?!
             // Without this the next executeScript (sometimes, timing..) fails with "WebDriverException: unknown error: INVALID_STATE_ERR"
             Thread.sleep(500);
 
-            js.executeScript("return scratchMinecraftExtension.sendTitle('hello, world', function(){ callbackInvoked = true; });");
+            js.executeScript("ext.scratchMinecraftExtension.sendTitle('hello, world', ext.callback('sendTitle'))");
             await.withMessage("callback not yet invoked")
-                    .until(ExpectedConditions.jsReturnsValue("return callbackInvoked === true"));
+                     .until(ExpectedConditions.jsReturnsValue("return ext.isCallbackCalled('sendTitle')"));
             assertThat(testMinecraft.lastTitle).isEqualTo("hello, world");
-
         } finally {
             webDriver.close();
             vertxStarter.stop();
