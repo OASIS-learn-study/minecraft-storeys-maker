@@ -83,6 +83,7 @@ public class SeleniumTest {
         options.setCapability(CapabilityType.LOGGING_PREFS, logPrefs);
         options.addArguments("--headless");
         options.addArguments("--disable-gpu");
+        options.addArguments("--no-sandbox");
 
         WebDriver webDriver = new ChromeDriver(options);
         JavascriptExecutor js = (JavascriptExecutor) webDriver;
