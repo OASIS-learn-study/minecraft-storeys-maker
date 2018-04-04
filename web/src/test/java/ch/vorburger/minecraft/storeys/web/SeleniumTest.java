@@ -99,11 +99,11 @@ public class SeleniumTest {
 
             // TODO refactor to have several @Test and make one which provokes a js.executeScript() failure and asserts BrowserConsoleLogErrors
 
-            Object value = js.executeScript("return !(scratchMinecraftExtension === undefined);");
+            Object value = js.executeScript("return scratchMinecraftExtension !== undefined");
             assertThat(value).isInstanceOf(Boolean.class);
             assertThat(value).isNotNull();
             await.withMessage("scratchMinecraftExtension not ready")
-                    .until(ExpectedConditions.jsReturnsValue("return !(scratchMinecraftExtension === undefined);"));
+                    .until(ExpectedConditions.jsReturnsValue("return scratchMinecraftExtension !== undefined"));
             // TODO why does await above not work and we need to sleep() anyway?!
             // Without this the next executeScript (sometimes, timing..) fails with "WebDriverException: unknown error: INVALID_STATE_ERR"
             Thread.sleep(500);
