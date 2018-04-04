@@ -109,13 +109,9 @@ public class SeleniumTest {
             Thread.sleep(500);
 
             js.executeScript("return scratchMinecraftExtension.sendTitle('hello, world', function(){ callbackInvoked = true; });");
-            // TODO replace sleep with something like this, which is not yet working for some reason I don't yet understand:
-            // await.withMessage("callback not yet invoked")
-            //          .until(ExpectedConditions.jsReturnsValue("return callbackInvoked === true);"));
-            Thread.sleep(1000);
+            await.withMessage("callback not yet invoked")
+                    .until(ExpectedConditions.jsReturnsValue("return callbackInvoked === true"));
             assertThat(testMinecraft.lastTitle).isEqualTo("hello, world");
-
-            // TODO why is this ^^^ not yet working?
 
         } finally {
             webDriver.close();
