@@ -8,6 +8,12 @@ alt="Minecraft Stories Maker" width="480" height="360" border="10" /></a>
 
 Please do Star & Watch this GitHub project if you like it!
 
+## Scratch integration
+
+This project has two parts, delivered as separate Minecraft plugins: 
+* The first, described below, lets you create stories by writing .story text files.
+* The second, [described in a separate README](/scratch/README.md), lets you script Minecraft with Scratch!
+
 ## Get it
 
 [Download the latest storeys-master-all.jar file from Bintray](https://bintray.com/vorburger/minecraft/minecraft-storeys-maker#files).
