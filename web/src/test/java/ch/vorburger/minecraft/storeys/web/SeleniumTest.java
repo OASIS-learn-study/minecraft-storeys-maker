@@ -126,11 +126,17 @@ public class SeleniumTest {
     public void testSendTitle() throws Exception {
         js.executeScript("ext.scratchMinecraftExtension.sendTitle('hello, world', ext.callback('sendTitle'))");
         awaitWD.withMessage("callback not yet invoked")
-                 .until(ExpectedConditions.jsReturnsValue("return ext.isCallbackCalled('sendTitle')"));
+               .until(ExpectedConditions.jsReturnsValue("return ext.isCallbackCalled('sendTitle')"));
         assertThat(testMinecraft.lastTitle).isEqualTo("hello, world");
     }
 
-    // TODO testWhenCommand
+    @Test
+    public void testWhenCommand() throws Exception {
+        js.executeScript("ext.scratchMinecraftExtension.when_command('testCommand', ext.callback('when_command-testCommand'))");
+        // TODO testMinecraft.runCommand("testCommand");
+        awaitWD.withMessage("callback not yet invoked")
+               .until(ExpectedConditions.jsReturnsValue("return ext.isCallbackCalled('when_command-testCommand')"));
+    }
 
     // TODO testAllOtherBlocks...
 
