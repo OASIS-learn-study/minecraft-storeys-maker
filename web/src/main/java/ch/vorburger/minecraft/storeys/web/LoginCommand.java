@@ -20,9 +20,11 @@ package ch.vorburger.minecraft.storeys.web;
 
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.util.Command;
+import ch.vorburger.minecraft.utils.CommandExceptions;
 import com.google.common.collect.ImmutableList;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.command.CommandException;
@@ -42,12 +44,18 @@ import org.spongepowered.api.text.format.TextColors;
  */
 public class LoginCommand implements Command {
 
-    private static final String URL_PREFIX = "http://scratchx.org/?url=https%3A%2F%2Frawgit.com%2Fvorburger%2Fminecraft-storeys-maker%2Fmaster%2Fscratch%2Fminecraft.js&code=";
+    private static final String URL_PREFIX = "http://scratchx.org/?url=%s&code=%s";
+
+    private String scratchJSExtensionURL = "https://rawgit.com/vorburger/minecraft-storeys-maker/master/scratch/minecraft.js";
 
     private final TokenProvider tokenProvider;
 
     public LoginCommand(TokenProvider tokenProvider) {
         this.tokenProvider = tokenProvider;
+        String jsURL = System.getProperty("storeys.jsURL");
+        if (jsURL != null) {
+            scratchJSExtensionURL = jsURL;
+        }
     }
 
     @Override
@@ -65,16 +73,16 @@ public class LoginCommand implements Command {
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         if (src instanceof Player) {
-            Player player = (Player)src;
+            CommandExceptions.doOrThrow("loginURL", () -> {
+                Player player = (Player)src;
 
-            String code = tokenProvider.getCode(player);
+                String code = tokenProvider.getCode(player);
 
-            try {
+                String url = String.format(URL_PREFIX, URLEncoder.encode(scratchJSExtensionURL, StandardCharsets.UTF_8.name()), code);
+
                 src.sendMessage(Text.builder("Click to open scratchx").onClick(
-                        TextActions.openUrl(new URL(URL_PREFIX + code))).color(TextColors.GOLD).build());
-            } catch (MalformedURLException ex) {
-                //ignore code created url
-            }
+                        TextActions.openUrl(new URL(url))).color(TextColors.GOLD).build());
+            });
         }
         return CommandResult.empty();
     }
