@@ -1,5 +1,8 @@
+// TODO rename this index.ts to be scratch.ts, because that is what it is... ;-)
+
 import * as EventBus from 'vertx3-eventbus-client';
 import { JSEncrypt } from 'jsencrypt';
+import { Minecraft } from "./minecraft";
 
 let ScratchExtensions: any;
 
@@ -40,20 +43,16 @@ let ScratchExtensions: any;
     while (match = search.exec(query))
     urlParams[decode(match[1])] = decode(match[2]);
 
-    var eb; // the Vert.X EventBus
     var eventsReceived = { };
     var player_last_joined;
     var registeredConditions = new Set();
-    var code;
 
     descriptor.menus.event.forEach(function(eventLabel) {
         eventsReceived[eventLabel] = false;
     });
 
     ext.sendTitle = function(sendTitle, callback) {
-        eb.send("mcs.actions", { "action": "setTitle", "text": sendTitle, "code": code }, function(reply) {
-            callback();
-        });
+
     };
     ext.narrate = function(entity, text, callack) {
         eb.send("mcs.actions", { "action": "narrate", "entity": entity, "text": text, "code": code }, function(reply) {
@@ -131,37 +130,7 @@ let ScratchExtensions: any;
         return { status: 2, msg: "Ready" };
     };
 
-    var crypt = new JSEncrypt(512);
-    // TODO url must be made configurable
-    eb = new EventBus("http://localhost:8080/eventbus");
-    eb.enableReconnect(true);
-    eb.onopen = function() {
-        eb.registerHandler("mcs.events", function (error, message) {
-            if (error != null) {
-                console.log("Vert.x Event Bus received error: " + error);
-            } else if (message.body.event === 'loggedIn') {
-                var id = crypt.decrypt(message.body.secret);
-                var key = message.body.key;
-                crypt = new JSEncrypt();
-                crypt.setPublicKey(key);
-                code = crypt.encrypt(id);
-            } else {
-                ext.eventReceived(message);
-            }
-        });
-
-        if (typeof (urlParams.code !== 'undefined')) {
-            crypt.getKey(function() {
-                eb.send("mcs.actions", { action: "login", token: urlParams.code, key: crypt.getPublicKeyB64()});
-            });
-        }
-
-        eb.send("mcs.actions", { "action": "ping" });
-        // TODO await "PONG" reply, and set status green
-    };
-    eb.onclose = function() {
-        console.log("Vert.x Event Bus Connection Close");
-    };
+    let minecraft = new Minecraft(urlParams.code);
 
     // Register the extension
     (<any>window).ScratchExtensions.register("Minecraft", descriptor, ext);
