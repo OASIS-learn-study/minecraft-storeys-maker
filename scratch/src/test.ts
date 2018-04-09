@@ -8,7 +8,7 @@ export class Test {
             this.callbacksCalled[index] = true;
         }
     }
-    
+
     isCallbackCalled(index: string): boolean {
         return this.callbacksCalled[index] || false;
     }

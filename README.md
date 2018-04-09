@@ -1,4 +1,4 @@
-# minecraft-storeys-maker
+# minecraft-storeys-maker [![Build Status](https://travis-ci.org/vorburger/minecraft-storeys-maker.svg?branch=master)](https://travis-ci.org/vorburger/minecraft-storeys-maker)
 
 Minecraft extension to make your own stories in, with and for Minecraft - it's like being a movie director!
 
