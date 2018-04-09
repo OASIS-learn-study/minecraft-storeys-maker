@@ -11,9 +11,20 @@ Build the entire project (not just the `scratch/` or `web/`) via `./gradlew buil
 
 Copy the `web/build/libs/web-1.0.0-SNAPSHOT-all.jar` into your [spongepowered.org](https://www.spongepowered.org) Minecraft, typically the `mods/` directory of a Vanilla server.
 
+Start a web server for the ScratchX extension:
+
+    cd scratch
+    npm start
+
+Make sure you CLOSE the page that just opened on http://localhost:3000, because its only used for testing, but the Vert.X EventBus client on it will interfere with the one in the ScratchX page.
+
+Start the Minecraft server, and pass the URL where the ScratchX extension is available now:
+
+    java -Dstoreys.jsURL=http://localhost:3000/minecraft.scratchx.js -jar spongevanilla-*.jar
+
 Connect to your Minecraft server with the Minecraft client GUI, and use the `/login` console command.  
 This will reply with a link to http://scratchx.org in the Minecraft chat.
-_TODO That link is currently hard-coded to rawgit.com/.../minecraft.js; we need to make it configurable to localhost for development!_
+
 
 ### OSGi
 
