@@ -30,6 +30,7 @@ import java.io.File;
 import java.time.Duration;
 import java.util.Date;
 import java.util.logging.Level;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openqa.selenium.JavascriptExecutor;
@@ -57,25 +58,29 @@ public class SeleniumTest {
 
     // TODO @Test public void testLoadInScratchX() {
     //    find some trick to pipe from http://scratchx.org to be able to load local file...
-    //    then open http://scratchx.org/?url=... ? (Or does that only work for SBX, not .js ?)
+    //    then open http://scratchx.org/?url=... like LoginCommand does.
+
+    private static VertxStarter vertxStarter;
+    private static TestMinecraft testMinecraft;
+
+    private static WebDriver webDriver;
+    private static JavascriptExecutor js;
+    private static FluentWait<WebDriver> awaitWD;
 
     @BeforeClass
-    public static void setupClass() {
+    public static void setupClass() throws Exception {
         // see https://github.com/bonigarcia/webdrivermanager
         WebDriverManager.chromedriver().setup();
-    }
 
-    @Test
-    public void testFunctionality() throws Exception {
-        TestMinecraft testMinecraft = new TestMinecraft();
+        testMinecraft = new TestMinecraft();
         TokenProvider testTokenProvider = new TestTokenProvider();
 
-        VertxStarter vertxStarter = new VertxStarter();
+        vertxStarter = new VertxStarter();
         // TODO use another (random) port and pass URL to minecraft.js via argument
         vertxStarter.start(8080, new ActionsConsumer(null, mock(EventService.class), null, vertxStarter, testTokenProvider, testMinecraft)).toCompletableFuture().get();
         vertxStarter.deployVerticle(new StaticWebServerVerticle(9090, new File("../scratch/dist"))).toCompletableFuture().get();
 
-
+        // set up WebDriver
         LoggingPreferences logPrefs = new LoggingPreferences();
         logPrefs.enable(LogType.BROWSER, Level.ALL);
 
@@ -85,38 +90,51 @@ public class SeleniumTest {
         options.addArguments("--disable-gpu");
         options.addArguments("--no-sandbox");
 
-        WebDriver webDriver = new ChromeDriver(options);
-        JavascriptExecutor js = (JavascriptExecutor) webDriver;
-        FluentWait<WebDriver> await = new WebDriverWait(webDriver, 3).pollingEvery(Duration.ofMillis(100));
-        try {
-            webDriver.get("http://localhost:9090/index.html");
-            assertThat(webDriver.getTitle()).isEqualTo("Test");
-            assertNoBrowserConsoleLogErrors(webDriver);
+        webDriver = new ChromeDriver(options);
+        js = (JavascriptExecutor) webDriver;
+        awaitWD = new WebDriverWait(webDriver, 3).pollingEvery(Duration.ofMillis(100));
 
-            // Let's just make sure that WD executeScript() works fine:
-            long number = (Long) js.executeScript("return 1 + 2;");
-            assertEquals(3, number);
-
-            Object value = js.executeScript("return ext !== undefined");
-            assertThat(value).isInstanceOf(Boolean.class);
-            assertThat(value).isNotNull();
-            await.withMessage("scratchMinecraftExtension not ready")
-                    .until(ExpectedConditions.jsReturnsValue("return ext !== undefined") );
-            // TODO why does await above not work and we need to sleep() anyway?!
-            // Without this the next executeScript (sometimes, timing..) fails with "WebDriverException: unknown error: INVALID_STATE_ERR"
-            Thread.sleep(500);
-
-            js.executeScript("ext.scratchMinecraftExtension.sendTitle('hello, world', ext.callback('sendTitle'))");
-            await.withMessage("callback not yet invoked")
-                     .until(ExpectedConditions.jsReturnsValue("return ext.isCallbackCalled('sendTitle')"));
-            assertThat(testMinecraft.lastTitle).isEqualTo("hello, world");
-        } finally {
-            webDriver.close();
-            vertxStarter.stop();
-        }
+        webDriver.get("http://localhost:9090/index.html");
     }
 
-    private void assertNoBrowserConsoleLogErrors(WebDriver webDriver) {
+    @AfterClass
+    public static void tearDownClass() throws Exception {
+        webDriver.close();
+        vertxStarter.stop();
+    }
+
+    @Test
+    public void testBasicSetUp() throws Exception {
+        assertThat(webDriver.getTitle()).isEqualTo("Test");
+        assertNoBrowserConsoleLogErrors();
+
+        // Let's just make sure that WD executeScript() works fine:
+        long number = (Long) js.executeScript("return 1 + 2;");
+        assertEquals(3, number);
+
+        Object value = js.executeScript("return ext !== undefined");
+        assertThat(value).isInstanceOf(Boolean.class);
+        assertThat(value).isNotNull();
+        awaitWD.withMessage("scratchMinecraftExtension not ready")
+                .until(ExpectedConditions.jsReturnsValue("return ext !== undefined") );
+        // TODO why does await above not work and we need to sleep() anyway?!
+        // Without this the next executeScript (sometimes, timing..) fails with "WebDriverException: unknown error: INVALID_STATE_ERR"
+        Thread.sleep(500);
+    }
+
+    @Test
+    public void testSendTitle() throws Exception {
+        js.executeScript("ext.scratchMinecraftExtension.sendTitle('hello, world', ext.callback('sendTitle'))");
+        awaitWD.withMessage("callback not yet invoked")
+                 .until(ExpectedConditions.jsReturnsValue("return ext.isCallbackCalled('sendTitle')"));
+        assertThat(testMinecraft.lastTitle).isEqualTo("hello, world");
+    }
+
+    // TODO testWhenCommand
+
+    // TODO testAllOtherBlocks...
+
+    private static void assertNoBrowserConsoleLogErrors() {
         String firstMessage = null;
         LogEntries logEntries = webDriver.manage().logs().get(LogType.BROWSER);
         for (LogEntry entry : logEntries) {
