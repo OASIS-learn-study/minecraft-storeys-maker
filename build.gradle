@@ -71,7 +71,8 @@ subprojects {
 
     test {
         testLogging {
-            events "failed" // , "passed", "skipped"
+            // more verbose, but sometimes useful; see e.g. https://github.com/vorburger/minecraft-storeys-maker/pull/16
+            events "failed", "passed", "skipped"
             exceptionFormat "full"
         }
     }
