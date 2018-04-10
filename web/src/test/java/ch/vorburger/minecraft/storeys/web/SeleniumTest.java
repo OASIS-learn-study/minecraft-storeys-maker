@@ -32,7 +32,9 @@ import java.util.Date;
 import java.util.logging.Level;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -52,6 +54,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
  *
  * @author Michael Vorburger.ch
  */
+@FixMethodOrder(MethodSorters.NAME_ASCENDING) // required because tests are not yet completely independent, see sleep()
 public class SeleniumTest {
 
     // TODO use https://www.testcontainers.org
@@ -104,7 +107,7 @@ public class SeleniumTest {
     }
 
     @Test
-    public void testBasicSetUp() throws Exception {
+    public void a_testBasicSetUp() throws Exception {
         assertThat(webDriver.getTitle()).isEqualTo("Test");
         assertNoBrowserConsoleLogErrors();
 
@@ -123,7 +126,7 @@ public class SeleniumTest {
     }
 
     @Test
-    public void testSendTitle() throws Exception {
+    public void b_testSendTitle() throws Exception {
         js.executeScript("ext.scratchMinecraftExtension.sendTitle('hello, world', ext.callback('sendTitle'))");
         awaitWD.withMessage("callback not yet invoked")
                  .until(ExpectedConditions.jsReturnsValue("return ext.isCallbackCalled('sendTitle')"));
