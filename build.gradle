@@ -34,7 +34,9 @@ allprojects  {
 
     tasks.withType(JavaCompile) {
       // TODO apply same error-prone configuration as I've done in OpenDaylight's infrautils.parent
-      options.compilerArgs += [ '-Xlint:deprecation', '-Xep:FallThrough:ERROR', '-Xep:MutableConstantField:ERROR', '-Xep:DefaultCharset:ERROR' ]
+      options.compilerArgs += [ '-proc:none', '-Xlint:deprecation', '-Xep:FallThrough:ERROR', '-Xep:MutableConstantField:ERROR', '-Xep:DefaultCharset:ERROR' ]
+      // The '-proc:none' is due to https://github.com/vorburger/minecraft-storeys-maker/issues/22,
+      // but note that we did instead add an annotationProcessor configuration for spongeapi.
     }
 }
 
@@ -55,7 +57,9 @@ subprojects {
 
     dependencies {
         implementation 'com.google.errorprone:error_prone_core:2.1.3'
+
         implementation 'org.spongepowered:spongeapi:6.0.0'
+        annotationProcessor 'org.spongepowered:spongeapi:7.0.0:shaded' // for https://github.com/vorburger/minecraft-storeys-maker/issues/22
 
         testImplementation 'junit:junit:4.12'
         testImplementation 'com.google.truth:truth:0.30' // NOT 0.31+ which pull 'com.google.guava:guava:20.0', but causes a mess for Gradle's testCompile VS compile; Gradle bug?!
