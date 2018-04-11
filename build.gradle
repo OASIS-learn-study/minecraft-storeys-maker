@@ -1,7 +1,3 @@
-/*
- * see https://docs.gradle.org/4.1/userguide/java_library_plugin.html
- */
-
 buildscript {
   repositories {
     jcenter()
@@ -13,7 +9,6 @@ buildscript {
 
 plugins {
     id 'java-library'
-    id 'org.spongepowered.plugin' version '0.8.1'
     id 'com.github.hierynomus.license' version '0.14.0'
     id 'net.ltgt.errorprone' version '0.0.13'
 }
@@ -29,7 +24,6 @@ allprojects  {
     description = 'Make your own stories in, with and for Minecraft!'
 
     apply plugin: 'java-library'
-    // apply plugin: 'org.spongepowered.plugin'
     apply plugin: 'com.github.hierynomus.license'
     apply plugin: 'net.ltgt.errorprone'
 
