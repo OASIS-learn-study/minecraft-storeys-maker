@@ -13,7 +13,7 @@ module.exports = function(config) {
       noInfo: true,
       stats: 'errors-only'
     },
-    reporters: ['spec', 'coverage-istanbul'],
+    reporters: ['spec', 'coverage-istanbul', 'kjhtml'],
     specReporter: {
       maxLogLines: 5, // limit number of lines logged per test
       suppressErrorSummary: true, // do not print error summary
