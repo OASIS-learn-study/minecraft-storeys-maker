@@ -7,6 +7,13 @@ task copyIcon(type: Copy) {
     into 'dist/'
 }
 
+node {
+  // https://github.com/srs/gradle-node-plugin/blob/master/docs/node.md#configuring-the-plugin
+  version = '8.11.1'
+  npmVersion = '5.8.0'
+  download = true
+}
+
 project.afterEvaluate {
     tasks.npm_install.outputs.dir(file('node_modules'))
 }
@@ -29,4 +36,3 @@ task install {
 }
 
 assemble.dependsOn(install)
-
