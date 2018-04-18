@@ -33,17 +33,22 @@ public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
 
     private static final Logger LOG = LoggerFactory.getLogger(StaticWebServerVerticle.class);
 
-    private final File webRoot;
+    private final String webRoot;
+
+    public StaticWebServerVerticle(int httpPort) {
+        super(httpPort);
+        this.webRoot = "static"; // ~= ../scratch/dist/*.js
+    }
 
     public StaticWebServerVerticle(int httpPort, File webRoot) {
         super(httpPort);
-        this.webRoot = webRoot;
+        this.webRoot = webRoot.getPath();
     }
 
     @Override
     protected void addRoutes(Router router) {
-        router.route("/*").handler(StaticHandler.create().setDirectoryListing(true).setWebRoot(webRoot.getPath()));
-        LOG.info("Going to serve static web content from {} on port {}", webRoot.getAbsolutePath(), httpPort);
+        router.route("/*").handler(StaticHandler.create().setDirectoryListing(true).setWebRoot(webRoot));
+        LOG.info("Going to serve static web content from {} on port {}", webRoot, httpPort);
     }
 
 }

@@ -10,6 +10,7 @@ ext {
 
 dependencies {
     implementation project(':storeys')
+    implementation project(':scratch')
 
     implementation 'org.osgi:org.osgi.core:6.0.0'
     implementation 'ch.vorburger.minecraft:ch.vorburger.minecraft.osgi.api:1.0.0-SNAPSHOT'
@@ -43,6 +44,7 @@ shadowJar {
     // NB "not being able to filter entire transitive dependency graphs"
     // so instead of using exclude dependency we just do explicit include:
     include(project(':storeys'))
+    include(project(':scratch'))
     include(dependency("io.vertx:vertx-core"))
     include(dependency("io.vertx:vertx-web"))
     include(dependency("io.vertx:vertx-auth-common"))
