@@ -23,9 +23,9 @@ task npmBuildProd(type: NpmTask) {
     inputs.files(fileTree('src'))
     inputs.file('package.json')
     inputs.file('webpack.config.js')
-    
+
     outputs.dir('dist')
- 
+
     dependsOn npm_install
     args = ['run', 'build:prod']
 }
@@ -36,3 +36,14 @@ task install {
 }
 
 assemble.dependsOn(install)
+
+jar {
+  into 'static', {
+    from('dist') {
+      include 'minecraft.scratchx.js'
+      include 'favicon.ico'
+    }
+  }
+}
+// sourceSets.main.resources.srcDirs = [ "dist/" ]
+// sourceSets.main.resources.includes = [ "**/*.js" ]

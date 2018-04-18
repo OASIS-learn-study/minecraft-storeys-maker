@@ -76,6 +76,7 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
             try {
                 actionsConsumer = new ActionsConsumer(plugin, eventService, new ConditionService(plugin), vertxStarter, tokenProvider, minecraft);
                 vertxStarter.start(httpPort, actionsConsumer).toCompletableFuture().get();
+                vertxStarter.deployVerticle(new StaticWebServerVerticle(7070)).toCompletableFuture().get();
             } catch (ExecutionException  | InterruptedException e) {
                 throw new IllegalStateException("Vert.x start-up failed", e);
             }
