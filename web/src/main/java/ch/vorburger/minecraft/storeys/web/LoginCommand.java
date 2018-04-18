@@ -44,19 +44,23 @@ public class LoginCommand implements Command {
 
     private static final String URL_PREFIX = "http://scratchx.org/?url=%s&code=%s&evenbusUrl=%s";
 
-    private String scratchJSExtensionURL = "https://rawgit.com/vorburger/minecraft-storeys-maker/master/scratch/minecraft.js";
-    private String eventBusUrl = "http://localhost:8080/eventbus";
+    private String scratchJSExtensionURL = "http://localhost:7070/minecraft.scratchx.js";
+    private String eventBusURL = "http://localhost:8080/eventbus";
 
     private final TokenProvider tokenProvider;
 
     public LoginCommand(TokenProvider tokenProvider) {
         this.tokenProvider = tokenProvider;
-        scratchJSExtensionURL = eventBusUrl = getSystemPropertyOrDefault("storeys.jsURL", scratchJSExtensionURL);
-        eventBusUrl = getSystemPropertyOrDefault("storeys.eventBusUrl", eventBusUrl);
+        scratchJSExtensionURL = getSystemPropertyEnvVarOrDefault("storeys.jsURL", scratchJSExtensionURL);
+        eventBusURL = getSystemPropertyEnvVarOrDefault("storeys.eventBusURL", eventBusURL);
     }
 
-    private String getSystemPropertyOrDefault(String propertyName, String defaultValue) {
+    private String getSystemPropertyEnvVarOrDefault(String propertyName, String defaultValue) {
         String property = System.getProperty(propertyName);
+        if (property != null) {
+            return property;
+        }
+        property = System.getenv(propertyName);
         if (property != null) {
             return property;
         }
@@ -85,7 +89,7 @@ public class LoginCommand implements Command {
 
                 String url = String.format(URL_PREFIX,
                         URLEncoder.encode(scratchJSExtensionURL, StandardCharsets.UTF_8.name()), code,
-                        URLEncoder.encode(eventBusUrl, StandardCharsets.UTF_8.name()));
+                        URLEncoder.encode(eventBusURL, StandardCharsets.UTF_8.name()));
 
                 src.sendMessage(Text.builder("Click to open scratchx").onClick(
                         TextActions.openUrl(new URL(url))).color(TextColors.GOLD).build());
