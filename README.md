@@ -69,9 +69,23 @@ You can obviously mix the order and repeat titles, comments, chats, narrations, 
 
     ./gradlew build
 
+In Docker:
+
     docker build -t minecraft-storeys-maker .
 
-    docker run -p 25565:25565 -p 8080:8080 -p 9090:9090 minecraft-storeys-maker
+    docker run --rm -p 25565:25565 -p 8080:8080 -p 7070:7070 minecraft-storeys-maker
+
+In OpenShift, just ignore the "error: build error: No source files were specified" from the first command:
+
+    oc new-app https://github.com/vorburger/minecraft-storeys-maker.git
+
+    oc start-build minecraft-storeys-maker --from-dir=. --follow
+
+    oc get pods | grep -v build
+
+    oc port-forward minecraft-storeys-maker-.... 25565:25565
+    oc port-forward minecraft-storeys-maker-.... 7070:7070
+    oc port-forward minecraft-storeys-maker-.... 8080:8080
 
 You'll need to have [the "s2i-minecraft-server" base image](https://github.com/vorburger/s2i-minecraft-server) available.
 
