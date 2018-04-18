@@ -132,8 +132,7 @@ let ScratchExtensions: any;
     };
 
     var crypt = new JSEncrypt(512);
-    // TODO url must be made configurable
-    eb = new EventBus("http://localhost:8080/eventbus");
+    eb = new EventBus(urlParams.evenbusUrl);
     eb.enableReconnect(true);
     eb.onopen = function() {
         eb.registerHandler("mcs.events", function (error, message) {

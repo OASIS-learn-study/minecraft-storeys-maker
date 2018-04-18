@@ -39,23 +39,28 @@ import org.spongepowered.api.text.format.TextColors;
 
 /**
  * Minecraft console command to login.
- *
- * @author edewit
  */
 public class LoginCommand implements Command {
 
-    private static final String URL_PREFIX = "http://scratchx.org/?url=%s&code=%s";
+    private static final String URL_PREFIX = "http://scratchx.org/?url=%s&code=%s&evenbusUrl=%s";
 
     private String scratchJSExtensionURL = "https://rawgit.com/vorburger/minecraft-storeys-maker/master/scratch/minecraft.js";
+    private String eventBusUrl = "http://localhost:8080/eventbus";
 
     private final TokenProvider tokenProvider;
 
     public LoginCommand(TokenProvider tokenProvider) {
         this.tokenProvider = tokenProvider;
-        String jsURL = System.getProperty("storeys.jsURL");
-        if (jsURL != null) {
-            scratchJSExtensionURL = jsURL;
+        scratchJSExtensionURL = eventBusUrl = getSystemPropertyOrDefault("storeys.jsURL", scratchJSExtensionURL);
+        eventBusUrl = getSystemPropertyOrDefault("storeys.eventBusUrl", eventBusUrl);
+    }
+
+    private String getSystemPropertyOrDefault(String propertyName, String defaultValue) {
+        String property = System.getProperty(propertyName);
+        if (property != null) {
+            return property;
         }
+        return defaultValue;
     }
 
     @Override
@@ -78,7 +83,9 @@ public class LoginCommand implements Command {
 
                 String code = tokenProvider.getCode(player);
 
-                String url = String.format(URL_PREFIX, URLEncoder.encode(scratchJSExtensionURL, StandardCharsets.UTF_8.name()), code);
+                String url = String.format(URL_PREFIX,
+                        URLEncoder.encode(scratchJSExtensionURL, StandardCharsets.UTF_8.name()), code,
+                        URLEncoder.encode(eventBusUrl, StandardCharsets.UTF_8.name()));
 
                 src.sendMessage(Text.builder("Click to open scratchx").onClick(
                         TextActions.openUrl(new URL(url))).color(TextColors.GOLD).build());
