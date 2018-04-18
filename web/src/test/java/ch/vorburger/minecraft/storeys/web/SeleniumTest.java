@@ -97,7 +97,7 @@ public class SeleniumTest {
         js = (JavascriptExecutor) webDriver;
         awaitWD = new WebDriverWait(webDriver, 3).pollingEvery(Duration.ofMillis(100));
 
-        webDriver.get("http://localhost:9090/index.html");
+        webDriver.get("http://localhost:9090/index.html?evenbusUrl=http%3A%2F%2Flocalhost%3A8080%2Feventbus");
     }
 
     @AfterClass
