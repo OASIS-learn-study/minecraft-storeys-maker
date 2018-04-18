@@ -65,6 +65,17 @@ You can obviously mix the order and repeat titles, comments, chats, narrations, 
 * `/story <story-name>` plays a story, read from `config/storeys/stories/<story-name>.story`
 * `/narrate <entityName> Text..` makes an entity "narrate" the _Text_
 
+## Build it
+
+    ./gradlew build
+
+    docker build -t minecraft-storeys-maker .
+
+    docker run -p 25565:25565 -p 8080:8080 -p 9090:9090 minecraft-storeys-maker
+
+You'll need to have [the "s2i-minecraft-server" base image](https://github.com/vorburger/s2i-minecraft-server) available.
+
+
 ## FAQ
 
 **Seriously, "storeys" (not _"stories"_) Maker, are you mental?** Yeah.. just to avoid any possible confusion with Minecraft Story Mode! ;-)
