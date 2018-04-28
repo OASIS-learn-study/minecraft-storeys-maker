@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     implementation 'org.osgi:org.osgi.core:6.0.0'
-    implementation 'ch.vorburger.minecraft:ch.vorburger.minecraft.osgi.api:1.0.0-SNAPSHOT'
+    implementation 'ch.vorburger.minecraft.osgi:api:1.0.0'
 }
 
 shadowJar {
@@ -12,7 +12,7 @@ shadowJar {
     // http://imperceptiblethoughts.com/shadow/#filtering_dependencies
     // NB "not being able to filter entire transitive dependency graphs"
     // so instead of using exclude dependency we just do explicit include:
-    include(dependency('ch.vorburger.minecraft:ch.vorburger.minecraft.osgi.api'))
+    include(dependency('ch.vorburger.minecraft.osgi:api'))
   }
 }
 

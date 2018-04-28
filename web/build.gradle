@@ -13,7 +13,7 @@ dependencies {
     implementation project(':scratch')
 
     implementation 'org.osgi:org.osgi.core:6.0.0'
-    implementation 'ch.vorburger.minecraft:ch.vorburger.minecraft.osgi.api:1.0.0-SNAPSHOT'
+    implementation 'ch.vorburger.minecraft.osgi:api:1.0.0'
 
     compile "io.vertx:vertx-core:$vertxVersion"
     compile "io.vertx:vertx-web:$vertxVersion"
@@ -67,7 +67,7 @@ shadowJar {
     include(dependency("com.fasterxml.jackson.core:jackson-core"))
     include(dependency("com.fasterxml.jackson.core:jackson-databind"))
     include(dependency("com.fasterxml.jackson.core:jackson-annotations"))
-    include(dependency('ch.vorburger.minecraft:ch.vorburger.minecraft.osgi.api'))
+    include(dependency("ch.vorburger.minecraft.osgi:api"))
   }
 }
 
