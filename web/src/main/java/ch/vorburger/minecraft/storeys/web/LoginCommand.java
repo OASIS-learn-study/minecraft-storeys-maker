@@ -51,8 +51,8 @@ public class LoginCommand implements Command {
 
     public LoginCommand(TokenProvider tokenProvider) {
         this.tokenProvider = tokenProvider;
-        scratchJSExtensionURL = getSystemPropertyEnvVarOrDefault("storeys.jsURL", scratchJSExtensionURL);
-        eventBusURL = getSystemPropertyEnvVarOrDefault("storeys.eventBusURL", eventBusURL);
+        scratchJSExtensionURL = getSystemPropertyEnvVarOrDefault("storeys_jsURL", scratchJSExtensionURL);
+        eventBusURL = getSystemPropertyEnvVarOrDefault("storeys_eventBusURL", eventBusURL);
     }
 
     private String getSystemPropertyEnvVarOrDefault(String propertyName, String defaultValue) {
