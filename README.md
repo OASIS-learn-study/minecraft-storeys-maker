@@ -81,6 +81,19 @@ In OpenShift, just ignore the "error: build error: No source files were specifie
 
     oc start-build minecraft-storeys-maker --from-dir=. --follow
 
+Expose the [Minecraft server port 25565 via a LoadBalancer service](https://github.com/vorburger/s2i-minecraft-server/),
+and similarly also (specific to this plugin) expose our JS web site code and Vert.x EventBus port, for now via Edit YAML
+on the minecraft-storeys-maker(-server) Service, and adding 7070 and 8080 just like 25565.  NB that you do not set the
+`nodePort:` when editing the YAML; it will get automatically added.  We then have to set Environment variables
+on the minecraft-storeys-maker(-server) Deployment:
+
+    oc get services
+
+    storeys_jsURL = http://<EXTERNAL-IP>:7070/minecraft.scratchx.js
+    storeys_eventBusURL = http://<EXTERNAL-IP>:8080/eventbus
+
+Or just with local port forwarding instead:
+
     oc get pods | grep -v build
 
     oc port-forward minecraft-storeys-maker-.... 25565:25565
@@ -88,6 +101,8 @@ In OpenShift, just ignore the "error: build error: No source files were specifie
     oc port-forward minecraft-storeys-maker-.... 8080:8080
 
 You'll need to have [the "s2i-minecraft-server" base image](https://github.com/vorburger/s2i-minecraft-server) available.
+
+See also [minecraft-storeys-maker-server](https://github.com/vorburger/minecraft-storeys-maker-server).
 
 
 ## FAQ

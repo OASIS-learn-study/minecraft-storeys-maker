@@ -1,8 +1,8 @@
 # minecraft-storeys-maker Scratch integration
 
-## For end-users
+## For end-users on OpenShift
 
-_TODO Describe how to use this w.o. build; just BT DL, or... from an instance we'll eventually host??_
+See [../README.md](../README.md).
 
 
 ## For developers
@@ -20,7 +20,7 @@ Make sure you CLOSE the page that just opened on http://localhost:3000, because 
 
 Start the Minecraft server, and pass the URL where the ScratchX extension is available now:
 
-    java -Dstoreys.jsURL=http://localhost:3000/minecraft.scratchx.js -jar spongevanilla-*.jar
+    java -Dstoreys_jsURL=http://localhost:3000/minecraft.scratchx.js -jar spongevanilla-*.jar
 
 Connect to your Minecraft server with the Minecraft client GUI, and use the `/login` console command.  
 This will reply with a link to http://scratchx.org in the Minecraft chat.
