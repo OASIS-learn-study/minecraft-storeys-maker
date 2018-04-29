@@ -38,7 +38,7 @@ import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 
 /**
- * Minecraft console command to login.
+ * Minecraft console command to login to ScratchX.
  */
 public class LoginCommand implements Command {
 
@@ -70,13 +70,13 @@ public class LoginCommand implements Command {
     @Override
     public CommandCallable callable() {
         return CommandSpec.builder()
-                .description(Text.of("Login into scratchx web interface"))
+                .description(Text.of("Login into ScratchX web interface"))
                 .executor(this).build();
     }
 
     @Override
     public List<String> aliases() {
-        return ImmutableList.of("login");
+        return ImmutableList.of("make", "scratch", "login"); // TODO eventually remove deprecated "login"
     }
 
     @Override
@@ -91,7 +91,7 @@ public class LoginCommand implements Command {
                         URLEncoder.encode(scratchJSExtensionURL, StandardCharsets.UTF_8.name()), code,
                         URLEncoder.encode(eventBusURL, StandardCharsets.UTF_8.name()));
 
-                src.sendMessage(Text.builder("Click to open scratchx").onClick(
+                src.sendMessage(Text.builder("Click here to open ScratchX and MAKE actions").onClick(
                         TextActions.openUrl(new URL(url))).color(TextColors.GOLD).build());
             });
         }
