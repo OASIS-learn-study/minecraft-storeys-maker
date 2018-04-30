@@ -139,11 +139,14 @@ let ScratchExtensions: any;
             if (error != null) {
                 console.log("Vert.x Event Bus received error: " + error);
             } else if (message.body.event === 'loggedIn') {
-                var id = crypt.decrypt(message.body.secret);
+                var secret = message.body.secret;
+                console.log("Logging in... secret = " + secret);
+                var id = crypt.decrypt(secret);
                 var key = message.body.key;
                 crypt = new JSEncrypt();
                 crypt.setPublicKey(key);
                 code = crypt.encrypt(id);
+                console.log("New code = " + code);
             } else {
                 ext.eventReceived(message);
             }
