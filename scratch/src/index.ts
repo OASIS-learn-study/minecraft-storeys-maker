@@ -138,15 +138,6 @@ let ScratchExtensions: any;
         eb.registerHandler("mcs.events", function (error, message) {
             if (error != null) {
                 console.log("Vert.x Event Bus received error: " + error);
-            } else if (message.body.event === 'loggedIn') {
-                var secret = message.body.secret;
-                console.log("Logging in... secret = " + secret);
-                var id = crypt.decrypt(secret);
-                var key = message.body.key;
-                crypt = new JSEncrypt();
-                crypt.setPublicKey(key);
-                code = crypt.encrypt(id);
-                console.log("New code = " + code);
             } else {
                 ext.eventReceived(message);
             }
@@ -154,7 +145,14 @@ let ScratchExtensions: any;
 
         if (typeof (urlParams.code !== 'undefined')) {
             crypt.getKey(function() {
-                eb.send("mcs.actions", { action: "login", token: urlParams.code, key: crypt.getPublicKeyB64()});
+                eb.send("mcs.actions", { action: "login", token: urlParams.code, key: crypt.getPublicKeyB64() }, (error, message) => {
+                    console.log("Logging in... secret", message.body.secret);
+                    var id = crypt.decrypt(message.body.secret);
+                    var key = message.body.key;
+                    crypt = new JSEncrypt();
+                    crypt.setPublicKey(key);
+                    code = crypt.encrypt(id);
+                });
             });
         }
 

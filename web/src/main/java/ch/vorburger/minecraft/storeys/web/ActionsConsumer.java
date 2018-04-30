@@ -138,7 +138,7 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
 
                 SecretPublicKeyPair secretAndPublicKey = tokenProvider.login(code, key);
 
-                eventBusSender.send(new JsonObject()
+                message.reply(new JsonObject()
                         .put("event", "loggedIn")
                         .put("secret", secretAndPublicKey.getSecret())
                         .put("key", secretAndPublicKey.getBase64PublicKey()));
