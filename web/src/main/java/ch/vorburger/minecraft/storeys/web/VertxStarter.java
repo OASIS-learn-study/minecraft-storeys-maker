@@ -78,7 +78,6 @@ public class VertxStarter implements EventBusSender {
 
     @Override
     public void send(Object message) {
-        LOG.info("Sending message: {}", message);
         minecraftVerticle.send(message);
     }
 
