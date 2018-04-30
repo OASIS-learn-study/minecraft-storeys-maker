@@ -43,6 +43,11 @@ public class TestTokenProvider implements TokenProvider {
     @Override
     public Token getToken(String tokenAsText) {
         return new Token() {
+
+            @Override
+            public String toString() {
+                return "TestToken{}";
+            }
         };
     }
 

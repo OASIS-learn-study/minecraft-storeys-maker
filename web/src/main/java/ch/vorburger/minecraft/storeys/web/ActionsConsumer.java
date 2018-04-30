@@ -49,7 +49,6 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 
@@ -102,7 +101,6 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
         JsonObject json = message.body();
         String secureCode = json.getString("code");
         Token token = tokenProvider.getToken(secureCode);
-        Optional<Player> optPlayer = tokenProvider.getOptionalPlayer(token);
 
         try {
             switch (json.getString("action")) {
@@ -119,18 +117,18 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
             case "narrate": {
                 String text = json.getString("text");
                 String entity = json.getString("entity");
-                execute(optPlayer.orElseThrow(NotLoggedInException::new),
+                execute(token,
                         new NarrateAction(narrator).setEntity(entity).setText(Text.of(text)), message);
                 break;
             }
             case "command": {
                 String command = json.getString("command");
-                execute(optPlayer.orElseThrow(NotLoggedInException::new),
+                execute(token,
                         new CommandAction().setCommand(command), message);
                 break;
             }
             case "registerCondition": {
-                registerCondition(optPlayer.orElseThrow(NotLoggedInException::new),
+                registerCondition(token,
                                   requireNonNull(json.getString("condition"), "condition"));
                 break;
             }
@@ -152,6 +150,7 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
             }
         } catch (Exception e) {
             // TODO make red etc. like in that command helper
+            Optional<Player> optPlayer = tokenProvider.getOptionalPlayer(token);
             optPlayer.ifPresent(player -> player.sendMessage(Text.of(e.getMessage())));
             throw e;
         }
@@ -163,11 +162,17 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
         }
     }
 
-    private void execute(CommandSource commandSource, Action<?> action, Message<?> message) {
-        action.execute(new ActionContext(commandSource, new ReadingSpeed())).thenRun(() -> message.reply("done"));
+    private void execute(Token token, Action<?> action, Message<?> message) {
+        Optional<Player> optPlayer = tokenProvider.getOptionalPlayer(token);
+        Player player = optPlayer.orElseThrow(() -> new NotLoggedInException(token));
+
+        action.execute(new ActionContext(player, new ReadingSpeed())).thenRun(() -> message.reply("done"));
     }
 
-    private void registerCondition(Player player, String conditionAsText) {
+    private void registerCondition(Token token, String conditionAsText) {
+        Optional<Player> optPlayer = tokenProvider.getOptionalPlayer(token);
+        Player player = optPlayer.orElseThrow(() -> new NotLoggedInException(token));
+
         if (runIfStartsWith(conditionAsText, "myPlayer_inside_", coordinates -> {
             Condition condition = new LocatableInBoxCondition(player, coordinates);
             ConditionServiceRegistration registration = conditionService.register(condition, () -> {

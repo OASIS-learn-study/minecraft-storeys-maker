@@ -18,6 +18,8 @@
  */
 package ch.vorburger.minecraft.storeys.simple.impl;
 
+import ch.vorburger.minecraft.storeys.simple.Token;
+
 /**
  * Thrown when the user is not logged in
  * @author edewit
@@ -25,5 +27,13 @@ package ch.vorburger.minecraft.storeys.simple.impl;
 public class NotLoggedInException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
+
+    public NotLoggedInException(Token token) {
+        super("token=" + token.toString());
+    }
+
+    public NotLoggedInException(String message) {
+        super(message);
+    }
 
 }

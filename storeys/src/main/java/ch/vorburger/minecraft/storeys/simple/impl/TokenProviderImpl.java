@@ -21,6 +21,7 @@ package ch.vorburger.minecraft.storeys.simple.impl;
 import ch.vorburger.minecraft.storeys.simple.Token;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -57,7 +58,7 @@ public class TokenProviderImpl implements TokenProvider {
     public SecretPublicKeyPair login(String code, String base64PublicKey) {
         String playerUUID = validLogins.remove(code);
         if (playerUUID == null) {
-            throw new NotLoggedInException();
+            throw new NotLoggedInException("playerUUID == null");
         }
         Optional<Player> optPlayer = game != null ? game.getServer().getPlayer(UUID.fromString(playerUUID)) : Optional.empty();
         String secret = UUID.randomUUID().toString();
@@ -82,7 +83,7 @@ public class TokenProviderImpl implements TokenProvider {
 
     @Override
     public Token getToken(String tokenAsText) {
-        return new PlayerTokenImpl(tokenAsText != null ? Optional.ofNullable(activeSessions.get(rsaUtil.decrypt(tokenAsText))) : Optional.empty());
+        return new PlayerTokenImpl(tokenAsText != null ? Optional.ofNullable(activeSessions.get(rsaUtil.decrypt(tokenAsText))) : Optional.empty(), tokenAsText);
     }
 
     @Override
@@ -92,15 +93,22 @@ public class TokenProviderImpl implements TokenProvider {
 
     @Override
     public Player getPlayer(Token token) throws NotLoggedInException {
-        return getOptionalPlayer(token).orElseThrow(NotLoggedInException::new);
+        return getOptionalPlayer(Objects.requireNonNull(token, "token")).orElseThrow(() -> new NotLoggedInException(token));
     }
 
-    private static class PlayerTokenImpl implements Token {
+    private static class PlayerTokenImpl extends Token {
 
         final Optional<Player> optPlayer;
+        final String tokenAsText;
 
-        PlayerTokenImpl(Optional<Player> optPlayer) {
+        PlayerTokenImpl(Optional<Player> optPlayer, String tokenAsText) {
             this.optPlayer = optPlayer;
+            this.tokenAsText = tokenAsText;
+        }
+
+        @Override
+        public String toString() {
+            return "Token{text=" + tokenAsText + "}, player={" + optPlayer + "}";
         }
 
     }

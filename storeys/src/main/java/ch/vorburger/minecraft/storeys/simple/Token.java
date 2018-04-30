@@ -23,4 +23,9 @@ package ch.vorburger.minecraft.storeys.simple;
  *
  * @author Michael Vorburger.ch
  */
-public interface Token {}
+public abstract class Token {
+
+    @Override
+	public abstract String toString();
+
+}
