@@ -1,0 +1,3 @@
+ARTIFACT_DIR=web/build/libs/
+ARTIFACT_COPY_ARGS=*-all.jar
+DEPLOYMENTS_DIR=/deployments/mods/

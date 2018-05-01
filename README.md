@@ -10,7 +10,7 @@ Please do Star & Watch this GitHub project if you like it!
 
 ## Scratch integration
 
-This project has two parts, delivered as separate Minecraft plugins: 
+This project has two parts, delivered as separate Minecraft plugins:
 * The first, described below, lets you create stories by writing .story text files.
 * The second, [described in a separate README](/scratch/README.md), lets you script Minecraft with Scratch!
 
@@ -75,13 +75,23 @@ In Docker:
 
     docker run --rm -p 25565:25565 -p 8080:8080 -p 7070:7070 minecraft-storeys-maker
 
-In OpenShift, just ignore the "error: build error: No source files were specified" from the first command:
+In OpenShift:
+
+Until [S2I #146](https://github.com/fabric8io-images/s2i/issues/146) and [S2I #118] (https://github.com/fabric8io-images/s2i/issues/118) are reviewed, merged and available on DockerHub, we first:
+
+    oc new-build https://github.com/vorburger/s2i#gradle --context-dir=java/images/jboss
+
+and then:
+
+    oc new-build s2i~https://github.com/vorburger/s2i-minecraft-server
 
     oc new-app https://github.com/vorburger/minecraft-storeys-maker.git
 
+or if have this project's source code locally (but beware of #28!), then:
+
     oc start-build minecraft-storeys-maker --from-dir=. --follow
 
-Expose the [Minecraft server port 25565 via a LoadBalancer service](https://github.com/vorburger/s2i-minecraft-server/),
+Now expose the [Minecraft server port 25565 via a LoadBalancer service](https://github.com/vorburger/s2i-minecraft-server/),
 and similarly also (specific to this plugin) expose our JS web site code and Vert.x EventBus port, for now via Edit YAML
 on the minecraft-storeys-maker(-server) Service, and adding 7070 and 8080 just like 25565.  NB that you do not set the
 `nodePort:` when editing the YAML; it will get automatically added.  We then have to set Environment variables
@@ -99,10 +109,6 @@ Or just with local port forwarding instead:
     oc port-forward minecraft-storeys-maker-.... 25565:25565
     oc port-forward minecraft-storeys-maker-.... 7070:7070
     oc port-forward minecraft-storeys-maker-.... 8080:8080
-
-You'll need to have [the "s2i-minecraft-server" base image](https://github.com/vorburger/s2i-minecraft-server) available.
-
-See also [minecraft-storeys-maker-server](https://github.com/vorburger/minecraft-storeys-maker-server).
 
 
 ## FAQ
