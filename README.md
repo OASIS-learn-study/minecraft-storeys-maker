@@ -87,7 +87,7 @@ and then:
 
     oc new-app https://github.com/vorburger/minecraft-storeys-maker.git
 
-or if have this project's source code locally (but beware of #28!), then:
+or if have this project's source code locally (but beware of [issue 28](https://github.com/vorburger/minecraft-storeys-maker/issues/28)!), then:
 
     oc start-build minecraft-storeys-maker --from-dir=. --follow
 
