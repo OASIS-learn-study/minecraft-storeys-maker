@@ -20,10 +20,14 @@ package ch.vorburger.minecraft.storeys.model;
 
 import static java.util.Objects.requireNonNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandResult;
 
 public class CommandAction implements SynchronousAction<CommandResult> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CommandAction.class);
 
     // TODO It would be good if there was a way to know when a /command was "done" ..
     //   to be able to make this an asynchronous Action returning a CompletionStage - but how?
@@ -40,7 +44,9 @@ public class CommandAction implements SynchronousAction<CommandResult> {
 
     @Override
     public CommandResult executeSynchronously(ActionContext context) throws ActionException {
-        return Sponge.getCommandManager().process(context.getCommandSource(), requireNonNull(commandLineWithoutSlash, "commandLineWithoutSlash"));
+        CommandResult result = Sponge.getCommandManager().process(context.getCommandSource(), requireNonNull(commandLineWithoutSlash, "commandLineWithoutSlash"));
+        LOG.info("processed command /{} from source {} with result {}", commandLineWithoutSlash, context.getCommandSource(), result);
+        return result;
     }
 
 }
