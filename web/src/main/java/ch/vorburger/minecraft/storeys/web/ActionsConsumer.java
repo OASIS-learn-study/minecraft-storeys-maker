@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
-
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.ReadingSpeed;
@@ -150,6 +149,7 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
             }
         } catch (Exception e) {
             // TODO make red etc. like in that command helper
+            LOG.error("caught Exception", e);
             Optional<Player> optPlayer = tokenProvider.getOptionalPlayer(token);
             optPlayer.ifPresent(player -> player.sendMessage(Text.of(e.getMessage())));
             throw e;
@@ -166,7 +166,13 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
         Optional<Player> optPlayer = tokenProvider.getOptionalPlayer(token);
         Player player = optPlayer.orElseThrow(() -> new NotLoggedInException(token));
 
-        action.execute(new ActionContext(player, new ReadingSpeed())).thenRun(() -> message.reply("done"));
+        action.execute(new ActionContext(player, new ReadingSpeed()))
+            .thenRun(() -> message.reply("done"))
+            .exceptionally(t -> {
+                LOG.error("Action (eventually) caused Exception", t);
+                message.reply("FAILED: " + t.getMessage());
+                return null; // Void
+            });
     }
 
     private void registerCondition(Token token, String conditionAsText) {
