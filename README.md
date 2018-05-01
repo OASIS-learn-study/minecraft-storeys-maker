@@ -85,7 +85,7 @@ and then:
 
     oc new-build s2i~https://github.com/vorburger/s2i-minecraft-server
 
-    oc new-app https://github.com/vorburger/minecraft-storeys-maker.git
+    oc new-app s2i-minecraft-server~https://github.com/vorburger/minecraft-storeys-maker.git
 
 or if have this project's source code locally (but beware of [issue 28](https://github.com/vorburger/minecraft-storeys-maker/issues/28)!), then:
 
