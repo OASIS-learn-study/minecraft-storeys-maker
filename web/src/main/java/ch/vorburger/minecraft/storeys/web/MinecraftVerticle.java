@@ -60,7 +60,7 @@ public class MinecraftVerticle extends AbstractHttpServerVerticle implements Eve
 
     @Override
     public void send(Object message) {
-        vertx.eventBus().send(EVENTBUS_MINECRAFT_EVENTS_ADDRESS, message);
+        vertx.eventBus().publish(EVENTBUS_MINECRAFT_EVENTS_ADDRESS, message);
         LOG.info("Sent to EventBus: {}", message);
     }
 }
