@@ -123,7 +123,7 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
             case "command": {
                 String command = json.getString("command");
                 execute(token,
-                        new CommandAction().setCommand(command), message);
+                        new CommandAction(plugin).setCommand(command), message);
                 break;
             }
             case "registerCondition": {

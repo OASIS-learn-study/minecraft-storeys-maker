@@ -67,7 +67,10 @@ shadowJar {
     include(dependency("com.fasterxml.jackson.core:jackson-core"))
     include(dependency("com.fasterxml.jackson.core:jackson-databind"))
     include(dependency("com.fasterxml.jackson.core:jackson-annotations"))
+
+    // must repeat those from ../storeys/build.gradle here:
     include(dependency("ch.vorburger.minecraft.osgi:api"))
+    include(dependency('com.spotify:futures-extra'))
   }
 }
 

@@ -20,12 +20,13 @@ package ch.vorburger.minecraft.storeys.model;
 
 import static java.util.Objects.requireNonNull;
 
+import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandResult;
 
-public class CommandAction implements SynchronousAction<CommandResult> {
+public class CommandAction extends MainThreadAction<CommandResult> {
 
     private static final Logger LOG = LoggerFactory.getLogger(CommandAction.class);
 
@@ -33,6 +34,10 @@ public class CommandAction implements SynchronousAction<CommandResult> {
     //   to be able to make this an asynchronous Action returning a CompletionStage - but how?
 
     private String commandLineWithoutSlash;
+
+    public CommandAction(PluginInstance plugin) {
+        super(plugin);
+    }
 
     public CommandAction setCommand(String commandLine) {
         this.commandLineWithoutSlash = requireNonNull(commandLine, "commandLine").trim();
@@ -43,7 +48,7 @@ public class CommandAction implements SynchronousAction<CommandResult> {
     }
 
     @Override
-    public CommandResult executeSynchronously(ActionContext context) throws ActionException {
+    protected CommandResult executeInMainThread(ActionContext context) throws ActionException {
         CommandResult result = Sponge.getCommandManager().process(context.getCommandSource(), requireNonNull(commandLineWithoutSlash, "commandLineWithoutSlash"));
         LOG.info("processed command /{} from source {} with result {}", commandLineWithoutSlash, context.getCommandSource(), result);
         return result;
