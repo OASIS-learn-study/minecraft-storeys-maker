@@ -52,6 +52,7 @@ public class StoryParser {
         this.narrator = narrator;
     }
 
+    @SuppressWarnings("OrphanedFormatString") // "%await" is a real thing, here
     public Story parse(String storyScript) throws SyntaxErrorException {
         actions = new ArrayList<>();
         narrateActionInConstruction = null;
@@ -86,7 +87,7 @@ public class StoryParser {
             } else if (line.startsWith("/")) {
                 addActionInConstruction();
                 String remainingLine = line.substring(1).trim();
-                actions.add(new CommandAction().setCommand(remainingLine));
+                actions.add(new CommandAction(plugin).setCommand(remainingLine));
             } else if (line.startsWith("%await")) {
                 addActionInConstruction();
                 String remainingLine = line.substring("%await".length()).trim();
