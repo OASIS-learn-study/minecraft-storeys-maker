@@ -109,13 +109,13 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
                 break;
             }
             case "setTitle": {
-                String text = json.getString("text");
+                String text = safeGetString(json, "text");
                 minecraft.setTitle(token, text).thenRun(() -> message.reply("done"));
                 break;
             }
             case "narrate": {
-                String text = json.getString("text");
-                String entity = json.getString("entity");
+                String text = safeGetString(json, "text");
+                String entity = safeGetString(json, "entity");
                 execute(token,
                         new NarrateAction(narrator).setEntity(entity).setText(Text.of(text)), message);
                 break;
@@ -210,6 +210,13 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
         } else {
             return false;
         }
+    }
+
+    private String safeGetString(JsonObject json, String key) {
+        // see https://github.com/vorburger/minecraft-storeys-maker/issues/38
+        // for why this is safer than using json.getString(key) for JSON values
+        // being sent to us from the ScratchX client
+        return json.getValue(key).toString();
     }
 
 }
