@@ -40,6 +40,8 @@ public class Activator implements BundleActivator {
         pluginInstanceServiceReference = context.getServiceReference(PluginInstance.class);
         PluginInstance osgiPlugin = context.getService(pluginInstanceServiceReference);
 
+        // TODO reigster GuardGameModeJoinListener
+
         context.registerService(CommandRegistration.class, new StoryCommand(osgiPlugin, Paths.get("config/storeys")), null);
         context.registerService(CommandRegistration.class, new NarrateCommand(osgiPlugin), null);
     }

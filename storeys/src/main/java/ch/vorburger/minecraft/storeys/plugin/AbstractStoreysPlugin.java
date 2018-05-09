@@ -22,6 +22,7 @@ import ch.vorburger.minecraft.osgi.api.AbstractPlugin;
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.commands.NarrateCommand;
 import ch.vorburger.minecraft.storeys.commands.StoryCommand;
+import ch.vorburger.minecraft.storeys.guard.GuardGameModeJoinListener;
 import ch.vorburger.minecraft.storeys.util.Commands;
 import java.nio.file.Path;
 import javax.inject.Inject;
@@ -33,6 +34,7 @@ import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
 
 // Do *NOT* annotate this class with @Plugin
 public abstract class AbstractStoreysPlugin extends AbstractPlugin {
@@ -53,6 +55,8 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
     }
 
     protected void start(PluginInstance plugin, @SuppressWarnings("hiding") Path configDir) throws Exception {
+        Sponge.getEventManager().registerListener(plugin, Join.class, new GuardGameModeJoinListener());
+
         storyCommandMapping = Commands.register(plugin, new StoryCommand(plugin, configDir));
         narrateCommandMapping = Commands.register(plugin, new NarrateCommand(plugin));
     }
