@@ -87,7 +87,11 @@ and then:
 
     oc new-app s2i-minecraft-server~https://github.com/vorburger/minecraft-storeys-maker.git
 
-or if have this project's source code locally (but beware of [issue 28](https://github.com/vorburger/minecraft-storeys-maker/issues/28)!), then:
+This may fail if Builds have memory constraints; if so, Edit YAML to change `resources: {}` to `resources:\n  limits:\n    memory: 2Gi`.
+
+_TODO: Why NOK on OpenShift Online?? "It also helps to Edit YAML to add `incremental: true` to the `strategy:` / `sourceStrategy:`._
+
+If have this project's source code locally (but beware of [issue 28](https://github.com/vorburger/minecraft-storeys-maker/issues/28)!), then:
 
     oc start-build minecraft-storeys-maker --from-dir=. --follow
 
