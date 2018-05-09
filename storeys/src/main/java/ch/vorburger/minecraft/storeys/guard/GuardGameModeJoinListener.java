@@ -36,11 +36,14 @@ public class GuardGameModeJoinListener implements EventListener<Join> {
     public void handle(Join joinEvent) throws Exception {
         GameMode newGameMode = null;
         Player player = joinEvent.getTargetEntity();
+        // NB: Order and use of if and not else if - because higher permission overrides lower...
         if (player.hasPermission("storeys.guard.adventure")) {
             newGameMode = GameModes.ADVENTURE;
-        } else if (player.hasPermission("storeys.guard.creative")) {
+        }
+        if (player.hasPermission("storeys.guard.creative")) {
             newGameMode = GameModes.CREATIVE;
-        } else if (player.hasPermission("storeys.guard.survival")) {
+        }
+        if (player.hasPermission("storeys.guard.survival")) {
             newGameMode = GameModes.SURVIVAL;
         }
         if (newGameMode != null) {
