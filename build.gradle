@@ -62,7 +62,7 @@ subprojects {
         testImplementation 'junit:junit:4.12'
         testImplementation 'com.google.truth:truth:0.40' // NOT 0.31+ which pull 'com.google.guava:guava:20.0', but causes a mess for Gradle's testCompile VS compile; Gradle bug?!
         testImplementation 'org.slf4j:slf4j-simple:1.7.21'
-        testImplementation 'org.mockito:mockito-core:2.13.0'
+        testImplementation 'org.mockito:mockito-core:2.18.3'
     }
 
     test {
