@@ -5,7 +5,7 @@ plugins {
 }
 
 ext {
-  vertxVersion = '3.5.0'
+  vertxVersion = '3.5.1'
 }
 
 dependencies {
