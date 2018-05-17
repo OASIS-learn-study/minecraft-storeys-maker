@@ -1,1 +1,1 @@
-Bundle-Activator: ${classes;IMPLEMENTS;org.osgi.framework.BundleActivator}
+Bundle-Activator: ch.vorburger.minecraft.storeys.web.Activator
