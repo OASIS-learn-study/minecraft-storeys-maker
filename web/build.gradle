@@ -20,7 +20,7 @@ dependencies {
 
     compile "io.vertx:vertx-codegen:$vertxVersion"
     compile "io.vertx:vertx-service-proxy:$vertxVersion"
-    annotationProcessor "io.vertx:vertx-service-proxy:$vertxVersion:processor"
+    compile "io.vertx:vertx-service-proxy:$vertxVersion:processor"
 
     compileOnly "io.vertx:vertx-lang-js:$vertxVersion"
     compile "io.vertx:vertx-sockjs-service-proxy:$vertxVersion"
