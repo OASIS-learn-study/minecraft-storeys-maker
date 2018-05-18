@@ -2,6 +2,10 @@ plugins {
   id "com.moowork.node" version "1.2.0"
 }
 
+dependencies {
+    implementation project(':api')
+}
+
 task copyIcon(type: Copy) {
     from 'favicon.ico'
     into 'dist/'
