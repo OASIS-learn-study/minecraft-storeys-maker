@@ -16,7 +16,17 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-@ModuleGen(name="Minecraft", groupPackage = "ch.vorburger.minecraft.storeys.web")
-package ch.vorburger.minecraft.storeys.web;
+package ch.vorburger.minecraft.storeys.api;
 
-import io.vertx.codegen.annotations.ModuleGen;
+import io.vertx.codegen.annotations.ProxyGen;
+import io.vertx.codegen.annotations.VertxGen;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+
+@VertxGen
+@ProxyGen
+public interface Minecraft {
+
+    void showTitle(String message, Handler<AsyncResult<Void>> results);
+
+}

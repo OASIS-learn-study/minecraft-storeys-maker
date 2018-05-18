@@ -1,0 +1,17 @@
+ext {
+  vertxVersion = '3.5.1'
+}
+
+dependencies {
+    compile "io.vertx:vertx-core:$vertxVersion"
+    compile "io.vertx:vertx-web:$vertxVersion"
+
+    compile "io.vertx:vertx-codegen:$vertxVersion"
+    compile "io.vertx:vertx-service-proxy:$vertxVersion"
+    compile "io.vertx:vertx-service-proxy:$vertxVersion:processor"
+
+    compileOnly "io.vertx:vertx-lang-js:$vertxVersion"
+    compile "io.vertx:vertx-sockjs-service-proxy:$vertxVersion"
+
+    testCompile "io.vertx:vertx-unit:$vertxVersion"
+}
