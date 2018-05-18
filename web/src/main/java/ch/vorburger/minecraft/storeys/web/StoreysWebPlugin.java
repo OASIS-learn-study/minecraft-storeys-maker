@@ -71,7 +71,7 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
 
         try {
             int httpPort = 8080; // TODO read from some configuration
-            vertxStarter = new VertxStarter();
+            vertxStarter = new VertxStarter(plugin, tokenProvider);
             eventService = new EventService(plugin);
             try {
                 actionsConsumer = new ActionsConsumer(plugin, eventService, new ConditionService(plugin), vertxStarter, tokenProvider, minecraft);

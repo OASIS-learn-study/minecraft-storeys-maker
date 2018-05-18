@@ -22,11 +22,28 @@ import io.vertx.codegen.annotations.ProxyGen;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.serviceproxy.ServiceProxyBuilder;
 
 @VertxGen
 @ProxyGen
 public interface Minecraft {
 
-    void showTitle(String message, Handler<AsyncResult<Void>> results);
+    void showTitle(String code, String message, Handler<AsyncResult<Void>> results);
+
+    /**
+     * The service address.
+     */
+    String ADDRESS = "ch.vorburger.minecraft.storeys";
+
+    /**
+     * Method called to create a proxy to consume the service.
+     *
+     * @param vertx Vert.x
+     * @return the proxy
+     */
+    static Minecraft createProxy(Vertx vertx) {
+        return new ServiceProxyBuilder(vertx).setAddress(ADDRESS).build(Minecraft.class);
+    }
 
 }

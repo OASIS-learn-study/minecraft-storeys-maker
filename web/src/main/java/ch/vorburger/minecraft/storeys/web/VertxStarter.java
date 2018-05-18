@@ -18,6 +18,8 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
+import ch.vorburger.minecraft.osgi.api.PluginInstance;
+import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Handler;
@@ -39,8 +41,16 @@ public class VertxStarter implements EventBusSender {
 
     private static final Logger LOG = LoggerFactory.getLogger(VertxStarter.class);
 
+    private final PluginInstance pluginInstance;
+    private final TokenProvider tokenProvider;
+
     private Vertx vertx;
     private MinecraftVerticle minecraftVerticle;
+
+    public VertxStarter(PluginInstance pluginInstance, TokenProvider tokenProvider) {
+        this.pluginInstance = pluginInstance;
+        this.tokenProvider = tokenProvider;
+    }
 
     public CompletionStage<Void> start(int httpPort, ActionsConsumer actionsConsumer) {
         // see https://github.com/eclipse/vert.x/issues/2298 ...
@@ -53,7 +63,7 @@ public class VertxStarter implements EventBusSender {
             Thread.currentThread().setContextClassLoader(tccl);
         }
 
-        minecraftVerticle = new MinecraftVerticle(httpPort, actionsConsumer);
+        minecraftVerticle = new MinecraftVerticle(httpPort, actionsConsumer, pluginInstance, tokenProvider);
         return deployVerticle(minecraftVerticle)
             .thenRun(() -> LOG.info("Started Vert.x distributed BiDi event-bus HTTP server on port {}", httpPort));
     }
