@@ -91,8 +91,9 @@ This may fail if Builds have memory constraints; if so, Edit YAML to change `res
 
 _TODO: Why NOK on OpenShift Online?? "It also helps to Edit YAML to add `incremental: true` to the `strategy:` / `sourceStrategy:`._
 
-If have this project's source code locally (but beware of [issue 28](https://github.com/vorburger/minecraft-storeys-maker/issues/28)!), then:
+If have this project's source code locally, then (the `rm .../node_modules` is because of [issue 28](https://github.com/vorburger/minecraft-storeys-maker/issues/28)):
 
+    rm -rf scratch/.gradle/ scratch/node_modules
     oc start-build minecraft-storeys-maker --from-dir=. --follow
 
 Now expose the [Minecraft server port 25565 via a LoadBalancer service](https://github.com/vorburger/s2i-minecraft-server/),
