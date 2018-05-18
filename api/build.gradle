@@ -7,7 +7,7 @@ dependencies {
     compile "io.vertx:vertx-web:$vertxVersion"
 
     compileOnly "io.vertx:vertx-codegen:$vertxVersion"
-    compileOnly "io.vertx:vertx-service-proxy:$vertxVersion"
+    compile "io.vertx:vertx-service-proxy:$vertxVersion"
     compileOnly "io.vertx:vertx-service-proxy:$vertxVersion:processor"
 
     compileOnly "io.vertx:vertx-lang-js:$vertxVersion"

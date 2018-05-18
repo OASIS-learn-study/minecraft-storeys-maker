@@ -18,11 +18,16 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
+import ch.vorburger.minecraft.osgi.api.PluginInstance;
+import ch.vorburger.minecraft.storeys.api.Minecraft;
+import ch.vorburger.minecraft.storeys.api.impl.MinecraftImpl;
+import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import io.vertx.ext.bridge.PermittedOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
+import io.vertx.serviceproxy.ServiceBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,11 +43,26 @@ public class MinecraftVerticle extends AbstractHttpServerVerticle implements Eve
     private static final String EVENTBUS_MINECRAFT_ACTIONS_ADDRESS = "mcs.actions";
     private static final String EVENTBUS_MINECRAFT_EVENTS_ADDRESS = "mcs.events";
 
+    private MinecraftImpl service;
     private final ActionsConsumer actionsConsumer;
+    private final PluginInstance pluginInstance;
+    private final TokenProvider tokenProvider;
 
-    public MinecraftVerticle(int httpPort, ActionsConsumer actionsConsumer) {
+    public MinecraftVerticle(int httpPort, ActionsConsumer actionsConsumer, PluginInstance pluginInstance, TokenProvider tokenProvider) {
         super(httpPort);
         this.actionsConsumer = actionsConsumer;
+        this.pluginInstance = pluginInstance;
+        this.tokenProvider = tokenProvider;
+    }
+
+    @Override
+    public void start() throws Exception {
+        service = new MinecraftImpl(vertx, config(), pluginInstance, tokenProvider);
+        new ServiceBinder(vertx).setAddress(Minecraft.ADDRESS).register(Minecraft.class, service);
+    }
+
+    @Override
+    public void stopVerticle() throws Exception {
     }
 
     @Override

@@ -35,6 +35,7 @@ import org.spongepowered.api.text.Text;
  *
  * @author Michael Vorburger.ch
  */
+@Deprecated
 public class MinecraftImpl implements Minecraft {
 
     private final PluginInstance pluginInstance;

@@ -63,7 +63,11 @@ public abstract class AbstractHttpServerVerticle extends AbstractVerticle {
 
     @Override
     public final void stop() throws Exception {
+        stopVerticle();
         httpServer.close();
+    }
+
+    protected void stopVerticle() throws Exception {
     }
 
     abstract protected void addRoutes(Router router);

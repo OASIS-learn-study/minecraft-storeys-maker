@@ -25,9 +25,14 @@ import java.util.concurrent.CompletionStage;
  *
  * <p>Intended to be used by "scripts", possibly remotely.
  *
+ * @deprecated Use ch.vorburger.minecraft.storeys.api.Minecraft instead
+ *
  * @author Michael Vorburger.ch
  */
+@Deprecated
 public interface Minecraft {
+
+    // TODO eventually completely remove this and replace its usage with ch.vorburger.minecraft.storeys.api.Minecraft
 
     CompletionStage<Void> setTitle(Token token, String title);
 
