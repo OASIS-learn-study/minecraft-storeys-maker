@@ -53,7 +53,14 @@ let ScratchExtensions: any;
     });
 
     ext.sendTitle = function(sendTitle: string, callback: any) {
-        minecraft.showTitle(code, sendTitle, (err: any, result: any) => callback());
+        minecraft.showTitle(code, sendTitle, (err: any, result: any) => {
+            // TODO edewit: factor this out into a ../../api/src/api-utils.ts (?) usable from all functions here as well as scratch3/
+            if (err) {
+                console.log("sendTitle reply with error: ", err);
+            } else {
+                callback();
+            }
+        });
     };
     ext.narrate = function(entity, text, callack) {
         eb.send("mcs.actions", { "action": "narrate", "entity": entity, "text": text, "code": code }, function(reply) {
