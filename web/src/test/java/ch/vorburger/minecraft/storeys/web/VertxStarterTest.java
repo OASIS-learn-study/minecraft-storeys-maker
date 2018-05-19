@@ -18,13 +18,10 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
-import static java.nio.charset.Charset.defaultCharset;
 import static org.junit.Assert.assertEquals;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -66,9 +63,7 @@ public class VertxStarterTest {
 
         vertxStarter.deployVerticle(new StaticWebServerVerticle(9090, new File("../scratch"))).toCompletableFuture().get();
 
-        System.out.println("Running now... press Enter to Stop.");
-        BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in, defaultCharset()));
-        buffer.readLine();
+        Mains.waitForEnter();
 
         vertxStarter.stop();
     }
