@@ -43,6 +43,7 @@ shadowJar {
     include(dependency("io.vertx:vertx-web"))
     include(dependency("io.vertx:vertx-auth-common"))
     include(dependency("io.vertx:vertx-bridge-common"))
+    include(dependency("io.vertx:vertx-service-proxy"))
     // having to repeat all of Vert.x's Netty dependencies here feel stupid,
     // but there doesn't seem to be an easier way; the alternative would be
     // to instead of include only use exclude of all of spongepowered's libs.
