@@ -59,7 +59,9 @@ public class MinecraftVerticle extends AbstractHttpServerVerticle implements Eve
 
     @Override
     public void start() throws Exception {
-        new ServiceBinder(vertx).setAddress(Minecraft.ADDRESS).register(Minecraft.class, minecraft);
+        String address = Minecraft.ADDRESS;
+        new ServiceBinder(vertx).setAddress(address).register(Minecraft.class, minecraft);
+        LOG.info("Registered service on the event bus at address: {}", address);
     }
 
     @Override
