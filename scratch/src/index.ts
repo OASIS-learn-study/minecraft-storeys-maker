@@ -1,4 +1,5 @@
 import * as EventBus from 'vertx3-eventbus-client';
+import { Minecraft } from '../../api/build/classes/java/main/Minecraft-ts/minecraft-proxy';
 import { JSEncrypt } from 'jsencrypt';
 
 let ScratchExtensions: any;
@@ -40,6 +41,7 @@ let ScratchExtensions: any;
     while (match = search.exec(query))
     urlParams[decode(match[1])] = decode(match[2]);
 
+    var minecraft : Minecraft;
     var eb; // the Vert.X EventBus
     var eventsReceived = { };
     var player_last_joined;
@@ -50,10 +52,8 @@ let ScratchExtensions: any;
         eventsReceived[eventLabel] = false;
     });
 
-    ext.sendTitle = function(sendTitle, callback) {
-        eb.send("mcs.actions", { "action": "setTitle", "text": sendTitle, "code": code }, function(reply) {
-            callback();
-        });
+    ext.sendTitle = function(sendTitle: string, callback: any) {
+        minecraft.showTitle(code, sendTitle, (err: any, result: any) => callback());
     };
     ext.narrate = function(entity, text, callack) {
         eb.send("mcs.actions", { "action": "narrate", "entity": entity, "text": text, "code": code }, function(reply) {
@@ -162,6 +162,8 @@ let ScratchExtensions: any;
     eb.onclose = function() {
         console.log("Vert.x Event Bus Connection Close");
     };
+
+    minecraft = new Minecraft(eb, "ch.vorburger.minecraft.storeys");
 
     // Register the extension
     (<any>window).ScratchExtensions.register("Minecraft", descriptor, ext);
