@@ -37,7 +37,6 @@ import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.ActionContext;
 import ch.vorburger.minecraft.storeys.model.CommandAction;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
-import ch.vorburger.minecraft.storeys.simple.Minecraft;
 import ch.vorburger.minecraft.storeys.simple.Token;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider.SecretPublicKeyPair;
@@ -70,13 +69,12 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
     private final ConditionService conditionService;
     private final EventBusSender eventBusSender;
     private final TokenProvider tokenProvider;
-    private final Minecraft minecraft;
 
     private final Map<String, Unregisterable> conditionRegistrations = new ConcurrentHashMap<>();
 
     public ActionsConsumer(PluginInstance plugin, EventService eventService,
             ConditionService conditionService, EventBusSender eventBusSender,
-            TokenProvider tokenProvider, Minecraft minecraft) {
+            TokenProvider tokenProvider) {
         this.plugin = plugin;
         this.eventBusSender = eventBusSender;
 
@@ -85,7 +83,6 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
         this.conditionService = conditionService;
 
         this.tokenProvider = tokenProvider;
-        this.minecraft = minecraft;
 
         eventService.registerPlayerJoin(event -> {
             JsonObject message = new JsonObject().put("event", "playerJoined").put("player", event.getTargetEntity().getName());
@@ -106,11 +103,6 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
             case "ping": {
                 message.reply("pong");
                 LOG.info("ping & pong ACK reply");
-                break;
-            }
-            case "setTitle": {
-                String text = safeGetString(json, "text");
-                minecraft.setTitle(token, text).thenRun(() -> message.reply("done"));
                 break;
             }
             case "narrate": {
