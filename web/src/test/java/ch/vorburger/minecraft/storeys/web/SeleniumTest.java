@@ -21,7 +21,6 @@ package ch.vorburger.minecraft.storeys.web;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
 
-import ch.vorburger.minecraft.storeys.api.Minecraft;
 import ch.vorburger.minecraft.storeys.api.impl.MinecraftImpl;
 import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
@@ -85,7 +84,7 @@ public class SeleniumTest {
         vertxStarter = new VertxStarter();
         // TODO use another (random) port and pass URL to minecraft.js via argument
         MinecraftVerticle minecraftVerticle = new MinecraftVerticle(8080, testMinecraft);
-        minecraftVerticle.setActionsConsumer(event -> LOG.warn("Received event, but ignoring/not handling in this test: {}", event));
+        minecraftVerticle.setActionsConsumer(event -> LOG.warn("Received event, but ignoring/not handling in this test: {}", event.body()));
         vertxStarter.deployVerticle(minecraftVerticle).toCompletableFuture().get();
         vertxStarter.deployVerticle(new StaticWebServerVerticle(9090, new File("../scratch/dist"))).toCompletableFuture().get();
 
@@ -134,6 +133,7 @@ public class SeleniumTest {
     public void b_testSendTitle() throws Exception {
         js.executeScript("ext.scratchMinecraftExtension.sendTitle('hello, world', ext.callback('sendTitle'))");
         awaitUntilJSReturnsValue("callback not yet invoked", "return ext.isCallbackCalled('sendTitle')");
+        assertNoBrowserConsoleLogErrors();
         assertThat(testMinecraft.lastTitle).isEqualTo("hello, world");
     }
 
@@ -161,6 +161,12 @@ public class SeleniumTest {
         if (firstMessage != null) {
             throw new AssertionError(firstMessage);
         }
+    }
+
+    public static void main(String[] args) throws Exception {
+        setupClass();
+        Mains.waitForEnter();
+        tearDownClass();
     }
 
 }

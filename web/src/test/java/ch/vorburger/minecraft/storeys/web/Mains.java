@@ -16,31 +16,27 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys.web.test;
+package ch.vorburger.minecraft.storeys.web;
 
-import ch.vorburger.minecraft.storeys.api.Minecraft;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.nio.charset.Charset.defaultCharset;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
- * Implementation of {@link Minecraft} suitable for testing.
+ * Utility to implement simple main() methods.
  *
  * @author Michael Vorburger.ch
  */
-public class TestMinecraft implements Minecraft {
+public final class Mains {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TestMinecraft.class);
+    private Mains() { }
 
-    public String lastTitle;
-
-    @Override
-    public void showTitle(String code, String message, Handler<AsyncResult<Void>> results) {
-        LOG.info("showTitle({}, {})", code, message);
-        lastTitle = message;
-        results.handle(Future.succeededFuture());
+    public static void waitForEnter() throws IOException {
+        System.out.println("Running now... press Enter to Stop.");
+        BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in, defaultCharset()));
+        buffer.readLine();
     }
 
 }
