@@ -24,7 +24,7 @@ import static org.mockito.Mockito.mock;
 
 import ch.vorburger.minecraft.storeys.events.EventService;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
-import ch.vorburger.minecraft.storeys.simple.impl.TestMinecraft;
+import ch.vorburger.minecraft.storeys.web.test.TestMinecraft;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import java.io.File;
 import java.time.Duration;
