@@ -77,9 +77,11 @@ public class SeleniumTest {
 
     @BeforeClass
     public static void setupClass() throws Exception {
-        // see https://github.com/bonigarcia/webdrivermanager
-        WebDriverManager.chromedriver().setup();
+        startVertx();
+        startWebDriver();
+    }
 
+    private static void startVertx() throws Exception {
         testMinecraft = new TestMinecraft();
         vertxStarter = new VertxStarter();
         // TODO use another (random) port and pass URL to minecraft.js via argument
@@ -87,6 +89,11 @@ public class SeleniumTest {
         minecraftVerticle.setActionsConsumer(event -> LOG.warn("Received event, but ignoring/not handling in this test: {}", event.body()));
         vertxStarter.deployVerticle(minecraftVerticle).toCompletableFuture().get();
         vertxStarter.deployVerticle(new StaticWebServerVerticle(9090, new File("../scratch/dist"))).toCompletableFuture().get();
+    }
+
+    private static void startWebDriver() throws Exception {
+        // see https://github.com/bonigarcia/webdrivermanager
+        WebDriverManager.chromedriver().setup();
 
         // set up WebDriver
         LoggingPreferences logPrefs = new LoggingPreferences();
@@ -164,9 +171,9 @@ public class SeleniumTest {
     }
 
     public static void main(String[] args) throws Exception {
-        setupClass();
+        startVertx();
         Mains.waitForEnter();
-        tearDownClass();
+        vertxStarter.stop();
     }
 
 }
