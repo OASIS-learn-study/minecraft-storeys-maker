@@ -18,10 +18,10 @@
  */
 package ch.vorburger.minecraft.storeys.web.test;
 
-import ch.vorburger.minecraft.storeys.simple.Minecraft;
-import ch.vorburger.minecraft.storeys.simple.Token;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+import ch.vorburger.minecraft.storeys.api.Minecraft;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
 
 /**
  * Implementation of {@link Minecraft} suitable for testing.
@@ -33,9 +33,9 @@ public class TestMinecraft implements Minecraft {
     public String lastTitle;
 
     @Override
-    public CompletionStage<Void> setTitle(Token token, String title) {
-        lastTitle = title;
-        return CompletableFuture.completedFuture(null);
+    public void showTitle(String code, String message, Handler<AsyncResult<Void>> results) {
+        lastTitle = message;
+        results.handle(Future.succeededFuture());
     }
 
 }

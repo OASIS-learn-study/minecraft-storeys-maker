@@ -18,8 +18,6 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
-import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Handler;
@@ -29,30 +27,17 @@ import io.vertx.core.VertxOptions;
 import io.vertx.core.logging.SLF4JLogDelegateFactory;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Launcher for Vert.x.
  *
  * @author Michael Vorburger.ch
  */
-public class VertxStarter implements EventBusSender {
+public class VertxStarter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(VertxStarter.class);
+    private final Vertx vertx;
 
-    private final PluginInstance pluginInstance;
-    private final TokenProvider tokenProvider;
-
-    private Vertx vertx;
-    private MinecraftVerticle minecraftVerticle;
-
-    public VertxStarter(PluginInstance pluginInstance, TokenProvider tokenProvider) {
-        this.pluginInstance = pluginInstance;
-        this.tokenProvider = tokenProvider;
-    }
-
-    public CompletionStage<Void> start(int httpPort, ActionsConsumer actionsConsumer) {
+    public VertxStarter() {
         // see https://github.com/eclipse/vert.x/issues/2298 ...
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
@@ -62,10 +47,6 @@ public class VertxStarter implements EventBusSender {
         } finally {
             Thread.currentThread().setContextClassLoader(tccl);
         }
-
-        minecraftVerticle = new MinecraftVerticle(httpPort, actionsConsumer, pluginInstance, tokenProvider);
-        return deployVerticle(minecraftVerticle)
-            .thenRun(() -> LOG.info("Started Vert.x distributed BiDi event-bus HTTP server on port {}", httpPort));
     }
 
     public CompletionStage<Void> deployVerticle(Verticle newVerticle) {
@@ -86,9 +67,8 @@ public class VertxStarter implements EventBusSender {
         }
     }
 
-    @Override
-    public void send(Object message) {
-        minecraftVerticle.send(message);
+    public Vertx vertx() {
+        return vertx;
     }
 
 }
