@@ -44,6 +44,8 @@ public abstract class AbstractHttpServerVerticle extends AbstractVerticle {
 
     @Override
     public final void start(Future<Void> startFuture) throws Exception {
+        start();
+
         // http://vertx.io/docs/vertx-web/java/#_cors_handling
         Router router = Router.router(vertx);
         router.route().handler(CorsHandler.create(/* "scratchx\\.org" */ "*").allowedMethods(ALL_HTTP_METHODS)
@@ -59,6 +61,11 @@ public abstract class AbstractHttpServerVerticle extends AbstractVerticle {
         httpServer.requestHandler(router::accept).listen(httpPort, asyncResult -> {
             startFuture.handle(asyncResult.mapEmpty());
         });
+    }
+
+    @Override
+    public final void stop(Future<Void> stopFuture) throws Exception {
+        super.stop(stopFuture);
     }
 
     @Override
