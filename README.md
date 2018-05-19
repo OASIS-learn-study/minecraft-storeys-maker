@@ -77,9 +77,9 @@ In Docker:
 
 In OpenShift:
 
-Until [S2I #146](https://github.com/fabric8io-images/s2i/issues/146) and [S2I #118] (https://github.com/fabric8io-images/s2i/issues/118) are reviewed, merged and available on DockerHub, we first:
+Until fabric8/s2i-java on Docker Hub includes [S2I #146](https://github.com/fabric8io-images/s2i/issues/146) and [S2I #118] (https://github.com/fabric8io-images/s2i/issues/118) you have to first:
 
-    oc new-build https://github.com/vorburger/s2i#gradle --context-dir=java/images/jboss
+    oc new-build https://github.com/fabric8io-images/s2i --context-dir=java/images/jboss
 
 and then:
 
@@ -91,8 +91,9 @@ This may fail if Builds have memory constraints; if so, Edit YAML to change `res
 
 _TODO: Why NOK on OpenShift Online?? "It also helps to Edit YAML to add `incremental: true` to the `strategy:` / `sourceStrategy:`._
 
-If have this project's source code locally (but beware of [issue 28](https://github.com/vorburger/minecraft-storeys-maker/issues/28)!), then:
+If have this project's source code locally, then (the `rm .../node_modules` is because of [issue 28](https://github.com/vorburger/minecraft-storeys-maker/issues/28)):
 
+    rm -rf scratch/.gradle/ scratch/node_modules
     oc start-build minecraft-storeys-maker --from-dir=. --follow
 
 Now expose the [Minecraft server port 25565 via a LoadBalancer service](https://github.com/vorburger/s2i-minecraft-server/),
