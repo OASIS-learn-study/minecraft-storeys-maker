@@ -15,3 +15,17 @@ dependencies {
 
     testCompile "io.vertx:vertx-unit:$vertxVersion"
 }
+
+/*
+
+TODO https://discuss.gradle.org/t/how-to-add-srcdir-only-for-eclipse-buildship/27007
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+            srcDir 'build/classes/java/main/'
+        }
+    }
+}
+*/
