@@ -20,9 +20,10 @@ package ch.vorburger.minecraft.storeys.web;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
 
-import ch.vorburger.minecraft.storeys.events.EventService;
+import ch.vorburger.minecraft.storeys.api.Minecraft;
+import ch.vorburger.minecraft.storeys.api.impl.MinecraftImpl;
+import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.web.test.TestMinecraft;
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -48,6 +49,8 @@ import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Integration test, based on WebDriver.
@@ -57,6 +60,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING) // required because tests are not yet completely independent, see sleep()
 public class SeleniumTest {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SeleniumTest.class);
 
     // TODO use https://www.testcontainers.org
 
@@ -77,11 +82,11 @@ public class SeleniumTest {
         WebDriverManager.chromedriver().setup();
 
         testMinecraft = new TestMinecraft();
-        TokenProvider testTokenProvider = new TestTokenProvider();
-
         vertxStarter = new VertxStarter();
         // TODO use another (random) port and pass URL to minecraft.js via argument
-        vertxStarter.start(8080, new ActionsConsumer(null, mock(EventService.class), null, vertxStarter, testTokenProvider, testMinecraft)).toCompletableFuture().get();
+        MinecraftVerticle minecraftVerticle = new MinecraftVerticle(8080, testMinecraft);
+        minecraftVerticle.setActionsConsumer(event -> LOG.warn("Received event, but ignoring/not handling in this test: {}", event));
+        vertxStarter.deployVerticle(minecraftVerticle).toCompletableFuture().get();
         vertxStarter.deployVerticle(new StaticWebServerVerticle(9090, new File("../scratch/dist"))).toCompletableFuture().get();
 
         // set up WebDriver

@@ -20,6 +20,8 @@ package ch.vorburger.minecraft.storeys.web;
 
 import ch.vorburger.minecraft.osgi.api.Listeners;
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
+import ch.vorburger.minecraft.storeys.api.Minecraft;
+import ch.vorburger.minecraft.storeys.api.impl.MinecraftImpl;
 import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.events.EventService;
 import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
@@ -28,6 +30,8 @@ import ch.vorburger.minecraft.storeys.simple.impl.TokenProviderImpl;
 import ch.vorburger.minecraft.storeys.util.Commands;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandMapping;
@@ -43,6 +47,8 @@ import org.spongepowered.api.plugin.Plugin;
     authors = "Michael Vorburger.ch")
 public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners {
     // do not extend StoreysPlugin, because we exclude that class in shadowJar
+
+    private static final Logger LOG = LoggerFactory.getLogger(StoreysWebPlugin.class);
 
     // no @Inject but ugly static, so that this works from the Activator as well
     private final Game game = Sponge.getGame();
@@ -68,13 +74,22 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
         loginCommandMapping = Commands.register(plugin, new LoginCommand(tokenProvider));
 
         try {
-            int httpPort = 8080; // TODO read from some configuration
-            vertxStarter = new VertxStarter(plugin, tokenProvider);
-            eventService = new EventService(plugin);
             try {
-                actionsConsumer = new ActionsConsumer(plugin, eventService, new ConditionService(plugin), vertxStarter, tokenProvider);
-                vertxStarter.start(httpPort, actionsConsumer).toCompletableFuture().get();
-                vertxStarter.deployVerticle(new StaticWebServerVerticle(7070)).toCompletableFuture().get();
+                // TODO read from some configuration
+                int eventBusHttpPort = 8080;
+                int staticWebServerHttpPort = 7070;
+
+                vertxStarter = new VertxStarter();
+                eventService = new EventService(plugin);
+
+                Minecraft minecraft = new MinecraftImpl(vertxStarter.vertx(), plugin, tokenProvider);
+                MinecraftVerticle minecraftVerticle = new MinecraftVerticle(eventBusHttpPort, minecraft);
+                actionsConsumer = new ActionsConsumer(plugin, eventService, new ConditionService(plugin), minecraftVerticle, tokenProvider);
+                minecraftVerticle.setActionsConsumer(actionsConsumer);
+                vertxStarter.deployVerticle(minecraftVerticle).toCompletableFuture().get();
+                LOG.info("Started Vert.x distributed BiDi event-bus HTTP server on port {}", eventBusHttpPort);
+                vertxStarter.deployVerticle(new StaticWebServerVerticle(staticWebServerHttpPort)).toCompletableFuture().get();
+
             } catch (ExecutionException  | InterruptedException e) {
                 throw new IllegalStateException("Vert.x start-up failed", e);
             }

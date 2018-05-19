@@ -29,7 +29,6 @@ import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
 import java.util.concurrent.CompletionStage;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.text.Text;
@@ -44,7 +43,7 @@ public class MinecraftImpl implements Minecraft {
     private final PluginInstance pluginInstance;
     private final TokenProvider tokenProvider;
 
-    public MinecraftImpl(Vertx vertx, JsonObject config, PluginInstance pluginInstance, TokenProvider tokenProvider) {
+    public MinecraftImpl(Vertx vertx, PluginInstance pluginInstance, TokenProvider tokenProvider) {
         this.pluginInstance = pluginInstance;
         this.tokenProvider = tokenProvider;
     }
