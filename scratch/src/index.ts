@@ -55,6 +55,7 @@ let ScratchExtensions: any;
     ext.sendTitle = function(sendTitle: string, callback: any) {
         minecraft.showTitle(code, sendTitle, (err: any, result: any) => {
             // TODO edewit: factor this out into a ../../api/src/api-utils.ts (?) usable from all functions here as well as scratch3/
+            // see https://github.com/vorburger/minecraft-storeys-maker/issues/59 for some more ideas
             if (err) {
                 console.log("sendTitle reply with error: ", err);
             } else {
