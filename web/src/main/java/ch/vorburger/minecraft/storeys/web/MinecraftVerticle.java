@@ -72,9 +72,11 @@ public class MinecraftVerticle extends AbstractHttpServerVerticle implements Eve
 
         SockJSHandlerOptions sockJSHandleOptions = new SockJSHandlerOptions().setHeartbeatInterval(5432);
         SockJSHandler sockJSHandler = SockJSHandler.create(vertx, sockJSHandleOptions);
-        PermittedOptions inboundPermitted1 = new PermittedOptions().setAddress(EVENTBUS_MINECRAFT_ACTIONS_ADDRESS);
+        PermittedOptions inboundPermitted1 = new PermittedOptions().setAddress(Minecraft.ADDRESS);
+        PermittedOptions inboundPermitted2 = new PermittedOptions().setAddress(EVENTBUS_MINECRAFT_ACTIONS_ADDRESS);
         PermittedOptions outboundPermitted1 = new PermittedOptions().setAddress(EVENTBUS_MINECRAFT_EVENTS_ADDRESS);
-        BridgeOptions bridgeOptions = new BridgeOptions().addInboundPermitted(inboundPermitted1).addOutboundPermitted(outboundPermitted1);
+        BridgeOptions bridgeOptions = new BridgeOptions().addInboundPermitted(inboundPermitted1)
+                .addInboundPermitted(inboundPermitted2).addOutboundPermitted(outboundPermitted1);
         sockJSHandler.bridge(bridgeOptions);
         router.route("/eventbus/*").handler(sockJSHandler);
     }
