@@ -29,6 +29,7 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 import java.io.File;
 import java.time.Duration;
 import java.util.Date;
+import java.util.function.Function;
 import java.util.logging.Level;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -118,8 +119,7 @@ public class SeleniumTest {
         Object value = js.executeScript("return ext !== undefined");
         assertThat(value).isInstanceOf(Boolean.class);
         assertThat(value).isNotNull();
-        awaitWD.withMessage("scratchMinecraftExtension not ready")
-                .until(ExpectedConditions.jsReturnsValue("return ext !== undefined") );
+        awaitUntilJSReturnsValue("scratchMinecraftExtension not ready", "return ext !== undefined");
         // TODO why does await above not work and we need to sleep() anyway?!
         // Without this the next executeScript (sometimes, timing..) fails with "WebDriverException: unknown error: INVALID_STATE_ERR"
         Thread.sleep(500);
@@ -128,9 +128,14 @@ public class SeleniumTest {
     @Test
     public void b_testSendTitle() throws Exception {
         js.executeScript("ext.scratchMinecraftExtension.sendTitle('hello, world', ext.callback('sendTitle'))");
-        awaitWD.withMessage("callback not yet invoked")
-                 .until(ExpectedConditions.jsReturnsValue("return ext.isCallbackCalled('sendTitle')"));
+        awaitUntilJSReturnsValue("callback not yet invoked", "return ext.isCallbackCalled('sendTitle')");
         assertThat(testMinecraft.lastTitle).isEqualTo("hello, world");
+    }
+
+    @SuppressWarnings("unchecked")
+    private void awaitUntilJSReturnsValue(String message, String javaScript) {
+        // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=534966
+        awaitWD.withMessage(message).until((Function<? super WebDriver, Object>) ExpectedConditions.jsReturnsValue(javaScript));
     }
 
     // TODO testWhenCommand
