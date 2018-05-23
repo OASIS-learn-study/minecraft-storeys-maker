@@ -1,0 +1,63 @@
+
+plugins {
+  id 'org.ajoberstar.grgit' version '2.2.0' apply false
+  id "com.moowork.node" version "1.2.0"
+}
+
+dependencies {
+  implementation project(':api')
+}
+
+import org.ajoberstar.grgit.Grgit
+
+node {
+  // https://github.com/srs/gradle-node-plugin/blob/master/docs/node.md#configuring-the-plugin
+  version = '8.11.1'
+  npmVersion = '5.8.0'
+  download = true
+}
+
+['scratch-vm', 'scratch-gui'].collect {
+    it
+}.eachWithIndex {dir, index ->
+    def dest = file("$buildDir/$dir")
+    if (!dest.exists()) {
+      task "cloneScratch${index}" {
+        def repo = Grgit.clone(dir: dest, uri: "git@github.com:edewit/${dir}.git")
+        repo.checkout {
+          branch = 'storeys'
+          createBranch = true
+          startPoint = 'origin/storeys'
+        }
+      }
+    }
+
+    task "npmDoInstall$index"(type: NpmTask) {
+      workingDir = dest
+      inputs.files(fileTree("node_modules'"))
+      inputs.files(fileTree("src"))
+      inputs.file("package.json")
+      args = ['install']
+    }
+
+    task "npmBuildProd$index"(type: NpmTask) {
+      workingDir = dest
+      inputs.files(fileTree("dist"))
+
+      dependsOn "npmDoInstall$index"
+      args = ['run', 'build']
+    }
+}
+
+task npmBuild {
+  dependsOn npmBuildProd0
+  dependsOn npmBuildProd1
+}
+
+assemble.dependsOn(npmBuild)
+
+jar {
+  into 'scratch3', {
+    from "$buildDir/scratch-gui/build"
+  }
+}
