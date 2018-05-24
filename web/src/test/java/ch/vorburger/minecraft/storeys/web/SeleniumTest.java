@@ -144,10 +144,8 @@ public class SeleniumTest {
         assertThat(testMinecraft.lastTitle).isEqualTo("hello, world");
     }
 
-    @SuppressWarnings("unchecked")
     private void awaitUntilJSReturnsValue(String message, String javaScript) {
-        // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=534966
-        awaitWD.withMessage(message).until((Function<? super WebDriver, Object>) ExpectedConditions.jsReturnsValue(javaScript));
+        awaitWD.withMessage(message).until(ExpectedConditions.jsReturnsValue(javaScript));
     }
 
     // TODO testWhenCommand
