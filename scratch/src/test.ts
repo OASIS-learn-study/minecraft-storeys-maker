@@ -4,7 +4,7 @@ export class Test {
 
     callback(index): Function {
         return () => {
-            console.log('callback called', index);
+            console.log('callback called ' + index);
             this.callbacksCalled[index] = true;
         }
     }
