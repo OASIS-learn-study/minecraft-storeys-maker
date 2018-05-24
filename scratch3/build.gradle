@@ -23,7 +23,7 @@ node {
     def dest = file("$buildDir/$dir")
     if (!dest.exists()) {
       task "cloneScratch${index}" {
-        def repo = Grgit.clone(dir: dest, uri: "git@github.com:edewit/${dir}.git")
+        def repo = Grgit.clone(dir: dest, uri: "https://github.com/edewit/${dir}.git")
         repo.checkout {
           branch = 'storeys'
           createBranch = true
