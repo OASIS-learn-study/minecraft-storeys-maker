@@ -29,7 +29,9 @@ import io.vertx.serviceproxy.ServiceProxyBuilder;
 @ProxyGen
 public interface Minecraft {
 
-    void showTitle(String code, String message, Handler<AsyncResult<Void>> results);
+    void showTitle(String code, String message, Handler<AsyncResult<Void>> handler);
+
+    void narrate(String code, String entity, String text, Handler<AsyncResult<Void>> handler);
 
     /**
      * The service address.

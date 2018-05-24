@@ -18,19 +18,15 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
-import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertEquals;
-
-import ch.vorburger.minecraft.storeys.api.impl.MinecraftImpl;
-import ch.vorburger.minecraft.storeys.events.ConditionService;
-import ch.vorburger.minecraft.storeys.simple.TokenProvider;
-import ch.vorburger.minecraft.storeys.web.test.TestMinecraft;
-import io.github.bonigarcia.wdm.WebDriverManager;
 import java.io.File;
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Date;
 import java.util.function.Function;
 import java.util.logging.Level;
+
+import ch.vorburger.minecraft.storeys.web.test.TestMinecraft;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -50,6 +46,9 @@ import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Integration test, based on WebDriver.
@@ -91,7 +90,7 @@ public class SeleniumTest {
         vertxStarter.deployVerticle(new StaticWebServerVerticle(9090, new File("../scratch/dist"))).toCompletableFuture().get();
     }
 
-    private static void startWebDriver() throws Exception {
+    private static void startWebDriver() {
         // see https://github.com/bonigarcia/webdrivermanager
         WebDriverManager.chromedriver().setup();
 
@@ -137,11 +136,30 @@ public class SeleniumTest {
     }
 
     @Test
-    public void b_testSendTitle() throws Exception {
-        js.executeScript("ext.scratchMinecraftExtension.sendTitle('hello, world', ext.callback('sendTitle'))");
-        awaitUntilJSReturnsValue("callback not yet invoked", "return ext.isCallbackCalled('sendTitle')");
+    public void b_testSendTitle() {
+        final String message = "hello, world";
+        testEventBusCall("sendTitle", message);
+
+        assertThat(testMinecraft.results.get("lastTitle")).isEqualTo(message);
+    }
+
+    @Test
+    public void c_testNarrate() {
+        final String text = "Hi and welcome to Minecraft";
+        final String entity = "joe";
+        testEventBusCall("narrate", entity, text);
+        assertThat(testMinecraft.results.get("entity")).isEqualTo(entity);
+        assertThat(testMinecraft.results.get("text")).isEqualTo(text);
+    }
+
+    private void testEventBusCall(String function, String... params) {
+        String script = "ext.scratchMinecraftExtension.%s(''{0}'', ext.callback(''%s''))";
+        script = MessageFormat.format(script, String.join("', '", params));
+        script = String.format(script, function, function);
+
+        js.executeScript(script);
         assertNoBrowserConsoleLogErrors();
-        assertThat(testMinecraft.lastTitle).isEqualTo("hello, world");
+        awaitUntilJSReturnsValue("callback not yet invoked", String.format("return ext.isCallbackCalled('%s')", function));
     }
 
     private void awaitUntilJSReturnsValue(String message, String javaScript) {

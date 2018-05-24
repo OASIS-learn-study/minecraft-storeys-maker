@@ -19,10 +19,12 @@
 package ch.vorburger.minecraft.storeys.api.impl;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
+import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.api.Minecraft;
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.ActionContext;
+import ch.vorburger.minecraft.storeys.model.NarrateAction;
 import ch.vorburger.minecraft.storeys.model.TitleAction;
 import ch.vorburger.minecraft.storeys.simple.Token;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
@@ -31,6 +33,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import java.util.concurrent.CompletionStage;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 
 /**
@@ -50,13 +53,25 @@ public class MinecraftImpl implements Minecraft {
 
     @Override
     public void showTitle(String code, String message, Handler<AsyncResult<Void>> handler) {
-        Token token = tokenProvider.getToken(code);
-        CompletionStage<Void> completionStage = execute(tokenProvider.getPlayer(token), new TitleAction(pluginInstance).setText(Text.of(message)));
+        CompletionStage<Void> completionStage = execute(getPlayer(code), new TitleAction(pluginInstance).setText(Text.of(message)));
+        handler.handle(new CompletionStageBasedAsyncResult<>(completionStage));
+    }
+
+    @Override
+    public void narrate(String code, String entity, String text, Handler<AsyncResult<Void>> handler) {
+        final NarrateAction narrateAction = new NarrateAction(new Narrator(pluginInstance));
+        narrateAction.setEntity(entity).setText(Text.of(text));
+        final CompletionStage<Void> completionStage = execute(getPlayer(code), narrateAction);
         handler.handle(new CompletionStageBasedAsyncResult<>(completionStage));
     }
 
     private <T> CompletionStage<T> execute(CommandSource commandSource, Action<T> action) {
         return action.execute(new ActionContext(commandSource, new ReadingSpeed()));
+    }
+
+    private Player getPlayer(String code) {
+        Token token = tokenProvider.getToken(code);
+        return tokenProvider.getPlayer(token);
     }
 
     // TODO does a helper class like this already exist somewhere in Vert.x? Can Vert.x directly gen. code with CompletionStage or CompletableFuture signatures?
@@ -89,7 +104,7 @@ public class MinecraftImpl implements Minecraft {
 
         @Override
         public synchronized boolean succeeded() {
-            return isHandled && !(cause != null);
+            return isHandled && cause == null;
         }
 
         @Override

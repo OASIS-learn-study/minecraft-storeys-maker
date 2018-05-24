@@ -18,6 +18,9 @@
  */
 package ch.vorburger.minecraft.storeys.web.test;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import ch.vorburger.minecraft.storeys.api.Minecraft;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -34,13 +37,21 @@ public class TestMinecraft implements Minecraft {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestMinecraft.class);
 
-    public String lastTitle;
+    public Map<String, String> results = new ConcurrentHashMap<>();
 
     @Override
-    public void showTitle(String code, String message, Handler<AsyncResult<Void>> results) {
+    public void showTitle(String code, String message, Handler<AsyncResult<Void>> handler) {
         LOG.info("showTitle({}, {})", code, message);
-        lastTitle = message;
-        results.handle(Future.succeededFuture());
+        results.put("lastTitle", message);
+        handler.handle(Future.succeededFuture());
+    }
+
+    @Override
+    public void narrate(String code, String entity, String text, Handler<AsyncResult<Void>> handler) {
+        LOG.info("narrate({}, {}, {})", code, entity, text);
+        results.put("entity", entity);
+        results.put("text", text);
+        handler.handle(Future.succeededFuture());
     }
 
 }

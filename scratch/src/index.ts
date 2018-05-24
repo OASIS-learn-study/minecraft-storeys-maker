@@ -52,7 +52,7 @@ let ScratchExtensions: any;
         eventsReceived[eventLabel] = false;
     });
 
-    ext.sendTitle = function(sendTitle: string, callback: any) {
+    ext.sendTitle = function(sendTitle: string, callback: Function) {
         minecraft.showTitle(code, sendTitle, (err: any, result: any) => {
             // TODO edewit: factor this out into a ../../api/src/api-utils.ts (?) usable from all functions here as well as scratch3/
             // see https://github.com/vorburger/minecraft-storeys-maker/issues/59 for some more ideas
@@ -63,11 +63,14 @@ let ScratchExtensions: any;
             }
         });
     };
-    ext.narrate = function(entity, text, callack) {
-        eb.send("mcs.actions", { "action": "narrate", "entity": entity, "text": text, "code": code }, function(reply) {
-            callack();
-        });
-
+    ext.narrate = function(entity: string, text: string, callback: Function) {
+        minecraft.narrate(code, entity, text, (err: any) => {
+            if (err) {
+                console.log("narrate reply with error: ", err);
+            } else {
+                callback();
+            }
+        })
     };
     ext.minecraftCommand = function(command) {
         eb.send("mcs.actions", { "action": "command", "command": command, "code": code });
@@ -154,12 +157,14 @@ let ScratchExtensions: any;
         if (typeof (urlParams.code !== 'undefined')) {
             crypt.getKey(function() {
                 eb.send("mcs.actions", { action: "login", token: urlParams.code, key: crypt.getPublicKeyB64() }, (error, message) => {
-                    console.log("Logging in... secret", message.body.secret);
-                    var id = crypt.decrypt(message.body.secret);
-                    var key = message.body.key;
-                    crypt = new JSEncrypt();
-                    crypt.setPublicKey(key);
-                    code = crypt.encrypt(id);
+                    if (!error && message.body) {
+                        console.log("Logging in... secret", message.body.secret);
+                        var id = crypt.decrypt(message.body.secret);
+                        var key = message.body.key;
+                        crypt = new JSEncrypt();
+                        crypt.setPublicKey(key);
+                        code = crypt.encrypt(id);
+                    }
                 });
             });
         }
