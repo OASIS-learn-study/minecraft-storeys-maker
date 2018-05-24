@@ -143,7 +143,7 @@ let ScratchExtensions: any;
     };
 
     var crypt = new JSEncrypt(512);
-    eb = new EventBus(urlParams.evenbusUrl);
+    eb = new EventBus(urlParams.eventBusURL);
     eb.enableReconnect(true);
     eb.onopen = function() {
         eb.registerHandler("mcs.events", function (error, message) {

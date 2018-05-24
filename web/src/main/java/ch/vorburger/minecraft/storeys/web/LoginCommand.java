@@ -42,7 +42,7 @@ import org.spongepowered.api.text.format.TextColors;
  */
 public class LoginCommand implements Command {
 
-    private static final String URL_PREFIX = "http://scratchx.org/?url=%s&code=%s&evenbusUrl=%s";
+    private static final String URL_PREFIX = "http://scratchx.org/?url=%s&code=%s&eventBusURL=%s";
 
     private String scratchJSExtensionURL = "http://localhost:7070/minecraft.scratchx.js";
     private String eventBusURL = "http://localhost:8080/eventbus";
