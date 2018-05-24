@@ -57,7 +57,7 @@ task npmBuild {
 assemble.dependsOn(npmBuild)
 
 jar {
-  into 'scratch3', {
+  into 'static/scratch3', {
     from "$buildDir/scratch-gui/build"
   }
 }
