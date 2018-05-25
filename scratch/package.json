@@ -49,6 +49,7 @@
   "dependencies": {
     "jsencrypt": "^3.0.0-beta.1",
     "lodash": "^4.17.4",
+    "npm": "^6.0.1",
     "vertx-bus-client": "^1.0.0"
   }
 }

@@ -14,7 +14,7 @@ task copyIcon(type: Copy) {
 node {
   // https://github.com/srs/gradle-node-plugin/blob/master/docs/node.md#configuring-the-plugin
   version = '8.11.1'
-  npmVersion = '5.8.0'
+  npmVersion = '6.0.1'
   download = true
 }
 
