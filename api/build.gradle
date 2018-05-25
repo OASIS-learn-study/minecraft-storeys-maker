@@ -1,3 +1,5 @@
+apply plugin: 'eclipse'
+
 ext {
   vertxVersion = '3.5.1'
 }
@@ -16,16 +18,23 @@ dependencies {
     testCompile "io.vertx:vertx-unit:$vertxVersion"
 }
 
-/*
-
-TODO https://discuss.gradle.org/t/how-to-add-srcdir-only-for-eclipse-buildship/27007
-
-sourceSets {
-    main {
-        java {
-            srcDir 'src/main/java'
-            srcDir 'build/classes/java/main/'
+eclipse {
+    classpath {
+        file.beforeMerged { cp ->
+            cp.entries.add( new org.gradle.plugins.ide.eclipse.model.SourceFolder('build/classes/java/main', null) )
         }
     }
+}
+
+/*
+eclipse {
+	sourceSets {
+	    main {
+	        java {
+	            srcDir 'src/main/java'
+	            srcDir 'build/classes/java/main'
+	        }
+	    }
+	}
 }
 */
