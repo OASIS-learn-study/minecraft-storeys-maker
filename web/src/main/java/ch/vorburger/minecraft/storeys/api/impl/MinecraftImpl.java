@@ -21,6 +21,8 @@ package ch.vorburger.minecraft.storeys.api.impl;
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.ReadingSpeed;
+import ch.vorburger.minecraft.storeys.api.HandType;
+import ch.vorburger.minecraft.storeys.api.ItemType;
 import ch.vorburger.minecraft.storeys.api.Minecraft;
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.ActionContext;
@@ -29,11 +31,14 @@ import ch.vorburger.minecraft.storeys.model.TitleAction;
 import ch.vorburger.minecraft.storeys.simple.Token;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
 
 /**
@@ -63,6 +68,14 @@ public class MinecraftImpl implements Minecraft {
         narrateAction.setEntity(entity).setText(Text.of(text));
         final CompletionStage<Void> completionStage = execute(getPlayer(code), narrateAction);
         handler.handle(new CompletionStageBasedAsyncResult<>(completionStage));
+    }
+
+    @Override
+    public void getItemHeld(String code, HandType hand, Handler<AsyncResult<ItemType>> handler) {
+        Player player = getPlayer(code);
+        Optional<ItemStack> optItemStack = player.getItemInHand(hand.getCatalogType());
+        ItemType itemType = optItemStack.map(ItemStack::getType).map(ItemType::getEnum).orElse(ItemType.Nothing);
+        handler.handle(Future.succeededFuture(itemType));
     }
 
     private <T> CompletionStage<T> execute(CommandSource commandSource, Action<T> action) {
@@ -112,4 +125,5 @@ public class MinecraftImpl implements Minecraft {
             return cause != null;
         }
     }
+
 }
