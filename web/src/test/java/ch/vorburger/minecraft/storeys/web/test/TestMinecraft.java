@@ -20,7 +20,8 @@ package ch.vorburger.minecraft.storeys.web.test;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
+import ch.vorburger.minecraft.storeys.api.HandType;
+import ch.vorburger.minecraft.storeys.api.ItemType;
 import ch.vorburger.minecraft.storeys.api.Minecraft;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -38,6 +39,7 @@ public class TestMinecraft implements Minecraft {
     private static final Logger LOG = LoggerFactory.getLogger(TestMinecraft.class);
 
     public Map<String, String> results = new ConcurrentHashMap<>();
+    public Map<HandType, ItemType> itemsHeld = new ConcurrentHashMap<>();
 
     @Override
     public void showTitle(String code, String message, Handler<AsyncResult<Void>> handler) {
@@ -52,6 +54,11 @@ public class TestMinecraft implements Minecraft {
         results.put("entity", entity);
         results.put("text", text);
         handler.handle(Future.succeededFuture());
+    }
+
+    @Override
+    public void getItemHeld(String code, HandType hand, Handler<AsyncResult<ItemType>> handler) {
+        handler.handle(Future.succeededFuture(itemsHeld.get(hand)));
     }
 
 }

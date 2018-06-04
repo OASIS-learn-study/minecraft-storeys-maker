@@ -17,16 +17,15 @@ let ScratchExtensions: any;
             [" ", "/%s",                "minecraftCommand",       "command"],
             ["w", "title %s",           "sendTitle",              "Welcome!"],
             ["r", "last joined Player", "get_player_last_joined"],
-            ["r", "Item held", "get_player_item_held"],
+            ["R", "Item held", "get_player_item_held"],
             ["r", "%m.item", "get_item_name", "Apple"]
         ],
         menus: {
             // NB: The order of the events here matters and is hard-coded in the registerHandler("mcs.events") below..
             event: ["Player joins"],
             interaction: [/*"left clicked", */ "right clicked"],
-            item: ["Apple", "Bed", "Beef", "Beetroot", "Boat", "Book", "Bow", "Bowl", "Bread", "Bucket",
-                "Cactus", "Cake", "Carrot", "Cauldron", "Chicken", "Clock", "Cookie",
-                "Door", "Mushroom"]
+            item: ["Apple", "Beef", "Beetroot", "Boat", "Book", "Bow", "Bowl", "Bread",
+                "Cactus", "Cake", "Carrot", "Cauldron", "Chicken", "Clock", "Cookie" ]
         },
         url: "https://github.com/vorburger/minecraft-storeys-maker/"
     };
@@ -72,6 +71,15 @@ let ScratchExtensions: any;
             }
         })
     };
+    ext.get_player_item_held = function(callback: Function) {
+        minecraft.getItemHeld(code, "MainHand", (err: any, result: string) => {
+            if (err) {
+                console.log("getItemHeld reply with error: ", err);
+            } else {
+                callback(result);
+            }
+        })
+    }
     ext.minecraftCommand = function(command) {
         eb.send("mcs.actions", { "action": "command", "command": command, "code": code });
     };

@@ -33,6 +33,8 @@ public interface Minecraft {
 
     void narrate(String code, String entity, String text, Handler<AsyncResult<Void>> handler);
 
+    void getItemHeld(String code, HandType hand, Handler<AsyncResult<ItemType>> handler);
+
     /**
      * The service address.
      */
