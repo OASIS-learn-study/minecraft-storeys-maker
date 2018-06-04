@@ -31,6 +31,9 @@ public interface Minecraft {
 
     void login(String token, String key, Handler<AsyncResult<LoginResponse>> handler);
 
+    // TODO feed back both successful (or not) command registration (once), AND command invocation (multiple)
+    void whenCommand(String code, String commandName, Handler<AsyncResult<Void>> handler);
+
     void showTitle(Token token, String message, Handler<AsyncResult<Void>> handler);
 
     void narrate(String code, String entity, String text, Handler<AsyncResult<Void>> handler);

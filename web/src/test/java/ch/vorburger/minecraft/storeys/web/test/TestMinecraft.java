@@ -47,6 +47,21 @@ public class TestMinecraft implements Minecraft {
     public void login(String token, String key, Handler<AsyncResult<LoginResponse>> handler) {
     }
 
+    public Map<String, Handler<AsyncResult<Void>>> commandHandlers = new ConcurrentHashMap<>();
+
+    public void invokeCommand(String commandName) {
+        Handler<AsyncResult<Void>> handler = commandHandlers.get(commandName);
+        if (handler != null) {
+			handler.handle(Future.succeededFuture());
+		}
+    }
+
+    @Override
+    public void whenCommand(String code, String commandName, Handler<AsyncResult<Void>> handler) {
+        LOG.info("whenCommand({}, {})", code, commandName);
+        commandHandlers.put(commandName, handler);
+    }
+
     @Override
     public void showTitle(Token token, String message, Handler<AsyncResult<Void>> handler) {
         LOG.info("showTitle({}, {})", token, message);
