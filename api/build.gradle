@@ -1,9 +1,5 @@
 apply plugin: 'eclipse'
 
-ext {
-  vertxVersion = '3.5.1'
-}
-
 dependencies {
     compile "io.vertx:vertx-core:$vertxVersion"
     compile "io.vertx:vertx-web:$vertxVersion"
