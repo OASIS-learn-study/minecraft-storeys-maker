@@ -52,14 +52,18 @@ public class TestMinecraft implements Minecraft {
     public void invokeCommand(String commandName) {
         Handler<AsyncResult<Void>> handler = commandHandlers.get(commandName);
         if (handler != null) {
-			handler.handle(Future.succeededFuture());
-		}
+            handler.handle(Future.succeededFuture()); // TODO distinguish this from handle() below..
+            LOG.info("invokeCommand({}) found and called handler", commandName);
+        } else {
+            LOG.error("invokeCommand() found no handler for: {}", commandName);
+        }
     }
 
     @Override
     public void whenCommand(String code, String commandName, Handler<AsyncResult<Void>> handler) {
-        LOG.info("whenCommand({}, {})", code, commandName);
         commandHandlers.put(commandName, handler);
+        LOG.info("whenCommand({}) registered handler", code, commandName);
+        handler.handle(Future.succeededFuture()); // TODO distinguish this from handle() above..
     }
 
     @Override

@@ -37,16 +37,20 @@ public class VertxStarter {
 
     private final Vertx vertx;
 
-    public VertxStarter() {
+    public VertxStarter(Vertx vertx) {
         // see https://github.com/eclipse/vert.x/issues/2298 ...
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
         try {
             System.setProperty("vertx.logger-delegate-factory-class-name", SLF4JLogDelegateFactory.class.getName());
-            vertx = Vertx.vertx(new VertxOptions().setWorkerPoolSize(23));
+            this.vertx = vertx;
         } finally {
             Thread.currentThread().setContextClassLoader(tccl);
         }
+    }
+
+    public VertxStarter() {
+        this(Vertx.vertx(new VertxOptions().setWorkerPoolSize(23)));
     }
 
     public CompletionStage<Void> deployVerticle(Verticle newVerticle) {

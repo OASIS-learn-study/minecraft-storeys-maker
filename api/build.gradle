@@ -1,9 +1,5 @@
 apply plugin: 'eclipse'
 
-ext {
-  vertxVersion = '3.5.1'
-}
-
 dependencies {
     // just for mapping our enums to catalog types,
     // but this is an implementation detail; users of this API won't directly use spongeapi themselves
