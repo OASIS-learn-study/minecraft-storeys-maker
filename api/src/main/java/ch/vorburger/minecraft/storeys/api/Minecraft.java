@@ -29,6 +29,9 @@ import io.vertx.serviceproxy.ServiceProxyBuilder;
 @ProxyGen
 public interface Minecraft {
 
+    // TODO feed back both successful (or not) command registration (once), AND command invocation (multiple)
+    void whenCommand(String code, String commandName, Handler<AsyncResult<Void>> handler);
+
     void showTitle(String code, String message, Handler<AsyncResult<Void>> handler);
 
     void narrate(String code, String entity, String text, Handler<AsyncResult<Void>> handler);
