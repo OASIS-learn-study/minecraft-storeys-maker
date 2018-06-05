@@ -1,5 +1,11 @@
 import * as EventBus from 'vertx3-eventbus-client';
+<<<<<<< HEAD
 import { Minecraft, HandType, Token } from '../../api/src/main/typescript/observable-wrapper';
+=======
+import { Minecraft } from '../../api/build/classes/java/main/Minecraft-ts/minecraft-proxy';
+// TODO remove, probably; because already import'd in Minecraft:
+// import { CommandRegistration } from '../../api/build/classes/java/main/Minecraft-ts/command_registration-proxy';
+>>>>>>> {WIP} attempting approach with service returning service but NOK:
 import { JSEncrypt } from 'jsencrypt';
 
 let ScratchExtensions: any;
@@ -177,4 +183,13 @@ let ScratchExtensions: any;
     // Register the extension
     (<any>window).ScratchExtensions.register("Minecraft", descriptor, ext);
 
+    // TODO [re]move this; it's just the first iteration of a test:
+    // minecraft.newCommand(ext.scratchMinecraftExtension.code, "test",
+    // (err:any, result:any) => {
+    //   if (err) {
+    //       console.log("newCommand reply with error: ", err);
+    //   } else {
+    //     console.log("newCommand registered OK, now adding CommandRegistration");
+    //     result.on();
+    //   });
 })({});

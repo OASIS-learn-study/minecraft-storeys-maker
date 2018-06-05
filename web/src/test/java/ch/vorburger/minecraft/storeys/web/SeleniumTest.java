@@ -219,6 +219,10 @@ public class SeleniumTest {
     public static void main(String[] args) throws Exception {
         startVertx();
         Mains.waitForEnter();
+        testMinecraft.invokeCommand("test");
+        Mains.waitForEnter();
+        testMinecraft.invokeCommand("test");
+        Mains.waitForEnter();
         vertxStarter.stop();
     }
 }
