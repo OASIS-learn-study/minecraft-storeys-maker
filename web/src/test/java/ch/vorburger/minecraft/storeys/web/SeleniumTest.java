@@ -22,7 +22,6 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Date;
-import java.util.function.Function;
 import java.util.logging.Level;
 
 import ch.vorburger.minecraft.storeys.web.test.TestMinecraft;
@@ -188,6 +187,10 @@ public class SeleniumTest {
 
     public static void main(String[] args) throws Exception {
         startVertx();
+        Mains.waitForEnter();
+        testMinecraft.invokeCommand("test");
+        Mains.waitForEnter();
+        testMinecraft.invokeCommand("test");
         Mains.waitForEnter();
         vertxStarter.stop();
     }

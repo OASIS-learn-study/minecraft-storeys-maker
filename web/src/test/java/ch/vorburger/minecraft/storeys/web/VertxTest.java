@@ -77,7 +77,7 @@ public class VertxTest {
 
     @Test
     public void testWhenCommand(TestContext testContext) {
-        minecraftAPI.whenCommand("", "test", testContext.asyncAssertSuccess());
+        minecraftAPI.newCommand("", "test", testContext.asyncAssertSuccess());
 /* TODO why does this not do the same as above??
         Async whenCommandRegistrationAsync = testContext.async();
         minecraftAPI.whenCommand("", "test", event -> {

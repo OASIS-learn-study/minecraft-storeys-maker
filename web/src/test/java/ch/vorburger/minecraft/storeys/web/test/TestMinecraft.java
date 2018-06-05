@@ -20,7 +20,8 @@ package ch.vorburger.minecraft.storeys.web.test;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
+import java.util.concurrent.atomic.AtomicReference;
+import ch.vorburger.minecraft.storeys.api.CommandRegistration;
 import ch.vorburger.minecraft.storeys.api.Minecraft;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -39,12 +40,12 @@ public class TestMinecraft implements Minecraft {
 
     public Map<String, String> results = new ConcurrentHashMap<>();
 
-    public Map<String, Handler<AsyncResult<Void>>> commandHandlers = new ConcurrentHashMap<>();
+    private final Map<String, TestCommandImpl> commandInvocationHandlers = new ConcurrentHashMap<>();
 
     public void invokeCommand(String commandName) {
-        Handler<AsyncResult<Void>> handler = commandHandlers.get(commandName);
-        if (handler != null) {
-            handler.handle(Future.succeededFuture()); // TODO distinguish this from handle() below..
+        TestCommandImpl registration = commandInvocationHandlers.get(commandName);
+        if (registration != null) {
+            registration.handle();
             LOG.info("invokeCommand({}) found and called handler", commandName);
         } else {
             LOG.error("invokeCommand() found no handler for: {}", commandName);
@@ -52,10 +53,11 @@ public class TestMinecraft implements Minecraft {
     }
 
     @Override
-    public void whenCommand(String code, String commandName, Handler<AsyncResult<Void>> handler) {
-        commandHandlers.put(commandName, handler);
+    public void newCommand(String code, String commandName, Handler<AsyncResult<CommandRegistration>> handler) {
+        TestCommandImpl commandRegistration = new TestCommandImpl();
+        commandInvocationHandlers.put(commandName, commandRegistration);
         LOG.info("whenCommand({}) registered handler", code, commandName);
-        handler.handle(Future.succeededFuture()); // TODO distinguish this from handle() above..
+        handler.handle(Future.succeededFuture(commandRegistration));
     }
 
     @Override
@@ -73,4 +75,25 @@ public class TestMinecraft implements Minecraft {
         handler.handle(Future.succeededFuture());
     }
 
+    // TODO move this somewhere where it can shared with the real implementation
+    public static class TestCommandImpl implements CommandRegistration {
+
+        private final AtomicReference<Handler<AsyncResult<Void>>> handlerRef = new AtomicReference<>();
+
+        @Override
+        public void on(Handler<AsyncResult<Void>> newHandler) {
+            if (this.handlerRef.getAndSet(newHandler) != null) {
+                throw new IllegalStateException("handler was already set");
+            }
+        }
+
+        public void handle() {
+            handlerRef.get().handle(Future.succeededFuture());
+        }
+
+        @Override
+        public void unregister() {
+            // TODO
+        }
+    }
 }

@@ -18,36 +18,19 @@
  */
 package ch.vorburger.minecraft.storeys.api;
 
+import io.vertx.codegen.annotations.ProxyClose;
 import io.vertx.codegen.annotations.ProxyGen;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
-import io.vertx.serviceproxy.ServiceProxyBuilder;
 
 @VertxGen
 @ProxyGen
-public interface Minecraft {
+public interface CommandRegistration {
 
-    void newCommand(String code, String commandName, Handler<AsyncResult<CommandRegistration>> handler);
+    void on(Handler<AsyncResult<Void>> handler);
 
-    void showTitle(String code, String message, Handler<AsyncResult<Void>> handler);
-
-    void narrate(String code, String entity, String text, Handler<AsyncResult<Void>> handler);
-
-    /**
-     * The service address.
-     */
-    String ADDRESS = "ch.vorburger.minecraft.storeys";
-
-    /**
-     * Method called to create a proxy to consume the service.
-     *
-     * @param vertx Vert.x
-     * @return the proxy
-     */
-    static Minecraft createProxy(Vertx vertx) {
-        return new ServiceProxyBuilder(vertx).setAddress(ADDRESS).build(Minecraft.class);
-    }
+    @ProxyClose
+    void unregister();
 
 }
