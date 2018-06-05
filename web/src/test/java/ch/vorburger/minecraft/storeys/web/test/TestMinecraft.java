@@ -20,9 +20,9 @@ package ch.vorburger.minecraft.storeys.web.test;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 import ch.vorburger.minecraft.storeys.api.CommandRegistration;
 import ch.vorburger.minecraft.storeys.api.Minecraft;
+import ch.vorburger.minecraft.storeys.api.impl.CommandRegistrationImpl;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -40,10 +40,10 @@ public class TestMinecraft implements Minecraft {
 
     public Map<String, String> results = new ConcurrentHashMap<>();
 
-    private final Map<String, TestCommandImpl> commandInvocationHandlers = new ConcurrentHashMap<>();
+    private final Map<String, CommandRegistrationImpl> commandInvocationHandlers = new ConcurrentHashMap<>();
 
     public void invokeCommand(String commandName) {
-        TestCommandImpl registration = commandInvocationHandlers.get(commandName);
+        CommandRegistrationImpl registration = commandInvocationHandlers.get(commandName);
         if (registration != null) {
             registration.handle();
             LOG.info("invokeCommand({}) found and called handler", commandName);
@@ -54,7 +54,7 @@ public class TestMinecraft implements Minecraft {
 
     @Override
     public void newCommand(String code, String commandName, Handler<AsyncResult<CommandRegistration>> handler) {
-        TestCommandImpl commandRegistration = new TestCommandImpl();
+        CommandRegistrationImpl commandRegistration = new CommandRegistrationImpl();
         commandInvocationHandlers.put(commandName, commandRegistration);
         LOG.info("whenCommand({}) registered handler", code, commandName);
         handler.handle(Future.succeededFuture(commandRegistration));
@@ -75,25 +75,4 @@ public class TestMinecraft implements Minecraft {
         handler.handle(Future.succeededFuture());
     }
 
-    // TODO move this somewhere where it can shared with the real implementation
-    public static class TestCommandImpl implements CommandRegistration {
-
-        private final AtomicReference<Handler<AsyncResult<Void>>> handlerRef = new AtomicReference<>();
-
-        @Override
-        public void on(Handler<AsyncResult<Void>> newHandler) {
-            if (this.handlerRef.getAndSet(newHandler) != null) {
-                throw new IllegalStateException("handler was already set");
-            }
-        }
-
-        public void handle() {
-            handlerRef.get().handle(Future.succeededFuture());
-        }
-
-        @Override
-        public void unregister() {
-            // TODO
-        }
-    }
 }
