@@ -28,6 +28,8 @@ import ch.vorburger.minecraft.storeys.api.ItemType;
 import ch.vorburger.minecraft.storeys.api.LoginResponse;
 import ch.vorburger.minecraft.storeys.api.Minecraft;
 import ch.vorburger.minecraft.storeys.api.Token;
+import ch.vorburger.minecraft.storeys.api.CommandRegistration;
+import ch.vorburger.minecraft.storeys.events.ScriptCommand;
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.ActionContext;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
@@ -39,6 +41,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicReference;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -90,6 +93,24 @@ public class MinecraftImpl implements Minecraft {
         Optional<ItemStack> optItemStack = player.getItemInHand(hand.getCatalogType());
         ItemType itemType = optItemStack.map(ItemStack::getType).map(ItemType::getEnum).orElse(ItemType.Nothing);
         handler.handle(Future.succeededFuture(itemType));
+    }
+
+    @Override
+	public void newCommand(String code, String commandName, Handler<AsyncResult<CommandRegistration>> handler) {
+        AtomicReference<ScriptCommand> commandRef = new AtomicReference<>();
+        CommandRegistrationImpl commandRegistration = new CommandRegistrationImpl() {
+            @Override
+            public void unregister() {
+                ScriptCommand command = commandRef.get();
+                if (command != null) {
+                    command.unregister();
+                }
+            }
+        };
+        commandRef.set(new ScriptCommand(commandName, pluginInstance, () -> {
+            commandRegistration.handle();
+        }));
+        handler.handle(Future.succeededFuture(commandRegistration));
     }
 
     private <T> CompletionStage<T> execute(CommandSource commandSource, Action<T> action) {

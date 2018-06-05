@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import ch.vorburger.minecraft.storeys.api.CommandRegistration;
 import ch.vorburger.minecraft.storeys.api.Minecraft;
 import ch.vorburger.minecraft.storeys.api.Token;
+import ch.vorburger.minecraft.storeys.api.impl.CommandRegistrationImpl;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -49,10 +50,10 @@ public class TestMinecraft implements Minecraft {
     public void login(String token, String key, Handler<AsyncResult<LoginResponse>> handler) {
     }
 
-    private final Map<String, TestCommandImpl> commandInvocationHandlers = new ConcurrentHashMap<>();
+    private final Map<String, CommandRegistrationImpl> commandInvocationHandlers = new ConcurrentHashMap<>();
 
     public void invokeCommand(String commandName) {
-        TestCommandImpl registration = commandInvocationHandlers.get(commandName);
+        CommandRegistrationImpl registration = commandInvocationHandlers.get(commandName);
         if (registration != null) {
             registration.handle();
             LOG.info("invokeCommand({}) found and called handler", commandName);
@@ -63,7 +64,7 @@ public class TestMinecraft implements Minecraft {
 
     @Override
     public void newCommand(String code, String commandName, Handler<AsyncResult<CommandRegistration>> handler) {
-        TestCommandImpl commandRegistration = new TestCommandImpl();
+        CommandRegistrationImpl commandRegistration = new CommandRegistrationImpl();
         commandInvocationHandlers.put(commandName, commandRegistration);
         LOG.info("whenCommand({}) registered handler", code, commandName);
         handler.handle(Future.succeededFuture(commandRegistration));
