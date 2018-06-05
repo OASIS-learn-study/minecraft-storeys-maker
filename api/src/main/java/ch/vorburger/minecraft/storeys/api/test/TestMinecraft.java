@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys.web.test;
+package ch.vorburger.minecraft.storeys.api.test;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,7 +58,7 @@ public class TestMinecraft implements Minecraft {
             registration.handle();
             LOG.info("invokeCommand({}) found and called handler", commandName);
         } else {
-            LOG.error("invokeCommand() found no handler for: {}", commandName);
+            throw new IllegalStateException("invokeCommand() found no handler for command: " + commandName);
         }
     }
 
@@ -66,8 +66,8 @@ public class TestMinecraft implements Minecraft {
     public void newCommand(String code, String commandName, Handler<AsyncResult<CommandRegistration>> handler) {
         CommandRegistrationImpl commandRegistration = new CommandRegistrationImpl();
         commandInvocationHandlers.put(commandName, commandRegistration);
-        LOG.info("whenCommand({}) registered handler", code, commandName);
         handler.handle(Future.succeededFuture(commandRegistration));
+        LOG.info("newCommand({}) registered handler for command: {}", code, commandName);
     }
 
     @Override

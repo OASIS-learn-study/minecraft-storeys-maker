@@ -23,8 +23,6 @@ import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Date;
 import java.util.logging.Level;
-
-import ch.vorburger.minecraft.storeys.web.test.TestMinecraft;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -48,6 +46,8 @@ import org.slf4j.LoggerFactory;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
+
+import ch.vorburger.minecraft.storeys.api.test.TestMinecraft;
 
 /**
  * Integration test, based on WebDriver.

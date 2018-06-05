@@ -19,7 +19,7 @@
 package ch.vorburger.minecraft.storeys.web;
 
 import ch.vorburger.minecraft.storeys.api.Minecraft;
-import ch.vorburger.minecraft.storeys.web.test.TestMinecraft;
+import ch.vorburger.minecraft.storeys.api.test.TestMinecraft;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.Timeout;
@@ -71,8 +71,9 @@ public class VertxTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown(TestContext testContext) throws Exception {
         vertxStarter.stop();
+        // TODO vertx.close(context.asyncAssertSuccess());
     }
 
     @Test
