@@ -1,11 +1,5 @@
 import * as EventBus from 'vertx3-eventbus-client';
-<<<<<<< HEAD
 import { Minecraft, HandType, Token } from '../../api/src/main/typescript/observable-wrapper';
-=======
-import { Minecraft } from '../../api/build/classes/java/main/Minecraft-ts/minecraft-proxy';
-// TODO remove, probably; because already import'd in Minecraft:
-// import { CommandRegistration } from '../../api/build/classes/java/main/Minecraft-ts/command_registration-proxy';
->>>>>>> {WIP} attempting approach with service returning service but NOK:
 import { JSEncrypt } from 'jsencrypt';
 
 let ScratchExtensions: any;
@@ -73,7 +67,28 @@ let ScratchExtensions: any;
             (err: any) => console.log("getItemHeld reply with error: ", err)
         );
     }
-    ext.minecraftCommand = function (command) {
+
+    ext.when_command = function(command) {
+        // TODO how do we adapt this async API to a synchronous one for Scratch v2 Hat blocks with no async/callback support? :-()
+        minecraft.newCommand(ext.scratchMinecraftExtension.code, command, (err:any, result:any) => {
+            if (err) {
+                console.log("newCommand reply with error: ", err);
+            } else {
+                console.log("newCommand registered OK, now adding CommandRegistration");
+                result.on((err:any, result:any) => {
+                    if (err) {
+                        console.log("newCommand CommandRegistration on() reply with error: ", err);
+                    } else {
+                        console.log("newCommand CommandRegistration on() HIT!!!");
+                    }
+                });
+            }
+        });
+        // return ext.whenCondition("newCmd" + command);
+        return false; // TODO !!!
+    };
+
+    ext.minecraftCommand = function(command) {
         eb.send("mcs.actions", { "action": "command", "command": command, "code": code });
     };
 
@@ -111,9 +126,6 @@ let ScratchExtensions: any;
         } else {
             return ext.when_event(condition);
         }
-    };
-    ext.when_command = function (command) {
-        return ext.whenCondition("newCmd" + command);
     };
     ext.when_inside = function (x1, y1, z1, x2, y2, z2) {
         return ext.whenCondition("myPlayer_inside_" + x1 + "/" + y1 + "/" + z1 + "/" + x2 + "/" + y2 + "/" + z2 + "/");
