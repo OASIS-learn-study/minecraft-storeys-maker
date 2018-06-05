@@ -23,7 +23,6 @@ import static org.junit.Assert.assertEquals;
 
 import ch.vorburger.minecraft.storeys.api.HandType;
 import ch.vorburger.minecraft.storeys.api.ItemType;
-import ch.vorburger.minecraft.storeys.web.test.TestMinecraft;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import java.io.File;
 import java.text.MessageFormat;
@@ -51,6 +50,8 @@ import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ch.vorburger.minecraft.storeys.api.test.TestMinecraft;
 
 /**
  * Integration test, based on WebDriver.
