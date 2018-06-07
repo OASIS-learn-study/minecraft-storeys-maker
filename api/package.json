@@ -1,0 +1,30 @@
+{
+  "name": "storeys",
+  "version": "0.0.1",
+  "description": "Javascript API for minecraft storeys",
+  "homepage": "http://learn.study",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/vorburger/minecraft-storeys.git"
+  },
+  "scripts": {
+    "build": "webpack --progress --colors --bail",
+    "start": "webpack-dev-server",
+    "watch": "webpack --progress --colors --watch"
+  },
+  "main": "./dist/observable-wrapper.js",
+  "dependencies": {
+    "rxjs": "^5.5.2",
+    "vertx-bus-client": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/vertx3-eventbus-client": "^3.4.0",
+    "awesome-typescript-loader": "^5.0.0",
+    "source-map-loader": "^0.2.3",
+    "typescript": "^2.9.1",
+    "webpack": "^4.11.0",
+    "webpack-cli": "^3.0.2",
+    "webpack-dashboard": "^2.0.0",
+    "webpack-dev-server": "^3.1.4"
+  }
+}
