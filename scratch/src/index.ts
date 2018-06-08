@@ -45,6 +45,7 @@ let ScratchExtensions: any;
     var eventsReceived = {};
     var player_last_joined;
     var registeredConditions = new Set();
+    var registeredCommands = new Set();
     var code : string;
     var token : Token;
 
@@ -69,23 +70,27 @@ let ScratchExtensions: any;
     }
 
     ext.when_command = function(command) {
-        // TODO how do we adapt this async API to a synchronous one for Scratch v2 Hat blocks with no async/callback support? :-()
-        minecraft.newCommand(ext.scratchMinecraftExtension.code, command, (err:any, result:any) => {
-            if (err) {
-                console.log("newCommand reply with error: ", err);
-            } else {
-                console.log("newCommand registered OK, now adding CommandRegistration");
-                result.on((err:any, result:any) => {
-                    if (err) {
-                        console.log("newCommand CommandRegistration on() reply with error: ", err);
-                    } else {
-                        console.log("newCommand CommandRegistration on() HIT!!!");
-                    }
-                });
-            }
-        });
-        // return ext.whenCondition("newCmd" + command);
-        return false; // TODO !!!
+        if (!registeredCommands.has(command)) {
+            registeredCommands.add(command);
+            console.log("newCommand:", command)
+            // TODO how do we adapt this async API to a synchronous one for Scratch v2 Hat blocks with no async/callback support? :-()
+            minecraft.newCommand(code, command, (err:any, result:any) => {
+                if (err) {
+                    console.log("newCommand reply with error: ", err);
+                } else {
+                    console.log("newCommand registered OK, now adding CommandRegistration");
+                    result.on((err:any, result:any) => {
+                        if (err) {
+                            console.log("newCommand CommandRegistration on() reply with error: ", err);
+                        } else {
+                            console.log("newCommand CommandRegistration on() HIT!!!");
+                        }
+                    });
+                }
+            });
+            // return ext.whenCondition("newCmd" + command);
+            return false; // TODO !!!
+        }
     };
 
     ext.minecraftCommand = function(command) {
