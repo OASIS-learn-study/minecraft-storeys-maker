@@ -36,6 +36,8 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
@@ -46,6 +48,8 @@ import org.spongepowered.api.text.Text;
  * @author Michael Vorburger.ch
  */
 public class MinecraftImpl implements Minecraft {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MinecraftImpl.class);
 
     private final PluginInstance pluginInstance;
     private final TokenProvider tokenProvider;
@@ -71,6 +75,7 @@ public class MinecraftImpl implements Minecraft {
 
     @Override
     public void newCommand(String code, String commandName, Handler<AsyncResult<CommandRegistration>> handler) {
+        LOG.info("newCommand: {}", commandName); // TODO remove
         AtomicReference<ScriptCommand> commandRef = new AtomicReference<>();
         CommandRegistrationImpl commandRegistration = new CommandRegistrationImpl() {
             @Override
