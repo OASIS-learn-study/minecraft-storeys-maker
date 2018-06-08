@@ -101,6 +101,7 @@ public class MinecraftImpl implements Minecraft {
 
     @Override
     public void newCommand(String code, String commandName, Handler<AsyncResult<CommandRegistration>> handler) {
+        LOG.info("newCommand: {}", commandName); // TODO remove
         AtomicReference<ScriptCommand> commandRef = new AtomicReference<>();
         CommandRegistrationImpl commandRegistration = new CommandRegistrationImpl() {
             @Override

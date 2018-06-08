@@ -23,8 +23,12 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import java.util.concurrent.atomic.AtomicReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CommandRegistrationImpl implements CommandRegistration {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CommandRegistrationImpl.class);
 
     private final AtomicReference<Handler<AsyncResult<Void>>> handlerRef = new AtomicReference<>();
 
@@ -36,7 +40,12 @@ public class CommandRegistrationImpl implements CommandRegistration {
     }
 
     public void handle() {
-        handlerRef.get().handle(Future.succeededFuture());
+        Handler<AsyncResult<Void>> handler = handlerRef.get();
+        if (handler != null) {
+            handler.handle(Future.succeededFuture());
+        } else {
+            LOG.warn("CommandRegistration's on() was not yet called?!");
+        }
     }
 
     @Override
