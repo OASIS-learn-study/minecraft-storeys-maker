@@ -39,7 +39,6 @@ import ch.vorburger.minecraft.storeys.model.CommandAction;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
 import ch.vorburger.minecraft.storeys.simple.Token;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
-import ch.vorburger.minecraft.storeys.simple.TokenProvider.SecretPublicKeyPair;
 import ch.vorburger.minecraft.storeys.simple.impl.NotLoggedInException;
 import com.google.common.base.Splitter;
 import io.vertx.core.Handler;
@@ -121,18 +120,6 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
             case "registerCondition": {
                 registerCondition(token,
                                   requireNonNull(json.getString("condition"), "condition"));
-                break;
-            }
-            case "login": {
-                String code = json.getString("token");
-                String key = json.getString("key");
-
-                SecretPublicKeyPair secretAndPublicKey = tokenProvider.login(code, key);
-
-                message.reply(new JsonObject()
-                        .put("event", "loggedIn")
-                        .put("secret", secretAndPublicKey.getSecret())
-                        .put("key", secretAndPublicKey.getBase64PublicKey()));
                 break;
             }
             default:

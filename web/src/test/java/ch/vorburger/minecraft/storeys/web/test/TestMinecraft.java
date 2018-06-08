@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import ch.vorburger.minecraft.storeys.api.HandType;
 import ch.vorburger.minecraft.storeys.api.ItemType;
+import ch.vorburger.minecraft.storeys.api.LoginResponse;
 import ch.vorburger.minecraft.storeys.api.Minecraft;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -40,6 +41,10 @@ public class TestMinecraft implements Minecraft {
 
     public Map<String, String> results = new ConcurrentHashMap<>();
     public Map<HandType, ItemType> itemsHeld = new ConcurrentHashMap<>();
+
+    @Override
+    public void login(String token, String key, Handler<AsyncResult<LoginResponse>> handler) {
+    }
 
     @Override
     public void showTitle(String code, String message, Handler<AsyncResult<Void>> handler) {

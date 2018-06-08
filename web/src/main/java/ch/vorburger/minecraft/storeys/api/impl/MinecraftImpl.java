@@ -23,6 +23,7 @@ import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.api.HandType;
 import ch.vorburger.minecraft.storeys.api.ItemType;
+import ch.vorburger.minecraft.storeys.api.LoginResponse;
 import ch.vorburger.minecraft.storeys.api.Minecraft;
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.ActionContext;
@@ -30,6 +31,7 @@ import ch.vorburger.minecraft.storeys.model.NarrateAction;
 import ch.vorburger.minecraft.storeys.model.TitleAction;
 import ch.vorburger.minecraft.storeys.simple.Token;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
+import ch.vorburger.minecraft.storeys.simple.TokenProvider.SecretPublicKeyPair;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -54,6 +56,15 @@ public class MinecraftImpl implements Minecraft {
     public MinecraftImpl(Vertx vertx, PluginInstance pluginInstance, TokenProvider tokenProvider) {
         this.pluginInstance = pluginInstance;
         this.tokenProvider = tokenProvider;
+    }
+
+    @Override
+    public void login(String token, String key, Handler<AsyncResult<LoginResponse>> handler) {
+        SecretPublicKeyPair secretAndPublicKey = tokenProvider.login(token, key);
+        LoginResponse response = new LoginResponse();
+        response.setSecret(secretAndPublicKey.getSecret());
+        response.setKey(secretAndPublicKey.getBase64PublicKey());
+        handler.handle(Future.succeededFuture(response));
     }
 
     @Override
@@ -125,5 +136,4 @@ public class MinecraftImpl implements Minecraft {
             return cause != null;
         }
     }
-
 }

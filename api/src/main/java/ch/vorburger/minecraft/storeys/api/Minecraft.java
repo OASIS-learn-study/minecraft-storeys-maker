@@ -29,6 +29,8 @@ import io.vertx.serviceproxy.ServiceProxyBuilder;
 @ProxyGen
 public interface Minecraft {
 
+    void login(String token, String key, Handler<AsyncResult<LoginResponse>> handler);
+
     void showTitle(String code, String message, Handler<AsyncResult<Void>> handler);
 
     void narrate(String code, String entity, String text, Handler<AsyncResult<Void>> handler);

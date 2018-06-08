@@ -153,6 +153,7 @@ let ScratchExtensions: any;
     var crypt = new JSEncrypt(512);
     eb = new EventBus(urlParams.eventBusURL);
     eb.enableReconnect(true);
+    minecraft = new Minecraft(eb, "ch.vorburger.minecraft.storeys");
     eb.onopen = function() {
         eb.registerHandler("mcs.events", function (error, message) {
             if (error != null) {
@@ -164,11 +165,13 @@ let ScratchExtensions: any;
 
         if (typeof (urlParams.code !== 'undefined')) {
             crypt.getKey(function() {
-                eb.send("mcs.actions", { action: "login", token: urlParams.code, key: crypt.getPublicKeyB64() }, (error, message) => {
-                    if (!error && message.body) {
-                        console.log("Logging in... secret", message.body.secret);
-                        var id = crypt.decrypt(message.body.secret);
-                        var key = message.body.key;
+                minecraft.login(urlParams.code, crypt.getPublicKeyB64(), (err, response) => {
+                    if (err) {
+                        console.log("login reply with error: ", err);
+                    } else {
+                        console.log("Logging in... secret", response.secret);
+                        var id = crypt.decrypt(response.secret);
+                        var key = response.key;
                         crypt = new JSEncrypt();
                         crypt.setPublicKey(key);
                         code = crypt.encrypt(id);
@@ -183,8 +186,6 @@ let ScratchExtensions: any;
     eb.onclose = function() {
         console.log("Vert.x Event Bus Connection Close");
     };
-
-    minecraft = new Minecraft(eb, "ch.vorburger.minecraft.storeys");
 
     // Register the extension
     (<any>window).ScratchExtensions.register("Minecraft", descriptor, ext);
