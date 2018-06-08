@@ -27,6 +27,7 @@ import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.serviceproxy.ServiceBinder;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michael Vorburger.ch
  */
+@Ignore // see ch.vorburger.minecraft.storeys.api.test.MinecraftTest, which will replace this; so TODO remove
 @RunWith(VertxUnitRunner.class)
 public class VertxTest {
 
