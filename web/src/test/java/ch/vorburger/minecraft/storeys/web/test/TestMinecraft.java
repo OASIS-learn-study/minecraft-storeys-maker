@@ -24,6 +24,7 @@ import ch.vorburger.minecraft.storeys.api.HandType;
 import ch.vorburger.minecraft.storeys.api.ItemType;
 import ch.vorburger.minecraft.storeys.api.LoginResponse;
 import ch.vorburger.minecraft.storeys.api.Minecraft;
+import ch.vorburger.minecraft.storeys.api.Token;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -47,8 +48,8 @@ public class TestMinecraft implements Minecraft {
     }
 
     @Override
-    public void showTitle(String code, String message, Handler<AsyncResult<Void>> handler) {
-        LOG.info("showTitle({}, {})", code, message);
+    public void showTitle(Token token, String message, Handler<AsyncResult<Void>> handler) {
+        LOG.info("showTitle({}, {})", token, message);
         results.put("lastTitle", message);
         handler.handle(Future.succeededFuture());
     }

@@ -16,15 +16,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys.web;
+package ch.vorburger.minecraft.storeys.api.impl;
 
-import ch.vorburger.minecraft.storeys.simple.TokenProvider;
+import ch.vorburger.minecraft.storeys.api.Token;
 import ch.vorburger.minecraft.storeys.util.Command;
 import ch.vorburger.minecraft.utils.CommandExceptions;
 import com.google.common.collect.ImmutableList;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.command.CommandException;
@@ -40,44 +37,25 @@ import org.spongepowered.api.text.format.TextColors;
 /**
  * Minecraft console command to login to ScratchX.
  */
-public class LoginCommand implements Command {
-
-    private static final String URL_PREFIX = "http://scratchx.org/?url=%s&code=%s&eventBusURL=%s";
-
-    private String scratchJSExtensionURL = "http://localhost:7070/minecraft.scratchx.js";
-    private String eventBusURL = "http://localhost:8080/eventbus";
+public class TokenCommand implements Command {
 
     private final TokenProvider tokenProvider;
 
-    public LoginCommand(TokenProvider tokenProvider) {
-        this.tokenProvider = tokenProvider;
-        scratchJSExtensionURL = getSystemPropertyEnvVarOrDefault("storeys_jsURL", scratchJSExtensionURL);
-        eventBusURL = getSystemPropertyEnvVarOrDefault("storeys_eventBusURL", eventBusURL);
-    }
-
-    private String getSystemPropertyEnvVarOrDefault(String propertyName, String defaultValue) {
-        String property = System.getProperty(propertyName);
-        if (property != null) {
-            return property;
-        }
-        property = System.getenv(propertyName);
-        if (property != null) {
-            return property;
-        }
-        return defaultValue;
+    public TokenCommand(TokenProvider newTokenProvider) {
+        this.tokenProvider = newTokenProvider;
     }
 
     @Override
     public CommandCallable callable() {
         return CommandSpec.builder()
-                // TODO permissions
-                .description(Text.of("Login into ScratchX web interface"))
+                .permission("storeys.token.new")
+                .description(Text.of("Obtain API token for player"))
                 .executor(this).build();
     }
 
     @Override
     public List<String> aliases() {
-        return ImmutableList.of("make", "scratch", "login"); // TODO eventually remove deprecated "login"
+        return ImmutableList.of("token");
     }
 
     @Override
@@ -86,14 +64,10 @@ public class LoginCommand implements Command {
             CommandExceptions.doOrThrow("loginURL", () -> {
                 Player player = (Player)src;
 
-                String code = tokenProvider.getCode(player);
+                Token token = tokenProvider.getToken(player);
 
-                String url = String.format(URL_PREFIX,
-                        URLEncoder.encode(scratchJSExtensionURL, StandardCharsets.UTF_8.name()), code,
-                        URLEncoder.encode(eventBusURL, StandardCharsets.UTF_8.name()));
-
-                src.sendMessage(Text.builder("Click here to open ScratchX and MAKE actions").onClick(
-                        TextActions.openUrl(new URL(url))).color(TextColors.GOLD).build());
+                src.sendMessage(Text.builder("Shift click here to insert your API Token to copy clipboard").onShiftClick(
+                        TextActions.insertText(token.toJson().toString())).color(TextColors.GREEN).build());
             });
         }
         return CommandResult.empty();

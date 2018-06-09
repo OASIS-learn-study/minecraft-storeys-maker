@@ -31,15 +31,18 @@ import org.spongepowered.api.entity.living.player.Player;
 /**
  * Implementation of {@link TokenProvider} API.
  *
+ * @deprecated to be phased out and replaced by ch.vorburger.minecraft.storeys.api.impl.TokenProvider
+ *
  * @author edewit - original author (in ActionsConsumer and LoginCommand)
  * @author Michael Vorburger.ch - refactored out into here, and use ConcurrentHashMap
  */
+@Deprecated
 public class TokenProviderImpl implements TokenProvider {
 
     private final Game game;
     private final RSAUtil rsaUtil = new RSAUtil();
 
-    // TODO would be better to have someting to invalidate entries that are old?
+    // TODO would be better to have something to invalidate entries that are old?
     private final Map<String, String> validLogins = new ConcurrentHashMap<>();
     private final Map<String, Player> activeSessions = new ConcurrentHashMap<>();
 

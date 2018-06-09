@@ -18,6 +18,8 @@
  */
 package ch.vorburger.minecraft.storeys.api.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.ReadingSpeed;
@@ -25,12 +27,11 @@ import ch.vorburger.minecraft.storeys.api.HandType;
 import ch.vorburger.minecraft.storeys.api.ItemType;
 import ch.vorburger.minecraft.storeys.api.LoginResponse;
 import ch.vorburger.minecraft.storeys.api.Minecraft;
+import ch.vorburger.minecraft.storeys.api.Token;
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.ActionContext;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
 import ch.vorburger.minecraft.storeys.model.TitleAction;
-import ch.vorburger.minecraft.storeys.simple.Token;
-import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider.SecretPublicKeyPair;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -51,16 +52,18 @@ import org.spongepowered.api.text.Text;
 public class MinecraftImpl implements Minecraft {
 
     private final PluginInstance pluginInstance;
-    private final TokenProvider tokenProvider;
+    private final ch.vorburger.minecraft.storeys.simple.TokenProvider oldTokenProvider;
+    private final TokenProvider newTokenProvider;
 
-    public MinecraftImpl(Vertx vertx, PluginInstance pluginInstance, TokenProvider tokenProvider) {
+    public MinecraftImpl(Vertx vertx, PluginInstance pluginInstance, ch.vorburger.minecraft.storeys.simple.TokenProvider oldTokenProvider, TokenProvider newTokenProvider) {
         this.pluginInstance = pluginInstance;
-        this.tokenProvider = tokenProvider;
+        this.oldTokenProvider = oldTokenProvider;
+        this.newTokenProvider = newTokenProvider;
     }
 
     @Override
     public void login(String token, String key, Handler<AsyncResult<LoginResponse>> handler) {
-        SecretPublicKeyPair secretAndPublicKey = tokenProvider.login(token, key);
+        SecretPublicKeyPair secretAndPublicKey = oldTokenProvider.login(token, key);
         LoginResponse response = new LoginResponse();
         response.setSecret(secretAndPublicKey.getSecret());
         response.setKey(secretAndPublicKey.getBase64PublicKey());
@@ -68,8 +71,8 @@ public class MinecraftImpl implements Minecraft {
     }
 
     @Override
-    public void showTitle(String code, String message, Handler<AsyncResult<Void>> handler) {
-        CompletionStage<Void> completionStage = execute(getPlayer(code), new TitleAction(pluginInstance).setText(Text.of(message)));
+    public void showTitle(Token token, String message, Handler<AsyncResult<Void>> handler) {
+        CompletionStage<Void> completionStage = execute(getPlayer(token), new TitleAction(pluginInstance).setText(Text.of(message)));
         handler.handle(new CompletionStageBasedAsyncResult<>(completionStage));
     }
 
@@ -93,9 +96,17 @@ public class MinecraftImpl implements Minecraft {
         return action.execute(new ActionContext(commandSource, new ReadingSpeed()));
     }
 
+    private Player getPlayer(Token token) {
+        if (requireNonNull(token, "token").getLoginCode() != null) {
+            return getPlayer(token.getLoginCode());
+        } else {
+            return newTokenProvider.getPlayer(token);
+        }
+    }
+
     private Player getPlayer(String code) {
-        Token token = tokenProvider.getToken(code);
-        return tokenProvider.getPlayer(token);
+        ch.vorburger.minecraft.storeys.simple.Token token = oldTokenProvider.getToken(code);
+        return oldTokenProvider.getPlayer(token);
     }
 
     // TODO does a helper class like this already exist somewhere in Vert.x? Can Vert.x directly gen. code with CompletionStage or CompletableFuture signatures?

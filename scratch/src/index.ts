@@ -46,13 +46,14 @@ let ScratchExtensions: any;
     var player_last_joined;
     var registeredConditions = new Set();
     var code;
+    var token;
 
     descriptor.menus.event.forEach(function(eventLabel) {
         eventsReceived[eventLabel] = false;
     });
 
     ext.sendTitle = function(sendTitle: string, callback: Function) {
-        minecraft.showTitle(code, sendTitle, (err: any, result: any) => {
+        minecraft.showTitle(token, sendTitle, (err: any, result: any) => {
             // TODO edewit: factor this out into a ../../api/src/api-utils.ts (?) usable from all functions here as well as scratch3/
             // see https://github.com/vorburger/minecraft-storeys-maker/issues/59 for some more ideas
             if (err) {
@@ -175,6 +176,8 @@ let ScratchExtensions: any;
                         crypt = new JSEncrypt();
                         crypt.setPublicKey(key);
                         code = crypt.encrypt(id);
+                        token = { loginCode: code };
+                        console.log("New style Token", token);
                     }
                 });
             });

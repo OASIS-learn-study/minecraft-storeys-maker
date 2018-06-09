@@ -22,6 +22,7 @@ import ch.vorburger.minecraft.osgi.api.Listeners;
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.api.Minecraft;
 import ch.vorburger.minecraft.storeys.api.impl.MinecraftImpl;
+import ch.vorburger.minecraft.storeys.api.impl.TokenCommand;
 import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.events.EventService;
 import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
@@ -39,6 +40,7 @@ import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
+import org.spongepowered.api.event.network.ClientConnectionEvent.Disconnect;
 import org.spongepowered.api.plugin.Plugin;
 
 @Plugin(id = "storeys-web", name = "Vorburger.ch's Storeys with Web API", version = "1.0",
@@ -58,6 +60,7 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
     private ActionsConsumer actionsConsumer;
 
     private CommandMapping loginCommandMapping;
+    private CommandMapping tokenCommandMapping;
 
     @Override
     public void start(PluginInstance plugin, Path configDir) throws Exception {
@@ -70,8 +73,11 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
         eventManager.registerListener(plugin, ChangeInventoryEvent.Held.class, event -> eventService.onChangeInventoryHeldEvent(event));
         // InteractItemEvent ?
 
-        TokenProvider tokenProvider = new TokenProviderImpl(game);
-        loginCommandMapping = Commands.register(plugin, new LoginCommand(tokenProvider));
+        TokenProvider oldTokenProvider = new TokenProviderImpl(game);
+        ch.vorburger.minecraft.storeys.api.impl.TokenProvider newTokenProvider = new ch.vorburger.minecraft.storeys.api.impl.TokenProvider();
+        loginCommandMapping = Commands.register(plugin, new LoginCommand(oldTokenProvider));
+        tokenCommandMapping = Commands.register(plugin, new TokenCommand(newTokenProvider));
+        eventManager.registerListener(plugin, Disconnect.class, event -> newTokenProvider.invalidate(event.getTargetEntity()));
 
         try {
             try {
@@ -82,9 +88,9 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
                 vertxStarter = new VertxStarter();
                 eventService = new EventService(plugin);
 
-                Minecraft minecraft = new MinecraftImpl(vertxStarter.vertx(), plugin, tokenProvider);
+                Minecraft minecraft = new MinecraftImpl(vertxStarter.vertx(), plugin, oldTokenProvider, newTokenProvider);
                 MinecraftVerticle minecraftVerticle = new MinecraftVerticle(eventBusHttpPort, minecraft);
-                actionsConsumer = new ActionsConsumer(plugin, eventService, new ConditionService(plugin), minecraftVerticle, tokenProvider);
+                actionsConsumer = new ActionsConsumer(plugin, eventService, new ConditionService(plugin), minecraftVerticle, oldTokenProvider);
                 minecraftVerticle.setActionsConsumer(actionsConsumer);
                 vertxStarter.deployVerticle(minecraftVerticle).toCompletableFuture().get();
                 LOG.info("Started Vert.x distributed BiDi event-bus HTTP server on port {}", eventBusHttpPort);
@@ -105,6 +111,9 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
     public void stop() throws Exception {
         if (loginCommandMapping != null) {
             Sponge.getCommandManager().removeMapping(loginCommandMapping);
+        }
+        if (tokenCommandMapping != null) {
+            Sponge.getCommandManager().removeMapping(tokenCommandMapping);
         }
         if (actionsConsumer != null) {
             actionsConsumer.stop();
