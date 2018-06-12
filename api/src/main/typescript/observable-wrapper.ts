@@ -10,7 +10,7 @@ export class StoreysMinecraft {
 
   showTitle(code: string, title: string): Observable<void> {
     return Observable.create(observer => {
-      this.minecraft.showTitle(code, title, this.handler(observer));
+      this.minecraft.showTitle({loginCode: code}, title, this.handler(observer));
     });
   }
 
@@ -20,13 +20,24 @@ export class StoreysMinecraft {
     });
   }
 
-  private handler(observer: Observer<void>) {
+  login(token: string, key: string): Observable<LoginResponse> {
+    return Observable.create(observer => {
+      this.minecraft.login(token, key, this.handler(observer));
+    });
+  }
+
+  private handler<T>(observer: Observer<T>) {
     return (err: any, result: any) => {
       if (!err) {
-        observer.next(result);
+        observer.next(result as T);
       } else {
         observer.error(err);
       };
     };
   }
+}
+
+export class LoginResponse {
+  secret: string;
+  key: string;
 }
