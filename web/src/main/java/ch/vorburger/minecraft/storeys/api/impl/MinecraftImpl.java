@@ -99,8 +99,10 @@ public class MinecraftImpl implements Minecraft {
     private Player getPlayer(Token token) {
         if (requireNonNull(token, "token").getLoginCode() != null) {
             return getPlayer(token.getLoginCode());
-        } else {
+        } else if (token.getPlayerSource() != null) {
             return newTokenProvider.getPlayer(token);
+        } else {
+            throw new IllegalArgumentException("Token JSON contains neither loginCode nor playerSource");
         }
     }
 

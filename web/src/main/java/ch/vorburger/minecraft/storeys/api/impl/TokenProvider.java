@@ -61,7 +61,7 @@ public class TokenProvider {
     }
 
     private UUID tokenToUUID(Token token) {
-        return UUID.fromString(requireNonNull(token, "token").getPlayerSource());
+        return UUID.fromString(requireNonNull(requireNonNull(token, "token").getPlayerSource(), "token.playerSource"));
     }
 
 }
