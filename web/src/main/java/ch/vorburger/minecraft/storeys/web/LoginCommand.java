@@ -22,6 +22,7 @@ import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.util.Command;
 import ch.vorburger.minecraft.utils.CommandExceptions;
 import com.google.common.collect.ImmutableList;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -31,6 +32,7 @@ import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
@@ -42,17 +44,26 @@ import org.spongepowered.api.text.format.TextColors;
  */
 public class LoginCommand implements Command {
 
-    private static final String URL_PREFIX = "http://scratchx.org/?url=%s&code=%s&eventBusURL=%s";
+    private static final String SCRATCHX_URL_PREFIX = "http://scratchx.org/?url=%s&code=%s&eventBusURL=%s";
+    private String scratchX_JSExtensionURL = "http://localhost:7070/minecraft.scratchx.js";
 
-    private String scratchJSExtensionURL = "http://localhost:7070/minecraft.scratchx.js";
+    private String scratch3URL = "http://localhost:8601/?";
+
     private String eventBusURL = "http://localhost:8080/eventbus";
+    private String encodedEventBusURL;
 
     private final TokenProvider tokenProvider;
 
     public LoginCommand(TokenProvider tokenProvider) {
         this.tokenProvider = tokenProvider;
-        scratchJSExtensionURL = getSystemPropertyEnvVarOrDefault("storeys_jsURL", scratchJSExtensionURL);
+        scratchX_JSExtensionURL = getSystemPropertyEnvVarOrDefault("storeys_jsURL", scratchX_JSExtensionURL);
+        scratch3URL = getSystemPropertyEnvVarOrDefault("storeys_scratchURL", scratch3URL);
         eventBusURL = getSystemPropertyEnvVarOrDefault("storeys_eventBusURL", eventBusURL);
+        try {
+            encodedEventBusURL = URLEncoder.encode(eventBusURL, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException("WTF; no UTF-8?!", e);
+        }
     }
 
     private String getSystemPropertyEnvVarOrDefault(String propertyName, String defaultValue) {
@@ -70,8 +81,9 @@ public class LoginCommand implements Command {
     @Override
     public CommandCallable callable() {
         return CommandSpec.builder()
-                // TODO permissions
                 .description(Text.of("Login into ScratchX web interface"))
+                .permission("storeys.command.make")
+                .arguments(GenericArguments.flags().permissionFlag("storeys.command.make.beta", "b").buildWith(GenericArguments.none()))
                 .executor(this).build();
     }
 
@@ -88,13 +100,20 @@ public class LoginCommand implements Command {
 
                 String code = tokenProvider.getCode(player);
 
-                String url = String.format(URL_PREFIX,
-                        URLEncoder.encode(scratchJSExtensionURL, StandardCharsets.UTF_8.name()), code,
-                        URLEncoder.encode(eventBusURL, StandardCharsets.UTF_8.name()));
+                String url;
+                if (args.hasAny("b")) {
+                    url = String.format(scratch3URL + "code=%s&eventBusURL=%s", code, encodedEventBusURL);
+                } else {
+                    url = String.format(SCRATCHX_URL_PREFIX,
+                        URLEncoder.encode(scratchX_JSExtensionURL, StandardCharsets.UTF_8.name()), code,
+                        encodedEventBusURL);
+                }
 
-                src.sendMessage(Text.builder("Click here to open ScratchX and MAKE actions").onClick(
+                src.sendMessage(Text.builder("Click here to open Scratch and MAKE actions").onClick(
                         TextActions.openUrl(new URL(url))).color(TextColors.GOLD).build());
             });
+        } else {
+            src.sendMessage(Text.builder("Command source must be Player").color(TextColors.RED).build());
         }
         return CommandResult.empty();
     }
