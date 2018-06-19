@@ -1,3 +1,42 @@
+plugins {
+    id "com.moowork.node" version "1.2.0"
+}
+
+project.afterEvaluate {
+    tasks.npm_install.outputs.dir(file('node_modules'))
+}
+
+node {
+    // https://github.com/srs/gradle-node-plugin/blob/master/docs/node.md#configuring-the-plugin
+    version = '8.11.1'
+    npmVersion = '6.0.1'
+    download = true
+}
+
+task npmInstall(overwrite: true, type: NpmTask, dependsOn: 'npmSetup') {
+    inputs.file('package.json')
+    outputs.upToDateWhen { file('node_modules').exists() }
+
+    npmCommand = ['install']
+}
+
+task npmBuildProd(type: NpmTask) {
+    inputs.files(fileTree('src'))
+    inputs.file('package.json')
+    inputs.file('webpack.config.js')
+
+    outputs.dir('dist')
+
+    dependsOn npmInstall
+    args = ['run', 'build']
+}
+
+task install {
+    dependsOn npmBuildProd
+}
+
+assemble.dependsOn(install)
+
 apply plugin: 'eclipse'
 
 ext {
