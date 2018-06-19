@@ -18,19 +18,21 @@ node {
   download = true
 }
 
-project.afterEvaluate {
-    tasks.npm_install.outputs.dir(file('node_modules'))
+task npmInstall(overwrite: true, type: NpmTask, dependsOn: 'npmSetup') {
+    inputs.file('package.json')
+    outputs.upToDateWhen { file('node_modules').exists() }
+
+    npmCommand = ['install']
 }
 
 task npmBuildProd(type: NpmTask) {
-    inputs.files(fileTree('node_modules'))
     inputs.files(fileTree('src'))
     inputs.file('package.json')
     inputs.file('webpack.config.js')
 
     outputs.dir('dist')
 
-    dependsOn npm_install
+    dependsOn npmInstall
     args = ['run', 'build:prod']
 }
 
