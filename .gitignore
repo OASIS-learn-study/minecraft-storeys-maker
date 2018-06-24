@@ -18,3 +18,5 @@ dist/
 node_modules/
 coverage/
 *d.ts
+
+web/.vertx/file-cache-*
