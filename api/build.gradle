@@ -57,6 +57,7 @@ dependencies {
 
 // hack work-around for https://github.com/vert-x3/vertx-lang-js/issues/76 ;)
 task finalize << {
+    ant.replace(file: "build/classes/java/main/Minecraft-js/minecraft-proxy.js", token: "Minecraft-js/", value: "./")
     ant.replace(file: "build/classes/java/main/Minecraft-ts/minecraft-proxy.ts", token: "Minecraft-ts/", value: "./")
     println('finally!')
 }
