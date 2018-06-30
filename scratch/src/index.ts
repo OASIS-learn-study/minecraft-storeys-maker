@@ -1,5 +1,5 @@
 import * as EventBus from 'vertx3-eventbus-client';
-import { Minecraft, HandType } from '../../api/src/main/typescript/observable-wrapper';
+import { Minecraft, HandType, Token } from '../../api/src/main/typescript/observable-wrapper';
 import { JSEncrypt } from 'jsencrypt';
 
 let ScratchExtensions: any;
@@ -45,8 +45,8 @@ let ScratchExtensions: any;
     var eventsReceived = {};
     var player_last_joined;
     var registeredConditions = new Set();
-    var code;
-    var token;
+    var code : string;
+    var token : Token;
 
     descriptor.menus.event.forEach(function (eventLabel) {
         eventsReceived[eventLabel] = false;
@@ -158,9 +158,9 @@ let ScratchExtensions: any;
                     var key = response.key;
                     crypt = new JSEncrypt();
                     crypt.setPublicKey(key);
-                    this.code = crypt.encrypt(id);
-                    this.token = { loginCode: this.code };
-                    console.log("New style Token", this.token);
+                    code = crypt.encrypt(id);
+                    token = { loginCode: code };
+                    console.log("New style Token", token);
                 }, err =>
                     console.log("login reply with error: ", err)
                 );
