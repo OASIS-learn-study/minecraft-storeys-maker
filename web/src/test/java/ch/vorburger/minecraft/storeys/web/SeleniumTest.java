@@ -22,7 +22,6 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Date;
-import java.util.function.Function;
 import java.util.logging.Level;
 
 import ch.vorburger.minecraft.storeys.web.test.TestMinecraft;
@@ -83,8 +82,7 @@ public class SeleniumTest {
     private static void startVertx() throws Exception {
         testMinecraft = new TestMinecraft();
         vertxStarter = new VertxStarter();
-        // TODO use another (random) port and pass URL to minecraft.js via argument
-        MinecraftVerticle minecraftVerticle = new MinecraftVerticle(8080, testMinecraft);
+        MinecraftVerticle minecraftVerticle = new MinecraftVerticle(6060, testMinecraft);
         minecraftVerticle.setActionsConsumer(event -> LOG.warn("Received event, but ignoring/not handling in this test: {}", event.body()));
         vertxStarter.deployVerticle(minecraftVerticle).toCompletableFuture().get();
         vertxStarter.deployVerticle(new StaticWebServerVerticle(9090, new File("../scratch/dist"))).toCompletableFuture().get();
@@ -108,7 +106,7 @@ public class SeleniumTest {
         js = (JavascriptExecutor) webDriver;
         awaitWD = new WebDriverWait(webDriver, 3).pollingEvery(Duration.ofMillis(100));
 
-        webDriver.get("http://localhost:9090/index.html?eventBusURL=http%3A%2F%2Flocalhost%3A8080%2Feventbus");
+        webDriver.get("http://localhost:9090/index.html?eventBusURL=http%3A%2F%2Flocalhost%3A6060%2Feventbus");
     }
 
     @AfterClass
@@ -163,7 +161,7 @@ public class SeleniumTest {
     }
 
     private void awaitUntilJSReturnsValue(String message, String javaScript) {
-        awaitWD.withMessage(message).until(ExpectedConditions.jsReturnsValue(javaScript));
+        awaitWD.withTimeout(Duration.ofSeconds(7)).withMessage(message).until(ExpectedConditions.jsReturnsValue(javaScript));
     }
 
     // TODO testWhenCommand
