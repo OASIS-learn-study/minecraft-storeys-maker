@@ -39,6 +39,8 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -50,6 +52,8 @@ import org.spongepowered.api.text.Text;
  * @author Michael Vorburger.ch
  */
 public class MinecraftImpl implements Minecraft {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MinecraftImpl.class);
 
     private final PluginInstance pluginInstance;
     private final ch.vorburger.minecraft.storeys.simple.TokenProvider oldTokenProvider;
@@ -67,6 +71,7 @@ public class MinecraftImpl implements Minecraft {
         LoginResponse response = new LoginResponse();
         response.setSecret(secretAndPublicKey.getSecret());
         response.setKey(secretAndPublicKey.getBase64PublicKey());
+        LOG.info("login: IN token={}, key={}, OUT response={}", token, key, response);
         handler.handle(Future.succeededFuture(response));
     }
 

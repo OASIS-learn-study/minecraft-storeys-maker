@@ -153,7 +153,7 @@ let ScratchExtensions: any;
         if (typeof (urlParams.code !== 'undefined')) {
             crypt.getKey(() => {
                 minecraft.login(urlParams.code, crypt.getPublicKeyB64()).subscribe(response => {
-                    console.log("Logging in... secret", response.secret);
+                    console.log("Logging in...", response);
                     var id = crypt.decrypt(response.secret);
                     var key = response.key;
                     crypt = new JSEncrypt();
@@ -162,7 +162,7 @@ let ScratchExtensions: any;
                     this.token = { loginCode: this.code };
                     console.log("New style Token", this.token);
                 }, err =>
-                        console.log("login reply with error: ", err)
+                    console.log("login reply with error: ", err)
                 );
             });
         }

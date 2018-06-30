@@ -32,8 +32,10 @@ export class Minecraft {
   private handler<T>(observer: Observer<T>) {
     return (err: any, result: any) => {
       if (!err) {
+        console.log("result: ", result)
         observer.next(result as T);
       } else {
+        console.log("error: ", err)
         observer.error(err);
       };
     };
