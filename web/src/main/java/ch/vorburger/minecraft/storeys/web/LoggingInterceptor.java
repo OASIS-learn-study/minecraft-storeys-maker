@@ -36,7 +36,7 @@ public class LoggingInterceptor implements Function<Message<JsonObject>, Future<
 
     @Override
     public Future<Message<JsonObject>> apply(Message<JsonObject> message) {
-        LOG.info("Handling (new style) Service message received on EventBus: {}", message.body().encodePrettily());
+        LOG.info("Handling (new style) Service message received on EventBus: {} / {}", message.headers(), message.body().encodePrettily());
         return Future.succeededFuture(message);
     }
 }
