@@ -56,4 +56,9 @@ public class LoginResponse {
     public void setKey(String key) {
         this.key = key;
     }
+
+    @Override
+    public String toString() {
+        return toJson().encodePrettily();
+    }
 }
