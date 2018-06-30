@@ -5,9 +5,9 @@ export class Minecraft {
   constructor(private eb: any) {
   }
 
-  showTitle(code: string, title: string): Observable<void> {
+  showTitle(token: Token, title: string): Observable<void> {
     return Observable.create(observer => {
-      this.eb.send(this.address, {"token": {loginCode: code}, "message": title}, {"action":"showTitle"}, this.handler(observer));
+      this.eb.send(this.address, {"token": token, "message": title}, {"action":"showTitle"}, this.handler(observer));
     });
   }
 
@@ -52,6 +52,11 @@ export enum ItemType {
   Apple, Beef, Beetroot, Boat, Book, Bow, Bowl, Bread,
   Cactus, Cake, Carrot, Cauldron, Chicken, Clock,
   Cookie
+}
+
+export class Token {
+  loginCode?: string
+  playerSource?: string
 }
 
 export class LoginResponse {
