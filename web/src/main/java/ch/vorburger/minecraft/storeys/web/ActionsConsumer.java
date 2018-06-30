@@ -91,7 +91,7 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
 
     @Override
     public void handle(Message<JsonObject> message) {
-        LOG.info("Handling message received on EventBus: {}", message.body().encodePrettily());
+        LOG.info("Handling (old style) action message received on EventBus: {}", message.body().encodePrettily());
 
         JsonObject json = message.body();
         String secureCode = json.getString("code");
