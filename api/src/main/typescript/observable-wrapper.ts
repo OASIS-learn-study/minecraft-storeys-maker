@@ -43,8 +43,8 @@ export class Minecraft {
 }
 
 export enum HandType {
-  MainHand,
-  OffHand
+  MainHand = "MainHand",
+  OffHand = "OffHand"
 }
 
 export enum ItemType {
