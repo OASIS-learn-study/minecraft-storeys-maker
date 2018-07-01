@@ -93,7 +93,6 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
                 actionsConsumer = new ActionsConsumer(plugin, eventService, new ConditionService(plugin), minecraftVerticle, oldTokenProvider);
                 minecraftVerticle.setActionsConsumer(actionsConsumer);
                 vertxStarter.deployVerticle(minecraftVerticle).toCompletableFuture().get();
-                LOG.info("Started Vert.x distributed BiDi event-bus HTTP server on port {}", eventBusHttpPort);
                 vertxStarter.deployVerticle(new StaticWebServerVerticle(staticWebServerHttpPort)).toCompletableFuture().get();
 
             } catch (ExecutionException  | InterruptedException e) {

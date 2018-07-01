@@ -81,6 +81,8 @@ public class MinecraftVerticle extends AbstractHttpServerVerticle implements Eve
                 .addInboundPermitted(inboundPermitted2).addOutboundPermitted(outboundPermitted1);
         sockJSHandler.bridge(bridgeOptions);
         router.route("/eventbus/*").handler(sockJSHandler);
+
+        LOG.info("Started Vert.x distributed BiDi event-bus HTTP server on port {}", httpPort);
     }
 
     @Override
