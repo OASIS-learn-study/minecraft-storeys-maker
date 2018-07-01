@@ -24,3 +24,51 @@ let test = new Test();
         console.log("ScratchX extension registered:", extensionName, ext !== undefined);
     }
 };
+
+// =======================================================================================
+// TODO rewrite most of what is in SeleniumTest here... like this:
+
+import * as EventBus from 'vertx3-eventbus-client';
+import { Minecraft, Token, HandType, ItemType } from '../../api/src/main/typescript/observable-wrapper';
+
+export class Tester {
+    failures = [];
+    private done: boolean = false;
+
+    test(): void {
+        // copy/paste from index.ts - sorry! ;)
+        var match,
+            pl = /\+/g,  // Regex for replacing addition symbol with a space
+            search = /([^&=]+)=?([^&]*)/g,
+            decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+            query = window.location.search.substring(1);
+        var urlParams: any = {};
+        while (match = search.exec(query))
+            urlParams[decode(match[1])] = decode(match[2]);
+        let eb = new EventBus(urlParams.eventBusURL);
+        let minecraft = new Minecraft(eb);
+        eb.onopen = () => {
+            console.log('Event Bus is now open: ' + urlParams.eventBusURL);
+
+            minecraft.getItemHeld('', HandType.MainHand).subscribe(
+                result => {
+                    if (result !== ItemType.Apple) this.failures.push("getItemHeld expected Apple but actually got " + result);
+                    this.done = true;
+                    console.log('getItemHeld result', result);
+                },
+                err => {
+                    this.failures.push(err);
+                    this.done = true;
+                    console.log('getItemHeld error', err);
+                }
+            )
+        };
+    }
+
+    isDone(): boolean {
+        return this.done;
+    }
+}
+
+let atester = new Tester();
+(<any>window).tester = atester;
