@@ -1,28 +1,31 @@
 import { Observable, Observer } from 'rxjs';
-import * as EventBus from 'vertx3-eventbus-client';
-import { Minecraft } from '../../../build/classes/java/main/Minecraft-ts/minecraft-proxy';
 
-export class StoreysMinecraft {
-  private minecraft: Minecraft;
+export class Minecraft {
+  private address = "ch.vorburger.minecraft.storeys";
   constructor(private eb: any) {
-    this.minecraft = new Minecraft(eb, "ch.vorburger.minecraft.storeys");
   }
 
   showTitle(code: string, title: string): Observable<void> {
     return Observable.create(observer => {
-      this.minecraft.showTitle({loginCode: code}, title, this.handler(observer));
+      this.eb.send(this.address, {"token": {loginCode: code}, "message": title}, {"action":"showTitle"}, this.handler(observer));
     });
   }
 
   narrate(code: string, entity: string, text: string): Observable<void> {
     return Observable.create(observer => {
-      this.minecraft.narrate(code, entity, text, this.handler(observer));
+      this.eb.send(this.address, {"code": code, "entity": entity, "text": text}, {"action":"narrate"}, this.handler(observer));
     });
   }
 
   login(token: string, key: string): Observable<LoginResponse> {
     return Observable.create(observer => {
-      this.minecraft.login(token, key, this.handler(observer));
+      this.eb.send(this.address, {"token": token, "key": key}, {"action":"login"}, this.handler(observer));
+    });
+  }
+
+  getItemHeld(code: string, hand: HandType): Observable<ItemType> {
+    return Observable.create(observer => {
+      this.eb.send(this.address, {"code": code, "hand": hand.toString()}, {"action":"getItemHeld"}, this.handler(observer));
     });
   }
 
@@ -35,6 +38,18 @@ export class StoreysMinecraft {
       };
     };
   }
+}
+
+export enum HandType {
+  MainHand,
+  OffHand
+}
+
+export enum ItemType {
+  Nothing,
+  Apple, Beef, Beetroot, Boat, Book, Bow, Bowl, Bread,
+  Cactus, Cake, Carrot, Cauldron, Chicken, Clock,
+  Cookie
 }
 
 export class LoginResponse {
