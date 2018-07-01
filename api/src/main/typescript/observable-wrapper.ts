@@ -48,10 +48,11 @@ export enum HandType {
 }
 
 export enum ItemType {
-  Nothing,
-  Apple, Beef, Beetroot, Boat, Book, Bow, Bowl, Bread,
-  Cactus, Cake, Carrot, Cauldron, Chicken, Clock,
-  Cookie
+  Nothing = "Nothing",
+  Apple = "Apple", Beef = "Beef", Beetroot = "Beetroot", Boat = "Boat", Book = "Book",
+  Bow = "Bow", Bowl = "Bowl", Bread = "Bread", Cactus = "Cactus", Cake = "Cake",
+  Carrot = "Carrot", Cauldron = "Cauldron", Chicken = "Chicken", Clock = "Clock",
+  Cookie = "Cookie"
 }
 
 export class Token {
