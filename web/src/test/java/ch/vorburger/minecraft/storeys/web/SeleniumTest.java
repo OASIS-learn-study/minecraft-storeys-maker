@@ -22,7 +22,6 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Date;
-import java.util.function.Function;
 import java.util.logging.Level;
 
 import ch.vorburger.minecraft.storeys.web.test.TestMinecraft;
@@ -175,7 +174,7 @@ public class SeleniumTest {
         LogEntries logEntries = webDriver.manage().logs().get(LogType.BROWSER);
         for (LogEntry entry : logEntries) {
             System.out.println("BROWSER: " + new Date(entry.getTimestamp()) + " " + entry.getLevel() + " " + entry.getMessage());
-            if (entry.getLevel().equals(Level.SEVERE)) {
+            if (entry.getLevel().equals(Level.SEVERE) || entry.getMessage().toLowerCase().contains("error")) {
                 if (firstMessage == null) {
                     firstMessage = entry.getMessage();
                 }
