@@ -18,20 +18,26 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertEquals;
+
+import ch.vorburger.minecraft.storeys.api.HandType;
+import ch.vorburger.minecraft.storeys.api.ItemType;
+import ch.vorburger.minecraft.storeys.web.test.TestMinecraft;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import java.io.File;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
-
-import ch.vorburger.minecraft.storeys.web.test.TestMinecraft;
-import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -45,9 +51,6 @@ import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertEquals;
 
 /**
  * Integration test, based on WebDriver.
@@ -150,6 +153,29 @@ public class SeleniumTest {
         assertThat(testMinecraft.results.get("text")).isEqualTo(text);
     }
 
+    @Test
+    public void e_testNegativeAPI() {
+        assertThat(runTesterJSAndGetFailures()).containsExactly("getItemHeld expected Apple but actually got Nothing");
+    }
+
+    @Test
+    public void e_testPositiveAPI() {
+        testMinecraft.itemsHeld.put(HandType.MainHand, ItemType.Apple);
+        assertThat(runTesterJSAndGetFailures().isEmpty());
+    }
+
+    // TODO testWhenCommand
+
+    // TODO testAllOtherBlocks...
+
+    @SuppressWarnings("unchecked")
+    private List<String> runTesterJSAndGetFailures() {
+        js.executeScript("tester.test()");
+        assertNoBrowserConsoleLogErrors();
+        awaitUntilJSReturnsValue("Client side test is not yet done", "return tester.isDone() === true");
+        return (List<String>) js.executeScript("return tester.failures");
+    }
+
     private void testEventBusCall(String function, String... params) {
         String script = "ext.scratchMinecraftExtension.%s(''{0}'', ext.callback(''%s''))";
         script = MessageFormat.format(script, String.join("', '", params));
@@ -161,12 +187,18 @@ public class SeleniumTest {
     }
 
     private void awaitUntilJSReturnsValue(String message, String javaScript) {
-        awaitWD.withTimeout(Duration.ofSeconds(7)).withMessage(message).until(ExpectedConditions.jsReturnsValue(javaScript));
+        if (!javaScript.startsWith("return ")) {
+            throw new IllegalArgumentException("JS should start with with return : " + javaScript);
+        }
+        try {
+            awaitWD.withTimeout(Duration.ofSeconds(7)).withMessage(message).until(ExpectedConditions.jsReturnsValue(javaScript));
+        } catch (TimeoutException e) {
+            // If we timed out, it's useful to print the Browser log, and check it for errors
+            assertNoBrowserConsoleLogErrors();
+            // This re-throw will not be reached if there was a browser, and that's just fine, because we probably have better details
+            throw e;
+        }
     }
-
-    // TODO testWhenCommand
-
-    // TODO testAllOtherBlocks...
 
     private static void assertNoBrowserConsoleLogErrors() {
         String firstMessage = null;
@@ -189,5 +221,4 @@ public class SeleniumTest {
         Mains.waitForEnter();
         vertxStarter.stop();
     }
-
 }
