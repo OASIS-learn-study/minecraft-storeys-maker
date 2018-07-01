@@ -22,8 +22,11 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Date;
+import java.util.Set;
 import java.util.logging.Level;
-
+import junit.framework.AssertionFailedError;
+import ch.vorburger.minecraft.storeys.api.HandType;
+import ch.vorburger.minecraft.storeys.api.ItemType;
 import ch.vorburger.minecraft.storeys.web.test.TestMinecraft;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.AfterClass;
@@ -150,6 +153,19 @@ public class SeleniumTest {
         assertThat(testMinecraft.results.get("text")).isEqualTo(text);
     }
 
+    @Test
+    public void d_testAPI() {
+        testMinecraft.itemsHeld.put(HandType.MainHand, ItemType.Apple);
+        js.executeScript("tester.test()");
+        assertNoBrowserConsoleLogErrors();
+        awaitUntilJSReturnsValue("Client side test is not yet done", "tester.isDone()");
+        @SuppressWarnings("unchecked")
+        Set<String> failures = (Set<String>) js.executeScript("tester.failures");
+        if (!failures.isEmpty()) {
+            throw new AssertionFailedError(failures.toString());
+        }
+    }
+
     private void testEventBusCall(String function, String... params) {
         String script = "ext.scratchMinecraftExtension.%s(''{0}'', ext.callback(''%s''))";
         script = MessageFormat.format(script, String.join("', '", params));
@@ -189,5 +205,4 @@ public class SeleniumTest {
         Mains.waitForEnter();
         vertxStarter.stop();
     }
-
 }
