@@ -32,7 +32,7 @@ import * as EventBus from 'vertx3-eventbus-client';
 import { Minecraft, Token, HandType, ItemType } from '../../api/src/main/typescript/observable-wrapper';
 
 export class Tester {
-    failures = new Set<string>();
+    failures = [];
     private done: boolean = false;
 
     test(): void {
@@ -45,19 +45,19 @@ export class Tester {
         var urlParams: any = {};
         while (match = search.exec(query))
             urlParams[decode(match[1])] = decode(match[2]);
-        var eb = new EventBus(urlParams.eventBusURL);
-        var minecraft = new Minecraft(eb);
+        let eb = new EventBus(urlParams.eventBusURL);
+        let minecraft = new Minecraft(eb);
         eb.onopen = () => {
             console.log('Event Bus is now open: ' + urlParams.eventBusURL);
 
             minecraft.getItemHeld('', HandType.MainHand).subscribe(
                 result => {
-                    if (result != ItemType.Apple) this.failures.add("getItemHeld expected Apple but actually got " + result);
+                    if (result !== ItemType.Apple) this.failures.push("getItemHeld expected Apple but actually got " + result);
                     this.done = true;
                     console.log('getItemHeld result', result);
                 },
                 err => {
-                    this.failures.add(err);
+                    this.failures.push(err);
                     this.done = true;
                     console.log('getItemHeld error', err);
                 }
