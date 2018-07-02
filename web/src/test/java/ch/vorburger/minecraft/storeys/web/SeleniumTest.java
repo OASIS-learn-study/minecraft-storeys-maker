@@ -35,6 +35,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -177,7 +178,14 @@ public class SeleniumTest {
     }
 
     private void awaitUntilJSReturnsValue(String message, String javaScript) {
-        awaitWD.withTimeout(Duration.ofSeconds(7)).withMessage(message).until(ExpectedConditions.jsReturnsValue(javaScript));
+        try {
+            awaitWD.withTimeout(Duration.ofSeconds(7)).withMessage(message).until(ExpectedConditions.jsReturnsValue(javaScript));
+        } catch (TimeoutException e) {
+            // If we timed out, it's useful to print the Browser log, and check it for errors
+            assertNoBrowserConsoleLogErrors();
+            // This re-throw will not be reached if there was a browser, and that's just fine, because we probably have better details
+            throw e;
+        }
     }
 
     // TODO testWhenCommand

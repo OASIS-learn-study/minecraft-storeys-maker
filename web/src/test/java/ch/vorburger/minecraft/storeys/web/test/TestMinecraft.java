@@ -64,7 +64,7 @@ public class TestMinecraft implements Minecraft {
 
     @Override
     public void getItemHeld(String code, HandType hand, Handler<AsyncResult<ItemType>> handler) {
-        handler.handle(Future.succeededFuture(itemsHeld.get(hand)));
+        handler.handle(Future.succeededFuture(itemsHeld.getOrDefault(hand, ItemType.Nothing)));
     }
 
 }

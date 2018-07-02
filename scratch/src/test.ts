@@ -47,17 +47,22 @@ export class Tester {
             urlParams[decode(match[1])] = decode(match[2]);
         var eb = new EventBus(urlParams.eventBusURL);
         var minecraft = new Minecraft(eb);
+        eb.onopen = () => {
+            console.log('Event Bus is now open: ' + urlParams.eventBusURL);
 
-        minecraft.getItemHeld('', HandType.MainHand).subscribe(
-            result => {
-                if (result != ItemType.Apple) this.failures.add("getItemHeld expected Apple but actually got " + result);
-                this.done = true;
-            },
-            err => {
-                this.failures.add(err);
-                this.done = true;
-            }
-        )
+            minecraft.getItemHeld('', HandType.MainHand).subscribe(
+                result => {
+                    if (result != ItemType.Apple) this.failures.add("getItemHeld expected Apple but actually got " + result);
+                    this.done = true;
+                    console.log('getItemHeld result', result);
+                },
+                err => {
+                    this.failures.add(err);
+                    this.done = true;
+                    console.log('getItemHeld error', err);
+                }
+            )
+        };
     }
 
     isDone(): boolean {
