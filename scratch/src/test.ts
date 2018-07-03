@@ -28,8 +28,7 @@ let test = new Test();
 // =======================================================================================
 // TODO rewrite most of what is in SeleniumTest here... like this:
 
-import * as EventBus from 'vertx3-eventbus-client';
-import { Minecraft, Token, HandType, ItemType } from '../../api/src/main/typescript/observable-wrapper';
+import { MinecraftProvider, HandType, ItemType } from '../../api/src/main/typescript/observable-wrapper';
 
 export class Tester {
     failures = [];
@@ -37,20 +36,16 @@ export class Tester {
 
     test(): void {
         // copy/paste from index.ts - sorry! ;)
-        var match,
+        let match,
             pl = /\+/g,  // Regex for replacing addition symbol with a space
             search = /([^&=]+)=?([^&]*)/g,
             decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
             query = window.location.search.substring(1);
-        var urlParams: any = {};
+        const urlParams: any = {};
         while (match = search.exec(query))
             urlParams[decode(match[1])] = decode(match[2]);
-        let eb = new EventBus(urlParams.eventBusURL);
-        let minecraft = new Minecraft(eb);
-        eb.onopen = () => {
-            console.log('Event Bus is now open: ' + urlParams.eventBusURL);
-
-            minecraft.getItemHeld('', HandType.MainHand).subscribe(
+        new MinecraftProvider().connect(urlParams.eventBusURL, urlParams.code).subscribe(minecraft => {
+            minecraft.getItemHeld(HandType.MainHand).subscribe(
                 result => {
                     if (result !== ItemType.Apple) this.failures.push("getItemHeld expected Apple but actually got " + result);
                     this.done = true;
@@ -60,9 +55,9 @@ export class Tester {
                     this.failures.push(err);
                     this.done = true;
                     console.log('getItemHeld error', err);
-                }
-            )
-        };
+                });
+        })
+
     }
 
     isDone(): boolean {
