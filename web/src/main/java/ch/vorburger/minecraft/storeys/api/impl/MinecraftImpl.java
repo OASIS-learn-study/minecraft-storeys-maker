@@ -85,8 +85,7 @@ public class MinecraftImpl implements Minecraft {
     public void narrate(String code, String entity, String text, Handler<AsyncResult<Void>> handler) {
         final NarrateAction narrateAction = new NarrateAction(new Narrator(pluginInstance));
         narrateAction.setEntity(entity).setText(Text.of(text));
-        final CompletionStage<Void> completionStage = execute(getPlayer(code), narrateAction);
-        handler.handle(new CompletionStageBasedAsyncResult<>(completionStage));
+        handler.handle(new CompletionStageBasedAsyncResult<>(execute(getPlayer(code), narrateAction)));
     }
 
     @Override
