@@ -47,7 +47,8 @@ public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
 
     @Override
     protected void addRoutes(Router router) {
-        router.route("/*").handler(StaticHandler.create().setDirectoryListing(true).setWebRoot(webRoot));
+        // see https://github.com/vorburger/minecraft-storeys-maker/issues/97 re. setFilesReadOnly(false)
+        router.route("/*").handler(StaticHandler.create().setDirectoryListing(true).setWebRoot(webRoot).setFilesReadOnly(false));
         LOG.info("Going to serve static web content from {} on port {}", webRoot, httpPort);
     }
 
