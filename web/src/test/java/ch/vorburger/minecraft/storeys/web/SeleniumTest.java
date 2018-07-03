@@ -119,7 +119,7 @@ public class SeleniumTest {
     }
 
     @Test
-    public void a_testBasicSetUp() throws Exception {
+    public void a_testBasicSetUp() {
         assertThat(webDriver.getTitle()).isEqualTo("Test");
         assertNoBrowserConsoleLogErrors();
 
@@ -130,10 +130,7 @@ public class SeleniumTest {
         Object value = js.executeScript("return ext !== undefined");
         assertThat(value).isInstanceOf(Boolean.class);
         assertThat(value).isNotNull();
-        awaitUntilJSReturnsValue("scratchMinecraftExtension not ready", "return ext !== undefined");
-        // TODO why does await above not work and we need to sleep() anyway?!
-        // Without this the next executeScript (sometimes, timing..) fails with "WebDriverException: unknown error: INVALID_STATE_ERR"
-        Thread.sleep(500);
+        awaitUntilJSReturnsValue("scratchMinecraftExtension not ready", "return ext.scratchMinecraftExtension !== undefined");
     }
 
     @Test

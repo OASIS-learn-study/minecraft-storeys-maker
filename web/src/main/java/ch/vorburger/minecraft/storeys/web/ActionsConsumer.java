@@ -103,8 +103,10 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
                 break;
             }
             case "registerCondition": {
+                String condition = json.getString("condition");
                 registerCondition(token,
-                                  requireNonNull(json.getString("condition"), "condition"));
+                                  requireNonNull(condition, "condition"));
+                message.reply(condition);
                 break;
             }
             default:

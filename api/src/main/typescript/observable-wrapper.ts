@@ -1,69 +1,114 @@
-import { Observable, Observer, Subject } from 'rxjs';
+import { Observable, Observer, Subject, ConnectableObservable } from 'rxjs';
 
-export class Minecraft {
-  private address = "ch.vorburger.minecraft.storeys";
-  private callbacks: Map<string, Subject<any>> = new Map();
+import * as EventBus from 'vertx3-eventbus-client';
+import { JSEncrypt } from 'jsencrypt';
 
-  constructor(private eb: any) {
-    eb.registerHandler("mcs.events", function (error, message) {
-      if (error == null) {
-        this.callbacks.get(message.body.event).next(message.body);
-      } else {
-        console.log("Vert.x Event Bus received error: " + error);
+export class MinecraftProvider {
+  private eb: any;
+
+  connect(eventBusURL: string, code: string): Observable<Minecraft> {
+    this.eb = new EventBus(eventBusURL);
+    this.eb.enableReconnect(true);
+    return Observable.create(observer => {
+      this.eb.onopen = () => {
+        let crypt = new JSEncrypt(512);
+        crypt.getKey(() => {
+          this.login(code, crypt.getPublicKeyB64()).subscribe(response => {
+              console.log("Logging in...", response);
+              var id = crypt.decrypt(response.secret);
+              var key = response.key;
+              crypt = new JSEncrypt();
+              crypt.setPublicKey(key);
+              const minecraft = new Minecraft(this.eb, crypt.encrypt(id) || "");
+              minecraft.onConnect();
+              observer.next(minecraft);
+          }, err => console.log("login reply with error: ", err));
+        });
       }
     });
   }
 
-  showTitle(token: Token, title: string): Observable<void> {
+  private login(token: string, key: string): Observable<LoginResponse> {
     return Observable.create(observer => {
-      this.eb.send(this.address, {"token": token, "message": title}, {"action":"showTitle"}, this.handler(observer));
+      this.eb.send(Minecraft.address, { "token": token, "key": key }, { "action": "login" }, (err: any, result: any) => {
+        if (!err) {
+          observer.next(result.body as LoginResponse);
+        } else {
+          observer.error(err);
+        }
+      });
+    });
+  }
+}
+
+export class Minecraft {
+  static address = "ch.vorburger.minecraft.storeys";
+  private callbacks: Map<string, Subject<any>> = new Map();
+
+  callBuffer: ConnectableObservable<any>[] = [];
+  isOpen: boolean = false;
+
+  constructor(private eb: any, private code: string) {
+    this.eb.registerHandler("mcs.events", (error, message) => {
+      if (error == null) {
+        this.callbacks.get(message.body.event).next(message.body);
+      } else {
+        console.log("Vert.x Event Bus received error:", error);
+      }
     });
   }
 
-  narrate(code: string, entityName: string, text: string): Observable<void> {
+  @buffered()
+  showTitle(title: string): Observable<void> {
     return Observable.create(observer => {
-      this.eb.send(this.address, {"code": code, "entity": entityName, "text": text}, {"action":"narrate"}, this.handler(observer));
+      this.eb.send(Minecraft.address, { "token": { loginCode: this.code }, "message": title }, { "action": "showTitle" }, this.handler(observer));
     });
   }
 
-  login(token: string, key: string): Observable<LoginResponse> {
+  @buffered()
+  narrate(entity: string, text: string): Observable<void> {
     return Observable.create(observer => {
-      this.eb.send(this.address, {"token": token, "key": key}, {"action":"login"}, this.handler(observer));
+      this.eb.send(Minecraft.address, { "code": this.code, "entity": entity, "text": text }, { "action": "narrate" }, this.handler(observer));
     });
   }
 
-  runCommand(code: string, command: string): Observable<void> {
+  @buffered()
+  runCommand(command: string): Observable<void> {
     return Observable.create(observer => {
-      this.eb.send(this.address, {"code": code, "command": command}, {"action":"runCommand"}, this.handler(observer));
+      this.eb.send(Minecraft.address, {"code": this.code, "command": command}, {"action":"runCommand"}, this.handler(observer));
     });
   }
 
-  getItemHeld(code: string, hand: HandType): Observable<ItemType> {
+  @buffered()
+  getItemHeld(hand: HandType): Observable<ItemType> {
     return Observable.create(observer => {
-      this.eb.send(this.address, {"code": code, "hand": hand.toString()}, {"action":"getItemHeld"}, this.handler(observer));
+      this.eb.send(Minecraft.address, { "code": this.code, "hand": hand.toString() }, { "action": "getItemHeld" }, this.handler(observer));
     });
+  }
+
+  onConnect() {
+    this.isOpen = true;
+    this.callBuffer.forEach((value) => value.connect());
   }
 
   // All Event Handlers go here
 
-  whenCommand(token: Token, commandName: string): Observable<CommandRegistration> {
-    return this.whenRegister(token, 'newCmd' + commandName);
+  whenCommand(commandName: string): Observable<CommandRegistration> {
+    return this.whenRegister('newCmd' + commandName);
   }
 
-  whenInside(token: Token, x1, y1, z1, x2, y2, z2: number): Observable<InsideRegistration> {
-    return this.whenRegister(token, "myPlayer_inside_" + x1 + "/" + y1 + "/" + z1 + "/" + x2 + "/" + y2 + "/" + z2 + "/");
+  whenInside(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): Observable<InsideRegistration> {
+    return this.whenRegister("myPlayer_inside_" + x1 + "/" + y1 + "/" + z1 + "/" + x2 + "/" + y2 + "/" + z2 + "/");
   }
 
-  private whenRegister(token: Token, eventName: string) {
+  private whenRegister(eventName: string) {
     if (this.callbacks.get(eventName)) {
       return Observable.create(observer => observer.error("can't re-register already registered command " + eventName));
     }
     return Observable.create(observer => {
-      this.eb.send(this.address, "mcs.actions", { "action": "registerCondition", "condition": eventName, "code": token.loginCode }, (err) => {
+      this.eb.send("mcs.actions", { "action": "registerCondition", "condition": eventName, "code": this.code }, (err) => {
         if (!err) {
-          const subject = Subject.create();
-          this.callbacks.set(eventName, subject);
-          observer.next(new CommandRegistration(eventName, subject, this.callbacks, this.eb));
+          observer.next(new CommandRegistration(eventName, this.callbacks));
         } else {
           observer.error(err);
         }
@@ -71,21 +116,21 @@ export class Minecraft {
     });
   }
 
-  whenEntityRightClicked(token: Token, entityName: string): Subject<void> {
-    return this.when(token, "entity_interaction:" + entityName + "/right clicked");
+  whenEntityRightClicked(entityName: string): Subject<void> {
+    return this.when("entity_interaction:" + entityName + "/right clicked");
   }
 
-  whenPlayerJoins(token: Token): Subject<{player: string}> {
-    return this.when(token, "playerJoined");
+  whenPlayerJoins(): Subject<{player: string}> {
+    return this.when("playerJoined");
   }
 
-  private when<T>(token: Token, eventName: string): Subject<T> {
+  private when<T>(eventName: string): Subject<T> {
     const existingSubject = this.callbacks.get(eventName);
     if (existingSubject) {
       return existingSubject;
     }
     return Subject.create(subject => {
-      this.eb.send(this.address, {"token": token}, (err) => {
+      this.eb.send(Minecraft.address, {"token": this.code}, (err) => {
         if (!err) {
           this.callbacks.set(eventName, subject);
         } else {
@@ -98,13 +143,29 @@ export class Minecraft {
   private handler<T>(observer: Observer<T>) {
     return (err: any, result: any) => {
       if (!err) {
-        console.log("result: ", result)
         observer.next(result.body as T);
       } else {
         console.log("error: ", err)
         observer.error(err);
       };
     };
+  }
+}
+
+export function buffered() {
+  return function (target, key, descriptor) {
+    const originalMethod = descriptor.value;
+    descriptor.value = function (...args: any[]) {
+      if (this.isOpen) {
+        return originalMethod.apply(this, args);
+      }
+
+      const obs = originalMethod.apply(this, args).publish();
+      this.callBuffer.push(obs);
+      return obs;
+    };
+
+    return descriptor;
   }
 }
 
@@ -132,10 +193,11 @@ export class LoginResponse {
 }
 
 export abstract class AbstractRegistration {
+  private subject: Subject<void>;
   constructor(private commandName: string,
-    private subject: Subject<void>,
-    private callbacks: Map<string, Subject<void>>,
-    private eb: any) {
+    private callbacks: Map<string, Subject<void>>) {
+      this.subject = new Subject();
+      this.callbacks.set(this.commandName, this.subject);
   }
   on(): Subject<void> {
     return this.subject;
