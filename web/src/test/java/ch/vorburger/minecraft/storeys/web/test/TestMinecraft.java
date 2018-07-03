@@ -18,8 +18,6 @@
  */
 package ch.vorburger.minecraft.storeys.web.test;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import ch.vorburger.minecraft.storeys.api.HandType;
 import ch.vorburger.minecraft.storeys.api.ItemType;
 import ch.vorburger.minecraft.storeys.api.LoginResponse;
@@ -28,6 +26,10 @@ import ch.vorburger.minecraft.storeys.api.Token;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +44,7 @@ public class TestMinecraft implements Minecraft {
 
     public Map<String, String> results = new ConcurrentHashMap<>();
     public Map<HandType, ItemType> itemsHeld = new ConcurrentHashMap<>();
+    public List<String> ranCommands = new CopyOnWriteArrayList<>();
 
     @Override
     public void login(String token, String key, Handler<AsyncResult<LoginResponse>> handler) {
@@ -59,6 +62,12 @@ public class TestMinecraft implements Minecraft {
         LOG.info("narrate({}, {}, {})", code, entity, text);
         results.put("entity", entity);
         results.put("text", text);
+        handler.handle(Future.succeededFuture());
+    }
+
+    @Override
+    public void runCommand(String code, String command, Handler<AsyncResult<Void>> handler) {
+        ranCommands.add(command);
         handler.handle(Future.succeededFuture());
     }
 

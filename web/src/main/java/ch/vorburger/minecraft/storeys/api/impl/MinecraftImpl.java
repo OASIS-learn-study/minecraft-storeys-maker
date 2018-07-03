@@ -30,6 +30,7 @@ import ch.vorburger.minecraft.storeys.api.Minecraft;
 import ch.vorburger.minecraft.storeys.api.Token;
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.ActionContext;
+import ch.vorburger.minecraft.storeys.model.CommandAction;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
 import ch.vorburger.minecraft.storeys.model.TitleAction;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider.SecretPublicKeyPair;
@@ -41,6 +42,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -86,6 +88,13 @@ public class MinecraftImpl implements Minecraft {
         final NarrateAction narrateAction = new NarrateAction(new Narrator(pluginInstance));
         narrateAction.setEntity(entity).setText(Text.of(text));
         handler.handle(new CompletionStageBasedAsyncResult<>(execute(getPlayer(code), narrateAction)));
+    }
+
+    @Override
+    public void runCommand(String code, String command, Handler<AsyncResult<Void>> handler) {
+        CompletionStage<CommandResult> completionStageWithResult = execute(getPlayer(code), new CommandAction(pluginInstance).setCommand(command));
+        CompletionStage<Void> voidCompletionStage = completionStageWithResult.thenAccept(commandResult -> { /* ignore */ });
+        handler.handle(new CompletionStageBasedAsyncResult<>(voidCompletionStage));
     }
 
     @Override

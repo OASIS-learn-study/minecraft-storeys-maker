@@ -23,6 +23,12 @@ export class Minecraft {
     });
   }
 
+  runCommand(code: string, command: string): Observable<void> {
+    return Observable.create(observer => {
+      this.eb.send(this.address, {"code": code, "command": command}, {"action":"runCommand"}, this.handler(observer));
+    });
+  }
+
   getItemHeld(code: string, hand: HandType): Observable<ItemType> {
     return Observable.create(observer => {
       this.eb.send(this.address, {"code": code, "hand": hand.toString()}, {"action":"getItemHeld"}, this.handler(observer));

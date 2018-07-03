@@ -67,8 +67,10 @@ let ScratchExtensions: any;
             (err: any) => console.log("getItemHeld reply with error: ", err)
         );
     }
-    ext.minecraftCommand = function (command) {
-        eb.send("mcs.actions", { "action": "command", "command": command, "code": code });
+    ext.minecraftCommand = (commandToRun: string, callback: Function) => {
+        minecraft.runCommand(code, commandToRun).subscribe(result => callback(result),
+            (err: any) => console.log("runCommand reply with error: ", err)
+        );
     };
 
     //

@@ -35,7 +35,6 @@ import ch.vorburger.minecraft.storeys.events.ScriptCommand;
 import ch.vorburger.minecraft.storeys.events.Unregisterable;
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.ActionContext;
-import ch.vorburger.minecraft.storeys.model.CommandAction;
 import ch.vorburger.minecraft.storeys.simple.Token;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.simple.impl.NotLoggedInException;
@@ -101,12 +100,6 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
             case "ping": {
                 message.reply("pong");
                 LOG.info("ping & pong ACK reply");
-                break;
-            }
-            case "command": {
-                String command = json.getString("command");
-                execute(token,
-                        new CommandAction(plugin).setCommand(command), message);
                 break;
             }
             case "registerCondition": {
