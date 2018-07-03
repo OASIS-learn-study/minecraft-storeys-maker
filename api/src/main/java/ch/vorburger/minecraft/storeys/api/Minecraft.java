@@ -35,6 +35,13 @@ public interface Minecraft {
 
     void narrate(String code, String entity, String text, Handler<AsyncResult<Void>> handler);
 
+    /**
+     * Runs a Minecraft command.
+     * This does not register a new command, but runs one.
+     * @param command one single command without the starting slash
+     */
+    void runCommand(String code, String command, Handler<AsyncResult<Void>> handler);
+
     void getItemHeld(String code, HandType hand, Handler<AsyncResult<ItemType>> handler);
 
     /**
