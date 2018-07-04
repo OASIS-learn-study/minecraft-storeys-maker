@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys.api.test;
+package ch.vorburger.minecraft.storeys.web;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

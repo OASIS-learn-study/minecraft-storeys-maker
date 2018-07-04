@@ -51,8 +51,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.vorburger.minecraft.storeys.api.test.TestMinecraft;
-
 /**
  * Integration test, based on WebDriver.
  * This does not test Minecraft itself nor the ScratchX UI but the code in this project which sits between the two.

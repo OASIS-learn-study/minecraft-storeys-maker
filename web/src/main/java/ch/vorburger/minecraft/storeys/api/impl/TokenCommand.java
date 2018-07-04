@@ -18,7 +18,6 @@
  */
 package ch.vorburger.minecraft.storeys.api.impl;
 
-import ch.vorburger.minecraft.storeys.api.Token;
 import ch.vorburger.minecraft.storeys.util.Command;
 import ch.vorburger.minecraft.utils.CommandExceptions;
 import com.google.common.collect.ImmutableList;
@@ -33,6 +32,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
+import ch.vorburger.minecraft.storeys.api.Token;
 
 /**
  * Minecraft console command to login to ScratchX.
