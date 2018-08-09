@@ -67,7 +67,11 @@ You can obviously mix the order and repeat titles, comments, chats, narrations, 
 
 ## Build it
 
+### Locally
+
     ./gradlew build
+
+### Locally in a container
 
 With S2I, and with git reset and clean due to #28 and #71:
 
@@ -83,15 +87,9 @@ With S2I, and with git reset and clean due to #28 and #71:
 
     docker run --rm -p 25565:25565 -p 8080:8080 -p 7070:7070 minecraft-storeys-maker
 
-In OpenShift:
+### OpenShift simple
 
-Until fabric8/s2i-java on Docker Hub includes [S2I #146](https://github.com/fabric8io-images/s2i/issues/146) and [S2I #118] (https://github.com/fabric8io-images/s2i/issues/118) you have to first:
-
-    oc new-build https://github.com/fabric8io-images/s2i --context-dir=java/images/jboss
-
-and then:
-
-    oc new-build s2i~https://github.com/vorburger/s2i-minecraft-server
+    oc new-build fabric8/s2i-java~https://github.com/vorburger/s2i-minecraft-server
 
     oc new-app s2i-minecraft-server~https://github.com/vorburger/minecraft-storeys-maker.git
 
@@ -99,6 +97,16 @@ This may fail if Builds have memory constraints; if so, Edit YAML to change `res
 
 _TODO: Why NOK on OpenShift Online?? "It also helps to Edit YAML to add `incremental: true` to the `strategy:` / `sourceStrategy:`._
 
+### OpenShift development
+
+To use an un-published S2I Java builder image you have to first:
+
+    oc new-build https://github.com/fabric8io-images/s2i --context-dir=java/images/centos
+
+and then:
+
+    oc new-build s2i~https://github.com/vorburger/s2i-minecraft-server
+    
 If have this project's source code locally, then (the `rm .../node_modules` is because of [issue 28](https://github.com/vorburger/minecraft-storeys-maker/issues/28)):
 
     rm -rf scratch/.gradle/ scratch/node_modules
