@@ -95,9 +95,21 @@ With S2I, and with git reset and clean due to #28 and #71:
 
 This may fail if Builds have memory constraints; if so, Edit YAML to change `resources: {}` to `resources:\n  limits:\n    memory: 2Gi`.
 
-_TODO: Why NOK on OpenShift Online?? "It also helps to Edit YAML to add `incremental: true` to the `strategy:` / `sourceStrategy:`._
+Now expose the [Minecraft server port 25565 via a LoadBalancer service](https://github.com/vorburger/s2i-minecraft-server/),
+and similarly also (specific to this plugin) expose our JS web site code and Vert.x EventBus port, for now via Edit YAML
+on the minecraft-storeys-maker(-server) Service, and adding 7070 and 8080 just like 25565.  NB that you do not set the
+`nodePort:` when editing the YAML; it will get automatically added.  We then have to set Environment variables
+on the minecraft-storeys-maker(-server) Deployment:
+
+    oc get services
+
+    storeys_jsURL = http://<EXTERNAL-IP>:7070/minecraft.scratchx.js
+    storeys_eventBusURL = http://<EXTERNAL-IP>:8080/eventbus
+
 
 ### OpenShift development
+
+It helps to Edit YAML to add `incremental: true` to the `strategy:` / `sourceStrategy:` (This may not work on OpenShift Online, yet).
 
 To use an un-published S2I Java builder image you have to first:
 
@@ -111,25 +123,6 @@ If have this project's source code locally, then (the `rm .../node_modules` is b
 
     rm -rf scratch/.gradle/ scratch/node_modules
     oc start-build minecraft-storeys-maker --from-dir=. --follow
-
-Now expose the [Minecraft server port 25565 via a LoadBalancer service](https://github.com/vorburger/s2i-minecraft-server/),
-and similarly also (specific to this plugin) expose our JS web site code and Vert.x EventBus port, for now via Edit YAML
-on the minecraft-storeys-maker(-server) Service, and adding 7070 and 8080 just like 25565.  NB that you do not set the
-`nodePort:` when editing the YAML; it will get automatically added.  We then have to set Environment variables
-on the minecraft-storeys-maker(-server) Deployment:
-
-    oc get services
-
-    storeys_jsURL = http://<EXTERNAL-IP>:7070/minecraft.scratchx.js
-    storeys_eventBusURL = http://<EXTERNAL-IP>:8080/eventbus
-
-Or just with local port forwarding instead:
-
-    oc get pods | grep -v build
-
-    oc port-forward minecraft-storeys-maker-.... 25565:25565
-    oc port-forward minecraft-storeys-maker-.... 7070:7070
-    oc port-forward minecraft-storeys-maker-.... 8080:8080
 
 
 ## FAQ
