@@ -159,9 +159,17 @@ public class SeleniumTest {
     }
 
     @Test
-    public void e_testPositiveAPI() {
+    public void f_testPositiveAPI() {
         testMinecraft.itemsHeld.put(HandType.MainHand, ItemType.Apple);
         assertThat(runTesterJSAndGetFailures().isEmpty());
+    }
+
+    @Test
+    public void g_testEncoding() {
+        // Test encoding problems, see https://github.com/vorburger/minecraft-storeys-maker/issues/92
+        String nonTrivialCommand = "give michaelpapa7 written_book 1 0 {pages:[\"{\\\"text\\\":\\\"Hello\\\"}\"],title:\"First Quest\",author:\"https://www.learn.study\",display:{Lore:[\"The first quest is your first test...\"]}}";
+        testEventBusCall("minecraftCommand", nonTrivialCommand);
+        assertThat(testMinecraft.ranCommands).contains(nonTrivialCommand);
     }
 
     // TODO testWhenCommand

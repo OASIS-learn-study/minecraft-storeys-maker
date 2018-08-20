@@ -25,7 +25,7 @@ export class Minecraft {
 
   runCommand(code: string, command: string): Observable<void> {
     return Observable.create(observer => {
-      this.eb.send(this.address, {"code": code, "command": command}, {"action":"runCommand"}, this.handler(observer));
+      this.eb.send(this.address, {"code": code, "command": this.escapeQuotes(command) }, {"action":"runCommand"}, this.handler(observer));
     });
   }
 
@@ -45,6 +45,12 @@ export class Minecraft {
         observer.error(err);
       };
     };
+  }
+
+  private escapeQuotes(text: string): string {
+    // see https://github.com/vorburger/minecraft-storeys-maker/issues/92
+    // TODO find the right expression and then replace it with text.replace(new RegExp(..., 'g'), '\\"');
+    return text.replace('\"', '\\"');
   }
 }
 
