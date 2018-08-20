@@ -205,7 +205,8 @@ public class SeleniumTest {
         LogEntries logEntries = webDriver.manage().logs().get(LogType.BROWSER);
         for (LogEntry entry : logEntries) {
             System.out.println("BROWSER: " + new Date(entry.getTimestamp()) + " " + entry.getLevel() + " " + entry.getMessage());
-            if (entry.getLevel().equals(Level.SEVERE) || entry.getMessage().toLowerCase().contains("error")) {
+            String messageInLowerCase = entry.getMessage().toLowerCase();
+            if (entry.getLevel().equals(Level.SEVERE) || messageInLowerCase.contains("error") || messageInLowerCase.contains("Uncaught ")) {
                 if (firstMessage == null) {
                     firstMessage = entry.getMessage();
                 }
