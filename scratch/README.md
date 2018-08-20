@@ -27,6 +27,9 @@ This will reply with a link to http://scratchx.org in the Minecraft chat.
 
 To develop new extensions to our Vert.x-based Minecraft remote API, we often first (before doing above) start the main() method of the SeleniumTest, which starts the TestMinecraft implementation, use `npm start` as above to run the client, and then open http://localhost:3000/?eventBusURL=http://localhost:6060/eventbus, and try out things in the Browser's Console.
 
+To only just test Scratch (v2) integration issues in dev, you can also `npm start` and then open
+http://scratchx.org/?url=http%3A%2F%2Flocalhost%3A3000%2Fminecraft.scratchx.js (the EventBus won't work, but you can debug problems with blocks).
+
 
 ### OSGi
 
