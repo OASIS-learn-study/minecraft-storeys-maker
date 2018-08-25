@@ -48,6 +48,7 @@ public class TestMinecraft implements Minecraft {
 
     @Override
     public void login(String token, String key, Handler<AsyncResult<LoginResponse>> handler) {
+        handler.handle(Future.succeededFuture(new LoginResponse()));
     }
 
     @Override
