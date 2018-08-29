@@ -216,6 +216,7 @@ public class SeleniumTest {
 
     public static void main(String[] args) throws Exception {
         startVertx();
+        testMinecraft.itemsHeld.put(HandType.MainHand, ItemType.Apple);
         Mains.waitForEnter();
         vertxStarter.stop();
     }

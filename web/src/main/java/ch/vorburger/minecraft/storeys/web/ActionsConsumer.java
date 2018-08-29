@@ -163,6 +163,8 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
             conditionRegistrations.put(conditionAsText, eventService.registerInteractEntity(entityName, () -> {
                 eventBusSender.send(new JsonObject().put("event", conditionAsText));
             }));
+        })) {} else if (runIfStartsWith(conditionAsText, "playerJoined", empty -> {
+            // Ignore (we registered for this globally, above)
         })) {} else {
             LOG.error("Unknown condition: " + conditionAsText);
         }

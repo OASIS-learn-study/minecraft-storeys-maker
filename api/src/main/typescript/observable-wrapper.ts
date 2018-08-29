@@ -93,22 +93,22 @@ export class Minecraft {
 
   // All Event Handlers go here
 
-  whenCommand(commandName: string): Observable<CommandRegistration> {
+  whenCommand(commandName: string): Observable<Registration> {
     return this.whenRegister('newCmd' + commandName);
   }
 
-  whenInside(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): Observable<InsideRegistration> {
+  whenInside(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): Observable<Registration> {
     return this.whenRegister("myPlayer_inside_" + x1 + "/" + y1 + "/" + z1 + "/" + x2 + "/" + y2 + "/" + z2 + "/");
   }
 
-  private whenRegister(eventName: string) {
+  private whenRegister(eventName: string): Observable<Registration> {
     if (this.callbacks.get(eventName)) {
-      return Observable.create(observer => observer.error("can't re-register already registered command " + eventName));
+      return Observable.create(observer => observer.error("can't re-register already registered event " + eventName));
     }
     return Observable.create(observer => {
       this.eb.send("mcs.actions", { "action": "registerCondition", "condition": eventName, "code": this.code }, (err) => {
         if (!err) {
-          observer.next(new CommandRegistration(eventName, this.callbacks));
+          observer.next(new Registration(eventName, this.callbacks));
         } else {
           observer.error(err);
         }
@@ -129,15 +129,15 @@ export class Minecraft {
     if (existingSubject) {
       return existingSubject;
     }
-    return Subject.create(subject => {
-      this.eb.send(Minecraft.address, {"token": this.code}, (err) => {
-        if (!err) {
-          this.callbacks.set(eventName, subject);
-        } else {
-          subject.error(err);
-        }
-      });
+    const subject = new Subject<T>();
+    this.eb.send("mcs.actions", { "action": "registerCondition", "condition": eventName, "code": this.code }, (err) => {
+      if (!err) {
+        this.callbacks.set(eventName, subject);
+      } else {
+        subject.error(err);
+      }
     });
+    return subject;
   }
 
   private handler<T>(observer: Observer<T>) {
@@ -192,7 +192,7 @@ export class LoginResponse {
   key: string;
 }
 
-export abstract class AbstractRegistration {
+export class Registration {
   private subject: Subject<void>;
   constructor(private commandName: string,
     private callbacks: Map<string, Subject<void>>) {
@@ -208,10 +208,4 @@ export abstract class AbstractRegistration {
     //TODO send an unregister event to the server and handle
     // this.eb.send("ch.vorburger.minecraft.storeys", {})
   }
-}
-
-export class CommandRegistration extends AbstractRegistration {
-}
-
-export class InsideRegistration extends AbstractRegistration {
 }

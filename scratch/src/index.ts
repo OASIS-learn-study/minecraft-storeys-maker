@@ -12,7 +12,7 @@ let ScratchExtensions: any;
             ["h", "when inside %n %n %n, %n %n %n", "when_inside"],
             ["h", "Command /%s", "when_command", "demo"],
             ["w", "%s speak %s", "narrate", "entity", "text"],
-            [" ", "/%s", "minecraftCommand", "command"],
+            ["w", "/%s", "minecraftCommand", "command"],
             ["w", "title %s", "sendTitle", "Welcome!"],
             ["r", "last joined Player", "get_player_last_joined"],
             ["R", "Item held", "get_player_item_held"],
@@ -62,7 +62,7 @@ let ScratchExtensions: any;
             );
         }
         ext.minecraftCommand = (commandToRun: string, callback: Function) => {
-            minecraft.runCommand(commandToRun).subscribe(result => callback(result),
+            minecraft.runCommand(commandToRun).subscribe(() => callback(),
                 (err: any) => console.log("runCommand reply with error: ", err)
             );
         };
@@ -122,7 +122,10 @@ let ScratchExtensions: any;
             return { status: 2, msg: "Ready" };
         };
 
-        minecraft.whenPlayerJoins().subscribe(result => this.player_last_joined = result.player);
+        minecraft.whenPlayerJoins().subscribe(result => {
+            player_last_joined = result.player;
+            eventsReceived["Player joins"] = true;
+        });
 
         // Register the extension
         (<any>window).ScratchExtensions.register("Minecraft", descriptor, ext);
