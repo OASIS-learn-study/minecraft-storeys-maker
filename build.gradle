@@ -65,7 +65,7 @@ subprojects {
             exclude group: 'com.google.guava' 
         }
         testImplementation 'org.slf4j:slf4j-simple:1.7.25'
-        testImplementation 'org.mockito:mockito-core:2.18.3'
+        testImplementation 'org.mockito:mockito-core:2.22.0'
     }
 
     test {
