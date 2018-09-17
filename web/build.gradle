@@ -14,7 +14,7 @@ dependencies {
     implementation 'ch.vorburger.minecraft.osgi:api:1.0.0'
 
     testCompile "org.seleniumhq.selenium:selenium-java:3.14.0"
-    testCompile 'io.github.bonigarcia:webdrivermanager:2.2.1'
+    testCompile 'io.github.bonigarcia:webdrivermanager:3.0.0'
 }
 
 shadowJar {
