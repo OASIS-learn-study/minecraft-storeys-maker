@@ -86,6 +86,13 @@ export class Minecraft {
     });
   }
 
+  @buffered()
+  addRemoveItem(amount: number, item: ItemType): Observable<void> {
+    return Observable.create(observer => {
+      this.eb.send(Minecraft.address, { "code": this.code, "amount": amount, "item": item }, { "action": "addRemoveItem" }, this.handler(observer));
+    });
+  }
+
   onConnect() {
     this.isOpen = true;
     this.callBuffer.forEach((value) => value.connect());
