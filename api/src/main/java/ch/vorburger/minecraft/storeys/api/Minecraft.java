@@ -44,6 +44,8 @@ public interface Minecraft {
 
     void getItemHeld(String code, HandType hand, Handler<AsyncResult<ItemType>> handler);
 
+    void addRemoveItem(String code, int amount, ItemType item, Handler<AsyncResult<Void>> handler);
+
     /**
      * The service address.
      */

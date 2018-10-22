@@ -1,4 +1,4 @@
-import { MinecraftProvider, Minecraft, HandType, Token } from '../../api/src/main/typescript/observable-wrapper';
+import { MinecraftProvider, Minecraft, HandType, Token, ItemType } from '../../api/src/main/typescript/observable-wrapper';
 
 let ScratchExtensions: any;
 
@@ -14,6 +14,7 @@ let ScratchExtensions: any;
             ["w", "%s speak %s", "narrate", "entity", "text"],
             ["w", "/%s", "minecraftCommand", "command"],
             ["w", "title %s", "sendTitle", "Welcome!"],
+            ["w", "add / remove %n item %m.item", "addRemoveItem", "amount", "item"],
             ["r", "last joined Player", "get_player_last_joined"],
             ["R", "Item held", "get_player_item_held"],
             ["r", "%m.item", "get_item_name", "Apple"]
@@ -27,16 +28,7 @@ let ScratchExtensions: any;
         url: "https://github.com/vorburger/minecraft-storeys-maker/"
     };
 
-    let match,
-        pl = /\+/g,  // Regex for replacing addition symbol with a space
-        search = /([^&=]+)=?([^&]*)/g,
-        decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
-        query = window.location.search.substring(1);
-
-    const urlParams: any = {};
-    while (match = search.exec(query))
-        urlParams[decode(match[1])] = decode(match[2]);
-
+    const urlParams = new URL(window.location.href).searchParams;
     let eventsReceived = {};
     let player_last_joined;
     let registeredConditions = new Set();
@@ -45,7 +37,7 @@ let ScratchExtensions: any;
         eventsReceived[eventLabel] = false;
     });
 
-    new MinecraftProvider().connect(urlParams.eventBusURL, urlParams.code).subscribe(minecraft => {
+    new MinecraftProvider().connect(urlParams.get('eventBusURL'), urlParams.get('code')).subscribe(minecraft => {
         ext.sendTitle = (sendTitle: string, callback: Function) => {
             minecraft.showTitle(sendTitle).subscribe(() => callback(),
                 (err: any) => console.log("sendTitle reply with error: ", err)
@@ -66,16 +58,17 @@ let ScratchExtensions: any;
                 (err: any) => console.log("runCommand reply with error: ", err)
             );
         };
+        ext.addRemoveItem = (amount: number, item: ItemType, callback: Function) => {
+            minecraft.addRemoveItem(amount, item).subscribe(() => callback(),
+                (err: any) => console.log("addRemoveItem reply with error: ", err)
+            );
+        }
 
         //
         // Hat Blocks Condition Events related stuff here...
         //
         ext.when_event = function (event) {
             const was = eventsReceived[event];
-            // TODO if was is null/nil (?) then false (and remove pre-init)
-            if (was) {
-                console.log("when_event: was = " + was);
-            }
             eventsReceived[event] = false;
             return was || false;
         };

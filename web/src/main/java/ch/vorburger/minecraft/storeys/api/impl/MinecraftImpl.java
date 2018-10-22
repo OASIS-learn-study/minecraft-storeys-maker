@@ -45,7 +45,9 @@ import org.slf4j.LoggerFactory;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 import org.spongepowered.api.text.Text;
 
 /**
@@ -103,6 +105,22 @@ public class MinecraftImpl implements Minecraft {
         Optional<ItemStack> optItemStack = player.getItemInHand(hand.getCatalogType());
         ItemType itemType = optItemStack.map(ItemStack::getType).map(ItemType::getEnum).orElse(ItemType.Nothing);
         handler.handle(Future.succeededFuture(itemType));
+    }
+
+    @Override
+    public void addRemoveItem(String code, int amount, ItemType item, Handler<AsyncResult<Void>> handler) {
+        Player player = getPlayer(code);
+        item.getCatalogType().ifPresent(itemType -> {
+            if (amount < 0) {
+                final Inventory inventory = player.getInventory().query(QueryOperationTypes.ITEM_TYPE.of(itemType));
+                inventory.poll(Math.abs(amount));
+            } else {
+                final ItemStack itemStack = ItemStack.builder().itemType(itemType).quantity(amount).build();
+                player.getInventory().offer(itemStack);
+            }
+        });
+
+        handler.handle(Future.succeededFuture());
     }
 
     private <T> CompletionStage<T> execute(CommandSource commandSource, Action<T> action) {

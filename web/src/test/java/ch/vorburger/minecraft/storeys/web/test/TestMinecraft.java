@@ -77,4 +77,11 @@ public class TestMinecraft implements Minecraft {
         handler.handle(Future.succeededFuture(itemsHeld.getOrDefault(hand, ItemType.Nothing)));
     }
 
+    @Override
+    public void addRemoveItem(String code, int amount, ItemType item, Handler<AsyncResult<Void>> handler) {
+        LOG.info("addRemoveItem({}, {})", amount, item);
+        results.put("addRemoveItem", amount + item.toString());
+        handler.handle(Future.succeededFuture());
+    }
+
 }
