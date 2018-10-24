@@ -95,7 +95,7 @@ let ScratchExtensions: any;
           return ext.whenCondition('whenCommand', command);
         };
         ext.when_inside = function (x1, y1, z1, x2, y2, z2) {
-          return ext.whenCondition('whenInside', x1, y1, z1, x2, y2, z2);
+          return ext.whenCondition('whenInside', 'dummy');
         };
         ext.when_entity = function (entity) {
           return ext.whenCondition('whenEntityRightClicked', entity);

@@ -84,7 +84,7 @@ public class ConditionService implements AutoCloseable {
     private final @Nullable Task task;
 
     public ConditionService(PluginInstance plugin) {
-        task = Task.builder().execute(() -> run()).intervalTicks(10).name(getClass().getSimpleName()).submit(requireNonNull(plugin, "plugin"));
+        task = Task.builder().execute(this::run).intervalTicks(10).name(getClass().getSimpleName()).submit(requireNonNull(plugin, "plugin"));
     }
 
     @VisibleForTesting
@@ -93,8 +93,10 @@ public class ConditionService implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
-        task.cancel();
+    public void close() {
+        if (task != null) {
+            task.cancel();
+        }
     }
 
     public ConditionServiceRegistration register(Condition condition, Callback callback) {
