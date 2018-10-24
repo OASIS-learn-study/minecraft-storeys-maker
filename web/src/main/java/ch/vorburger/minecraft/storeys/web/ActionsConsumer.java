@@ -21,8 +21,10 @@ package ch.vorburger.minecraft.storeys.web;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.ReadingSpeed;
@@ -35,6 +37,7 @@ import ch.vorburger.minecraft.storeys.events.ScriptCommand;
 import ch.vorburger.minecraft.storeys.events.Unregisterable;
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.ActionContext;
+import ch.vorburger.minecraft.storeys.model.LocationToolAction;
 import ch.vorburger.minecraft.storeys.simple.Token;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.simple.impl.NotLoggedInException;
@@ -42,10 +45,18 @@ import com.google.common.base.Splitter;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.cause.EventContextKeys;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 import static java.util.Objects.requireNonNull;
 
@@ -68,6 +79,7 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
     private final TokenProvider tokenProvider;
 
     private final Map<String, Unregisterable> conditionRegistrations = new ConcurrentHashMap<>();
+    private final Map<UUID, Pair<Location<World>, Location<World>>> playerBoxLocations = new ConcurrentHashMap<>();
 
     public ActionsConsumer(PluginInstance plugin, EventService eventService,
             ConditionService conditionService, EventBusSender eventBusSender,
@@ -85,6 +97,36 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
             JsonObject message = new JsonObject().put("event", "playerJoined").put("player", event.getTargetEntity().getName());
             eventBusSender.send(message);
         });
+
+        Sponge.getEventManager().registerListener(plugin, InteractBlockEvent.class, event -> {
+            final Optional<ItemStackSnapshot> snapshot = event.getCause().getContext().get(EventContextKeys.USED_ITEM);
+            snapshot.ifPresent(itemStackSnapshot -> {
+                if (itemStackSnapshot.createGameDictionaryEntry().matches(LocationToolAction.locationEventCreateTool())) {
+                    Player player = (Player) event.getSource();
+                    event.getInteractionPoint().ifPresent(
+                            vector3d -> updatePlayerBoxLocation(player.getUniqueId(), new Location<>(player.getWorld(), vector3d))
+                    );
+                    if (event instanceof InteractBlockEvent.Secondary) {
+                        player.sendMessage(Text.of("second point set"));
+                    } else {
+                        player.sendMessage(Text.of("first point set"));
+                    }
+
+                    if (playerBoxLocations.get(player.getUniqueId()).getRight() != null) {
+                        Condition condition = new LocatableInBoxCondition(player, playerBoxLocations.get(player.getUniqueId()));
+                        String name = "player_inside_" + itemStackSnapshot.createStack().get(Keys.ITEM_LORE).get().get(0).toPlain();
+                        ConditionServiceRegistration registration = conditionService.register(condition, () ->
+                                eventBusSender.send(new JsonObject().put("event", name)));
+                        conditionRegistrations.put(name, registration);
+                    }
+                }
+            });
+        });
+    }
+
+    private void updatePlayerBoxLocation(UUID playerId, Location<World> location) {
+        playerBoxLocations.computeIfAbsent(playerId, uuid -> Pair.of(location, null));
+        playerBoxLocations.computeIfPresent(playerId, (uuid, locationLocationPair) -> Pair.of(locationLocationPair.getLeft(), location));
     }
 
     @Override
@@ -142,16 +184,9 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
     }
 
     private void registerCondition(Token token, String conditionAsText) {
-        Optional<Player> optPlayer = tokenProvider.getOptionalPlayer(token);
-        Player player = optPlayer.orElseThrow(() -> new NotLoggedInException(token));
+        tokenProvider.getOptionalPlayer(token).orElseThrow(() -> new NotLoggedInException(token));
 
-        if (runIfStartsWith(conditionAsText, "myPlayer_inside_", coordinates -> {
-            Condition condition = new LocatableInBoxCondition(player, coordinates);
-            ConditionServiceRegistration registration = conditionService.register(condition, () -> {
-                eventBusSender.send(new JsonObject().put("event", conditionAsText));
-            });
-            conditionRegistrations.put(conditionAsText, registration);
-        })) {} else if (runIfStartsWith(conditionAsText, "newCmd", commandName -> {
+        if (runIfStartsWith(conditionAsText, "newCmd", commandName -> {
             ScriptCommand scriptCommand = new ScriptCommand(commandName, plugin, () -> {
                 eventBusSender.send(new JsonObject().put("event", conditionAsText));
             });

@@ -31,6 +31,7 @@ import ch.vorburger.minecraft.storeys.api.Token;
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.ActionContext;
 import ch.vorburger.minecraft.storeys.model.CommandAction;
+import ch.vorburger.minecraft.storeys.model.LocationToolAction;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
 import ch.vorburger.minecraft.storeys.model.TitleAction;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider.SecretPublicKeyPair;
@@ -40,6 +41,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.command.CommandResult;
@@ -121,6 +123,14 @@ public class MinecraftImpl implements Minecraft {
         });
 
         handler.handle(Future.succeededFuture());
+    }
+
+    @Override
+	public void whenInside(String code, String name, Handler<AsyncResult<Void>> handler) {
+        final LocationToolAction locationToolAction = new LocationToolAction(name);
+        final CompletionStage<Void> completionStage = execute(getPlayer(code), locationToolAction);
+
+        handler.handle(new CompletionStageBasedAsyncResult<>(completionStage));
     }
 
     private <T> CompletionStage<T> execute(CommandSource commandSource, Action<T> action) {

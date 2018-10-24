@@ -40,7 +40,7 @@ public abstract class TextAction<T> implements Action<T> {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + ": " + text != null ? text.toString() : "null";
+        return getClass().getSimpleName() + ": " + (text != null ? text.toString() : "null");
     }
 
 }

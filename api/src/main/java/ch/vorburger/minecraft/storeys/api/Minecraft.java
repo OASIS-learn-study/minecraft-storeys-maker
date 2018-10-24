@@ -46,6 +46,8 @@ public interface Minecraft {
 
     void addRemoveItem(String code, int amount, ItemType item, Handler<AsyncResult<Void>> handler);
 
+    void whenInside(String code, String name, Handler<AsyncResult<Void>> handler);
+
     /**
      * The service address.
      */
@@ -60,5 +62,4 @@ public interface Minecraft {
     static Minecraft createProxy(Vertx vertx) {
         return new ServiceProxyBuilder(vertx).setAddress(ADDRESS).build(Minecraft.class);
     }
-
 }

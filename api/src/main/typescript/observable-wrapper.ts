@@ -104,8 +104,11 @@ export class Minecraft {
     return this.whenRegister('newCmd' + commandName);
   }
 
-  whenInside(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): Observable<Registration> {
-    return this.whenRegister("myPlayer_inside_" + x1 + "/" + y1 + "/" + z1 + "/" + x2 + "/" + y2 + "/" + z2 + "/");
+  whenInside(name: string): Observable<Registration> {
+    return Observable.create(observer => {
+      this.eb.send(Minecraft.address, { "code": this.code, "name": name }, { "action": "whenInside" }, this.handler(observer));
+    }).map(() => this.whenRegister("player_inside_" + name)).concatAll();
+    
   }
 
   private whenRegister(eventName: string): Observable<Registration> {

@@ -84,4 +84,9 @@ public class TestMinecraft implements Minecraft {
         handler.handle(Future.succeededFuture());
     }
 
+    @Override
+    public void whenInside(String code, String name, Handler<AsyncResult<Void>> handler) {
+        LOG.info("whenInside({})", name);
+        handler.handle(Future.succeededFuture());
+    }
 }

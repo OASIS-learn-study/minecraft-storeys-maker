@@ -9,7 +9,7 @@ let ScratchExtensions: any;
             // TODO Translate labels, like on https://github.com/jbaragry/mcpi-scratch/blob/master/mcpi-scratch.js
             ["h", "when %m.event", "when_event", "event"],
             ["h", "when %s right clicked", "when_entity", "entity"],
-            ["h", "when inside %n %n %n, %n %n %n", "when_inside"],
+            ["h", "when inside %s", "when_inside", "name"],
             ["h", "Command /%s", "when_command", "demo"],
             ["w", "%s speak %s", "narrate", "entity", "text"],
             ["w", "/%s", "minecraftCommand", "command"],
@@ -87,8 +87,8 @@ let ScratchExtensions: any;
         ext.when_command = function (command) {
           return ext.whenCondition('whenCommand', command);
         };
-        ext.when_inside = function (x1, y1, z1, x2, y2, z2) {
-          return ext.whenCondition('whenInside', x1, y1, z1, x2, y2, z2);
+        ext.when_inside = function (name) {
+          return ext.whenCondition('whenInside', name);
         };
         ext.when_entity = function (entity) {
           return ext.whenCondition('whenEntityRightClicked', entity);
