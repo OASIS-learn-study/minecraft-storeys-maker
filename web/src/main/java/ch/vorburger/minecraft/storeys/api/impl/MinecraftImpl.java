@@ -109,7 +109,7 @@ public class MinecraftImpl implements Minecraft {
 
     @Override
     public void whenInside(String code, String name, Handler<AsyncResult<Void>> handler) {
-        final LocationToolAction locationToolAction = new LocationToolAction(pluginInstance);
+        final LocationToolAction locationToolAction = new LocationToolAction(name);
         final CompletionStage<Void> completionStage = execute(getPlayer(code), locationToolAction);
 
         handler.handle(new CompletionStageBasedAsyncResult<>(completionStage));

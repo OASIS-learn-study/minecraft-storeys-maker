@@ -60,7 +60,7 @@ public class LocatableInBoxCondition implements Condition {
         this(locatable, getCornerLocations(locatable, coordinates));
     }
 
-    private LocatableInBoxCondition(Locatable locatable, Pair<Location<World>, Location<World>> corners) {
+    public LocatableInBoxCondition(Locatable locatable, Pair<Location<World>, Location<World>> corners) {
         this(locatable, corners.getLeft(), corners.getRight());
     }
 

@@ -98,10 +98,10 @@ export class Minecraft {
   }
 
   whenInside(name: string): Observable<Registration> {
-    //return this.whenRegister("myPlayer_inside_" + x1 + "/" + y1 + "/" + z1 + "/" + x2 + "/" + y2 + "/" + z2 + "/");
     return Observable.create(observer => {
       this.eb.send(Minecraft.address, { "code": this.code, "name": name }, { "action": "whenInside" }, this.handler(observer));
-    });
+    }).map(() => this.whenRegister("player_inside_" + name)).concatAll();
+    
   }
 
   private whenRegister(eventName: string): Observable<Registration> {
