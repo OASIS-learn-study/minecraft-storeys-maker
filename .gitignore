@@ -20,3 +20,5 @@ coverage/
 *d.ts
 
 web/.vertx/file-cache-*
+
+.vscode/
