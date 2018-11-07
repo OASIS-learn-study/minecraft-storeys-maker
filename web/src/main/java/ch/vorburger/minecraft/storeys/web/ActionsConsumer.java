@@ -125,8 +125,15 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
     }
 
     private void updatePlayerBoxLocation(UUID playerId, Location<World> location) {
-        playerBoxLocations.computeIfAbsent(playerId, uuid -> Pair.of(location, null));
-        playerBoxLocations.computeIfPresent(playerId, (uuid, locationLocationPair) -> Pair.of(locationLocationPair.getLeft(), location));
+        playerBoxLocations.computeIfPresent(playerId, (uuid, locationLocationPair) -> {
+            final Pair<Location<World>, Location<World>> pair = Pair.of(locationLocationPair.getLeft(), location);
+            LOG.info("updated location {}", pair);
+            return pair;
+        });
+        playerBoxLocations.computeIfAbsent(playerId, uuid -> {
+            LOG.info("single location {}", location);
+            return Pair.of(location, null);
+        });
     }
 
     @Override
