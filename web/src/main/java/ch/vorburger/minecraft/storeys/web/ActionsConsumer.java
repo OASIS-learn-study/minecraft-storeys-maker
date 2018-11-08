@@ -21,7 +21,6 @@ package ch.vorburger.minecraft.storeys.web;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -41,6 +40,7 @@ import ch.vorburger.minecraft.storeys.model.LocationToolAction;
 import ch.vorburger.minecraft.storeys.simple.Token;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.simple.impl.NotLoggedInException;
+import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Splitter;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
@@ -79,7 +79,7 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
     private final TokenProvider tokenProvider;
 
     private final Map<String, Unregisterable> conditionRegistrations = new ConcurrentHashMap<>();
-    private final Map<UUID, Pair<Location<World>, Location<World>>> playerBoxLocations = new ConcurrentHashMap<>();
+    private final Map<String, Pair<Location<World>, Location<World>>> playerBoxLocations = new ConcurrentHashMap<>();
 
     public ActionsConsumer(PluginInstance plugin, EventService eventService,
             ConditionService conditionService, EventBusSender eventBusSender,
@@ -104,36 +104,55 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
                 if (itemStackSnapshot.createGameDictionaryEntry().matches(LocationToolAction.locationEventCreateTool())) {
                     Player player = (Player) event.getSource();
                     event.getInteractionPoint().ifPresent(
-                            vector3d -> updatePlayerBoxLocation(player.getUniqueId(), new Location<>(player.getWorld(), vector3d))
+                            handleLocationToolEvent(event, itemStackSnapshot, player)
                     );
-                    if (event instanceof InteractBlockEvent.Secondary) {
-                        player.sendMessage(Text.of("second point set"));
-                    } else {
-                        player.sendMessage(Text.of("first point set"));
-                    }
-
-                    if (playerBoxLocations.get(player.getUniqueId()).getRight() != null) {
-                        Condition condition = new LocatableInBoxCondition(player, playerBoxLocations.get(player.getUniqueId()));
-                        String name = "player_inside_" + itemStackSnapshot.createStack().get(Keys.ITEM_LORE).get().get(0).toPlain();
-                        ConditionServiceRegistration registration = conditionService.register(condition, () ->
-                                eventBusSender.send(new JsonObject().put("event", name)));
-                        conditionRegistrations.put(name, registration);
-                    }
                 }
             });
         });
     }
 
-    private void updatePlayerBoxLocation(UUID playerId, Location<World> location) {
-        playerBoxLocations.computeIfPresent(playerId, (uuid, locationLocationPair) -> {
-            final Pair<Location<World>, Location<World>> pair = Pair.of(locationLocationPair.getLeft(), location);
-            LOG.info("updated location {}", pair);
-            return pair;
-        });
-        playerBoxLocations.computeIfAbsent(playerId, uuid -> {
-            LOG.info("single location {}", location);
-            return Pair.of(location, null);
-        });
+    private Consumer<Vector3d> handleLocationToolEvent(InteractBlockEvent event, ItemStackSnapshot itemStackSnapshot, Player player) {
+        return vector3d -> {
+            final String locationName = itemStackSnapshot.createStack().get(Keys.ITEM_LORE)
+                    .orElseThrow(IllegalArgumentException::new).get(0).toPlain();
+            final String playerBoxLocation = player.getUniqueId() + locationName;
+
+            final Location<World> eventLocation = new Location<>(player.getWorld(), vector3d);
+            final Pair<Location<World>, Location<World>> locationPair;
+
+            if (event instanceof InteractBlockEvent.Secondary) {
+                locationPair = updatePlayerBoxLocation(playerBoxLocation, null, eventLocation);
+                player.sendMessage(Text.of("second point set"));
+            } else {
+                locationPair = updatePlayerBoxLocation(playerBoxLocation, eventLocation, null);
+                player.sendMessage(Text.of("first point set"));
+            }
+
+            if (locationPair.getLeft() != null && locationPair.getRight() != null) {
+                final Condition condition = new LocatableInBoxCondition(player, locationPair);
+                final String name = "player_inside_" + locationName;
+                final Unregisterable unregisterable = conditionRegistrations.get(name);
+                if (unregisterable != null) {
+                    unregisterable.unregister();
+                }
+                ConditionServiceRegistration registration = conditionService.register(condition, () ->
+                        eventBusSender.send(new JsonObject().put("event", name)));
+                conditionRegistrations.put(name, registration);
+            }
+        };
+    }
+
+    private Pair<Location<World>, Location<World>> updatePlayerBoxLocation(String key, Location<World> locationLeft, Location<World> locationRight) {
+        Pair<Location<World>, Location<World>> locationPair = playerBoxLocations.get(key);
+        if (locationPair == null) {
+            locationPair = Pair.of(locationLeft, locationRight);
+        } else {
+            locationPair = Pair.of(locationLeft != null ? locationLeft : locationPair.getLeft(),
+                                   locationRight != null ? locationRight : locationPair.getRight());
+        }
+
+        playerBoxLocations.put(key, locationPair);
+        return locationPair;
     }
 
     @Override
@@ -206,6 +225,8 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
                 eventBusSender.send(new JsonObject().put("event", conditionAsText));
             }));
         })) {} else if (runIfStartsWith(conditionAsText, "playerJoined", empty -> {
+            // Ignore (we registered for this globally, above)
+        })) {} else if (runIfStartsWith(conditionAsText, "player_inside", empty -> {
             // Ignore (we registered for this globally, above)
         })) {} else {
             LOG.error("Unknown condition: " + conditionAsText);
