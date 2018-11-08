@@ -78,8 +78,10 @@ public class LocatableInBoxCondition implements Condition {
             int x = location.getBlockX();
             int y = location.getBlockY();
             int z = location.getBlockZ();
+//            System.out.println("LocatableInBoxCondition: x=" + x + ", y=" + y + ", z=" + z + "; minX=" + minX
+//                    + ", maxX=" + maxX + ", minY=" + minY + ", maxY=" + maxY + ", minZ=" + minZ + ", maxZ=" + maxZ);
             return x >= minX && x <= maxX
-                && y >= minY && x <= maxY
+                && y >= minY && y <= maxY
                 && z >= minZ && z <= maxZ;
         }
         return false;
