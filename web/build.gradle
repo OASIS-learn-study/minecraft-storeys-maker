@@ -13,7 +13,7 @@ dependencies {
     implementation 'org.osgi:org.osgi.core:6.0.0'
     implementation 'ch.vorburger.minecraft.osgi:api:1.0.0'
 
-    testCompile "org.seleniumhq.selenium:selenium-java:3.141.0"
+    testCompile "org.seleniumhq.selenium:selenium-java:3.141.5"
     testCompile 'io.github.bonigarcia:webdrivermanager:3.0.0'
 }
 
