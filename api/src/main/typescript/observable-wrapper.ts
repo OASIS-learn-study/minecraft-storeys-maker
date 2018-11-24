@@ -126,8 +126,8 @@ export class Minecraft {
     });
   }
 
-  whenEntityRightClicked(entityName: string): Subject<void> {
-    return this.when("entity_interaction:" + entityName + "/right clicked");
+  whenEntityRightClicked(entityName: string): Observable<Registration> {
+    return this.whenRegister("entity_interaction:" + entityName + "/right clicked");
   }
 
   whenPlayerJoins(): Subject<{player: string}> {
