@@ -68,8 +68,13 @@ public class EventService implements AutoCloseable {
         // TODO This is bad, it means that entities are only recognized by name if they are not narrating..
         Optional<Text> optEntityNameText = event.getTargetEntity().get(Keys.DISPLAY_NAME);
         LOG.debug("InteractEntityEvent: entityName={}; event={}", optEntityNameText, event);
-        optEntityNameText.ifPresent(entityNameText ->
-            onInteractEntityEventCallbacks.getOrDefault(entityNameText.toPlain(), () -> {}).run());
+        optEntityNameText.ifPresent(entityNameText -> {
+            Runnable runnable = onInteractEntityEventCallbacks.get(entityNameText.toPlain());
+            if (runnable != null) {
+                runnable.run();
+                event.setCancelled(true);
+            }
+        });
     }
 
     public void onChangeInventoryHeldEvent(ChangeInventoryEvent.Held event) {
