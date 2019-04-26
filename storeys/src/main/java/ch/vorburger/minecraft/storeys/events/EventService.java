@@ -27,6 +27,7 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
@@ -37,7 +38,7 @@ public class EventService implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(EventService.class);
 
     private final AtomicReference<Consumer<Join>> onPlayerJoinCallback = new AtomicReference<>();
-    private final Map<String, Runnable> onInteractEntityEventCallbacks = new ConcurrentHashMap<>();
+    private final Map<String, Callback> onInteractEntityEventCallbacks = new ConcurrentHashMap<>();
 
     public EventService(PluginInstance plugin) {
     }
@@ -59,7 +60,7 @@ public class EventService implements AutoCloseable {
         }
     }
 
-    public Unregisterable registerInteractEntity(String entityName, Runnable callback) {
+    public Unregisterable registerInteractEntity(String entityName, Callback callback) {
         onInteractEntityEventCallbacks.putIfAbsent(entityName, callback);
         return () -> onInteractEntityEventCallbacks.remove(entityName);
     }
@@ -69,9 +70,13 @@ public class EventService implements AutoCloseable {
         Optional<Text> optEntityNameText = event.getTargetEntity().get(Keys.DISPLAY_NAME);
         LOG.debug("InteractEntityEvent: entityName={}; event={}", optEntityNameText, event);
         optEntityNameText.ifPresent(entityNameText -> {
-            Runnable runnable = onInteractEntityEventCallbacks.get(entityNameText.toPlain());
-            if (runnable != null) {
-                runnable.run();
+            Callback callback = onInteractEntityEventCallbacks.getOrDefault(entityNameText.toPlain(), (Player player) -> {});
+            if (callback != null) {
+                try {
+                    callback.call(event.getCause().last(Player.class).orElse(null));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
                 event.setCancelled(true);
             }
         });

@@ -27,18 +27,16 @@ import ch.vorburger.minecraft.storeys.api.HandType;
 import ch.vorburger.minecraft.storeys.api.ItemType;
 import ch.vorburger.minecraft.storeys.api.LoginResponse;
 import ch.vorburger.minecraft.storeys.api.Minecraft;
-import ch.vorburger.minecraft.storeys.api.Token;
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.ActionContext;
 import ch.vorburger.minecraft.storeys.model.CommandAction;
 import ch.vorburger.minecraft.storeys.model.LocationToolAction;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
 import ch.vorburger.minecraft.storeys.model.TitleAction;
-import ch.vorburger.minecraft.storeys.simple.TokenProvider.SecretPublicKeyPair;
+import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
@@ -62,56 +60,54 @@ public class MinecraftImpl implements Minecraft {
     private static final Logger LOG = LoggerFactory.getLogger(MinecraftImpl.class);
 
     private final PluginInstance pluginInstance;
-    private final ch.vorburger.minecraft.storeys.simple.TokenProvider oldTokenProvider;
-    private final TokenProvider newTokenProvider;
 
-    public MinecraftImpl(Vertx vertx, PluginInstance pluginInstance, ch.vorburger.minecraft.storeys.simple.TokenProvider oldTokenProvider, TokenProvider newTokenProvider) {
+    private final TokenProvider tokenProvider;
+
+    public MinecraftImpl(PluginInstance pluginInstance, TokenProvider tokenProvider) {
         this.pluginInstance = pluginInstance;
-        this.oldTokenProvider = oldTokenProvider;
-        this.newTokenProvider = newTokenProvider;
+        this.tokenProvider = tokenProvider;
     }
 
     @Override
-    public void login(String token, String key, Handler<AsyncResult<LoginResponse>> handler) {
-        SecretPublicKeyPair secretAndPublicKey = oldTokenProvider.login(token, key);
+    public void login(String token, Handler<AsyncResult<LoginResponse>> handler) {
         LoginResponse response = new LoginResponse();
-        response.setSecret(secretAndPublicKey.getSecret());
-        response.setKey(secretAndPublicKey.getBase64PublicKey());
-        LOG.info("login: IN token={}, key={}, OUT response={}", token, key, response);
+        final String playerUUID = tokenProvider.login(token);
+        response.setPlayerUuid(playerUUID);
+        LOG.info("login: IN token={}, OUT response={}", token, response);
         handler.handle(Future.succeededFuture(response));
     }
 
     @Override
-    public void showTitle(Token token, String message, Handler<AsyncResult<Void>> handler) {
-        CompletionStage<Void> completionStage = execute(getPlayer(token), new TitleAction(pluginInstance).setText(Text.of(message)));
+    public void showTitle(String playerUUID, String message, Handler<AsyncResult<Void>> handler) {
+        CompletionStage<Void> completionStage = execute(getPlayer(playerUUID), new TitleAction(pluginInstance).setText(Text.of(message)));
         handler.handle(new CompletionStageBasedAsyncResult<>(completionStage));
     }
 
     @Override
-    public void narrate(String code, String entity, String text, Handler<AsyncResult<Void>> handler) {
+    public void narrate(String playerUUID, String entity, String text, Handler<AsyncResult<Void>> handler) {
         final NarrateAction narrateAction = new NarrateAction(new Narrator(pluginInstance));
         narrateAction.setEntity(entity).setText(Text.of(text));
-        handler.handle(new CompletionStageBasedAsyncResult<>(execute(getPlayer(code), narrateAction)));
+        handler.handle(new CompletionStageBasedAsyncResult<>(execute(getPlayer(playerUUID), narrateAction)));
     }
 
     @Override
-    public void runCommand(String code, String command, Handler<AsyncResult<Void>> handler) {
-        CompletionStage<CommandResult> completionStageWithResult = execute(getPlayer(code), new CommandAction(pluginInstance).setCommand(command));
+    public void runCommand(String playerUUID, String command, Handler<AsyncResult<Void>> handler) {
+        CompletionStage<CommandResult> completionStageWithResult = execute(getPlayer(playerUUID), new CommandAction(pluginInstance).setCommand(command));
         CompletionStage<Void> voidCompletionStage = completionStageWithResult.thenAccept(commandResult -> { /* ignore */ });
         handler.handle(new CompletionStageBasedAsyncResult<>(voidCompletionStage));
     }
 
     @Override
-    public void getItemHeld(String code, HandType hand, Handler<AsyncResult<ItemType>> handler) {
-        Player player = getPlayer(code);
+    public void getItemHeld(String playerUUID, HandType hand, Handler<AsyncResult<ItemType>> handler) {
+        Player player = getPlayer(playerUUID);
         Optional<ItemStack> optItemStack = player.getItemInHand(hand.getCatalogType());
         ItemType itemType = optItemStack.map(ItemStack::getType).map(ItemType::getEnum).orElse(ItemType.Nothing);
         handler.handle(Future.succeededFuture(itemType));
     }
 
     @Override
-    public void addRemoveItem(String code, int amount, ItemType item, Handler<AsyncResult<Void>> handler) {
-        Player player = getPlayer(code);
+    public void addRemoveItem(String playerUUID, int amount, ItemType item, Handler<AsyncResult<Void>> handler) {
+        Player player = getPlayer(playerUUID);
         item.getCatalogType().ifPresent(itemType -> {
             if (amount < 0) {
                 final Inventory inventory = player.getInventory().query(QueryOperationTypes.ITEM_TYPE.of(itemType));
@@ -126,9 +122,9 @@ public class MinecraftImpl implements Minecraft {
     }
 
     @Override
-	public void whenInside(String code, String name, Handler<AsyncResult<Void>> handler) {
+	public void whenInside(String playerUUID, String name, Handler<AsyncResult<Void>> handler) {
         final LocationToolAction locationToolAction = new LocationToolAction(name);
-        final CompletionStage<Void> completionStage = execute(getPlayer(code), locationToolAction);
+        final CompletionStage<Void> completionStage = execute(getPlayer(playerUUID), locationToolAction);
 
         handler.handle(new CompletionStageBasedAsyncResult<>(completionStage));
     }
@@ -137,19 +133,9 @@ public class MinecraftImpl implements Minecraft {
         return action.execute(new ActionContext(commandSource, new ReadingSpeed()));
     }
 
-    private Player getPlayer(Token token) {
-        if (requireNonNull(token, "token").getLoginCode() != null) {
-            return getPlayer(token.getLoginCode());
-        } else if (token.getPlayerSource() != null) {
-            return newTokenProvider.getPlayer(token);
-        } else {
-            throw new IllegalArgumentException("Token JSON contains neither loginCode nor playerSource");
-        }
-    }
-
-    private Player getPlayer(String code) {
-        ch.vorburger.minecraft.storeys.simple.Token token = oldTokenProvider.getToken(code);
-        return oldTokenProvider.getPlayer(token);
+    private Player getPlayer(String playerUUID) {
+        requireNonNull(playerUUID, "playerUUID");
+        return tokenProvider.getPlayer(playerUUID);
     }
 
     // TODO does a helper class like this already exist somewhere in Vert.x? Can Vert.x directly gen. code with CompletionStage or CompletableFuture signatures?

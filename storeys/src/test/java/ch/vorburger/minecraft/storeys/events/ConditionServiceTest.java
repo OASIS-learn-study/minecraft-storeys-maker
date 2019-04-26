@@ -24,6 +24,7 @@ import ch.vorburger.minecraft.storeys.events.ConditionService.ConditionServiceRe
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
+import org.spongepowered.api.entity.living.player.Player;
 
 public class ConditionServiceTest {
 
@@ -33,7 +34,17 @@ public class ConditionServiceTest {
         ConditionService conditionService = new ConditionService();
         final AtomicBoolean hit = new AtomicBoolean(false);
 
-        ConditionServiceRegistration registration = conditionService.register(() -> true, () -> hit.set(true));
+        ConditionServiceRegistration registration = conditionService.register(new Condition() {
+            @Override
+            public boolean isHot() {
+                return true;
+            }
+
+            @Override
+            public Player getEffectedPlayer() {
+                return null;
+            }
+        }, (player) -> hit.set(true));
         conditionService.run();
         assertThat(hit.get()).isTrue();
 
@@ -49,7 +60,17 @@ public class ConditionServiceTest {
         ConditionService conditionService = new ConditionService();
         final AtomicBoolean isHitting = new AtomicBoolean(false);
         final AtomicInteger hits = new AtomicInteger(0);
-        ConditionServiceRegistration registration = conditionService.register(() -> isHitting.get(), () -> hits.incrementAndGet());
+        ConditionServiceRegistration registration = conditionService.register(new Condition() {
+            @Override
+            public boolean isHot() {
+                return isHitting.get();
+            }
+
+            @Override
+            public Player getEffectedPlayer() {
+                return null;
+            }
+        }, (player) -> hits.incrementAndGet());
 
         conditionService.run();
         assertThat(hits.get()).isEqualTo(0);

@@ -25,8 +25,7 @@ import io.vertx.core.json.JsonObject;
 public class LoginResponse {
     // TODO It would be NEAT to make http://Immutables.org support Vert.x @DataObject code generation...
 
-    private String secret;
-    private String key;
+    private String playerUuid;
 
     public LoginResponse() {
     }
@@ -41,20 +40,12 @@ public class LoginResponse {
         return json;
     }
 
-    public String getSecret() {
-        return secret;
+    public String getPlayerUuid() {
+        return playerUuid;
     }
 
-    public void setSecret(String secret) {
-        this.secret = secret;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
+    public void setPlayerUuid(String playerUuid) {
+        this.playerUuid = playerUuid;
     }
 
     @Override

@@ -73,11 +73,9 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
         eventManager.registerListener(plugin, ChangeInventoryEvent.Held.class, event -> eventService.onChangeInventoryHeldEvent(event));
         // InteractItemEvent ?
 
-        TokenProvider oldTokenProvider = new TokenProviderImpl(game);
-        ch.vorburger.minecraft.storeys.api.impl.TokenProvider newTokenProvider = new ch.vorburger.minecraft.storeys.api.impl.TokenProvider();
-        loginCommandMapping = Commands.register(plugin, new LoginCommand(oldTokenProvider));
-        tokenCommandMapping = Commands.register(plugin, new TokenCommand(newTokenProvider));
-        eventManager.registerListener(plugin, Disconnect.class, event -> newTokenProvider.invalidate(event.getTargetEntity()));
+        TokenProvider tokenProvider = new TokenProviderImpl(game);
+        loginCommandMapping = Commands.register(plugin, new LoginCommand(tokenProvider));
+        tokenCommandMapping = Commands.register(plugin, new TokenCommand(tokenProvider));
 
         try {
             try {
@@ -88,9 +86,9 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
                 vertxStarter = new VertxStarter();
                 eventService = new EventService(plugin);
 
-                Minecraft minecraft = new MinecraftImpl(vertxStarter.vertx(), plugin, oldTokenProvider, newTokenProvider);
+                Minecraft minecraft = new MinecraftImpl(plugin, tokenProvider);
                 MinecraftVerticle minecraftVerticle = new MinecraftVerticle(eventBusHttpPort, minecraft);
-                actionsConsumer = new ActionsConsumer(plugin, eventService, new ConditionService(plugin), minecraftVerticle, oldTokenProvider);
+                actionsConsumer = new ActionsConsumer(plugin, eventService, new ConditionService(plugin), minecraftVerticle, tokenProvider);
                 minecraftVerticle.setActionsConsumer(actionsConsumer);
                 vertxStarter.deployVerticle(minecraftVerticle).toCompletableFuture().get();
                 vertxStarter.deployVerticle(new StaticWebServerVerticle(staticWebServerHttpPort)).toCompletableFuture().get();

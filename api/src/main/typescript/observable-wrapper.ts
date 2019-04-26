@@ -1,42 +1,18 @@
 import { Observable, Observer, Subject, ConnectableObservable } from 'rxjs';
-
 import * as EventBus from 'vertx3-eventbus-client';
-import { JSEncrypt } from 'jsencrypt';
 
 export class MinecraftProvider {
   private eb: any;
 
-  connect(eventBusURL: string, code: string): Observable<Minecraft> {
+  connect(eventBusURL: string): Observable<Minecraft> {
     this.eb = new EventBus(eventBusURL);
     this.eb.enableReconnect(true);
     return Observable.create(observer => {
       this.eb.onopen = () => {
-        let crypt = new JSEncrypt(512);
-        crypt.getKey(() => {
-          this.login(code, crypt.getPublicKeyB64()).subscribe(response => {
-              console.log("Logging in...", response);
-              var id = crypt.decrypt(response.secret);
-              var key = response.key;
-              crypt = new JSEncrypt();
-              crypt.setPublicKey(key);
-              const minecraft = new Minecraft(this.eb, crypt.encrypt(id) || "");
-              minecraft.onConnect();
-              observer.next(minecraft);
-          }, err => console.log("login reply with error: ", err));
-        });
+        const minecraft = new Minecraft(this.eb);
+        minecraft.onConnect();
+        observer.next(minecraft);
       }
-    });
-  }
-
-  private login(token: string, key: string): Observable<LoginResponse> {
-    return Observable.create(observer => {
-      this.eb.send(Minecraft.address, { "token": token, "key": key }, { "action": "login" }, (err: any, result: any) => {
-        if (!err) {
-          observer.next(result.body as LoginResponse);
-        } else {
-          observer.error(err);
-        }
-      });
     });
   }
 }
@@ -48,7 +24,7 @@ export class Minecraft {
   callBuffer: ConnectableObservable<any>[] = [];
   isOpen: boolean = false;
 
-  constructor(private eb: any, private code: string) {
+  constructor(private eb: any) {
     this.eb.registerHandler("mcs.events", (error, message) => {
       if (error == null) {
         this.callbacks.get(message.body.event).next(message.body);
@@ -58,38 +34,50 @@ export class Minecraft {
     });
   }
 
-  @buffered()
-  showTitle(title: string): Observable<void> {
+  login(key: string): Observable<LoginResponse> {
     return Observable.create(observer => {
-      this.eb.send(Minecraft.address, { "token": { loginCode: this.code }, "message": title }, { "action": "showTitle" }, this.handler(observer));
+      this.eb.send(Minecraft.address, { key }, { "action": "login" }, (err: any, result: any) => {
+        if (!err) {
+          observer.next(result.body as LoginResponse);
+        } else {
+          observer.error(err);
+        }
+      });
     });
   }
 
   @buffered()
-  narrate(entity: string, text: string): Observable<void> {
+  showTitle(playerUUID: string, title: string): Observable<void> {
     return Observable.create(observer => {
-      this.eb.send(Minecraft.address, { "code": this.code, "entity": entity, "text": text }, { "action": "narrate" }, this.handler(observer));
+      this.eb.send(Minecraft.address, { "playerUUID": playerUUID, "message": title }, { "action": "showTitle" }, this.handler(observer));
     });
   }
 
   @buffered()
-  runCommand(command: string): Observable<void> {
+  narrate(playerUUID: string, entity: string, text: string): Observable<void> {
     return Observable.create(observer => {
-      this.eb.send(Minecraft.address, {"code": this.code, "command": command}, {"action":"runCommand"}, this.handler(observer));
+      this.eb.send(Minecraft.address, { "playerUUID": playerUUID, "entity": entity, "text": text }, { "action": "narrate" }, this.handler(observer));
     });
   }
 
   @buffered()
-  getItemHeld(hand: HandType): Observable<ItemType> {
+  runCommand(playerUUID: string, command: string): Observable<void> {
     return Observable.create(observer => {
-      this.eb.send(Minecraft.address, { "code": this.code, "hand": hand.toString() }, { "action": "getItemHeld" }, this.handler(observer));
+      this.eb.send(Minecraft.address, {"playerUUID": playerUUID, "command": command}, {"action":"runCommand"}, this.handler(observer));
     });
   }
 
   @buffered()
-  addRemoveItem(amount: number, item: ItemType): Observable<void> {
+  getItemHeld(playerUUID: string, hand: HandType): Observable<ItemType> {
     return Observable.create(observer => {
-      this.eb.send(Minecraft.address, { "code": this.code, "amount": amount, "item": item }, { "action": "addRemoveItem" }, this.handler(observer));
+      this.eb.send(Minecraft.address, { "playerUUID": playerUUID, "hand": hand.toString() }, { "action": "getItemHeld" }, this.handler(observer));
+    });
+  }
+
+  @buffered()
+  addRemoveItem(playerUUID: string, amount: number, item: ItemType): Observable<void> {
+    return Observable.create(observer => {
+      this.eb.send(Minecraft.address, { "playerUUID": playerUUID, "amount": amount, "item": item }, { "action": "addRemoveItem" }, this.handler(observer));
     });
   }
 
@@ -100,23 +88,22 @@ export class Minecraft {
 
   // All Event Handlers go here
 
-  whenCommand(commandName: string): Observable<Registration> {
-    return this.whenRegister('newCmd' + commandName);
+  whenCommand(playerUUID: string, commandName: string): Observable<Registration> {
+    return this.whenRegister(playerUUID, 'newCmd' + commandName);
   }
 
-  whenInside(name: string): Observable<Registration> {
+  whenInside(playerUUID: string, name: string): Observable<Registration> {
     return Observable.create(observer => {
-      this.eb.send(Minecraft.address, { "code": this.code, "name": name }, { "action": "whenInside" }, this.handler(observer));
-    }).map(() => this.whenRegister("player_inside_" + name)).concatAll();
-    
+      this.eb.send(Minecraft.address, { "playerUUID": playerUUID, "name": name }, { "action": "whenInside" }, this.handler(observer));
+    }).map(() => this.whenRegister(playerUUID, "player_inside_" + name + playerUUID)).concatAll();
   }
 
-  private whenRegister(eventName: string): Observable<Registration> {
+  private whenRegister(playerUUID: string, eventName: string): Observable<Registration> {
     if (this.callbacks.get(eventName)) {
       return Observable.create(observer => observer.error("can't re-register already registered event " + eventName));
     }
     return Observable.create(observer => {
-      this.eb.send("mcs.actions", { "action": "registerCondition", "condition": eventName, "code": this.code }, (err) => {
+      this.eb.send("mcs.actions", { "action": "registerCondition", "condition": eventName, "playerUUID": playerUUID }, (err) => {
         if (!err) {
           observer.next(new Registration(eventName, this.callbacks));
         } else {
@@ -126,21 +113,21 @@ export class Minecraft {
     });
   }
 
-  whenEntityRightClicked(entityName: string): Observable<Registration> {
-    return this.whenRegister("entity_interaction:" + entityName + "/right clicked");
+  whenEntityRightClicked(playerUUID: string, entityName: string): Observable<Registration> {
+    return this.whenRegister(playerUUID, "entity_interaction:" + entityName + "/right clicked");
   }
 
-  whenPlayerJoins(): Subject<{player: string}> {
-    return this.when("playerJoined");
+  whenPlayerJoins(playerUUID: string): Subject<{player: string}> {
+    return this.when(playerUUID, "playerJoined");
   }
 
-  private when<T>(eventName: string): Subject<T> {
+  private when<T>(playerUUID: string, eventName: string): Subject<T> {
     const existingSubject = this.callbacks.get(eventName);
     if (existingSubject) {
       return existingSubject;
     }
     const subject = new Subject<T>();
-    this.eb.send("mcs.actions", { "action": "registerCondition", "condition": eventName, "code": this.code }, (err) => {
+    this.eb.send("mcs.actions", { "action": "registerCondition", "condition": eventName, "playerUUID": playerUUID }, (err) => {
       if (!err) {
         this.callbacks.set(eventName, subject);
       } else {
@@ -197,19 +184,22 @@ export class Token {
   playerSource?: string
 }
 
-export class LoginResponse {
-  secret: string;
-  key: string;
+export interface LoginResponse {
+  playerUuid: string;
+}
+
+export interface PlayerIniciatedEvent {
+  playerUUID: string;
 }
 
 export class Registration {
-  private subject: Subject<void>;
+  private subject: Subject<PlayerIniciatedEvent>;
   constructor(private commandName: string,
-    private callbacks: Map<string, Subject<void>>) {
-      this.subject = new Subject();
+    private callbacks: Map<string, Subject<PlayerIniciatedEvent>>) {
+      this.subject = new Subject<PlayerIniciatedEvent>();
       this.callbacks.set(this.commandName, this.subject);
   }
-  on(): Subject<void> {
+  on(): Subject<PlayerIniciatedEvent> {
     return this.subject;
   }
 

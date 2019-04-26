@@ -25,7 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
-import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.events.Condition;
 import ch.vorburger.minecraft.storeys.events.ConditionService;
@@ -37,7 +36,6 @@ import ch.vorburger.minecraft.storeys.events.Unregisterable;
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.ActionContext;
 import ch.vorburger.minecraft.storeys.model.LocationToolAction;
-import ch.vorburger.minecraft.storeys.simple.Token;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.simple.impl.NotLoggedInException;
 import com.flowpowered.math.vector.Vector3d;
@@ -72,7 +70,6 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
 
     // TODO Most of these should completely move into MinecraftImpl...
     private final PluginInstance plugin;
-    private final Narrator narrator;
     private final EventService eventService;
     private final ConditionService conditionService;
     private final EventBusSender eventBusSender;
@@ -87,14 +84,15 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
         this.plugin = plugin;
         this.eventBusSender = eventBusSender;
 
-        this.narrator = new Narrator(plugin);
         this.eventService = eventService;
         this.conditionService = conditionService;
 
         this.tokenProvider = tokenProvider;
 
         eventService.registerPlayerJoin(event -> {
-            JsonObject message = new JsonObject().put("event", "playerJoined").put("player", event.getTargetEntity().getName());
+            Player player = event.getTargetEntity();
+            JsonObject message = new JsonObject().put("event", "playerJoined").put("player", player.getName())
+                    .put("playerUUID", player.getUniqueId().toString());
             eventBusSender.send(message);
         });
 
@@ -129,14 +127,14 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
             }
 
             if (locationPair.getLeft() != null && locationPair.getRight() != null) {
-                final Condition condition = new LocatableInBoxCondition(player, locationPair);
-                final String name = "player_inside_" + locationName;
+                final Condition condition = new LocatableInBoxCondition(player.getWorld(), locationPair);
+                final String name = "player_inside_" + locationName + player.getUniqueId().toString();
                 final Unregisterable unregisterable = conditionRegistrations.get(name);
                 if (unregisterable != null) {
                     unregisterable.unregister();
                 }
-                ConditionServiceRegistration registration = conditionService.register(condition, () ->
-                        eventBusSender.send(new JsonObject().put("event", name)));
+                ConditionServiceRegistration registration = conditionService.register(condition, (Player p) ->
+                        eventBusSender.send(new JsonObject().put("event", name).put("playerUUID", p.getUniqueId().toString())));
                 conditionRegistrations.put(name, registration);
             }
         };
@@ -160,8 +158,7 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
         LOG.info("Handling (old style) action message received on EventBus: {}", message.body().encodePrettily());
 
         JsonObject json = message.body();
-        String secureCode = json.getString("code");
-        Token token = tokenProvider.getToken(secureCode);
+        String playerUUID = json.getString("playerUUID");
 
         try {
             switch (json.getString("action")) {
@@ -172,7 +169,7 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
             }
             case "registerCondition": {
                 String condition = json.getString("condition");
-                registerCondition(token,
+                registerCondition(playerUUID,
                                   requireNonNull(condition, "condition"));
                 message.reply(condition);
                 break;
@@ -184,8 +181,8 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
         } catch (Exception e) {
             // TODO make red etc. like in that command helper
             LOG.error("caught Exception", e);
-            Optional<Player> optPlayer = tokenProvider.getOptionalPlayer(token);
-            optPlayer.ifPresent(player -> player.sendMessage(Text.of(e.getMessage())));
+            Player player = tokenProvider.getPlayer(playerUUID);
+            player.sendMessage(Text.of(e.getMessage()));
             throw e;
         }
     }
@@ -196,9 +193,11 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
         }
     }
 
-    private void execute(Token token, Action<?> action, Message<?> message) {
-        Optional<Player> optPlayer = tokenProvider.getOptionalPlayer(token);
-        Player player = optPlayer.orElseThrow(() -> new NotLoggedInException(token));
+    private void execute(String playerUUID, Action<?> action, Message<?> message) {
+        Player player = tokenProvider.getPlayer(playerUUID);
+        if (player == null) {
+            throw new NotLoggedInException(playerUUID);
+        }
 
         action.execute(new ActionContext(player, new ReadingSpeed()))
             .thenRun(() -> message.reply("done"))
@@ -209,20 +208,22 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
             });
     }
 
-    private void registerCondition(Token token, String conditionAsText) {
-        tokenProvider.getOptionalPlayer(token).orElseThrow(() -> new NotLoggedInException(token));
+    private void registerCondition(String playerUUID, String conditionAsText) {
+        if (tokenProvider.getPlayer(playerUUID) == null) {
+            throw new NotLoggedInException(playerUUID);
+        }
 
         if (runIfStartsWith(conditionAsText, "newCmd", commandName -> {
-            ScriptCommand scriptCommand = new ScriptCommand(commandName, plugin, () -> {
-                eventBusSender.send(new JsonObject().put("event", conditionAsText));
+            ScriptCommand scriptCommand = new ScriptCommand(commandName, plugin, (Player player) -> {
+                eventBusSender.send(new JsonObject().put("event", conditionAsText).put("playerUUID", player.getUniqueId().toString()));
             });
             conditionRegistrations.put(conditionAsText, scriptCommand);
         })) {} else if (runIfStartsWith(conditionAsText, "entity_interaction:", entityNameSlashInteraction -> {
             Iterator<String> parts = SLASH_SPLITTER.split(entityNameSlashInteraction).iterator();
             String entityName = parts.next();
             // String interaction = parts.next();
-            conditionRegistrations.put(conditionAsText, eventService.registerInteractEntity(entityName, () -> {
-                eventBusSender.send(new JsonObject().put("event", conditionAsText));
+            conditionRegistrations.put(conditionAsText, eventService.registerInteractEntity(entityName, (Player player) -> {
+                eventBusSender.send(new JsonObject().put("event", conditionAsText).put("playerUUID", player.getUniqueId().toString()));
             }));
         })) {} else if (runIfStartsWith(conditionAsText, "playerJoined", empty -> {
             // Ignore (we registered for this globally, above)

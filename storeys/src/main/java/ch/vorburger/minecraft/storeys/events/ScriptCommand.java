@@ -18,12 +18,13 @@
  */
 package ch.vorburger.minecraft.storeys.events;
 
+import java.util.List;
+
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.util.Command;
 import ch.vorburger.minecraft.storeys.util.Commands;
 import ch.vorburger.minecraft.utils.CommandExceptions;
 import com.google.common.collect.ImmutableList;
-import java.util.List;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.command.CommandException;
@@ -32,18 +33,21 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.entity.living.player.Player;
 
 public class ScriptCommand implements Command, Unregisterable {
-
-    private final Callback callback;
-    private final CommandMapping commandMapping;
-    private final ImmutableList<String> aliases;
 
     public ScriptCommand(String commandName, PluginInstance plugin, Callback callback) {
         this.aliases = ImmutableList.of(commandName);
         this.callback = callback;
         this.commandMapping = Commands.register(plugin, this);
     }
+
+    private final Callback callback;
+
+    private final CommandMapping commandMapping;
+
+    private final ImmutableList<String> aliases;
 
     @Override
     public List<String> aliases() {
@@ -57,7 +61,7 @@ public class ScriptCommand implements Command, Unregisterable {
 
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        CommandExceptions.doOrThrow("Failed, due to: ", () -> callback.call());
+        CommandExceptions.doOrThrow("Failed, due to: ", () -> callback.call((Player) src));
         return CommandResult.success();
     }
 

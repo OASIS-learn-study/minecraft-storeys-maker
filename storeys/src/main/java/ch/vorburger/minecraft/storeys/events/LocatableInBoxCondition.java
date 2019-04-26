@@ -24,8 +24,11 @@ import static java.lang.Math.min;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Splitter;
+
 import java.util.Iterator;
+
 import org.apache.commons.lang3.tuple.Pair;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.world.Locatable;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -34,17 +37,16 @@ public class LocatableInBoxCondition implements Condition {
 
     private static final Splitter SLASH_SPLITTER = Splitter.on('/');
 
-    private final Locatable locatable;
+    private Player effectedPlayer;
 
     private final World world;
     private final int minX, maxX, minY, maxY, minZ, maxZ;
 
-    public LocatableInBoxCondition(Locatable locatable, Location<World> boxCorner1, Location<World> boxCorner2) {
-        this.locatable  = requireNonNull(locatable,  "locatable");
+    public LocatableInBoxCondition(World world, Location<World> boxCorner1, Location<World> boxCorner2) {
+        this.world = requireNonNull(world, "world");
         if (!boxCorner1.inExtent(boxCorner2.getExtent())) {
             throw new IllegalArgumentException("boxCorner1 & boxCorner2 are not in the same World Extent");
         }
-        this.world = locatable.getWorld();
         if (!boxCorner1.inExtent(this.world)) {
             throw new IllegalArgumentException("boxCorner is not in the same World Extent as Locatable (Player)");
         }
@@ -56,35 +58,43 @@ public class LocatableInBoxCondition implements Condition {
         maxZ = max(boxCorner1.getBlockZ(), boxCorner2.getBlockZ());
     }
 
-    public LocatableInBoxCondition(Locatable locatable, String coordinates) {
-        this(locatable, getCornerLocations(locatable, coordinates));
+    public LocatableInBoxCondition(World world, String coordinates) {
+        this(world, getCornerLocations(world, coordinates));
     }
 
-    public LocatableInBoxCondition(Locatable locatable, Pair<Location<World>, Location<World>> corners) {
-        this(locatable, corners.getLeft(), corners.getRight());
+    public LocatableInBoxCondition(World world, Pair<Location<World>, Location<World>> corners) {
+        this(world, corners.getLeft(), corners.getRight());
     }
 
-    private static Pair<Location<World>, Location<World>> getCornerLocations(Locatable locatable, String coordinates) {
+    private static Pair<Location<World>, Location<World>> getCornerLocations(World world, String coordinates) {
         Iterator<String> ints = SLASH_SPLITTER.split(coordinates).iterator();
-        Location<World> cornerA = new Location<>(locatable.getWorld(), parseInt(ints.next()), parseInt(ints.next()), parseInt(ints.next()));
-        Location<World> cornerB = new Location<>(locatable.getWorld(), parseInt(ints.next()), parseInt(ints.next()), parseInt(ints.next()));
+        Location<World> cornerA = new Location<>(world, parseInt(ints.next()), parseInt(ints.next()), parseInt(ints.next()));
+        Location<World> cornerB = new Location<>(world, parseInt(ints.next()), parseInt(ints.next()), parseInt(ints.next()));
         return Pair.of(cornerA, cornerB);
     }
 
     @Override
     public boolean isHot() {
-        final Location<World> location = locatable.getLocation();
-        if (location.inExtent(world)) {
-            int x = location.getBlockX();
-            int y = location.getBlockY();
-            int z = location.getBlockZ();
-//            System.out.println("LocatableInBoxCondition: x=" + x + ", y=" + y + ", z=" + z + "; minX=" + minX
-//                    + ", maxX=" + maxX + ", minY=" + minY + ", maxY=" + maxY + ", minZ=" + minZ + ", maxZ=" + maxZ);
-            return x >= minX && x <= maxX
-                && y >= minY && y <= maxY
-                && z >= minZ && z <= maxZ;
+        for (Player player : this.world.getPlayers()) {
+            final Location<World> location = player.getLocation();
+            if (location.inExtent(world)) {
+                int x = location.getBlockX();
+                int y = location.getBlockY();
+                int z = location.getBlockZ();
+                boolean hit = x >= minX && x <= maxX
+                        && y >= minY && y <= maxY
+                        && z >= minZ && z <= maxZ;
+                if (hit) {
+                    this.effectedPlayer = player;
+                    return hit;
+                }
+            }
         }
         return false;
     }
 
+    @Override
+    public Player getEffectedPlayer() {
+        return effectedPlayer;
+    }
 }

@@ -18,101 +18,73 @@
  */
 package ch.vorburger.minecraft.storeys.simple.impl;
 
-import ch.vorburger.minecraft.storeys.simple.Token;
-import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.entity.living.player.Player;
 
 /**
  * Implementation of {@link TokenProvider} API.
  *
- * @deprecated to be phased out and replaced by ch.vorburger.minecraft.storeys.api.impl.TokenProvider
- *
  * @author edewit - original author (in ActionsConsumer and LoginCommand)
  * @author Michael Vorburger.ch - refactored out into here, and use ConcurrentHashMap
  */
-@Deprecated
 public class TokenProviderImpl implements TokenProvider {
 
-    private final Game game;
-    private final RSAUtil rsaUtil = new RSAUtil();
-
-    // TODO would be better to have something to invalidate entries that are old?
-    private final Map<String, String> validLogins = new ConcurrentHashMap<>();
-    private final Map<String, Player> activeSessions = new ConcurrentHashMap<>();
+private final Game game;
+    private final Map<String, Token> validLogins = new ConcurrentHashMap<>();
 
     public TokenProviderImpl(Game game) {
+        this(game, 1, TimeUnit.SECONDS);
+    }
+
+    public TokenProviderImpl(Game game, int timeout, TimeUnit unit) {
         this.game = game;
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
+                () -> validLogins.values().removeIf(token -> !token.isValid()), 0, timeout, unit);
     }
 
     @Override
     public String getCode(Player player) {
         String code = UUID.randomUUID().toString();
-        validLogins.put(code, player.getIdentifier());
+        validLogins.put(code, new Token(player.getIdentifier()));
         return code;
     }
 
     @Override
-    public SecretPublicKeyPair login(String code, String base64PublicKey) {
-        String playerUUID = validLogins.remove(code);
+    public String login(String code) {
+        final Token token = validLogins.remove(code);
+        String playerUUID = token != null ? token.token : null;
         if (playerUUID == null) {
-            throw new NotLoggedInException("playerUUID == null");
+            throw new NotLoggedInException(code);
         }
-        Optional<Player> optPlayer = game != null ? game.getServer().getPlayer(UUID.fromString(playerUUID)) : Optional.empty();
-        String secret = UUID.randomUUID().toString();
-
-        String encrypted = rsaUtil.encrypt(secret, base64PublicKey);
-        activeSessions.put(secret, optPlayer.orElse(null));
-
-        return new TokenProvider.SecretPublicKeyPair() {
-
-            @Override
-            public String getSecret() {
-                return encrypted;
-            }
-
-            @Override
-            public String getBase64PublicKey() {
-                return rsaUtil.getBase64PublicKey();
-            }
-
-        };
+        return playerUUID;
     }
 
     @Override
-    public Token getToken(String tokenAsText) {
-        return new PlayerTokenImpl(tokenAsText != null ? Optional.ofNullable(activeSessions.get(rsaUtil.decrypt(tokenAsText))) : Optional.empty(), tokenAsText);
+    public Player getPlayer(String playerUUID) throws NotLoggedInException {
+        return game.getServer().getPlayer(UUID.fromString(playerUUID)).orElseThrow(() -> new NotLoggedInException(playerUUID));
     }
 
-    @Override
-    public Optional<Player> getOptionalPlayer(Token token) {
-        return ((PlayerTokenImpl) token).optPlayer;
-    }
+    private class Token {
+        private long time = System.currentTimeMillis();
+        private String token;
 
-    @Override
-    public Player getPlayer(Token token) throws NotLoggedInException {
-        return getOptionalPlayer(Objects.requireNonNull(token, "token")).orElseThrow(() -> new NotLoggedInException(token));
-    }
-
-    private static class PlayerTokenImpl extends Token {
-
-        final Optional<Player> optPlayer;
-        final String tokenAsText;
-
-        PlayerTokenImpl(Optional<Player> optPlayer, String tokenAsText) {
-            this.optPlayer = optPlayer;
-            this.tokenAsText = tokenAsText;
+        Token(String token) {
+            this.token = token;
         }
 
-        @Override
-        public String toString() {
-            return "Token{text=" + tokenAsText + "}, player={" + optPlayer + "}";
+        String getToken() {
+            return token;
         }
 
+        boolean isValid() {
+            return System.currentTimeMillis() - time < 15 * 60 * 1000;
+        }
     }
 }

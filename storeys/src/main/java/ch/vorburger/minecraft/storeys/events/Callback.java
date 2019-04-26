@@ -18,9 +18,11 @@
  */
 package ch.vorburger.minecraft.storeys.events;
 
+import org.spongepowered.api.entity.living.player.Player;
+
 @FunctionalInterface
 public interface Callback {
 
-    void call() throws Exception;
+    void call(Player invoker) throws Exception;
 
 }

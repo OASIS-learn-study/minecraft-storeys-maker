@@ -18,7 +18,7 @@
  */
 package ch.vorburger.minecraft.storeys.api.impl;
 
-import ch.vorburger.minecraft.storeys.api.Token;
+import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.util.Command;
 import ch.vorburger.minecraft.utils.CommandExceptions;
 import com.google.common.collect.ImmutableList;
@@ -64,10 +64,10 @@ public class TokenCommand implements Command {
             CommandExceptions.doOrThrow("loginURL", () -> {
                 Player player = (Player)src;
 
-                Token token = tokenProvider.getToken(player);
+                String token = tokenProvider.getCode(player);
 
                 src.sendMessage(Text.builder("Shift click here to insert your API Token to copy clipboard").onShiftClick(
-                        TextActions.insertText(token.toJson().toString())).color(TextColors.GREEN).build());
+                        TextActions.insertText(token)).color(TextColors.GREEN).build());
             });
         }
         return CommandResult.empty();

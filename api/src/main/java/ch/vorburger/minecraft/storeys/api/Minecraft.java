@@ -29,24 +29,24 @@ import io.vertx.serviceproxy.ServiceProxyBuilder;
 @ProxyGen
 public interface Minecraft {
 
-    void login(String token, String key, Handler<AsyncResult<LoginResponse>> handler);
+    void login(String key, Handler<AsyncResult<LoginResponse>> handler);
 
-    void showTitle(Token token, String message, Handler<AsyncResult<Void>> handler);
+    void showTitle(String playerUUID, String message, Handler<AsyncResult<Void>> handler);
 
-    void narrate(String code, String entity, String text, Handler<AsyncResult<Void>> handler);
+    void narrate(String playerUUID, String entity, String text, Handler<AsyncResult<Void>> handler);
 
     /**
      * Runs a Minecraft command.
      * This does not register a new command, but runs one.
      * @param command one single command without the starting slash
      */
-    void runCommand(String code, String command, Handler<AsyncResult<Void>> handler);
+    void runCommand(String playerUUID, String command, Handler<AsyncResult<Void>> handler);
 
-    void getItemHeld(String code, HandType hand, Handler<AsyncResult<ItemType>> handler);
+    void getItemHeld(String playerUUID, HandType hand, Handler<AsyncResult<ItemType>> handler);
 
-    void addRemoveItem(String code, int amount, ItemType item, Handler<AsyncResult<Void>> handler);
+    void addRemoveItem(String playerUUID, int amount, ItemType item, Handler<AsyncResult<Void>> handler);
 
-    void whenInside(String code, String name, Handler<AsyncResult<Void>> handler);
+    void whenInside(String playerUUID, String name, Handler<AsyncResult<Void>> handler);
 
     /**
      * The service address.

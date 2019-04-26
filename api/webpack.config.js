@@ -6,20 +6,6 @@ const nodeEnv = process.env.NODE_ENV || 'development'
 const isProd = nodeEnv === 'production'
 
 const plugins = [
-  new UglifyJsPlugin({
-    parallel: true,
-    uglifyOptions: {
-      ie8: false,
-      ecma: 6,
-      warnings: true,
-      mangle: isProd, // debug false
-      output: {
-        comments: false,
-        beautify: !isProd,  // debug true
-      }
-    },
-    sourceMap: true
-  }),
   new webpack.DefinePlugin({
     'process.env': {
       // eslint-disable-line quote-props
@@ -38,6 +24,13 @@ const plugins = [
 
 if (!isProd) {
   plugins.push(new DashboardPlugin());
+} else {
+  plugins.push(
+    new UglifyJsPlugin({
+      parallel: true,
+      sourceMap: true
+    })
+  );
 }
 
 var config = {
@@ -61,7 +54,6 @@ var config = {
       {
         enforce: 'pre',
         test: /\.ts?$/,
-        exclude: ['node_modules'],
         use: ['awesome-typescript-loader', 'source-map-loader']
       }
     ]
