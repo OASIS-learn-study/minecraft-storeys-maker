@@ -1,4 +1,4 @@
-/**
+/*
  * ch.vorburger.minecraft.storeys
  *
  * Copyright (C) 2016 - 2018 Michael Vorburger.ch <mike@vorburger.ch>
@@ -18,14 +18,11 @@
  */
 package ch.vorburger.minecraft.storeys.simple.impl;
 
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import org.junit.Test;
-import org.spongepowered.api.Game;
-import org.spongepowered.api.Server;
 import org.spongepowered.api.entity.living.player.Player;
 
 import static org.junit.Assert.assertEquals;

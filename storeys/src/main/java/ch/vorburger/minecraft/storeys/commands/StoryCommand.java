@@ -1,4 +1,4 @@
-/**
+/*
  * ch.vorburger.minecraft.storeys
  *
  * Copyright (C) 2016 - 2018 Michael Vorburger.ch <mike@vorburger.ch>
