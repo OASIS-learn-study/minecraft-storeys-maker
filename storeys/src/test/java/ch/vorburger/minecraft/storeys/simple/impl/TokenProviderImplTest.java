@@ -35,10 +35,8 @@ import static org.mockito.Mockito.when;
 public class TokenProviderImplTest {
 
     public TokenProviderImplTest() {
-        tokenProvider = new TokenProviderImpl(gameMock);
+        tokenProvider = new TokenProviderImpl();
     }
-
-    private final Game gameMock = mock(Game.class);
 
     private TokenProvider tokenProvider;
 
@@ -56,22 +54,6 @@ public class TokenProviderImplTest {
         assertEquals(uuid, tokenProvider.login(code));
     }
 
-    @Test
-    public void getPlayer() {
-        //given
-        UUID uuid = UUID.randomUUID();
-        Server serverMock = mock(Server.class);
-        Player playerMock = mock(Player.class);
-
-        //when
-        when(gameMock.getServer()).thenReturn(serverMock);
-        when(serverMock.getPlayer(uuid)).thenReturn(Optional.of(playerMock));
-        Player player = tokenProvider.getPlayer(uuid.toString());
-
-        //then
-        assertEquals(player, playerMock);
-    }
-
     @Test(expected = NotLoggedInException.class)
     public void shouldThrowWhenNotValidLogin() {
         //when
@@ -81,11 +63,13 @@ public class TokenProviderImplTest {
     @Test(expected = NotLoggedInException.class)
     public void shouldRemoveTokensAfterTimeOut() throws InterruptedException {
         //given
-        tokenProvider = new TokenProviderImpl(gameMock, 1, TimeUnit.SECONDS);
-        Player playerMock = mock(Player.class);
+        tokenProvider = new TokenProviderImpl(100, TimeUnit.MILLISECONDS, TimeUnit.SECONDS.toMillis(1));
+        Player player = mock(Player.class);
+        final String uuid = UUID.randomUUID().toString();
 
         //when
-        final String code = tokenProvider.getCode(playerMock);
+        when(player.getIdentifier()).thenReturn(uuid);
+        final String code = tokenProvider.getCode(player);
         Thread.sleep(1100);
 
         //then

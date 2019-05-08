@@ -18,8 +18,6 @@
  */
 package ch.vorburger.minecraft.storeys.simple;
 
-import ch.vorburger.minecraft.storeys.simple.impl.NotLoggedInException;
-import java.util.Optional;
 import org.spongepowered.api.entity.living.player.Player;
 
 /**
@@ -29,11 +27,7 @@ import org.spongepowered.api.entity.living.player.Player;
  */
 public interface TokenProvider {
 
-
     String getCode(Player player);
 
     String login(String code);
-
-    Player getPlayer(String uuid) throws NotLoggedInException;
-
 }

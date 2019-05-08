@@ -36,22 +36,19 @@ export class Tester {
 
     test(): void {
         const urlParams = new URL(window.location.href).searchParams;
-        new MinecraftProvider().connect(urlParams.get('eventBusURL')).subscribe(minecraft => {
-            minecraft.login(urlParams.get('code')).subscribe(result => {
-                minecraft.getItemHeld(result.playerUuid, HandType.MainHand).subscribe(
-                    result => {
-                        if (result !== ItemType.Apple) this.failures.push("getItemHeld expected Apple but actually got " + result);
-                        this.done = true;
-                        console.log('getItemHeld result', result);
-                    },
-                    err => {
-                        this.failures.push(err);
-                        this.done = true;
-                        console.log('getItemHeld error', err);
-                    });
-            });
+        new MinecraftProvider(urlParams.get('eventBusURL'), urlParams.get('code')).connect().then(minecraft => {
+            minecraft.getItemHeld(minecraft.loggedInPlayer, HandType.MainHand).then(
+                result => {
+                    if (result !== ItemType.Apple) this.failures.push("getItemHeld expected Apple but actually got " + result);
+                    this.done = true;
+                    console.log('getItemHeld result', result);
+                },
+                err => {
+                    this.failures.push(err);
+                    this.done = true;
+                    console.log('getItemHeld error', err);
+                });
         })
-
     }
 
     isDone(): boolean {

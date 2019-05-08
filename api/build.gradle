@@ -51,6 +51,7 @@ dependencies {
 
     compile "io.vertx:vertx-core:$vertxVersion"
     compile "io.vertx:vertx-web:$vertxVersion"
+    compile "io.vertx:vertx-auth-jwt:$vertxVersion"
 
     compileOnly "io.vertx:vertx-codegen:$vertxVersion"
     compile "io.vertx:vertx-service-proxy:$vertxVersion"

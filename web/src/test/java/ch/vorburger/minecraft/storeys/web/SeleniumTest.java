@@ -23,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 
 import ch.vorburger.minecraft.storeys.api.HandType;
 import ch.vorburger.minecraft.storeys.api.ItemType;
+import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.web.test.TestMinecraft;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import java.io.File;
@@ -30,6 +31,7 @@ import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -51,6 +53,7 @@ import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongepowered.api.entity.living.player.Player;
 
 /**
  * Integration test, based on WebDriver.
@@ -85,7 +88,18 @@ public class SeleniumTest {
     private static void startVertx() throws Exception {
         testMinecraft = new TestMinecraft();
         vertxStarter = new VertxStarter();
-        MinecraftVerticle minecraftVerticle = new MinecraftVerticle(6060, testMinecraft);
+        MinecraftVerticle minecraftVerticle = new MinecraftVerticle(6060, testMinecraft, new TokenProvider() {
+
+            @Override
+            public String getCode(Player player) {
+                return UUID.randomUUID().toString();
+            }
+
+            @Override
+            public String login(String code) {
+                return UUID.randomUUID().toString();
+            }
+        });
         minecraftVerticle.setActionsConsumer(event -> LOG.warn("Received event, but ignoring/not handling in this test: {}", event.body()));
         vertxStarter.deployVerticle(minecraftVerticle).toCompletableFuture().get();
         vertxStarter.deployVerticle(new StaticWebServerVerticle(9090, new File("../scratch/dist"))).toCompletableFuture().get();
@@ -109,7 +123,7 @@ public class SeleniumTest {
         js = (JavascriptExecutor) webDriver;
         awaitWD = new WebDriverWait(webDriver, 3).pollingEvery(Duration.ofMillis(100));
 
-        webDriver.get("http://localhost:9090/index.html?eventBusURL=http%3A%2F%2Flocalhost%3A6060%2Feventbus");
+        webDriver.get("http://localhost:9090/index.html?eventBusURL=http%3A%2F%2Flocalhost%3A6060");
     }
 
     @AfterClass

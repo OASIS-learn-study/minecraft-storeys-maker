@@ -49,7 +49,7 @@ public class LoginCommand implements Command {
 
     private String scratch3URL = "http://localhost:8601/?";
 
-    private String eventBusURL = "http://localhost:8080/eventbus";
+    private String eventBusURL = "http://localhost:8080";
     private String encodedEventBusURL;
 
     private final TokenProvider tokenProvider;

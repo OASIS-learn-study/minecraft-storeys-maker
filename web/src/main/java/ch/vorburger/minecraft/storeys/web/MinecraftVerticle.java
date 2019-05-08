@@ -18,13 +18,17 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
-import static java.util.Objects.requireNonNull;
-
 import ch.vorburger.minecraft.storeys.api.Minecraft;
+import ch.vorburger.minecraft.storeys.simple.TokenProvider;
+import ch.vorburger.minecraft.storeys.simple.impl.NotLoggedInException;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.auth.KeyStoreOptions;
+import io.vertx.ext.auth.jwt.JWTAuth;
+import io.vertx.ext.auth.jwt.JWTAuthOptions;
 import io.vertx.ext.bridge.PermittedOptions;
+import io.vertx.ext.jwt.JWTOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
@@ -32,6 +36,8 @@ import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 import io.vertx.serviceproxy.ServiceBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Vert.x Verticle for Minecraft Storeys web API, usable e.g. by ScratchX extension.
@@ -46,11 +52,13 @@ public class MinecraftVerticle extends AbstractHttpServerVerticle implements Eve
     private static final String EVENTBUS_MINECRAFT_EVENTS_ADDRESS = "mcs.events";
 
     private final Minecraft minecraft;
+    private final TokenProvider tokenProvider;
     private Handler<Message<JsonObject>> actionsConsumer;
 
-    public MinecraftVerticle(int httpPort, Minecraft minecraft) {
+    public MinecraftVerticle(int httpPort, Minecraft minecraft, TokenProvider tokenProvider) {
         super(httpPort);
         this.minecraft = minecraft;
+        this.tokenProvider = tokenProvider;
     }
 
     public void setActionsConsumer(Handler<Message<JsonObject>> actionsConsumer) {
@@ -79,8 +87,35 @@ public class MinecraftVerticle extends AbstractHttpServerVerticle implements Eve
         PermittedOptions outboundPermitted1 = new PermittedOptions().setAddress(EVENTBUS_MINECRAFT_EVENTS_ADDRESS);
         BridgeOptions bridgeOptions = new BridgeOptions().addInboundPermitted(inboundPermitted1)
                 .addInboundPermitted(inboundPermitted2).addOutboundPermitted(outboundPermitted1);
+
+        JWTAuthOptions authConfig = new JWTAuthOptions()
+                .setKeyStore(new KeyStoreOptions()
+                        .setType("jceks")
+                        .setPath("keystore.jceks")
+                        .setPassword("_2y47[-53YLf}/frv.Q\""));
+
+        JWTAuth authProvider = JWTAuth.create(vertx, authConfig);
+
+        router.route("/login/:code").handler(ctx -> {
+            try {
+                String playerUUID = tokenProvider.login(ctx.request().getParam("code"));
+                ctx.response().end(authProvider.generateToken(new JsonObject().put("playerUUID", playerUUID), new JWTOptions()));
+            } catch (NotLoggedInException e) {
+                ctx.fail(401);
+            }
+        });
+
         sockJSHandler.bridge(bridgeOptions);
-        router.route("/eventbus/*").handler(sockJSHandler);
+        router.route("/eventbus/*").handler(ctx -> {
+            String token = ctx.request().getParam("token");
+            authProvider.authenticate(new JsonObject().put("jwt", token), (result) -> {
+                if (result.succeeded()) {
+                    sockJSHandler.handle(ctx);
+                } else {
+                    ctx.fail(401);
+                }
+            });
+        });
 
         LOG.info("Started Vert.x distributed BiDi event-bus HTTP server on port {}", httpPort);
     }

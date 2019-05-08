@@ -1,5 +1,5 @@
 {
-  "name": "storeys",
+  "name": "minecraft-storeys",
   "version": "0.0.2",
   "description": "Javascript API for minecraft storeys",
   "homepage": "http://learn.study",
@@ -8,29 +8,25 @@
     "url": "git+ssh://git@github.com/vorburger/minecraft-storeys.git"
   },
   "scripts": {
-    "build": "webpack --progress --colors --bail",
-    "start": "webpack-dev-server",
-    "watch": "webpack --progress --colors --watch"
+    "build": "rollup -c",
+    "watch": "rollup -cw"
   },
-  "main": "./dist/observable-wrapper.js",
+  "main": "dist/index.js",
+  "types": "dist/observable-wrapper.d.ts",
+  "module": "dist/index.es.js",
+  "files": [
+    "dist"
+  ],
   "dependencies": {
-    "jsencrypt": "^3.0.0-beta.1",
-    "vertx-bus-client": "^1.0.0"
+    "jwt-decode": "^2.2.0",
+    "node-fetch": "^2.5.0",
+    "rxjs": "^6.5.1",
+    "vertx3-eventbus-client": "3.7.0"
   },
   "devDependencies": {
-    "@types/vertx3-eventbus-client": "^3.4.0",
-    "awesome-typescript-loader": "^5.0.0",
-    "rxjs": "^5.5.12",
-    "sockjs-client": "^1.1.5",
-    "source-map-loader": "^0.2.3",
-    "typescript": "^3.3.3333",
-    "uglifyjs-webpack-plugin": "^2.0.1",
-    "webpack": "^4.29.6",
-    "webpack-cli": "^3.2.3",
-    "webpack-dashboard": "^2.1.0",
-    "webpack-dev-server": "^3.2.1"
-  },
-  "peerDependencies": {
-    "sockjs-client": "~1.1.5"
+    "@types/vertx3-eventbus-client": "3.5.0",
+    "rollup": "1.10.1",
+    "rollup-plugin-typescript2": "0.21.0",
+    "typescript": "3.4.5"
   }
 }

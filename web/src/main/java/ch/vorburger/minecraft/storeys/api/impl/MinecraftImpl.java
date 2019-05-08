@@ -25,7 +25,6 @@ import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.api.HandType;
 import ch.vorburger.minecraft.storeys.api.ItemType;
-import ch.vorburger.minecraft.storeys.api.LoginResponse;
 import ch.vorburger.minecraft.storeys.api.Minecraft;
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.ActionContext;
@@ -33,15 +32,17 @@ import ch.vorburger.minecraft.storeys.model.CommandAction;
 import ch.vorburger.minecraft.storeys.model.LocationToolAction;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
 import ch.vorburger.minecraft.storeys.model.TitleAction;
-import ch.vorburger.minecraft.storeys.simple.TokenProvider;
+import ch.vorburger.minecraft.storeys.simple.impl.NotLoggedInException;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
@@ -61,20 +62,8 @@ public class MinecraftImpl implements Minecraft {
 
     private final PluginInstance pluginInstance;
 
-    private final TokenProvider tokenProvider;
-
-    public MinecraftImpl(PluginInstance pluginInstance, TokenProvider tokenProvider) {
+    public MinecraftImpl(PluginInstance pluginInstance) {
         this.pluginInstance = pluginInstance;
-        this.tokenProvider = tokenProvider;
-    }
-
-    @Override
-    public void login(String token, Handler<AsyncResult<LoginResponse>> handler) {
-        LoginResponse response = new LoginResponse();
-        final String playerUUID = tokenProvider.login(token);
-        response.setPlayerUuid(playerUUID);
-        LOG.info("login: IN token={}, OUT response={}", token, response);
-        handler.handle(Future.succeededFuture(response));
     }
 
     @Override
@@ -135,7 +124,7 @@ public class MinecraftImpl implements Minecraft {
 
     private Player getPlayer(String playerUUID) {
         requireNonNull(playerUUID, "playerUUID");
-        return tokenProvider.getPlayer(playerUUID);
+        return Sponge.getGame().getServer().getPlayer(UUID.fromString(playerUUID)).orElseThrow(() -> new NotLoggedInException(playerUUID));
     }
 
     // TODO does a helper class like this already exist somewhere in Vert.x? Can Vert.x directly gen. code with CompletionStage or CompletableFuture signatures?

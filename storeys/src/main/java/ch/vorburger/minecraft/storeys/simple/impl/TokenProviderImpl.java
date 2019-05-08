@@ -25,7 +25,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
-import org.spongepowered.api.Game;
 import org.spongepowered.api.entity.living.player.Player;
 
 /**
@@ -35,29 +34,50 @@ import org.spongepowered.api.entity.living.player.Player;
  * @author Michael Vorburger.ch - refactored out into here, and use ConcurrentHashMap
  */
 public class TokenProviderImpl implements TokenProvider {
+    private String adminLoginCode = "learn.study.m1n3craft";
 
-private final Game game;
     private final Map<String, Token> validLogins = new ConcurrentHashMap<>();
+    private long tokenValidTime;
 
-    public TokenProviderImpl(Game game) {
-        this(game, 1, TimeUnit.SECONDS);
+    public TokenProviderImpl() {
+        this(3, TimeUnit.MINUTES);
     }
 
-    public TokenProviderImpl(Game game, int timeout, TimeUnit unit) {
-        this.game = game;
+    TokenProviderImpl(int pollInterval, TimeUnit unit) {
+        this(pollInterval, unit, TimeUnit.MINUTES.toMillis(15));
+    }
+
+    TokenProviderImpl(int pollInterval, TimeUnit pollIntevalUnit, long tokenValidTime) {
+        this.tokenValidTime = tokenValidTime;
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
-                () -> validLogins.values().removeIf(token -> !token.isValid()), 0, timeout, unit);
+                () -> validLogins.values().removeIf(token -> !token.isValid()), 0, pollInterval, pollIntevalUnit);
+        adminLoginCode = getSystemPropertyEnvVarOrDefault("storeys_admincode", adminLoginCode);
+    }
+
+    private String getSystemPropertyEnvVarOrDefault(String propertyName, String defaultValue) {
+        String property = System.getProperty(propertyName);
+        if (property != null) {
+            return property;
+        }
+        property = System.getenv(propertyName);
+        if (property != null) {
+            return property;
+        }
+        return defaultValue;
     }
 
     @Override
     public String getCode(Player player) {
         String code = UUID.randomUUID().toString();
-        validLogins.put(code, new Token(player.getIdentifier()));
+        validLogins.put(code, new Token(player.getIdentifier(), tokenValidTime));
         return code;
     }
 
     @Override
     public String login(String code) {
+        if (adminLoginCode.equals(code)) {
+            return "";
+        }
         final Token token = validLogins.remove(code);
         String playerUUID = token != null ? token.token : null;
         if (playerUUID == null) {
@@ -66,25 +86,18 @@ private final Game game;
         return playerUUID;
     }
 
-    @Override
-    public Player getPlayer(String playerUUID) throws NotLoggedInException {
-        return game.getServer().getPlayer(UUID.fromString(playerUUID)).orElseThrow(() -> new NotLoggedInException(playerUUID));
-    }
-
     private class Token {
         private long time = System.currentTimeMillis();
+        private long timeToLive;
         private String token;
 
-        Token(String token) {
+        Token(String token, long timeToLive) {
             this.token = token;
-        }
-
-        String getToken() {
-            return token;
+            this.timeToLive = timeToLive;
         }
 
         boolean isValid() {
-            return System.currentTimeMillis() - time < 15 * 60 * 1000;
+            return System.currentTimeMillis() - time < timeToLive;
         }
     }
 }

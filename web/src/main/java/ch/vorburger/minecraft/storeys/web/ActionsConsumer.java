@@ -21,11 +21,11 @@ package ch.vorburger.minecraft.storeys.web;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
-import ch.vorburger.minecraft.storeys.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.events.Condition;
 import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.events.ConditionService.ConditionServiceRegistration;
@@ -33,10 +33,7 @@ import ch.vorburger.minecraft.storeys.events.EventService;
 import ch.vorburger.minecraft.storeys.events.LocatableInBoxCondition;
 import ch.vorburger.minecraft.storeys.events.ScriptCommand;
 import ch.vorburger.minecraft.storeys.events.Unregisterable;
-import ch.vorburger.minecraft.storeys.model.Action;
-import ch.vorburger.minecraft.storeys.model.ActionContext;
 import ch.vorburger.minecraft.storeys.model.LocationToolAction;
-import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.simple.impl.NotLoggedInException;
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Splitter;
@@ -73,21 +70,17 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
     private final EventService eventService;
     private final ConditionService conditionService;
     private final EventBusSender eventBusSender;
-    private final TokenProvider tokenProvider;
 
     private final Map<String, Unregisterable> conditionRegistrations = new ConcurrentHashMap<>();
     private final Map<String, Pair<Location<World>, Location<World>>> playerBoxLocations = new ConcurrentHashMap<>();
 
     public ActionsConsumer(PluginInstance plugin, EventService eventService,
-            ConditionService conditionService, EventBusSender eventBusSender,
-            TokenProvider tokenProvider) {
+            ConditionService conditionService, EventBusSender eventBusSender) {
         this.plugin = plugin;
         this.eventBusSender = eventBusSender;
 
         this.eventService = eventService;
         this.conditionService = conditionService;
-
-        this.tokenProvider = tokenProvider;
 
         eventService.registerPlayerJoin(event -> {
             Player player = event.getTargetEntity();
@@ -169,8 +162,7 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
             }
             case "registerCondition": {
                 String condition = json.getString("condition");
-                registerCondition(playerUUID,
-                                  requireNonNull(condition, "condition"));
+                registerCondition(requireNonNull(condition, "condition"));
                 message.reply(condition);
                 break;
             }
@@ -181,7 +173,7 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
         } catch (Exception e) {
             // TODO make red etc. like in that command helper
             LOG.error("caught Exception", e);
-            Player player = tokenProvider.getPlayer(playerUUID);
+            Player player = getPlayer(playerUUID);
             player.sendMessage(Text.of(e.getMessage()));
             throw e;
         }
@@ -193,26 +185,7 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
         }
     }
 
-    private void execute(String playerUUID, Action<?> action, Message<?> message) {
-        Player player = tokenProvider.getPlayer(playerUUID);
-        if (player == null) {
-            throw new NotLoggedInException(playerUUID);
-        }
-
-        action.execute(new ActionContext(player, new ReadingSpeed()))
-            .thenRun(() -> message.reply("done"))
-            .exceptionally(t -> {
-                LOG.error("Action (eventually) caused Exception", t);
-                message.reply("FAILED: " + t.getMessage());
-                return null; // Void
-            });
-    }
-
-    private void registerCondition(String playerUUID, String conditionAsText) {
-        if (tokenProvider.getPlayer(playerUUID) == null) {
-            throw new NotLoggedInException(playerUUID);
-        }
-
+    private void registerCondition(String conditionAsText) {
         if (runIfStartsWith(conditionAsText, "newCmd", commandName -> {
             ScriptCommand scriptCommand = new ScriptCommand(commandName, plugin, (Player player) -> {
                 eventBusSender.send(new JsonObject().put("event", conditionAsText).put("playerUUID", player.getUniqueId().toString()));
@@ -234,6 +207,11 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
         }
     }
 
+    private Player getPlayer(String playerUUID) {
+        requireNonNull(playerUUID, "playerUUID");
+        return Sponge.getGame().getServer().getPlayer(UUID.fromString(playerUUID)).orElseThrow(() -> new NotLoggedInException(playerUUID));
+    }
+
     private boolean runIfStartsWith(String conditionAsText, String prefix, Consumer<String> consumer) {
         if (conditionAsText.startsWith(prefix)) {
             String args = conditionAsText.substring(prefix.length());
@@ -243,12 +221,4 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
             return false;
         }
     }
-
-    private String safeGetString(JsonObject json, String key) {
-        // see https://github.com/vorburger/minecraft-storeys-maker/issues/38
-        // for why this is safer than using json.getString(key) for JSON values
-        // being sent to us from the ScratchX client
-        return json.getValue(key).toString();
-    }
-
 }

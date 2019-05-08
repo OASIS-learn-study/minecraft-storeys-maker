@@ -29,19 +29,18 @@ import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.simple.impl.TokenProviderImpl;
 import ch.vorburger.minecraft.storeys.util.Commands;
-import java.nio.file.Path;
-import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
-import org.spongepowered.api.event.network.ClientConnectionEvent.Disconnect;
 import org.spongepowered.api.plugin.Plugin;
+
+import java.nio.file.Path;
+import java.util.concurrent.ExecutionException;
 
 @Plugin(id = "storeys-web", name = "Vorburger.ch's Storeys with Web API", version = "1.0",
     description = "Makes entities narrate story lines so you can make your own movie in Minecraft",
@@ -51,9 +50,6 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
     // do not extend StoreysPlugin, because we exclude that class in shadowJar
 
     private static final Logger LOG = LoggerFactory.getLogger(StoreysWebPlugin.class);
-
-    // no @Inject but ugly static, so that this works from the Activator as well
-    private final Game game = Sponge.getGame();
 
     private VertxStarter vertxStarter;
     private EventService eventService;
@@ -73,7 +69,7 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
         eventManager.registerListener(plugin, ChangeInventoryEvent.Held.class, event -> eventService.onChangeInventoryHeldEvent(event));
         // InteractItemEvent ?
 
-        TokenProvider tokenProvider = new TokenProviderImpl(game);
+        TokenProvider tokenProvider = new TokenProviderImpl();
         loginCommandMapping = Commands.register(plugin, new LoginCommand(tokenProvider));
         tokenCommandMapping = Commands.register(plugin, new TokenCommand(tokenProvider));
 
@@ -86,9 +82,9 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
                 vertxStarter = new VertxStarter();
                 eventService = new EventService(plugin);
 
-                Minecraft minecraft = new MinecraftImpl(plugin, tokenProvider);
-                MinecraftVerticle minecraftVerticle = new MinecraftVerticle(eventBusHttpPort, minecraft);
-                actionsConsumer = new ActionsConsumer(plugin, eventService, new ConditionService(plugin), minecraftVerticle, tokenProvider);
+                Minecraft minecraft = new MinecraftImpl(plugin);
+                MinecraftVerticle minecraftVerticle = new MinecraftVerticle(eventBusHttpPort, minecraft, tokenProvider);
+                actionsConsumer = new ActionsConsumer(plugin, eventService, new ConditionService(plugin), minecraftVerticle);
                 minecraftVerticle.setActionsConsumer(actionsConsumer);
                 vertxStarter.deployVerticle(minecraftVerticle).toCompletableFuture().get();
                 vertxStarter.deployVerticle(new StaticWebServerVerticle(staticWebServerHttpPort)).toCompletableFuture().get();

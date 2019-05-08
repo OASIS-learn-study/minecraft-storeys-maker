@@ -47,13 +47,6 @@ public class TestMinecraft implements Minecraft {
     public List<String> ranCommands = new CopyOnWriteArrayList<>();
 
     @Override
-    public void login(String key, Handler<AsyncResult<LoginResponse>> handler) {
-        LoginResponse response = new LoginResponse();
-        response.setPlayerUuid("your-player-uuid");
-        handler.handle(Future.succeededFuture(response));
-    }
-
-    @Override
     public void showTitle(String playerUUID, String message, Handler<AsyncResult<Void>> handler) {
         LOG.info("showTitle({}, {})", playerUUID, message);
         results.put("lastTitle", message);
