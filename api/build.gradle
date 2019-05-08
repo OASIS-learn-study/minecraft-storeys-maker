@@ -40,7 +40,7 @@ assemble.dependsOn(install)
 apply plugin: 'eclipse'
 
 ext {
-  vertxVersion = '3.5.4'
+  vertxVersion = '3.7.0'
 }
 
 dependencies {
