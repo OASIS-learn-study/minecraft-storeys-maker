@@ -30,6 +30,9 @@ allprojects  {
     license {
         header rootProject.file('LICENSE-HEADER')
         strictCheck true
+        mapping {
+            java='SLASHSTAR_STYLE'
+        }
     }
 
     tasks.withType(JavaCompile) {
