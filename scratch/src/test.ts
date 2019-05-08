@@ -19,7 +19,7 @@ let test = new Test();
 (<any>window).ext = test;
 
 (<any>window).ScratchExtensions = {
-    register: function(extensionName, descriptor, ext) {
+    register: function (extensionName, descriptor, ext) {
         test.scratchMinecraftExtension = ext;
         console.log("ScratchX extension registered:", extensionName, ext !== undefined);
     }
@@ -35,17 +35,9 @@ export class Tester {
     private done: boolean = false;
 
     test(): void {
-        // copy/paste from index.ts - sorry! ;)
-        let match,
-            pl = /\+/g,  // Regex for replacing addition symbol with a space
-            search = /([^&=]+)=?([^&]*)/g,
-            decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
-            query = window.location.search.substring(1);
-        const urlParams: any = {};
-        while (match = search.exec(query))
-            urlParams[decode(match[1])] = decode(match[2]);
-        new MinecraftProvider().connect(urlParams.eventBusURL, urlParams.code).subscribe(minecraft => {
-            minecraft.getItemHeld(HandType.MainHand).subscribe(
+        const urlParams = new URL(window.location.href).searchParams;
+        new MinecraftProvider(urlParams.get('eventBusURL'), urlParams.get('code')).connect().then(minecraft => {
+            minecraft.getItemHeld(minecraft.loggedInPlayer, HandType.MainHand).then(
                 result => {
                     if (result !== ItemType.Apple) this.failures.push("getItemHeld expected Apple but actually got " + result);
                     this.done = true;
@@ -57,7 +49,6 @@ export class Tester {
                     console.log('getItemHeld error', err);
                 });
         })
-
     }
 
     isDone(): boolean {

@@ -44,6 +44,8 @@ shadowJar {
     include(dependency("io.vertx:vertx-core"))
     include(dependency("io.vertx:vertx-web"))
     include(dependency("io.vertx:vertx-auth-common"))
+    include(dependency("io.vertx:vertx-jwt"))
+    include(dependency("io.vertx:vertx-auth-jwt"))
     include(dependency("io.vertx:vertx-bridge-common"))
     include(dependency("io.vertx:vertx-service-proxy"))
     // having to repeat all of Vert.x's Netty dependencies here feel stupid,

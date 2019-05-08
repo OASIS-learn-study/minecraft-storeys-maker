@@ -1,8 +1,8 @@
-import { MinecraftProvider, Minecraft, HandType, Token, ItemType } from '../../api/src/main/typescript/observable-wrapper';
+import { MinecraftProvider, Minecraft, HandType, ItemType } from '../../api/src/main/typescript/observable-wrapper';
 
 let ScratchExtensions: any;
 
-(function (ext: any) {
+(async (ext: any) => {
     // Block and block menu descriptions <https://github.com/LLK/scratchx/wiki>
     const descriptor = {
         blocks: [
@@ -30,97 +30,102 @@ let ScratchExtensions: any;
 
     const urlParams = new URL(window.location.href).searchParams;
     let eventsReceived = {};
-    let player_last_joined;
+    let player_last_joined: string;
     let registeredConditions = new Set();
+    let effectedPlayer: string;
 
     descriptor.menus.event.forEach(function (eventLabel) {
         eventsReceived[eventLabel] = false;
     });
 
-    new MinecraftProvider().connect(urlParams.get('eventBusURL'), urlParams.get('code')).subscribe(minecraft => {
-        ext.sendTitle = (sendTitle: string, callback: Function) => {
-            minecraft.showTitle(sendTitle).subscribe(() => callback(),
-                (err: any) => console.log("sendTitle reply with error: ", err)
-            );
-        };
-        ext.narrate = (entity: string, text: string, callback: Function) => {
-            minecraft.narrate(entity, text).subscribe(() => callback(),
-                (err: any) => console.log("narrate reply with error: ", err)
-            );
-        };
-        ext.get_player_item_held = (callback: Function) => {
-            minecraft.getItemHeld(HandType.MainHand).subscribe(result => callback(result),
-                (err: any) => console.log("getItemHeld reply with error: ", err)
-            );
-        }
-        ext.minecraftCommand = (commandToRun: string, callback: Function) => {
-            minecraft.runCommand(commandToRun).subscribe(() => callback(),
-                (err: any) => console.log("runCommand reply with error: ", err)
-            );
-        };
-        ext.addRemoveItem = (amount: number, item: ItemType, callback: Function) => {
-            minecraft.addRemoveItem(amount, item).subscribe(() => callback(),
-                (err: any) => console.log("addRemoveItem reply with error: ", err)
-            );
-        }
+    const minecraft: Minecraft = await new MinecraftProvider(urlParams.get('eventBusURL'), urlParams.get('code')).connect();
+    effectedPlayer = minecraft.loggedInPlayer;
+    ext.sendTitle = (sendTitle: string, callback: Function) => {
+        minecraft.showTitle(effectedPlayer, sendTitle).then(() => callback(),
+            (err: any) => console.log("sendTitle reply with error: ", err)
+        );
+    };
+    ext.narrate = (entity: string, text: string, callback: Function) => {
+        minecraft.narrate(effectedPlayer, entity, text).then(() => callback(),
+            (err: any) => console.log("narrate reply with error: ", err)
+        );
+    };
+    ext.get_player_item_held = (callback: Function) => {
+        minecraft.getItemHeld(effectedPlayer, HandType.MainHand).then(result => callback(result),
+            (err: any) => console.log("getItemHeld reply with error: ", err)
+        );
+    }
+    ext.minecraftCommand = (commandToRun: string, callback: Function) => {
+        minecraft.runCommand(effectedPlayer, commandToRun).then(() => callback(),
+            (err: any) => console.log("runCommand reply with error: ", err)
+        );
+    };
+    ext.addRemoveItem = (amount: number, item: ItemType, callback: Function) => {
+        minecraft.addRemoveItem(effectedPlayer, amount, item).then(() => callback(),
+            (err: any) => console.log("addRemoveItem reply with error: ", err)
+        );
+    }
 
-        //
-        // Hat Blocks Condition Events related stuff here...
-        //
-        ext.when_event = function (event) {
-            const was = eventsReceived[event];
-            eventsReceived[event] = false;
-            return was || false;
-        };
-        ext.whenCondition = (method: string, ...args: string[]) => {
-            if (!registeredConditions.has(method + args)) {
-                registeredConditions.add(method + args);
-                minecraft[method].apply(minecraft, args).subscribe(register => {
-                    register.on().subscribe(() => {
-                        eventsReceived[method + args] = true;
-                    });
+    //
+    // Hat Blocks Condition Events related stuff here...
+    //
+    ext.when_event = function (event) {
+        const was = eventsReceived[event];
+        eventsReceived[event] = false;
+        return was || false;
+    };
+    ext.whenCondition = (method: string, ...args: string[]) => {
+        const eventName = method + args;
+        if (!registeredConditions.has(eventName)) {
+            registeredConditions.add(eventName);
+            minecraft[method].apply(minecraft, args).subscribe(register => {
+                register.on().subscribe((data) => {
+                    const loggedInPlayer = effectedPlayer;
+                    effectedPlayer = data.playerUUID;
+                    setTimeout(() => effectedPlayer = loggedInPlayer, 2000);
+                    eventsReceived[eventName] = true;
                 });
-            }
-          return ext.when_event(method + args);
-        };
+            });
+        }
+        return ext.when_event(eventName);
+    };
 
-        ext.when_command = function (command) {
-          return ext.whenCondition('whenCommand', command);
-        };
-        ext.when_inside = function (name) {
-          return ext.whenCondition('whenInside', name);
-        };
-        ext.when_entity = function (entity) {
-          return ext.whenCondition('whenEntityRightClicked', entity);
-        };
-        ext.get_player_last_joined = function () {
-            return player_last_joined;
-        };
-        ext.get_item_name = function (itemName) {
-            // Support translations here too...
-            return itemName;
-        };
+    ext.when_command = (command: string) => {
+        return ext.whenCondition('whenCommand', command);
+    };
+    ext.when_inside = (name: string) => {
+        return ext.whenCondition('whenInside', effectedPlayer, name);
+    };
+    ext.when_entity = (entity: string) => {
+        return ext.whenCondition('whenEntityRightClicked', entity);
+    };
+    ext.get_player_last_joined = () => {
+        return player_last_joined;
+    };
+    ext.get_item_name = (itemName: string) => {
+        // Support translations here too...
+        return itemName;
+    };
 
-        // Cleanup function when the extension is unloaded
-        ext._shutdown = function () {
-            // TODO eb. has no close(); ?!
-        };
+    // Cleanup function when the extension is unloaded
+    ext._shutdown = () => {
+        // TODO eb. has no close(); ?!
+    };
 
-        // Status reporting code
-        // Return any message to be displayed as a tooltip.
-        // Use this to report missing hardware, plugin or unsupported browser
-        // Status values: 0 = error (red), 1 = warning (yellow), 2 = ready (green)
-        ext._getStatus = function () {
-            // TODO implement based on JS getScript loading and eventBus connection!
-            return { status: 2, msg: "Ready" };
-        };
+    // Status reporting code
+    // Return any message to be displayed as a tooltip.
+    // Use this to report missing hardware, plugin or unsupported browser
+    // Status values: 0 = error (red), 1 = warning (yellow), 2 = ready (green)
+    ext._getStatus = function () {
+        // TODO implement based on JS getScript loading and eventBus connection!
+        return { status: 2, msg: "Ready" };
+    };
 
-        minecraft.whenPlayerJoins().subscribe(result => {
-            player_last_joined = result.player;
-            eventsReceived["Player joins"] = true;
-        });
-
-        // Register the extension
-        (<any>window).ScratchExtensions.register("Minecraft", descriptor, ext);
+    minecraft.whenPlayerJoins(effectedPlayer).subscribe(result => {
+        player_last_joined = result.player;
+        eventsReceived["Player joins"] = true;
     });
+
+    // Register the extension
+    (<any>window).ScratchExtensions.register("Minecraft", descriptor, ext);
 })({});

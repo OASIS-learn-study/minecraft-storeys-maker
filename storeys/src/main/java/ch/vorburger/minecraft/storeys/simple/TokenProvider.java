@@ -18,37 +18,16 @@
  */
 package ch.vorburger.minecraft.storeys.simple;
 
-import ch.vorburger.minecraft.storeys.simple.impl.NotLoggedInException;
-import java.util.Optional;
 import org.spongepowered.api.entity.living.player.Player;
 
 /**
  * Obtain {@link Token} instances from String.
  *
- * @deprecated to be phased out and replaced by ch.vorburger.minecraft.storeys.api.impl.TokenProvider
- *
  * @author Michael Vorburger.ch, based on code by edewit
  */
-@Deprecated
 public interface TokenProvider {
-
-    // TODO Write JavaDoc, and a [JS WD?!] test.. (e.g. unclear where tokenAsText comes from, and why the keys go to/fro client)
 
     String getCode(Player player);
 
-    SecretPublicKeyPair login(String code, String base64PublicKey);
-
-    // TODO do these methods make any sense, or just rid of Token all together and just "Stringly instead of strongly typed" OK here?
-
-    Token getToken(String tokenAsText);
-
-    Optional<Player> getOptionalPlayer(Token token);
-
-    Player getPlayer(Token token) throws NotLoggedInException;
-
-    interface SecretPublicKeyPair {
-        String getSecret();
-        String getBase64PublicKey();
-    }
-
+    String login(String code);
 }

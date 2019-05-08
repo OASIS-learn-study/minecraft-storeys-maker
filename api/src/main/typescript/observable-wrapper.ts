@@ -1,181 +1,147 @@
-import { Observable, Observer, Subject, ConnectableObservable } from 'rxjs';
-
+import { Subject } from 'rxjs';
 import * as EventBus from 'vertx3-eventbus-client';
-import { JSEncrypt } from 'jsencrypt';
+import fetch from 'node-fetch';
+
+declare function require(moduleNames: string): any;
 
 export class MinecraftProvider {
-  private eb: any;
 
-  connect(eventBusURL: string, code: string): Observable<Minecraft> {
-    this.eb = new EventBus(eventBusURL);
-    this.eb.enableReconnect(true);
-    return Observable.create(observer => {
-      this.eb.onopen = () => {
-        let crypt = new JSEncrypt(512);
-        crypt.getKey(() => {
-          this.login(code, crypt.getPublicKeyB64()).subscribe(response => {
-              console.log("Logging in...", response);
-              var id = crypt.decrypt(response.secret);
-              var key = response.key;
-              crypt = new JSEncrypt();
-              crypt.setPublicKey(key);
-              const minecraft = new Minecraft(this.eb, crypt.encrypt(id) || "");
-              minecraft.onConnect();
-              observer.next(minecraft);
-          }, err => console.log("login reply with error: ", err));
-        });
-      }
-    });
+  constructor(private eventBusURL: string, private code: string) {
   }
 
-  private login(token: string, key: string): Observable<LoginResponse> {
-    return Observable.create(observer => {
-      this.eb.send(Minecraft.address, { "token": token, "key": key }, { "action": "login" }, (err: any, result: any) => {
-        if (!err) {
-          observer.next(result.body as LoginResponse);
-        } else {
-          observer.error(err);
-        }
-      });
-    });
+  connect(): Promise<Minecraft> {
+    const fetchFunction = typeof window === 'undefined' ? fetch : window.fetch;
+    return fetchFunction(this.eventBusURL + '/login/' + this.code)
+      .then(response => response.text())
+      .then(token => new Minecraft(this.eventBusURL, token));
   }
 }
 
 export class Minecraft {
+  private eb: any;
   static address = "ch.vorburger.minecraft.storeys";
   private callbacks: Map<string, Subject<any>> = new Map();
 
-  callBuffer: ConnectableObservable<any>[] = [];
-  isOpen: boolean = false;
+  private _onConnect: Promise<void>;
 
-  constructor(private eb: any, private code: string) {
-    this.eb.registerHandler("mcs.events", (error, message) => {
-      if (error == null) {
-        this.callbacks.get(message.body.event).next(message.body);
-      } else {
-        console.log("Vert.x Event Bus received error:", error);
+  constructor(eventBusURL: any, private token: string) {
+    this.eb = new EventBus(eventBusURL + '/eventbus?token=' + token);
+    this.eb.enableReconnect(true);
+
+    this._onConnect = new Promise<void>(resolve => {
+      this.eb.onopen = () => {
+        resolve()
       }
     });
-  }
 
-  @buffered()
-  showTitle(title: string): Observable<void> {
-    return Observable.create(observer => {
-      this.eb.send(Minecraft.address, { "token": { loginCode: this.code }, "message": title }, { "action": "showTitle" }, this.handler(observer));
-    });
-  }
-
-  @buffered()
-  narrate(entity: string, text: string): Observable<void> {
-    return Observable.create(observer => {
-      this.eb.send(Minecraft.address, { "code": this.code, "entity": entity, "text": text }, { "action": "narrate" }, this.handler(observer));
-    });
-  }
-
-  @buffered()
-  runCommand(command: string): Observable<void> {
-    return Observable.create(observer => {
-      this.eb.send(Minecraft.address, {"code": this.code, "command": command}, {"action":"runCommand"}, this.handler(observer));
-    });
-  }
-
-  @buffered()
-  getItemHeld(hand: HandType): Observable<ItemType> {
-    return Observable.create(observer => {
-      this.eb.send(Minecraft.address, { "code": this.code, "hand": hand.toString() }, { "action": "getItemHeld" }, this.handler(observer));
-    });
-  }
-
-  @buffered()
-  addRemoveItem(amount: number, item: ItemType): Observable<void> {
-    return Observable.create(observer => {
-      this.eb.send(Minecraft.address, { "code": this.code, "amount": amount, "item": item }, { "action": "addRemoveItem" }, this.handler(observer));
-    });
-  }
-
-  onConnect() {
-    this.isOpen = true;
-    this.callBuffer.forEach((value) => value.connect());
-  }
-
-  // All Event Handlers go here
-
-  whenCommand(commandName: string): Observable<Registration> {
-    return this.whenRegister('newCmd' + commandName);
-  }
-
-  whenInside(name: string): Observable<Registration> {
-    return Observable.create(observer => {
-      this.eb.send(Minecraft.address, { "code": this.code, "name": name }, { "action": "whenInside" }, this.handler(observer));
-    }).map(() => this.whenRegister("player_inside_" + name)).concatAll();
-    
-  }
-
-  private whenRegister(eventName: string): Observable<Registration> {
-    if (this.callbacks.get(eventName)) {
-      return Observable.create(observer => observer.error("can't re-register already registered event " + eventName));
-    }
-    return Observable.create(observer => {
-      this.eb.send("mcs.actions", { "action": "registerCondition", "condition": eventName, "code": this.code }, (err) => {
-        if (!err) {
-          observer.next(new Registration(eventName, this.callbacks));
+    this._onConnect.then(() => {
+      this.eb.registerHandler("mcs.events", (error, message) => {
+        if (error == null) {
+          const callback = this.callbacks.get(message.body.event);
+          if (callback) {
+            callback.next(message.body);
+          }
         } else {
-          observer.error(err);
+          console.log("Vert.x Event Bus received error:", error);
         }
       });
     });
   }
 
-  whenEntityRightClicked(entityName: string): Observable<Registration> {
+  get loggedInPlayer(): string {
+    return require('jwt-decode')(this.token).playerUUID;
+  }
+
+  showTitle(playerUUID: string, title: string): Promise<void> {
+    return this._onConnect.then(() => new Promise<void>((resolve, reject) =>
+      this.eb.send(Minecraft.address, { "playerUUID": playerUUID, "message": title }, { "action": "showTitle" }, this.handle(resolve, reject))
+    ));
+  }
+
+  narrate(playerUUID: string, entity: string, text: string): Promise<void> {
+    return this._onConnect.then(() => new Promise<void>((resolve, reject) =>
+      this.eb.send(Minecraft.address, { "playerUUID": playerUUID, "entity": entity, "text": text }, { "action": "narrate" }, this.handle(resolve, reject))
+    ));
+  }
+
+  runCommand(playerUUID: string, command: string): Promise<void> {
+    return this._onConnect.then(() => new Promise<void>((resolve, reject) =>
+      this.eb.send(Minecraft.address, { "playerUUID": playerUUID, "command": command }, { "action": "runCommand" }, this.handle(resolve, reject))
+    ));
+  }
+
+  getItemHeld(playerUUID: string, hand: HandType): Promise<ItemType> {
+    return this._onConnect.then(() => new Promise<ItemType>((resolve, reject) =>
+      this.eb.send(Minecraft.address, { "playerUUID": playerUUID, "hand": hand.toString() }, { "action": "getItemHeld" }, this.handle(resolve, reject))
+    ));
+  }
+
+  addRemoveItem(playerUUID: string, amount: number, item: ItemType): Promise<void> {
+    return this._onConnect.then(() => new Promise<void>((resolve, reject) =>
+      this.eb.send(Minecraft.address, { "playerUUID": playerUUID, "amount": amount, "item": item }, { "action": "addRemoveItem" }, this.handle(resolve, reject))
+    ));
+  }
+
+  // All Event Handlers go here
+
+  whenCommand(commandName: string): Promise<Registration> {
+    return this.whenRegister('newCmd' + commandName);
+  }
+
+  whenInside(playerUUID: string, name: string): Promise<Registration> {
+    return this._onConnect.then(() => new Promise((resolve, reject) =>
+      this.eb.send(Minecraft.address, { "playerUUID": playerUUID, "name": name }, { "action": "whenInside" }, this.handle(resolve, reject)))
+      .then(() => this.whenRegister("player_inside_" + name + playerUUID)))
+  }
+
+  private whenRegister(eventName: string): Promise<Registration> {
+    if (this.callbacks.get(eventName)) {
+      return Promise.reject("can't re-register already registered event " + eventName);
+    }
+    return this._onConnect.then(() => new Promise<Registration>((resolve, reject) =>
+      this.eb.send("mcs.actions", { "action": "registerCondition", "condition": eventName }, (err) => {
+        if (!err) {
+          resolve(new Registration(eventName, this.callbacks));
+        } else {
+          reject(err);
+        }
+      })
+    ));
+  }
+
+  whenEntityRightClicked(entityName: string): Promise<Registration> {
     return this.whenRegister("entity_interaction:" + entityName + "/right clicked");
   }
 
-  whenPlayerJoins(): Subject<{player: string}> {
-    return this.when("playerJoined");
+  whenPlayerJoins(playerUUID: string): Subject<{ player: string }> {
+    return this.when(playerUUID, "playerJoined");
   }
 
-  private when<T>(eventName: string): Subject<T> {
+  private when<T>(playerUUID: string, eventName: string): Subject<T> {
     const existingSubject = this.callbacks.get(eventName);
     if (existingSubject) {
       return existingSubject;
     }
     const subject = new Subject<T>();
-    this.eb.send("mcs.actions", { "action": "registerCondition", "condition": eventName, "code": this.code }, (err) => {
+    this._onConnect.then(() => this.eb.send("mcs.actions", { "action": "registerCondition", "condition": eventName, "playerUUID": playerUUID }, (err) => {
       if (!err) {
         this.callbacks.set(eventName, subject);
       } else {
         subject.error(err);
       }
-    });
+    }));
     return subject;
   }
 
-  private handler<T>(observer: Observer<T>) {
+  private handle<T>(resolve, reject) {
     return (err: any, result: any) => {
       if (!err) {
-        observer.next(result.body as T);
+        resolve(result.body as T);
       } else {
         console.log("error: ", err)
-        observer.error(err);
+        reject(err);
       };
     };
-  }
-}
-
-export function buffered() {
-  return function (target, key, descriptor) {
-    const originalMethod = descriptor.value;
-    descriptor.value = function (...args: any[]) {
-      if (this.isOpen) {
-        return originalMethod.apply(this, args);
-      }
-
-      const obs = originalMethod.apply(this, args).publish();
-      this.callBuffer.push(obs);
-      return obs;
-    };
-
-    return descriptor;
   }
 }
 
@@ -197,19 +163,22 @@ export class Token {
   playerSource?: string
 }
 
-export class LoginResponse {
-  secret: string;
-  key: string;
+export interface LoginResponse {
+  playerUuid: string;
+}
+
+export interface PlayerIniciatedEvent {
+  playerUUID: string;
 }
 
 export class Registration {
-  private subject: Subject<void>;
+  private subject: Subject<PlayerIniciatedEvent>;
   constructor(private commandName: string,
-    private callbacks: Map<string, Subject<void>>) {
-      this.subject = new Subject();
-      this.callbacks.set(this.commandName, this.subject);
+    private callbacks: Map<string, Subject<PlayerIniciatedEvent>>) {
+    this.subject = new Subject<PlayerIniciatedEvent>();
+    this.callbacks.set(this.commandName, this.subject);
   }
-  on(): Subject<void> {
+  on(): Subject<PlayerIniciatedEvent> {
     return this.subject;
   }
 

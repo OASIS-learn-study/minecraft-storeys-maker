@@ -18,8 +18,12 @@
  */
 package ch.vorburger.minecraft.storeys.events;
 
+import org.spongepowered.api.entity.living.player.Player;
+
 public interface Condition {
 
     boolean isHot();
+
+    Player getEffectedPlayer();
 
 }

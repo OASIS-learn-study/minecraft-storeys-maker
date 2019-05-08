@@ -47,46 +47,42 @@ public class TestMinecraft implements Minecraft {
     public List<String> ranCommands = new CopyOnWriteArrayList<>();
 
     @Override
-    public void login(String token, String key, Handler<AsyncResult<LoginResponse>> handler) {
-        handler.handle(Future.succeededFuture(new LoginResponse()));
-    }
-
-    @Override
-    public void showTitle(Token token, String message, Handler<AsyncResult<Void>> handler) {
-        LOG.info("showTitle({}, {})", token, message);
+    public void showTitle(String playerUUID, String message, Handler<AsyncResult<Void>> handler) {
+        LOG.info("showTitle({}, {})", playerUUID, message);
         results.put("lastTitle", message);
         handler.handle(Future.succeededFuture());
     }
 
     @Override
-    public void narrate(String code, String entity, String text, Handler<AsyncResult<Void>> handler) {
-        LOG.info("narrate({}, {}, {})", code, entity, text);
+    public void narrate(String playerUUID, String entity, String text, Handler<AsyncResult<Void>> handler) {
+        LOG.info("narrate({}, {}, {})", playerUUID, entity, text);
         results.put("entity", entity);
         results.put("text", text);
         handler.handle(Future.succeededFuture());
     }
 
     @Override
-    public void runCommand(String code, String command, Handler<AsyncResult<Void>> handler) {
+    public void runCommand(String playerUUID, String command, Handler<AsyncResult<Void>> handler) {
         ranCommands.add(command);
         handler.handle(Future.succeededFuture());
     }
 
     @Override
-    public void getItemHeld(String code, HandType hand, Handler<AsyncResult<ItemType>> handler) {
+    public void getItemHeld(String playerUUID, HandType hand, Handler<AsyncResult<ItemType>> handler) {
         handler.handle(Future.succeededFuture(itemsHeld.getOrDefault(hand, ItemType.Nothing)));
     }
 
     @Override
-    public void addRemoveItem(String code, int amount, ItemType item, Handler<AsyncResult<Void>> handler) {
+    public void addRemoveItem(String playerUUID, int amount, ItemType item, Handler<AsyncResult<Void>> handler) {
         LOG.info("addRemoveItem({}, {})", amount, item);
         results.put("addRemoveItem", amount + item.toString());
         handler.handle(Future.succeededFuture());
     }
 
     @Override
-    public void whenInside(String code, String name, Handler<AsyncResult<Void>> handler) {
+    public void whenInside(String playerUUID, String name, Handler<AsyncResult<Void>> handler) {
         LOG.info("whenInside({})", name);
         handler.handle(Future.succeededFuture());
+
     }
 }

@@ -30,6 +30,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
 @ThreadSafe
@@ -53,6 +54,11 @@ public class ConditionService implements AutoCloseable {
         @Override
         public boolean isHot() {
             return delegate.isHot();
+        }
+
+        @Override
+        public Player getEffectedPlayer() {
+            return delegate.getEffectedPlayer();
         }
 
         @Override
@@ -113,7 +119,7 @@ public class ConditionService implements AutoCloseable {
             final boolean wasHot = check.getMiddle().get();
             if (!wasHot && isHot) {
                 try {
-                    check.getRight().call();
+                    check.getRight().call(condition.getEffectedPlayer());
                 } catch (Exception e) {
                     LOG.error("Condition failed: {}", condition, e);
                 }

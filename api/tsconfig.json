@@ -1,21 +1,15 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "module": "commonjs",
-    "moduleResolution": "node",
     "declaration": true,
-    "sourceMap": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "lib": [
-      "es2015",
-      "dom"
-    ],
+    "declarationDir": "./dist",
+    "module": "es6",
     "noImplicitAny": false,
-    "suppressImplicitAnyIndexErrors": true
+    "experimentalDecorators": true,
+    "outDir": "./dist",
+    "target": "es5"
   },
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "include": [
+    "src/main/typescript/**/*"
+  ],
+  "exclude": ["node_modules"]
 }
