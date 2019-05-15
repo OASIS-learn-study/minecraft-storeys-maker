@@ -1,0 +1,12 @@
+{
+  "name": "scratch-client",
+  "version": "1.0.0",
+  "description": "simple client to communicate with minecraft server without web browser",
+  "main": "index.js",
+  "author": "edewit",
+  "license": "MIT",
+  "dependencies": {
+    "minecraft-storeys": "0.0.3",
+    "minecraft-storeys-scratch-vm": "0.0.3"
+  }
+}
