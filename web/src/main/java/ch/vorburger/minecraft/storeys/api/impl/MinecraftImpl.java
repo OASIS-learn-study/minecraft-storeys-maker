@@ -52,6 +52,8 @@ import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 import org.spongepowered.api.scheduler.SpongeExecutorService;
 import org.spongepowered.api.text.Text;
 
+import javax.inject.Inject;
+
 /**
  * Implementation of {@link Minecraft} Vert.x RPC service.
  *
@@ -63,6 +65,7 @@ public class MinecraftImpl implements Minecraft {
 
     private final PluginInstance pluginInstance;
 
+    @Inject
     public MinecraftImpl(PluginInstance pluginInstance) {
         this.pluginInstance = pluginInstance;
     }

@@ -18,7 +18,6 @@
  */
 package ch.vorburger.minecraft.storeys.events;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,6 +32,8 @@ import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
 import org.spongepowered.api.text.Text;
 
+import javax.inject.Inject;
+
 public class EventService implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(EventService.class);
@@ -40,7 +41,8 @@ public class EventService implements AutoCloseable {
     private final AtomicReference<Consumer<Join>> onPlayerJoinCallback = new AtomicReference<>();
     private final Map<String, Callback> onInteractEntityEventCallbacks = new ConcurrentHashMap<>();
 
-    public EventService(PluginInstance plugin) {
+    @Inject
+    public EventService() {
     }
 
     @Override

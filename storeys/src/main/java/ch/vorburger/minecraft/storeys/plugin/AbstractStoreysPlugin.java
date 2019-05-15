@@ -23,9 +23,14 @@ import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.commands.NarrateCommand;
 import ch.vorburger.minecraft.storeys.commands.StoryCommand;
 import ch.vorburger.minecraft.storeys.guard.GuardGameModeJoinListener;
+import ch.vorburger.minecraft.storeys.simple.TokenProvider;
+import ch.vorburger.minecraft.storeys.simple.impl.TokenProviderImpl;
 import ch.vorburger.minecraft.storeys.util.Commands;
 import java.nio.file.Path;
 import javax.inject.Inject;
+
+import com.google.common.eventbus.Subscribe;
+import com.google.inject.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Sponge;
@@ -44,6 +49,9 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
     @Inject
     @ConfigDir(sharedRoot = false)
     private Path configDir;
+
+    @Inject
+    protected Injector pluginInjector;
 
     private CommandMapping narrateCommandMapping;
     private CommandMapping storyCommandMapping;
