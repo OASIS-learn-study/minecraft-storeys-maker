@@ -1,5 +1,0 @@
-#!/bin/sh
-set -ex
-
-mkdir /deployments/config/storeys-web
-cp -R /tmp/src/scratch3-server/* /deployments/config/storeys-web

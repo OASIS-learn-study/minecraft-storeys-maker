@@ -12,6 +12,7 @@ dependencies {
 
     implementation 'org.osgi:org.osgi.core:6.0.0'
     implementation 'ch.vorburger.minecraft.osgi:api:1.0.0'
+    implementation 'com.github.eirslett:frontend-plugin-core:1.6'
 
     testCompile "org.seleniumhq.selenium:selenium-java:3.141.59"
     testCompile 'io.github.bonigarcia:webdrivermanager:3.3.0'
@@ -66,6 +67,19 @@ shadowJar {
     include(dependency("com.fasterxml.jackson.core:jackson-core"))
     include(dependency("com.fasterxml.jackson.core:jackson-databind"))
     include(dependency("com.fasterxml.jackson.core:jackson-annotations"))
+
+    // frontend-plugin and all it's dependencies
+    // strictly speaking it's not meant to run production node
+    // but it's fine for now
+    include(dependency("com.github.eirslett:frontend-plugin-core"))
+    include(dependency("org.apache.commons:commons-compress"))
+    include(dependency("org.apache.httpcomponents:httpclient"))
+    include(dependency("org.apache.httpcomponents:httpcore"))
+    include(dependency("org.apache.commons:commons-exec"))
+    include(dependency("commons-logging:commons-logging"))
+    include(dependency("org.codehaus.plexus:plexus-utils"))
+    include(dependency("org.codehaus.jackson:jackson-mapper-asl"))
+    include(dependency("org.codehaus.jackson:jackson-core-asl"))
 
     // must repeat those from ../storeys/build.gradle here:
     include(dependency("ch.vorburger.minecraft.osgi:api"))

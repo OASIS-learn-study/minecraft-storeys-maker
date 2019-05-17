@@ -706,10 +706,10 @@ min-document@^2.19.0:
   dependencies:
     dom-walk "^0.1.0"
 
-minecraft-storeys-scratch-vm@0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/minecraft-storeys-scratch-vm/-/minecraft-storeys-scratch-vm-0.0.2.tgz#554dc9f1f97b4f382fb9e8dbd5174ce6e76fcd09"
-  integrity sha512-zgooi3ay444xx2A/5yhI0G0EUToSnEFIDwZKzKeQWj/xn2ABfd1Jt3YwIYOzaxgCGR+4ZV7GmSqW8/NsSyionw==
+minecraft-storeys-scratch-vm@0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/minecraft-storeys-scratch-vm/-/minecraft-storeys-scratch-vm-0.0.3.tgz#ba92ce57de786506c28c8c4b8d26f4df6a893175"
+  integrity sha512-dyPetRiCNZ/akI4nOaw46HR248W+dLUF1ucnaSpFmf0tramEZAeVtXkdG6dPWkObPVPbYSTI2q+x4qaWEPi9Vw==
   dependencies:
     "@vernier/godirect" "1.5.0"
     arraybuffer-loader "^1.0.6"
@@ -723,7 +723,7 @@ minecraft-storeys-scratch-vm@0.0.2:
     htmlparser2 "3.10.0"
     immutable "3.8.1"
     jszip "^3.1.5"
-    minecraft-storeys "0.0.2"
+    minecraft-storeys "0.0.3"
     minilog "3.1.0"
     nets "3.2.0"
     scratch-parser "5.0.0"
@@ -732,14 +732,6 @@ minecraft-storeys-scratch-vm@0.0.2:
     socket.io-client "2.0.4"
     text-encoding "0.7.0"
     worker-loader "^1.1.1"
-
-minecraft-storeys@0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/minecraft-storeys/-/minecraft-storeys-0.0.2.tgz#c906c264c4a6d41fd9f6542b9a05ea2d1572acf1"
-  integrity sha512-Ni2xRys2Xrof/zu4FGFxKpJp9O/AGM1EKeQD2hDCtLJKAdFDEXmWX87pSn6eG3F4bnYCZPEbJ5xQ1myKDOPm/g==
-  dependencies:
-    rxjs "^6.5.1"
-    vertx3-eventbus-client "3.7.0"
 
 minecraft-storeys@0.0.3:
   version "0.0.3"

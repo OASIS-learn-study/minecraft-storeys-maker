@@ -18,55 +18,35 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.github.eirslett.maven.plugins.frontend.lib.FrontendPluginFactory;
+import com.github.eirslett.maven.plugins.frontend.lib.InstallationException;
+import com.github.eirslett.maven.plugins.frontend.lib.ProxyConfig;
+import com.github.eirslett.maven.plugins.frontend.lib.TaskRunnerException;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashMap;
 
-public class NodeStarter {
+class NodeStarter {
+    private static final String NODE_VERSION = "v10.15.3";
+    private static final String NPM_VERSION = "6.4.1";
+    private ProxyConfig proxyConfig = new ProxyConfig(new ArrayList<>());
 
-    private static final Logger LOG = LoggerFactory.getLogger(NodeStarter.class);
-    private static final String EVENT_BUS_URL_KEY = "storeys_eventBusURL";
-
-    private final String path;
     private final Path configDir;
 
-    public NodeStarter(Path configDir) {
-        this("/tmp/src/scratch/.gradle/nodejs/node-v8.11.1-linux-x64/bin/node", configDir);
-    }
-
-    public NodeStarter(String nodePath, Path configDir) {
-        this.path = nodePath;
+    NodeStarter(Path configDir) {
         this.configDir = configDir;
     }
 
-    public void start() {
+    void start() {
+        FrontendPluginFactory frontendPluginFactory = new FrontendPluginFactory(configDir.toFile(), new File("/tmp"));
         try {
-            LOG.info("executing command: '{} {}'", path, Paths.get(configDir.toString(), "index.js"));
-
-            ProcessBuilder processBuilder = new ProcessBuilder(path, "index.js");
-            processBuilder.directory(configDir.toFile());
-            Map<String, String> environment = processBuilder.environment();
-            if (System.getenv(EVENT_BUS_URL_KEY) == null) {
-                environment.put(EVENT_BUS_URL_KEY, System.getProperty(EVENT_BUS_URL_KEY));
-                environment.put("code", "learn.study.m1n3craft");
-            }
-
-            Process process = processBuilder.start();
-            try (BufferedReader input = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
-                String line;
-
-                while ((line = input.readLine()) != null) {
-                    LOG.error(line);
-                }
-            }
-        } catch (IOException err) {
-            throw new RuntimeException("error while staring process", err);
+            frontendPluginFactory.getNodeInstaller(proxyConfig).setNodeVersion(NODE_VERSION).install();
+            frontendPluginFactory.getNPMInstaller(proxyConfig).setNpmVersion(NPM_VERSION).install();
+            frontendPluginFactory.getNpmRunner(proxyConfig, "").execute("start", new HashMap<>());
+        } catch (InstallationException | TaskRunnerException e) {
+            throw new RuntimeException("could not install and run node", e);
         }
     }
 }

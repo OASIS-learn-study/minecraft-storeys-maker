@@ -5,6 +5,9 @@
   "main": "index.js",
   "author": "edewit",
   "license": "MIT",
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
     "minecraft-storeys": "0.0.3",
     "minecraft-storeys-scratch-vm": "0.0.3"
