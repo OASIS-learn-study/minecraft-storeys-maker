@@ -18,12 +18,11 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
-import com.github.eirslett.maven.plugins.frontend.lib.FrontendPluginFactory;
-import com.github.eirslett.maven.plugins.frontend.lib.InstallationException;
-import com.github.eirslett.maven.plugins.frontend.lib.ProxyConfig;
-import com.github.eirslett.maven.plugins.frontend.lib.TaskRunnerException;
+import com.github.eirslett.maven.plugins.frontend.lib.*;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,10 +41,17 @@ class NodeStarter {
     void start() {
         FrontendPluginFactory frontendPluginFactory = new FrontendPluginFactory(configDir.toFile(), new File("/tmp"));
         try {
+            Path packageJson = configDir.resolve("package.json");
+            if (Files.notExists(packageJson)) {
+                Files.copy(getClass().getResourceAsStream("/package.json"), packageJson);
+            }
+
             frontendPluginFactory.getNodeInstaller(proxyConfig).setNodeVersion(NODE_VERSION).install();
             frontendPluginFactory.getNPMInstaller(proxyConfig).setNpmVersion(NPM_VERSION).install();
-            frontendPluginFactory.getNpmRunner(proxyConfig, "").execute("start", new HashMap<>());
-        } catch (InstallationException | TaskRunnerException e) {
+            NpmRunner npmRunner = frontendPluginFactory.getNpmRunner(proxyConfig, "");
+            npmRunner.execute("install", new HashMap<>());
+            npmRunner.execute("start", new HashMap<>());
+        } catch (InstallationException | TaskRunnerException | IOException e) {
             throw new RuntimeException("could not install and run node", e);
         }
     }
