@@ -17,7 +17,23 @@ global.settings.set('code', code);
 const scriptsFolder = './scripts';
 const scratchProjectFolder = './scratch';
 
+const requireUncached = (module) => {
+  delete require.cache[require.resolve(module)]
+  return require(module)
+}
+
+let fsWait = false;
 const readFiles = async (folder, callback) => {
+  fs.watch(folder, (type, file) => {
+    if (file && fs.existsSync(file)) {
+      if (fsWait) return;
+      fsWait = setTimeout(() => {
+        fsWait = false;
+      }, 100);
+      callback(file);
+    }
+  });
+
   const readdir = util.promisify(fs.readdir);
   const items = await readdir(folder);
   for (var i = 0; i < items.length; i++) {
@@ -31,7 +47,7 @@ const executeScripts = async () => {
   readFiles(scriptsFolder, async script => {
     const scriptName = scriptsFolder + '/' + script;
     try {
-      await require(scriptName)(minecraft);
+      await requireUncached(scriptName)(minecraft);
     } catch (error) {
       console.error('could not execute script', error);
     }
