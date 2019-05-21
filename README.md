@@ -13,6 +13,7 @@ Please do Star & Watch this GitHub project if you like it!
 This project has two parts, delivered as separate Minecraft plugins:
 * The first, described below, lets you create stories by writing .story text files.
 * The second, [described in a separate README](/scratch/README.md), lets you script Minecraft with Scratch!
+* Third option, [in another separate README](/scratch3-server/README.md), create a javascript 'story'.
 
 ## Get it
 
@@ -118,7 +119,7 @@ To use an un-published S2I Java builder image you have to first:
 and then:
 
     oc new-build s2i~https://github.com/vorburger/s2i-minecraft-server
-    
+
 If have this project's source code locally, then (the `rm .../node_modules` is because of [issue 28](https://github.com/vorburger/minecraft-storeys-maker/issues/28)):
 
     rm -rf scratch/.gradle/ scratch/node_modules

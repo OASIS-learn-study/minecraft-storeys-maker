@@ -17,6 +17,14 @@ global.settings.set('code', code);
 const scriptsFolder = './scripts';
 const scratchProjectFolder = './scratch';
 
+(() => {
+  [scratchProjectFolder, scriptsFolder].forEach(folder => {
+    if (!fs.existsSync(folder)) {
+      fs.mkdirSync(folder);
+    }
+  });
+})();
+
 const requireUncached = (module) => {
   delete require.cache[require.resolve(module)]
   return require(module)
