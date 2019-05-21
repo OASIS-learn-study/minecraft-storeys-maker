@@ -4,7 +4,7 @@
   "description": "simple server to run scripts and scratch projects on the minecraft server",
   "main": "scratch-server.js",
   "author": "edewit",
-  "license": "MIT",
+  "license": "AGPL-3.0-only",
   "scripts": {
     "start": "node scratch-server.js"
   },

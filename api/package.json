@@ -3,6 +3,7 @@
   "version": "0.0.3",
   "description": "Javascript API for minecraft storeys",
   "homepage": "http://learn.study",
+  "license": "AGPL-3.0-only",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/vorburger/minecraft-storeys.git"
