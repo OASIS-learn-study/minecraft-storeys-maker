@@ -5,6 +5,7 @@
 bin/
 .apt_generated/
 xtend-gen/
+.rpt2_cache/
 .gradle/
 build/
 out/

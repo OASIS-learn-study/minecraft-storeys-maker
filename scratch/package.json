@@ -13,7 +13,7 @@
     "clean": "npm cache clear && rimraf -- dist",
     "test": "karma start"
   },
-  "license": "ISC",
+  "license": "AGPL-3.0-only",
   "devDependencies": {
     "@types/jasmine": "^2.8.16",
     "@types/lodash": "^4.14.122",

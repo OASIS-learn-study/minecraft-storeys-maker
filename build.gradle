@@ -30,6 +30,7 @@ allprojects  {
     license {
         header rootProject.file('LICENSE-HEADER')
         strictCheck true
+        exclude '**/*.json'
         mapping {
             java='SLASHSTAR_STYLE'
         }

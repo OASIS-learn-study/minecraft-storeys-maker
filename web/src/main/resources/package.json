@@ -1,0 +1,12 @@
+{
+  "name": "scratch3-server-runner",
+  "version": "0.0.1",
+  "description": "frontend-maven-plugin workaround to do npx",
+  "author": "edewit",
+  "scripts": {
+    "start": "node node_modules/minecraft-storeys-scratch3-server/scratch-server.js"
+  },
+  "dependencies": {
+    "minecraft-storeys-scratch3-server": "0.0.1"
+  }
+}
