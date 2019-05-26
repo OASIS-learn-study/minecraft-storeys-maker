@@ -12,7 +12,7 @@ dependencies {
 
     implementation 'org.osgi:org.osgi.core:6.0.0'
     implementation 'ch.vorburger.minecraft.osgi:api:1.0.0'
-    implementation 'com.github.eirslett:frontend-plugin-core:1.6'
+    implementation 'com.github.eirslett:frontend-plugin-core:1.7.6'
 
     testCompile "org.seleniumhq.selenium:selenium-java:3.141.59"
     testCompile 'io.github.bonigarcia:webdrivermanager:3.6.0'
