@@ -13,3 +13,12 @@ dependencies {
 }
 
 mainClassName = 'study.learn.storeys.engine.Main'
+
+jar {
+  manifest {
+    attributes(
+      // 'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+      'Main-Class': 'study.learn.storeys.engine.Main'
+    )
+  }
+}

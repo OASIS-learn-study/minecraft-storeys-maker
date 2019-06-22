@@ -10,10 +10,11 @@ Please do Star & Watch this GitHub project if you like it!
 
 ## Scratch integration
 
-This project has two parts, delivered as separate Minecraft plugins:
-* The first, described below, lets you create stories by writing .story text files.
-* The second, [described in a separate README](/scratch/README.md), lets you script Minecraft with Scratch!
-* Third option, [in another separate README](/scratch3-server/README.md), create a javascript 'story'.
+This project has four parts, delivered separately:
+1. Minecraft plugin, described below, lets you create stories by writing .story text files.
+1. Another Minecraft plugin, [described in a separate README](/scratch/README.md), lets you script Minecraft with Scratch!
+1. Third option, [in another separate README](/scratch3-server/README.md), create a javascript 'story'.
+1. Separately, and not (yet?) Minecraft integrated, [the Engine](engine/README.md).
 
 ## Get it
 
