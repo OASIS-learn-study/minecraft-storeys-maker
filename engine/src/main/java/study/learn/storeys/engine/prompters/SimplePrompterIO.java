@@ -19,10 +19,15 @@
 package study.learn.storeys.engine.prompters;
 
 import java.io.IOException;
+import java.util.List;
+
+import study.learn.storeys.engine.Text;
 
 public interface SimplePrompterIO {
 
-    String readLine(String prompt) throws IOException;
+    // TODO convert prompt & info arguments (but not return value) from String to Text
+
+    String readLine(String prompt, List<Text> choices) throws IOException;
 
     void writeLine(String info) throws IOException;
 

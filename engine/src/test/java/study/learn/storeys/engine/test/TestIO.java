@@ -19,7 +19,9 @@
 package study.learn.storeys.engine.test;
 
 import java.io.IOException;
+import java.util.List;
 
+import study.learn.storeys.engine.Text;
 import study.learn.storeys.engine.prompters.SimplePrompterIO;
 
 public class TestIO implements SimplePrompterIO {
@@ -36,7 +38,7 @@ public class TestIO implements SimplePrompterIO {
     }
 
 	@Override
-	public String readLine(String prompt) throws IOException {
+	public String readLine(String prompt, List<Text> choices) throws IOException {
 		// NOT writeLine(prompt);
         String nowRead = nextRead;
         if (nowRead == null)

@@ -25,7 +25,6 @@ import java.util.function.Function;
 
 import study.learn.storeys.engine.Prompt;
 import study.learn.storeys.engine.Prompter;
-import study.learn.storeys.engine.Text;
 
 public class SimplePrompter<T> implements Prompter<T> {
 
@@ -50,13 +49,7 @@ public class SimplePrompter<T> implements Prompter<T> {
             // fall through (and thus ignore all following await)
             return new SimplePrompter<X>(null, io);
         }
-        if (expectedType.equals(List.class)) {
-            List<Text> choiceLabels = prompt.getChoiceLabels();
-            for (int i = 0; i < choiceLabels.size(); i++) {
-                io.writeLine("    " + (i + 1) + ": " + choiceLabels.get(i).getString());
-            }
-        }
-        String answerString = io.readLine(promptText);
+        String answerString = io.readLine(promptText, prompt.getChoiceLabels());
         if (answerString == null) {
             throw new IOException("EOF");
         }

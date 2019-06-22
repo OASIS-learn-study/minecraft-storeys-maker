@@ -19,7 +19,11 @@
 package study.learn.storeys.engine.prompters;
 
 import java.io.Console;
+import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
+
+import study.learn.storeys.engine.Text;
 
 public class ConsoleIO implements SimplePrompterIO {
 
@@ -34,7 +38,10 @@ public class ConsoleIO implements SimplePrompterIO {
     }
 
     @Override
-    public String readLine(String prompt) {
+	public String readLine(String prompt, List<Text> choices) throws IOException {
+        for (int i = 0; i < choices.size(); i++) {
+            jico.format("    %d: %s\n", i + 1, choices.get(i).getString());
+        }
         return jico.readLine("%s ", prompt);
     }
 
