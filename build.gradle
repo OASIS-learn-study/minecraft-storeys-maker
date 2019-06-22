@@ -37,6 +37,7 @@ allprojects  {
     }
 
     tasks.withType(JavaCompile) {
+      options.compilerArgs << "-Xlint:unchecked"
       // TODO apply same error-prone configuration as I've done in OpenDaylight's infrautils.parent
       // options.compilerArgs += [ '-Xlint:deprecation', '-Xep:FallThrough:ERROR', '-Xep:MutableConstantField:ERROR', '-Xep:DefaultCharset:ERROR' ]
     }
@@ -66,7 +67,7 @@ subprojects {
         testImplementation 'junit:junit:4.12'
         testImplementation('com.google.truth:truth:0.45') {
             // NOT 0.31+ which pull 'com.google.guava:guava:20.0', but causes a mess for Gradle's testCompile VS compile; Gradle bug?!
-            exclude group: 'com.google.guava' 
+            exclude group: 'com.google.guava'
         }
         testImplementation 'org.slf4j:slf4j-simple:1.7.26'
         testImplementation 'org.mockito:mockito-core:2.28.2'
