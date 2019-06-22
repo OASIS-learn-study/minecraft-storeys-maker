@@ -16,24 +16,31 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package study.learn.storeys.engine;
+package study.learn.storeys.engine.prompters;
 
-import java.io.IOException;
+import java.io.Console;
+import java.util.Objects;
 
-import study.learn.storeys.engine.demo.Demo;
-import study.learn.storeys.engine.prompters.ConsoleIO;
-import study.learn.storeys.engine.prompters.SimplePrompter;
+public class ConsoleIO implements SimplePrompterIO {
 
-public class Main {
+    private final Console jico;
 
-    // TODO remove, when test is rewritten
-    public String getGreeting() {
-        return "Hello world.";
+    public ConsoleIO() {
+        this(System.console());
     }
 
-    public static void main(String[] args) throws IOException {
-        Prompter<Void> prompter = new SimplePrompter<Void>(new ConsoleIO());
-        Interactlet interactlet = new Demo();
-        interactlet.interact(prompter);
+    public ConsoleIO(Console console) {
+        this.jico = Objects.requireNonNull(console, "No Console");
+    }
+
+    @Override
+    public String readLine(String prompt) {
+        return jico.readLine("%s", prompt);
+    }
+
+    @Override
+    public void writeLine(String info) {
+        jico.format("%s", info);
+        jico.flush();
     }
 }

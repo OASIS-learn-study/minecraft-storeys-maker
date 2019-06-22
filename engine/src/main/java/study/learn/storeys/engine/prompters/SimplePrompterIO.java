@@ -16,24 +16,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package study.learn.storeys.engine;
+package study.learn.storeys.engine.prompters;
 
-import java.io.IOException;
+interface SimplePrompterIO {
 
-import study.learn.storeys.engine.demo.Demo;
-import study.learn.storeys.engine.prompters.ConsoleIO;
-import study.learn.storeys.engine.prompters.SimplePrompter;
+    String readLine(String prompt);
 
-public class Main {
+    void writeLine(String info);
 
-    // TODO remove, when test is rewritten
-    public String getGreeting() {
-        return "Hello world.";
-    }
-
-    public static void main(String[] args) throws IOException {
-        Prompter<Void> prompter = new SimplePrompter<Void>(new ConsoleIO());
-        Interactlet interactlet = new Demo();
-        interactlet.interact(prompter);
-    }
 }

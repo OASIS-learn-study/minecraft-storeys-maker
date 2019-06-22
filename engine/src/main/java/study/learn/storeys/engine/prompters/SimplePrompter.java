@@ -18,7 +18,6 @@
  */
 package study.learn.storeys.engine.prompters;
 
-import java.io.Console;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.function.Function;
@@ -26,27 +25,27 @@ import java.util.function.Function;
 import study.learn.storeys.engine.Prompt;
 import study.learn.storeys.engine.Prompter;
 
-public class JavaConsolePrompter<T> implements Prompter<T> {
+public class SimplePrompter<T> implements Prompter<T> {
 
+    private final SimplePrompterIO io;
     private final Object previousAnswer; // @Nullable
-    private final Console jico;
 
-    private JavaConsolePrompter(Object previousAnswer, Console console) {
+    private SimplePrompter(Object previousAnswer, SimplePrompterIO io) {
         this.previousAnswer = previousAnswer;
-        this.jico = Objects.requireNonNull(console, "No Console");
+        this.io = Objects.requireNonNull(io, "No IO");
     }
 
-    public JavaConsolePrompter() {
-        this(null, System.console());
+    public SimplePrompter(SimplePrompterIO io) {
+        this(null, io);
     }
 
     public <X> Prompter<X> await(Prompt<X> prompt) throws IOException {
         Class<?> expectedType = prompt.getType();
         if (expectedType.equals(Void.TYPE)) {
             // fall through (and thus ignore all following await)
-            new JavaConsolePrompter<X>(null, jico);
+            new SimplePrompter<X>(null, io);
         }
-        String answerString = jico.readLine("%s", prompt.getPrefix().getString());
+        String answerString = io.readLine(prompt.getPrefix().getString());
         if (answerString == null) {
             throw new IOException("EOF");
         }
@@ -56,19 +55,18 @@ public class JavaConsolePrompter<T> implements Prompter<T> {
         } else {
             throw new IllegalArgumentException("Unknown Prompt type: " + expectedType);
         }
-        return new JavaConsolePrompter<X>(answer, jico);
+        return new SimplePrompter<X>(answer, io);
     }
 
     public void quit(Prompt<Void> prompt) {
-        jico.format("%s", prompt.getPrefix().getString());
-        jico.flush();
+        io.writeLine(prompt.getPrefix().getString());
     }
 
     @SuppressWarnings("unchecked") // because the (R) cast below should always work, the API doesn't let a user mismatch types
     public <R, X> Prompter<X> await(Function<R, Prompt<X>> function) throws IOException {
         if (previousAnswer == null) {
             // fall through, NOT throw new IllegalStateException("No previous answer");
-            new JavaConsolePrompter<X>(null, jico);
+            new SimplePrompter<X>(null, io);
         }
         return await(function.apply((R) previousAnswer));
     }
