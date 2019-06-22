@@ -18,12 +18,35 @@
  */
 package study.learn.storeys.engine;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+public abstract class Prompt<T> {
 
-public class DemoMainTest {
-    @Test public void testAppHasAGreeting() {
-        DemoMain classUnderTest = new DemoMain();
-        assertNotNull("app should have a greeting", classUnderTest.getGreeting());
+    abstract Text getPrefix();
+
+    public static Prompt<String> aString(String prefix) {
+        return new Impl<>(prefix);
+    }
+
+    public static Prompt<Integer> anInt(String prefix) {
+        return new Impl<>(prefix);
+    }
+
+    public static Prompt<Void> bye(String prefix) {
+        return new Impl<>(prefix);
+    }
+
+    private static class Impl<T> extends Prompt<T> {
+        private final Text prefix;
+
+        Impl(String prefix) {
+            this(Text.ofString(prefix));
+        }
+
+        Impl(Text prefix) {
+            this.prefix = prefix;
+        }
+
+        public Text getPrefix() {
+            return this.prefix;
+        }
     }
 }
