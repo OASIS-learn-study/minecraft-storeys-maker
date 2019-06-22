@@ -20,9 +20,24 @@ package study.learn.storeys.engine;
 
 import java.io.IOException;
 
-// https://github.com/vorburger/mSara/blob/9691b9893e234b3b56e52ce885bf601bb38eb6df/saraswathi1/src/ch/vorburger/saraswathi/Interactlet.java
-public interface Interactlet {
+public abstract class Interactlet {
 
-    void interact(Prompter<Void> prompter) throws IOException;
+    // https://github.com/vorburger/mSara/blob/9691b9893e234b3b56e52ce885bf601bb38eb6df/saraswathi1/src/ch/vorburger/saraswathi/Interactlet.java
+    abstract protected void interact(Prompter<Void> prompter) throws IOException;
 
+    // The following exists to avoid static import of Prompt.aString() & Co.
+    // because IDEs such as e.g. VS Code / GitPod.io have the nasty habit of removing
+    // what they think are un-used static imports too fast (on any small syntax error), which is a PITA.
+
+    protected Prompt<String> aString(String prefix) {
+        return Prompt.aString(prefix);
+    }
+
+    protected Prompt<Integer> anInt(String prefix) {
+        return Prompt.anInt(prefix);
+    }
+
+    protected Prompt<Void> bye(String prefix) {
+        return Prompt.bye(prefix);
+    }
 }

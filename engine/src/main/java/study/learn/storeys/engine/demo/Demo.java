@@ -20,10 +20,10 @@ package study.learn.storeys.engine.demo;
 
 import java.io.IOException;
 
-import study.learn.storeys.engine.BaseInteractlet;
+import study.learn.storeys.engine.Interactlet;
 import study.learn.storeys.engine.Prompter;
 
-public class Demo extends BaseInteractlet {
+public class Demo extends Interactlet {
 
     @Override public void interact(Prompter<Void> prompter) throws IOException {
         prompter.await(aString("Hi there!  What's your name?"))
