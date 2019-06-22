@@ -1,4 +1,4 @@
 ports:
 - port: 8080
 tasks:
-- command: ./gradlew build
+- command: ./gradlew :engine:build
