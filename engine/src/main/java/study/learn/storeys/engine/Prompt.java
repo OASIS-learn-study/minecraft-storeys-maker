@@ -20,33 +20,43 @@ package study.learn.storeys.engine;
 
 public abstract class Prompt<T> {
 
-    abstract Text getPrefix();
+    abstract public Text getPrefix();
+    abstract public Class<?> getType();
 
     public static Prompt<String> aString(String prefix) {
-        return new Impl<>(prefix);
+        return new Impl<>(prefix, String.class);
     }
 
     public static Prompt<Integer> anInt(String prefix) {
-        return new Impl<>(prefix);
+        return new Impl<>(prefix, Integer.class);
     }
 
     public static Prompt<Void> bye(String prefix) {
-        return new Impl<>(prefix);
+        return new Impl<>(prefix, Void.TYPE);
     }
+
+    // TODO aChoice (text or enum), aPassword?
 
     private static class Impl<T> extends Prompt<T> {
         private final Text prefix;
+        private final Class<?> type;
 
-        Impl(String prefix) {
-            this(Text.ofString(prefix));
+        Impl(String prefix, Class<?> type) {
+            this(Text.ofString(prefix), type);
         }
 
-        Impl(Text prefix) {
+        Impl(Text prefix, Class<?> type) {
             this.prefix = prefix;
+            this.type = type;
         }
 
         public Text getPrefix() {
             return this.prefix;
         }
+
+		@Override
+		public Class<?> getType() {
+			return this.type;
+		}
     }
 }

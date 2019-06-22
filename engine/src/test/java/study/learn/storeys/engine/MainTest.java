@@ -18,12 +18,25 @@
  */
 package study.learn.storeys.engine;
 
+import static org.junit.Assert.assertNotNull;
+
+import java.io.IOException;
+
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 public class MainTest {
     @Test public void testAppHasAGreeting() {
         Main classUnderTest = new Main();
         assertNotNull("app should have a greeting", classUnderTest.getGreeting());
+    }
+
+    @Test public void testPromptNumberFirst() {
+        // TODO using TestPrompter
+    }
+
+    public class PromptNumberFirst implements Interactlet {
+        @Override public void interact(Prompter<Void> prompter) throws IOException {
+            prompter.await(Prompt.anInt("gimme a number"));
+        }
     }
 }

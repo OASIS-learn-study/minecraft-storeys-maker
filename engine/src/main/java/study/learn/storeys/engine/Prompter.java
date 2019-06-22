@@ -18,14 +18,16 @@
  */
 package study.learn.storeys.engine;
 
+import java.io.IOException;
 import java.util.function.Function;
 
 public interface Prompter<T> {
 
-    <X> Prompter<X> await(Prompt<X> prompt);
+    <X> Prompter<X> await(Prompt<X> prompt) throws IOException;
 
-    <R, X> Prompter<X> await(Function<R, Prompt<X>> function);
+    // TODO split this into separate interface, which extends this, to avoid initial await when there is no value, yet
+    <R, X> Prompter<X> await(Function<R, Prompt<X>> function) throws IOException;
 
-    void quit(Prompt<Void> prompt);
+    void quit(Prompt<Void> prompt) throws IOException;
 
 }

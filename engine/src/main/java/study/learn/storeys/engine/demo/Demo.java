@@ -18,15 +18,18 @@
  */
 package study.learn.storeys.engine.demo;
 
+import static study.learn.storeys.engine.Prompt.aString;
+import static study.learn.storeys.engine.Prompt.anInt;
+import static study.learn.storeys.engine.Prompt.bye;
+
+import java.io.IOException;
+
+import study.learn.storeys.engine.Interactlet;
 import study.learn.storeys.engine.Prompter;
 
-import static study.learn.storeys.engine.Prompt.*;
+public class Demo implements Interactlet {
 
-public class Demo {
-
-    Prompter<String> prompter;
-
-    void loop() {
+    @Override public void interact(Prompter<Void> prompter) throws IOException {
         prompter.await(aString("Hi there!  What's your name?"))
             .await(name -> anInt("hello, " + name + ".  How old are you?"))
             .await(age -> bye("Nice to meet you, " + age + " old.  Bye now!"));

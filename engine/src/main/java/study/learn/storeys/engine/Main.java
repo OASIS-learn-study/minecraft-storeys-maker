@@ -18,13 +18,21 @@
  */
 package study.learn.storeys.engine;
 
+import java.io.IOException;
+
+import study.learn.storeys.engine.demo.Demo;
+import study.learn.storeys.engine.prompters.JavaConsolePrompter;
+
 public class Main {
 
+    // TODO remove, when test is rewritten
     public String getGreeting() {
         return "Hello world.";
     }
 
-    public static void main(String[] args) {
-        System.out.println(new Main().getGreeting());
+    public static void main(String[] args) throws IOException {
+        Prompter<Void> prompter = new JavaConsolePrompter<Void>();
+        Interactlet interactlet = new Demo();
+        interactlet.interact(prompter);
     }
 }
