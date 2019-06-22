@@ -19,6 +19,9 @@
 package study.learn.storeys.engine;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public abstract class Interactlet {
 
@@ -35,6 +38,14 @@ public abstract class Interactlet {
 
     protected Prompt<Integer> anInt(String prefix) {
         return Prompt.anInt(prefix);
+    }
+
+    protected Prompt<String> aChoice(String prefix, String id1, String label1, String id2, String label2, String... moreChoices) {
+        List<String> allChoices = new ArrayList<>(moreChoices.length + 4);
+        allChoices.add(id1);  allChoices.add(label1);
+        allChoices.add(id2);  allChoices.add(label2);
+        allChoices.addAll(Arrays.asList(moreChoices));
+        return Prompt.aChoice(prefix, allChoices);
     }
 
     protected Prompt<Void> bye(String prefix) {

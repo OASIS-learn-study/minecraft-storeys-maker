@@ -27,7 +27,11 @@ public class Demo extends Interactlet {
 
     @Override public void interact(Prompter<Void> prompter) throws IOException {
         prompter.await(aString("Hi there!  What's your name?"))
-            .await(name -> anInt("hello, " + name + ".  How old are you?"))
+            .await(name -> aChoice("hello, " + name + ".  What's your favourite colour?",
+                "green", "Green, like Nature",
+                "yellow", "Yellow, like a Sunflower",
+                "blue", "Blue, like the Sky"))
+            .await(choice -> anInt("All right - " + choice + " is a nice choice!  Tell me, how old are you?"))
             .await(age -> {
                 if (age < 0) {
                     return bye("What now?! ;) Bye, negative age guy.");

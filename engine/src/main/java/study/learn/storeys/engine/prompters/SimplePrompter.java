@@ -19,11 +19,13 @@
 package study.learn.storeys.engine.prompters;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
 import study.learn.storeys.engine.Prompt;
 import study.learn.storeys.engine.Prompter;
+import study.learn.storeys.engine.Text;
 
 public class SimplePrompter<T> implements Prompter<T> {
 
@@ -48,6 +50,12 @@ public class SimplePrompter<T> implements Prompter<T> {
             // fall through (and thus ignore all following await)
             return new SimplePrompter<X>(null, io);
         }
+        if (expectedType.equals(List.class)) {
+            List<Text> choiceLabels = prompt.getChoiceLabels();
+            for (int i = 0; i < choiceLabels.size(); i++) {
+                io.writeLine("    " + (i + 1) + ": " + choiceLabels.get(i).getString());
+            }
+        }
         String answerString = io.readLine(promptText);
         if (answerString == null) {
             throw new IOException("EOF");
@@ -57,6 +65,8 @@ public class SimplePrompter<T> implements Prompter<T> {
             answer = answerString;
         } else if (expectedType.equals(Integer.class)) {
             answer = Integer.parseInt(answerString);
+        } else if (expectedType.equals(List.class)) {
+            answer = prompt.getChoiceIDs().get(Integer.parseInt(answerString) - 1);
         } else {
             throw new IllegalArgumentException("Unknown Prompt type: " + expectedType);
         }
