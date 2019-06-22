@@ -35,7 +35,7 @@ public class ConsoleIO implements SimplePrompterIO {
 
     @Override
     public String readLine(String prompt) {
-        return jico.readLine("%s", prompt);
+        return jico.readLine("%s ", prompt);
     }
 
     @Override

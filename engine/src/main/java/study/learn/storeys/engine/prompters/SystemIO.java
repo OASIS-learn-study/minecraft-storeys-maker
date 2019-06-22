@@ -18,12 +18,35 @@
  */
 package study.learn.storeys.engine.prompters;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
 
-interface SimplePrompterIO {
+public class SystemIO implements SimplePrompterIO {
 
-    String readLine(String prompt) throws IOException;
+	private final BufferedReader input;
+	private final PrintStream output;
 
-    void writeLine(String info) throws IOException;
+    public SystemIO() {
+        this(System.in, System.out);
+    }
 
+    public SystemIO(InputStream in, PrintStream out) {
+        this.input = new BufferedReader(new InputStreamReader(in));
+        this.output = out;
+	}
+
+	@Override
+    public String readLine(String prompt) throws IOException {
+        output.print(prompt);
+        output.print(' ');
+        return input.readLine();
+    }
+
+    @Override
+    public void writeLine(String info) {
+        output.println(info);
+    }
 }

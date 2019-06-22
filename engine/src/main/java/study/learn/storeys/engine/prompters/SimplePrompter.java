@@ -58,7 +58,7 @@ public class SimplePrompter<T> implements Prompter<T> {
         return new SimplePrompter<X>(answer, io);
     }
 
-    public void quit(Prompt<Void> prompt) {
+    public void quit(Prompt<Void> prompt) throws IOException {
         io.writeLine(prompt.getPrefix().getString());
     }
 
