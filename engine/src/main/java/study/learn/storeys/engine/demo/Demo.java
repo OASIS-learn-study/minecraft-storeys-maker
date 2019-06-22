@@ -18,20 +18,26 @@
  */
 package study.learn.storeys.engine.demo;
 
-import static study.learn.storeys.engine.Prompt.aString;
-import static study.learn.storeys.engine.Prompt.anInt;
-import static study.learn.storeys.engine.Prompt.bye;
-
 import java.io.IOException;
 
-import study.learn.storeys.engine.Interactlet;
+import study.learn.storeys.engine.BaseInteractlet;
 import study.learn.storeys.engine.Prompter;
 
-public class Demo implements Interactlet {
+public class Demo extends BaseInteractlet {
 
     @Override public void interact(Prompter<Void> prompter) throws IOException {
         prompter.await(aString("Hi there!  What's your name?"))
             .await(name -> anInt("hello, " + name + ".  How old are you?"))
-            .await(age -> bye("Nice to meet you, " + age + " old.  Bye now!"));
+            .await(age -> {
+                if (age < 0) {
+                    return bye("What now?! ;) Bye, negative age guy.");
+                } else if (age < 12) {
+                    return bye("Hello kiddo!  See you later, alligator.");
+                } else if (age < 20) {
+                    return bye("Nice to meet you, " + age + " year old.  Bye now.");
+                } else {
+                    return bye("See you around, adult.");
+                }
+            });
     }
 }
