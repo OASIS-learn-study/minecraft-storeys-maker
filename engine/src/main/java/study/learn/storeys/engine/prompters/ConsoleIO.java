@@ -40,7 +40,7 @@ public class ConsoleIO implements SimplePrompterIO {
 
     @Override
     public void writeLine(String info) {
-        jico.format("%s", info);
+        jico.format("%s\n", info);
         jico.flush();
     }
 }

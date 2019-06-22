@@ -26,8 +26,5 @@ public interface Prompter<T> {
     <X> Prompter<X> await(Prompt<X> prompt) throws IOException;
 
     // TODO split this into separate interface, which extends this, to avoid initial await when there is no value, yet
-    <R, X> Prompter<X> await(Function<R, Prompt<X>> function) throws IOException;
-
-    void quit(Prompt<Void> prompt) throws IOException;
-
+    <X> Prompter<X> await(Function<T, Prompt<X>> function) throws IOException;
 }

@@ -16,27 +16,37 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package study.learn.storeys.engine;
-
-import static org.junit.Assert.assertNotNull;
+package study.learn.storeys.engine.test;
 
 import java.io.IOException;
 
-import org.junit.Test;
+import study.learn.storeys.engine.prompters.SimplePrompterIO;
 
-public class MainTest {
-    @Test public void testAppHasAGreeting() {
-        Main classUnderTest = new Main();
-        assertNotNull("app should have a greeting", classUnderTest.getGreeting());
+public class TestIO implements SimplePrompterIO {
+
+    private String nextRead;
+    private String lastWritten;
+
+    void setNextRead(String answer) {
+        nextRead = answer;
     }
 
-    @Test public void testPromptNumberFirst() {
-        // TODO using TestPrompter
+    String getLastWritten() {
+        return lastWritten;
     }
 
-    public class PromptNumberFirst implements Interactlet {
-        @Override public void interact(Prompter<Void> prompter) throws IOException {
-            prompter.await(Prompt.anInt("gimme a number"));
-        }
-    }
+	@Override
+	public String readLine(String prompt) throws IOException {
+		// NOT writeLine(prompt);
+        String nowRead = nextRead;
+        if (nowRead == null)
+            throw new IllegalStateException("Must setNextRead() before asking: " + prompt);
+        nextRead = null;
+        return nowRead;
+	}
+
+	@Override
+	public void writeLine(String info) throws IOException {
+        this.lastWritten = info;
+	}
 }

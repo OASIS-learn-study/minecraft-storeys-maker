@@ -26,11 +26,6 @@ import study.learn.storeys.engine.prompters.SimplePrompter;
 
 public class Main {
 
-    // TODO remove, when test is rewritten
-    public String getGreeting() {
-        return "Hello world.";
-    }
-
     public static void main(String[] args) throws IOException {
         Prompter<Void> prompter = new SimplePrompter<Void>(new ConsoleIO());
         Interactlet interactlet = new Demo();

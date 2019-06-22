@@ -39,35 +39,36 @@ public class SimplePrompter<T> implements Prompter<T> {
         this(null, io);
     }
 
+    @Override
     public <X> Prompter<X> await(Prompt<X> prompt) throws IOException {
         Class<?> expectedType = prompt.getType();
+        String promptText = prompt.getPrefix().getString();
         if (expectedType.equals(Void.TYPE)) {
+            io.writeLine(promptText);
             // fall through (and thus ignore all following await)
-            new SimplePrompter<X>(null, io);
+            return new SimplePrompter<X>(null, io);
         }
-        String answerString = io.readLine(prompt.getPrefix().getString());
+        String answerString = io.readLine(promptText);
         if (answerString == null) {
             throw new IOException("EOF");
         }
         Object answer;
         if (expectedType.equals(String.class)) {
             answer = answerString;
+        } else if (expectedType.equals(Integer.class)) {
+            answer = Integer.parseInt(answerString);
         } else {
             throw new IllegalArgumentException("Unknown Prompt type: " + expectedType);
         }
         return new SimplePrompter<X>(answer, io);
     }
 
-    public void quit(Prompt<Void> prompt) throws IOException {
-        io.writeLine(prompt.getPrefix().getString());
-    }
-
     @SuppressWarnings("unchecked") // because the (R) cast below should always work, the API doesn't let a user mismatch types
-    public <R, X> Prompter<X> await(Function<R, Prompt<X>> function) throws IOException {
+    public <X> Prompter<X> await(Function<T, Prompt<X>> function) throws IOException {
         if (previousAnswer == null) {
             // fall through, NOT throw new IllegalStateException("No previous answer");
             new SimplePrompter<X>(null, io);
         }
-        return await(function.apply((R) previousAnswer));
+        return await(function.apply((T) previousAnswer));
     }
 }

@@ -20,7 +20,7 @@ package study.learn.storeys.engine.prompters;
 
 import java.io.IOException;
 
-interface SimplePrompterIO {
+public interface SimplePrompterIO {
 
     String readLine(String prompt) throws IOException;
 
