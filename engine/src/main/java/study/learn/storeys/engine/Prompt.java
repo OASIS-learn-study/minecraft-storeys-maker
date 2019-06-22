@@ -23,15 +23,15 @@ public abstract class Prompt<T> {
     abstract public Text getPrefix();
     abstract public Class<?> getType();
 
-    public static Prompt<String> aString(String prefix) {
+    static Prompt<String> aString(String prefix) {
         return new Impl<>(prefix, String.class);
     }
 
-    public static Prompt<Integer> anInt(String prefix) {
+    static Prompt<Integer> anInt(String prefix) {
         return new Impl<>(prefix, Integer.class);
     }
 
-    public static Prompt<Void> bye(String prefix) {
+    static Prompt<Void> bye(String prefix) {
         return new Impl<>(prefix, Void.TYPE);
     }
 

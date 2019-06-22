@@ -24,8 +24,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import study.learn.storeys.engine.Interactlet;
-import study.learn.storeys.engine.Prompt;
+import study.learn.storeys.engine.BaseInteractlet;
 import study.learn.storeys.engine.Prompter;
 import study.learn.storeys.engine.prompters.SimplePrompter;
 
@@ -34,10 +33,10 @@ public class EngineTest {
     TestIO testIO = new TestIO();
     Prompter<Void> prompter = new SimplePrompter<Void>(testIO);
 
-    class EchoInteractlet implements Interactlet {
+    class EchoInteractlet extends BaseInteractlet {
         @Override public void interact(Prompter<Void> prompter) throws IOException {
-            prompter.await(Prompt.aString("Say something, I'll echo it:"))
-                .await(reply -> Prompt.bye(reply));
+            prompter.await(aString("Say something, I'll echo it:"))
+                .await(reply -> bye(reply));
         }
     }
 
@@ -47,9 +46,9 @@ public class EngineTest {
         assertEquals("hello, world", testIO.getLastWritten());
     }
 
-    class PromptNumberFirst implements Interactlet {
+    class PromptNumberFirst extends BaseInteractlet {
         @Override public void interact(Prompter<Void> prompter) throws IOException {
-            prompter.await(Prompt.anInt("gimme a number"));
+            prompter.await(anInt("gimme a number"));
         }
     }
 
