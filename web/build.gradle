@@ -15,7 +15,7 @@ dependencies {
     implementation 'com.github.eirslett:frontend-plugin-core:1.7.6'
 
     testCompile "org.seleniumhq.selenium:selenium-java:3.141.59"
-    testCompile 'io.github.bonigarcia:webdrivermanager:3.6.0'
+    testCompile 'io.github.bonigarcia:webdrivermanager:3.6.1'
 }
 
 shadowJar {
