@@ -21,13 +21,13 @@ package study.learn.storeys.engine;
 import java.io.IOException;
 
 import study.learn.storeys.engine.demo.Demo;
-import study.learn.storeys.engine.prompters.ConsoleIO;
+import study.learn.storeys.engine.prompters.JLineIO;
 import study.learn.storeys.engine.prompters.SimplePrompter;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        Prompter<Void> prompter = new SimplePrompter<Void>(new ConsoleIO());
+        Prompter<Void> prompter = new SimplePrompter<Void>(new JLineIO());
         Interactlet interactlet = new Demo();
         interactlet.interact(prompter);
     }

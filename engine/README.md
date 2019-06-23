@@ -1,5 +1,11 @@
 # Interactive Story / Game Engine
 
-    ../gradlew build
+    cd engine
 
-    java -jar build/libs/engine-1.0.0-SNAPSHOT.jar
+    ../gradlew :engine:build
+
+    unzip build/distributions/engine-1.0.0-SNAPSHOT.zip -d build/distributions/
+
+    build/distributions/engine-1.0.0-SNAPSHOT/bin/engine
+
+NB: `java -jar build/libs/engine-1.0.0-SNAPSHOT.jar` does not yet work.
