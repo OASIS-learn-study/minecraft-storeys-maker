@@ -1,3 +1,4 @@
+- aChoice choices should be a Map, not List.. or, if you pass a List, it should return an int not a String to say which one was chosen
 
 - class Place: description, directions[Places], things, variables
 
