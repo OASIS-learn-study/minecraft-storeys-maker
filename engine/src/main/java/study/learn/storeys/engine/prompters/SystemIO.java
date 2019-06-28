@@ -50,9 +50,4 @@ public class SystemIO implements SimplePrompterIO {
         output.print(' ');
         return input.readLine();
     }
-
-    @Override
-    public void writeLine(String info) {
-        output.println(info);
-    }
 }

@@ -42,8 +42,8 @@ public abstract class Prompt<T> {
         return new Impl<>(prefix, choiceIDAndLabels, List.class);
 	}
 
-    static Prompt<Void> bye(String prefix) {
-        return new Impl<>(prefix, Void.TYPE);
+    static Prompt<Void> bye() {
+        return new Impl<>(null, Void.TYPE);
     }
 
     private static class Impl<T> extends Prompt<T> {

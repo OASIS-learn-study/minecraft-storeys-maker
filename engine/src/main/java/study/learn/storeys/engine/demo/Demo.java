@@ -34,13 +34,13 @@ public class Demo extends Interactlet {
             .await(choice -> anInt("All right - " + choice + " is a nice choice!  Tell me, how old are you?"))
             .await(age -> {
                 if (age < 0) {
-                    return bye("What now?! ;) Bye, negative age guy.");
+                    return bye();
                 } else if (age < 12) {
-                    return bye("Hello kiddo!  See you later, alligator.");
+                    return bye();
                 } else if (age < 20) {
-                    return bye("Nice to meet you, " + age + " year old.  Bye now.");
+                    return bye();
                 } else {
-                    return bye("See you around, adult.");
+                    return bye();
                 }
             });
     }

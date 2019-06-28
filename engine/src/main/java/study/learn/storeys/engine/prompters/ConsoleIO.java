@@ -44,10 +44,4 @@ public class ConsoleIO implements SimplePrompterIO {
         }
         return jico.readLine("%s ", prompt);
     }
-
-    @Override
-    public void writeLine(String info) {
-        jico.format("%s\n", info);
-        jico.flush();
-    }
 }

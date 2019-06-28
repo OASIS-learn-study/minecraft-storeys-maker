@@ -25,10 +25,7 @@ import study.learn.storeys.engine.Text;
 
 public interface SimplePrompterIO {
 
-    // TODO convert prompt & info arguments (but not return value) from String to Text
-
+    // TODO convert prompt argument (but not return value) from String to Text
     String readLine(String prompt, List<Text> choices) throws IOException;
-
-    void writeLine(String info) throws IOException;
 
 }

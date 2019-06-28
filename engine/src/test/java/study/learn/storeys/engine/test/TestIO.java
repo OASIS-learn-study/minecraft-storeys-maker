@@ -46,9 +46,4 @@ public class TestIO implements SimplePrompterIO {
         nextRead = null;
         return nowRead;
 	}
-
-	@Override
-	public void writeLine(String info) throws IOException {
-        this.lastWritten = info;
-	}
 }

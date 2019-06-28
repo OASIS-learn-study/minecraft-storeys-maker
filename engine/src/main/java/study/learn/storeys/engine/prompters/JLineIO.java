@@ -53,10 +53,4 @@ public class JLineIO implements SimplePrompterIO {
         }
 		return lineReader.readLine(prompt + " ");
 	}
-
-	@Override
-	public void writeLine(String info) throws IOException {
-        // TODO hm, this does not naturally match...
-        lineReader.readLine(info + "\nPlease press ENTER to quit now...");
-	}
 }

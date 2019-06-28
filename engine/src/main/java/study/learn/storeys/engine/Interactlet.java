@@ -48,7 +48,7 @@ public abstract class Interactlet {
         return Prompt.aChoice(prefix, allChoices);
     }
 
-    protected Prompt<Void> bye(String prefix) {
-        return Prompt.bye(prefix);
+    protected Prompt<Void> bye() {
+        return Prompt.bye();
     }
 }
