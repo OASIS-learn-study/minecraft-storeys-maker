@@ -40,12 +40,16 @@ public abstract class Interactlet {
         return Prompt.anInt(prefix);
     }
 
+    protected Prompt<String> aChoice(String prefix, List<String> choices) {
+        return Prompt.aChoice(prefix, choices);
+    }
+
     protected Prompt<String> aChoice(String prefix, String id1, String label1, String id2, String label2, String... moreChoices) {
         List<String> allChoices = new ArrayList<>(moreChoices.length + 4);
         allChoices.add(id1);  allChoices.add(label1);
         allChoices.add(id2);  allChoices.add(label2);
         allChoices.addAll(Arrays.asList(moreChoices));
-        return Prompt.aChoice(prefix, allChoices);
+        return aChoice(prefix, allChoices);
     }
 
     protected Prompt<Void> bye(String prefix) {
