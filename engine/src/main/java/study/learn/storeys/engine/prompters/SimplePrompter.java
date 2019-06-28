@@ -45,7 +45,9 @@ public class SimplePrompter<T> implements Prompter<T> {
         Class<?> expectedType = prompt.getType();
         String promptText = prompt.getPrefix().getString();
         if (expectedType.equals(Void.TYPE)) {
-            io.writeLine(promptText);
+            if (!"".equals(promptText)) {
+                io.writeLine(promptText);
+            }
             // fall through (and thus ignore all following await)
             return new SimplePrompter<X>(null, io);
         }

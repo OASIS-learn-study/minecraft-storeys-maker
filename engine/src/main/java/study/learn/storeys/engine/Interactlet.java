@@ -51,4 +51,8 @@ public abstract class Interactlet {
     protected Prompt<Void> bye(String prefix) {
         return Prompt.bye(prefix);
     }
+
+    protected Prompt<Void> bye() {
+        return Prompt.bye();
+    }
 }

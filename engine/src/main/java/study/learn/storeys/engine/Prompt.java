@@ -46,6 +46,10 @@ public abstract class Prompt<T> {
         return new Impl<>(prefix, Void.TYPE);
     }
 
+    static Prompt<Void> bye() {
+        return new Impl<>("", Void.TYPE);
+    }
+
     private static class Impl<T> extends Prompt<T> {
         private final Text prefix;
 		private List<String> choiceIDs;

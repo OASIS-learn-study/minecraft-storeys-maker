@@ -34,7 +34,7 @@ public class Menu extends Interactlet {
                     case "demo": new Demo().interact(prompter); break;
                     case "monster1": new Monster().interact(prompter); break;
                 }
-                return bye("Good Bye");
+                return bye();
             });
     }
 }
