@@ -16,16 +16,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package study.learn.storeys.engine;
+package study.learn.storeys.engine.util;
 
-import java.io.IOException;
-
-import study.learn.storeys.engine.util.CheckedFunction;
-
-public interface Prompter<T> {
-
-    <X> Prompter<X> await(Prompt<X> prompt) throws IOException;
-
-    // TODO split this into separate interface, which extends this, to avoid initial await when there is no value, yet
-    <X> Prompter<X> await(CheckedFunction<T, Prompt<X>, IOException> function) throws IOException;
+/**
+ * {@link java.util.function.Function} which can throw a checked exception.
+ *
+ * @param <T> The type of the input to be processed.
+ * @param <R> The type of the result to be returned.
+ * @param <E> The type of the exception which may be thrown.
+ */
+@FunctionalInterface
+public interface CheckedFunction<T, R, E extends Exception> {
+    R apply(T input) throws E;
 }
