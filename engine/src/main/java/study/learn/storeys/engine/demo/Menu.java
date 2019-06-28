@@ -16,19 +16,25 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package study.learn.storeys.engine;
+package study.learn.storeys.engine.demo;
 
 import java.io.IOException;
 
-import study.learn.storeys.engine.demo.Menu;
-import study.learn.storeys.engine.prompters.JLineIO;
-import study.learn.storeys.engine.prompters.SimplePrompter;
+import study.learn.storeys.engine.Interactlet;
+import study.learn.storeys.engine.Prompter;
 
-public class Main {
+public class Menu extends Interactlet {
 
-    public static void main(String[] args) throws IOException {
-        Prompter<Void> prompter = new SimplePrompter<Void>(new JLineIO());
-        Interactlet interactlet = new Menu();
-        interactlet.interact(prompter);
+    @Override public void interact(Prompter<Void> prompter) throws IOException {
+        prompter.await(aChoice("Where do you want to go today?",
+                "demo", "First Demo",
+                "monster1", "One Monster"))
+            .await(choice -> {
+                switch (choice) {
+                    case "demo": new Demo().interact(prompter); break;
+                    case "monster1": new Monster().interact(prompter); break;
+                }
+                return bye("Good Bye");
+            });
     }
 }
