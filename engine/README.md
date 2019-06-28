@@ -4,7 +4,7 @@
 
     ../gradlew :engine:build
 
-    unzip build/distributions/engine-1.0.0-SNAPSHOT.zip -d build/distributions/
+    unzip -o build/distributions/engine-1.0.0-SNAPSHOT.zip -d build/distributions/
 
     build/distributions/engine-1.0.0-SNAPSHOT/bin/engine
 
