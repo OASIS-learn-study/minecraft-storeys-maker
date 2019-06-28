@@ -21,10 +21,10 @@ package study.learn.storeys.engine.prompters;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 
 import study.learn.storeys.engine.Prompt;
 import study.learn.storeys.engine.Prompter;
+import study.learn.storeys.engine.util.CheckedFunction;
 
 public class SimplePrompter<T> implements Prompter<T> {
 
@@ -67,7 +67,7 @@ public class SimplePrompter<T> implements Prompter<T> {
     }
 
     @SuppressWarnings("unchecked") // because the (R) cast below should always work, the API doesn't let a user mismatch types
-    public <X> Prompter<X> await(Function<T, Prompt<X>> function) throws IOException {
+    public <X> Prompter<X> await(CheckedFunction<T, Prompt<X>, IOException> function) throws IOException {
         if (previousAnswer == null) {
             // fall through, NOT throw new IllegalStateException("No previous answer");
             new SimplePrompter<X>(null, io);
