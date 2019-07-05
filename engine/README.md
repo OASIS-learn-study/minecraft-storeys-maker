@@ -1,5 +1,10 @@
 # Interactive Story / Game Engine
- [![Gitpod.io](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io#https://github.com/vorburger/minecraft-storeys-maker/tree/master/engine) 
+
+## How to change code
+
+[Use the Web IDE GitPod.io to edit and run this project](https://gitpod.io#https://github.com/vorburger/minecraft-storeys-maker/tree/master/engine)!  [![Gitpod.io](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io#https://github.com/vorburger/minecraft-storeys-maker/tree/master/engine) 
+
+## How to run it
 
     cd engine
 
