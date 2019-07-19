@@ -75,10 +75,19 @@ You can obviously mix the order and repeat titles, comments, chats, narrations, 
 
 ### Locally in a container
 
-With S2I, and with git reset and clean due to #28 and #71:
+#### Dockerfile
 
-    cd ../s2i/java/images/jboss
-    docker build . -t fabric8/s2i-java
+    cd ../s2i-minecraft-server
+    docker build -t minecraft-server .
+
+    cd ../minecraft-storeys-maker
+    docker build -t minecraft-storeys-maker .
+
+    docker run --rm -p 25565:25565 -p 8080:8080 -p 7070:7070 minecraft-storeys-maker
+
+#### S2I
+
+With S2I, and with git reset and clean due to #28 and #71:
 
     cd ../s2i-minecraft-server
     s2i build --copy . fabric8/s2i-java s2i-minecraft-server
