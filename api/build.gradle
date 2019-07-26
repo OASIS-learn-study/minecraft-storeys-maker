@@ -23,7 +23,7 @@ task npmInstall(overwrite: true, type: NpmTask, dependsOn: 'npmSetup') {
 task npmBuildProd(type: NpmTask) {
     inputs.files(fileTree('src'))
     inputs.file('package.json')
-    inputs.file('webpack.config.js')
+    inputs.file('rollup.config.js')
 
     outputs.dir('dist')
 
