@@ -19,16 +19,14 @@
 package study.learn.storeys.engine.prompters;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 
 import javax.websocket.ClientEndpoint;
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
-import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
 import javax.websocket.server.ServerContainer;
 import javax.websocket.server.ServerEndpoint;
@@ -38,22 +36,18 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
-import study.learn.storeys.engine.Text;
+import study.learn.storeys.engine.Interactlet;
 
 @ClientEndpoint
 @ServerEndpoint(value = "/prompt/")
-public class WebSocketPrompterIO implements SimplePrompterIO {
-    private Map<String, Session> sessions = new ConcurrentHashMap<>();
+public class WebSocketServer {
+    private Map<String, SimplePrompter<?>> sessions = new ConcurrentHashMap<>();
 
-    private Map<String, String> messages = new ConcurrentHashMap<>();
+    private Interactlet initialInteractlet;
 
-    private static CountDownLatch latch = new CountDownLatch(1);
+    private WebSocketServer() {}
 
-    private static CountDownLatch latch2 = new CountDownLatch(1);
-
-    private WebSocketPrompterIO() {}
-
-    public static WebSocketPrompterIO newInstance() {
+    public static WebSocketServer newInstance(Interactlet interactlet) {
         Server server = new Server();
         ServerConnector connector = new ServerConnector(server);
         connector.setPort(8080);
@@ -63,16 +57,17 @@ public class WebSocketPrompterIO implements SimplePrompterIO {
         context.setContextPath("/");
         server.setHandler(context);
 
-        WebSocketPrompterIO webSocketPrompterIO = new WebSocketPrompterIO();
+        WebSocketServer webSocketServer = new WebSocketServer();
+        webSocketServer.initialInteractlet = interactlet;
         try {
             ServerContainer container = WebSocketServerContainerInitializer.configureContext(context);
-            ServerEndpointConfig config = ServerEndpointConfig.Builder.create(webSocketPrompterIO.getClass(),
-                                                                              webSocketPrompterIO.getClass().getAnnotation(ServerEndpoint.class).value())
+            ServerEndpointConfig config = ServerEndpointConfig.Builder.create(webSocketServer.getClass(),
+                                                                              webSocketServer.getClass().getAnnotation(ServerEndpoint.class).value())
                     .configurator(new ServerEndpointConfig.Configurator() {
                         @Override
                         @SuppressWarnings("unchecked")
                         public <T> T getEndpointInstance(Class<T> endpointClass) throws InstantiationException {
-                            return (T) webSocketPrompterIO;
+                            return (T) webSocketServer;
                         }
                     })
                     .build();
@@ -82,56 +77,29 @@ public class WebSocketPrompterIO implements SimplePrompterIO {
         } catch (Throwable t) {
             throw new RuntimeException("could not start embedded jetty", t);
         }
-        return webSocketPrompterIO;
-    }
-
-    @Override
-    public String readLine(String prompt, List<Text> choices) throws IOException {
-        try {
-            latch2.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        RemoteEndpoint.Async remote = sessions.values().iterator().next().getAsyncRemote();
-        for (int i = 0; i < choices.size(); i++) {
-            remote.sendText("    " + (i + 1) + ": " + choices.get(i).getString());
-        }
-        remote.sendText(prompt);
-        return waitForResponse();
-    }
-
-    private String waitForResponse() {
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            throw new RuntimeException("don't interrupt me when I'm talking", e);
-        }
-        latch = new CountDownLatch(1);
-        String response = messages.get(sessions.keySet().iterator().next());
-        System.out.println("response = " + response);
-        return response;
-    }
-
-    @Override
-    public void writeLine(String info) throws IOException {
-        sessions.values().iterator().next().getAsyncRemote().sendText(info);
+        return webSocketServer;
     }
 
     @OnOpen
     public void onOpen(Session session) {
-        sessions.put(session.getId(), session);
-        latch2.countDown();
+        SimplePrompter<Void> prompter = new SimplePrompter<>(new WebsocketPrompterIO(session));
+        sessions.put(session.getId(), prompter);
+        CompletableFuture.runAsync(() -> {
+            try {
+                initialInteractlet.interact(prompter);
+            } catch (IOException e) {
+                throw new RuntimeException("could not write to websocket", e);
+            }
+        });
     }
 
     @OnMessage
     public void handleTextMessage(Session session, String message) {
-        messages.put(session.getId(), message);
-        latch.countDown();
+        ((WebsocketPrompterIO)sessions.get(session.getId()).getIo()).trigger(message);
     }
 
     @OnClose
     public void onClose(Session session) {
-        messages.remove(session.getId());
         sessions.remove(session.getId());
     }
 }

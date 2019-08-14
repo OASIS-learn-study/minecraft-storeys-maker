@@ -23,12 +23,17 @@ import java.io.IOException;
 import study.learn.storeys.engine.demo.Menu;
 import study.learn.storeys.engine.prompters.JLineIO;
 import study.learn.storeys.engine.prompters.SimplePrompter;
+import study.learn.storeys.engine.prompters.WebSocketServer;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        Prompter<Void> prompter = new SimplePrompter<Void>(new JLineIO());
-        Interactlet interactlet = new Menu();
-        interactlet.interact(prompter);
+        if (args.length == 1 && "server".equals(args[0])) {
+            WebSocketServer.newInstance(new Menu());
+        } else {
+            Prompter<Void> prompter = new SimplePrompter<>(new JLineIO());
+            Interactlet interactlet = new Menu();
+            interactlet.interact(prompter);
+        }
     }
 }

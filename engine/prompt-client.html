@@ -1,0 +1,50 @@
+<html>
+
+<head>
+  <style>
+    #messages {
+      text-align: left;
+      width: 50%;
+      padding: 1em;
+      border: 1px solid black;
+    }
+  </style>
+  <title>Game</title>
+</head>
+
+<body>
+  <div class="container">
+    <div id="messages" class="messages"></div>
+    <input id="message" />
+    <button id="send">Send</button>
+  </div>
+</body>
+<script>
+  const messageWindow = document.getElementById("messages");
+  const sendButton = document.getElementById("send");
+  const messageInput = document.getElementById("message");
+  const socket = new WebSocket("ws://localhost:8080/prompt/");
+
+  socket.onopen = function (event) {
+    console.log("Connected");
+  };
+
+  socket.onmessage = function (event) {
+    addMessageToWindow(event.data);
+  };
+
+  sendResponse = function (option) {
+    socket.send(option);
+  };
+
+  sendButton.onclick = function (event) {
+    socket.send(messageInput.value);
+    messageInput.value = "";
+  };
+
+  function addMessageToWindow(message) {
+    messageWindow.innerHTML += `<div>${message}</div>`
+  }
+</script>
+
+</html>

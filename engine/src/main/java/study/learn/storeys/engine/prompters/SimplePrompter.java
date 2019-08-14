@@ -40,6 +40,10 @@ public class SimplePrompter<T> implements Prompter<T> {
         this(null, io);
     }
 
+    SimplePrompterIO getIo() {
+        return io;
+    }
+
     @Override
     public <X> Prompter<X> await(Prompt<X> prompt) throws IOException {
         Class<?> expectedType = prompt.getType();
