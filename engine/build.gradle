@@ -19,10 +19,12 @@ dependencies {
 mainClassName = 'study.learn.storeys.engine.Main'
 
 jar {
-  manifest {
-    attributes(
-      // 'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
-      'Main-Class': 'study.learn.storeys.engine.Main'
-    )
-  }
+    manifest {
+        attributes(
+                'Main-Class': 'study.learn.storeys.engine.Main'
+        )
+    }
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
