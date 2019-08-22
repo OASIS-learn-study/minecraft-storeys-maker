@@ -49,6 +49,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
+import org.spongepowered.api.scheduler.SpongeExecutorService;
 import org.spongepowered.api.text.Text;
 
 /**
@@ -81,7 +82,8 @@ public class MinecraftImpl implements Minecraft {
 
     @Override
     public void runCommand(String playerUUID, String command, Handler<AsyncResult<Void>> handler) {
-        CompletionStage<CommandResult> completionStageWithResult = execute(getPlayer(playerUUID), new CommandAction(pluginInstance).setCommand(command));
+        SpongeExecutorService spongeExecutorService = Sponge.getScheduler().createAsyncExecutor(pluginInstance);
+        CompletionStage<CommandResult> completionStageWithResult = execute(getPlayer(playerUUID), new CommandAction(spongeExecutorService).setCommand(command));
         CompletionStage<Void> voidCompletionStage = completionStageWithResult.thenAccept(commandResult -> { /* ignore */ });
         handler.handle(new CompletionStageBasedAsyncResult<>(voidCompletionStage));
     }

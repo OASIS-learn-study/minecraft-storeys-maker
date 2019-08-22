@@ -37,6 +37,8 @@ import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
+
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -59,7 +61,7 @@ public class StoryCommand implements Command {
             storiesDir.mkdirs();
         }
         storyRepository = new FileStoryRepository(storiesDir);
-        actionParser = new StoryParser(plugin, new Narrator(plugin));
+        actionParser = new StoryParser(plugin, new Narrator(plugin), Sponge.getScheduler().createSyncExecutor(plugin));
         storyPlayer = new StoryPlayer(plugin);
     }
 

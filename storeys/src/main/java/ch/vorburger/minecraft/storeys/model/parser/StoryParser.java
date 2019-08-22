@@ -23,6 +23,7 @@ import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.AwaitAction;
 import ch.vorburger.minecraft.storeys.model.CommandAction;
+import ch.vorburger.minecraft.storeys.model.DynamicAction;
 import ch.vorburger.minecraft.storeys.model.MessageAction;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
 import ch.vorburger.minecraft.storeys.model.Story;
@@ -32,24 +33,33 @@ import com.google.common.base.Splitter;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
+
+import org.spongepowered.api.scheduler.SpongeExecutorService;
 import org.spongepowered.api.text.Text;
 
 @NotThreadSafe
 public class StoryParser {
 
-    private final static Splitter newLineSplitter = Splitter.on('\n').trimResults();
+    private final static Splitter newLineSplitter = Splitter.on('\n');
 
     private List<Action<?>> actions;
     private NarrateAction narrateActionInConstruction;
     private TitleAction titleActionInConstruction;
+    private StringBuilder dynamicActionInConstructionScript;
 
     private final PluginInstance plugin;
     private final Narrator narrator;
 
-    public StoryParser(PluginInstance plugin, Narrator narrator) {
-        super();
+    private final SpongeExecutorService spongeExecutorService;
+
+    public StoryParser(PluginInstance plugin, Narrator narrator, SpongeExecutorService spongeExecutorService) {
         this.plugin = plugin;
         this.narrator = narrator;
+        this.spongeExecutorService = spongeExecutorService;
+    }
+
+    public StoryParser() {
+        this(null, null, null);
     }
 
     @SuppressWarnings("OrphanedFormatString") // "%await" is a real thing, here
@@ -57,11 +67,12 @@ public class StoryParser {
         actions = new ArrayList<>();
         narrateActionInConstruction = null;
         titleActionInConstruction = null;
+        dynamicActionInConstructionScript = new StringBuilder();
 
         for (String line : newLineSplitter.split(MoreStrings.normalizeCRLF(storyScript))) {
-            if (line.isEmpty()) {
+            if (line.trim().isEmpty()) {
                 addActionInConstruction();
-            } else if (line.startsWith("//")) {
+            } else if (line.matches("^\\s*//.*")) {
                 continue;
             } else if (line.startsWith("==")) {
                 // NB: We HAVE to check for "==" before "=" (cauz "==" also startsWith "=")
@@ -87,7 +98,7 @@ public class StoryParser {
             } else if (line.startsWith("/")) {
                 addActionInConstruction();
                 String remainingLine = line.substring(1).trim();
-                actions.add(new CommandAction(plugin).setCommand(remainingLine));
+                actions.add(new CommandAction(spongeExecutorService).setCommand(remainingLine));
             } else if (line.startsWith("%await")) {
                 addActionInConstruction();
                 String remainingLine = line.substring("%await".length()).trim();
@@ -101,6 +112,8 @@ public class StoryParser {
                 } catch (NumberFormatException e) {
                     throw new SyntaxErrorException("%await currently only supports numeric value; example: %await 2s; but not: " + value, e);
                 }
+            } else if (line.matches("^\\s+.*")) {
+                dynamicActionInConstructionScript.append(line);
             } else {
                 if (narrateActionInConstruction != null) {
                     narrateActionInConstruction.setText(narrateActionInConstruction.getText().concat(Text.NEW_LINE).concat(newText(line)));
@@ -121,6 +134,11 @@ public class StoryParser {
         } else if (titleActionInConstruction != null) {
             actions.add(titleActionInConstruction);
             titleActionInConstruction = null;
+        } else if (dynamicActionInConstructionScript.length() != 0) {
+            DynamicAction action = new DynamicAction(plugin);
+            action.setScript(dynamicActionInConstructionScript.toString());
+            actions.add(action);
+            dynamicActionInConstructionScript = new StringBuilder();
         }
     }
 
