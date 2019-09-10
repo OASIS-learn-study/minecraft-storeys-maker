@@ -24,6 +24,7 @@ import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.AwaitAction;
 import ch.vorburger.minecraft.storeys.model.CommandAction;
 import ch.vorburger.minecraft.storeys.model.DynamicAction;
+import ch.vorburger.minecraft.storeys.model.LocationAction;
 import ch.vorburger.minecraft.storeys.model.MessageAction;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
 import ch.vorburger.minecraft.storeys.model.Story;
@@ -99,6 +100,14 @@ public class StoryParser {
                 addActionInConstruction();
                 String remainingLine = line.substring(1).trim();
                 actions.add(new CommandAction(spongeExecutorService).setCommand(remainingLine));
+            } else if (line.startsWith("%in")) {
+                addActionInConstruction();
+                String remainingLine = line.substring("%in".length()).trim();
+                String[] coordinates = remainingLine.split("\\s");
+                if (coordinates.length != 6) {
+                    throw new SyntaxErrorException("region must be 2 coordinates press F3 and write down XYZ for both corners");
+                }
+                actions.add(new LocationAction(plugin).setBox(remainingLine));
             } else if (line.startsWith("%await")) {
                 addActionInConstruction();
                 String remainingLine = line.substring("%await".length()).trim();
