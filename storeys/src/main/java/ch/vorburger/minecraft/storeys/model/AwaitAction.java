@@ -18,17 +18,20 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
-import com.google.common.base.Preconditions;
 import java.util.concurrent.CompletionStage;
+
+import javax.inject.Inject;
+
+import com.google.common.base.Preconditions;
 
 public class AwaitAction implements Action<Void> {
 
     private final ActionWaitHelper actionWaitHelper;
     private int msToWait;
 
-    public AwaitAction(PluginInstance plugin) {
-        this.actionWaitHelper = new ActionWaitHelper(plugin);
+    @Inject
+    public AwaitAction(ActionWaitHelper actionWaitHelper) {
+        this.actionWaitHelper = actionWaitHelper;
     }
 
     public AwaitAction setMsToWait(int msToWait) {

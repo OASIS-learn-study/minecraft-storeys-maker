@@ -22,6 +22,9 @@ import static java.util.Objects.requireNonNull;
 
 import ch.vorburger.minecraft.storeys.Narrator;
 import java.util.concurrent.CompletionStage;
+
+import javax.inject.Inject;
+
 import org.spongepowered.api.world.Locatable;
 import org.spongepowered.api.world.World;
 
@@ -31,6 +34,7 @@ public class NarrateAction extends TextAction<Void> {
 
     private String entityName;
 
+    @Inject
     public NarrateAction(Narrator narrator) {
         this.narrator = narrator;
     }

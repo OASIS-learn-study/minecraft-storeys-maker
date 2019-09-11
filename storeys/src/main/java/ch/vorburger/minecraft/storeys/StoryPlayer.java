@@ -18,19 +18,13 @@
  */
 package ch.vorburger.minecraft.storeys;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
+import java.util.concurrent.CompletionStage;
+
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.ActionContext;
 import ch.vorburger.minecraft.storeys.model.Story;
-import java.util.concurrent.CompletionStage;
 
 public class StoryPlayer {
-
-    // private final PluginInstance plugin;
-
-    public StoryPlayer(PluginInstance plugin) {
-        // this.plugin = plugin;
-    }
 
     public CompletionStage<?> play(ActionContext context, Story story) {
         // TODO This must most probably run in an async (!) Task, similar to Narrator - or does it not (because Actions are already async) ?

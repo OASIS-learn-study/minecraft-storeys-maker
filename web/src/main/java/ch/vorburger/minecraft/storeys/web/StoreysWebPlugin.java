@@ -23,7 +23,6 @@ import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.api.Minecraft;
 import ch.vorburger.minecraft.storeys.api.impl.MinecraftImpl;
 import ch.vorburger.minecraft.storeys.api.impl.TokenCommand;
-import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.events.EventService;
 import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
@@ -69,14 +68,10 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
         super.start(plugin, configDir);
 
         Injector injector = pluginInjector.createChildInjector(binder -> {
-            binder.bind(PluginInstance.class).toInstance(plugin);
             binder.bind(TokenProvider.class).to(TokenProviderImpl.class);
             binder.bind(Minecraft.class).to(MinecraftImpl.class);
             binder.bind(EventBusSender.class).to(MinecraftVerticle.class);
-            binder.bind(EventService.class);
             binder.bind(new TypeLiteral<Handler<Message<JsonObject>>>(){}).to(ActionsConsumer.class);
-            binder.bind(ConditionService.class);
-            binder.bind(StaticWebServerVerticle.class);
             // TODO read from some configuration
             binder.bind(Integer.class).annotatedWith(Names.named("http-port")).toInstance(8080);
             binder.bind(Integer.class).annotatedWith(Names.named("web-http-port")).toInstance(7070);

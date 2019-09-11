@@ -18,8 +18,10 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import java.util.concurrent.CompletionStage;
+
+import javax.inject.Inject;
+
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.effect.Viewer;
 import org.spongepowered.api.text.Text;
@@ -38,9 +40,10 @@ public class TitleAction extends TextAction<Void> {
 
     private Text subtitleText;
 
-    public TitleAction(PluginInstance plugin) {
+    @Inject
+    public TitleAction(ActionWaitHelper helper) {
         super();
-        this.actionWaitHelper = new ActionWaitHelper(plugin);
+        this.actionWaitHelper = helper;
     }
 
     public void setSubtitle(Text subtitleText) {

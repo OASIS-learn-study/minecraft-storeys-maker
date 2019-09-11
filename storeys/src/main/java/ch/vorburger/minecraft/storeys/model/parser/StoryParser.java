@@ -18,8 +18,13 @@
  */
 package ch.vorburger.minecraft.storeys.model.parser;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
-import ch.vorburger.minecraft.storeys.Narrator;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.concurrent.NotThreadSafe;
+import javax.inject.Inject;
+import javax.inject.Provider;
+
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.AwaitAction;
 import ch.vorburger.minecraft.storeys.model.CommandAction;
@@ -31,9 +36,6 @@ import ch.vorburger.minecraft.storeys.model.Story;
 import ch.vorburger.minecraft.storeys.model.TitleAction;
 import ch.vorburger.minecraft.storeys.util.MoreStrings;
 import com.google.common.base.Splitter;
-import java.util.ArrayList;
-import java.util.List;
-import javax.annotation.concurrent.NotThreadSafe;
 
 import org.spongepowered.api.scheduler.SpongeExecutorService;
 import org.spongepowered.api.text.Text;
@@ -43,24 +45,30 @@ public class StoryParser {
 
     private final static Splitter newLineSplitter = Splitter.on('\n');
 
+    private final Provider<CommandAction> commandActionProvider;
+    private final Provider<TitleAction> titleActionProvider;
+    private final Provider<NarrateAction> narrateProvider;
+    private final Provider<AwaitAction> awaitActionProvider;
+    private final Provider<MessageAction> messageActionProvider;
+
     private List<Action<?>> actions;
     private NarrateAction narrateActionInConstruction;
     private TitleAction titleActionInConstruction;
     private StringBuilder dynamicActionInConstructionScript;
 
-    private final PluginInstance plugin;
-    private final Narrator narrator;
-
-    private final SpongeExecutorService spongeExecutorService;
-
-    public StoryParser(PluginInstance plugin, Narrator narrator, SpongeExecutorService spongeExecutorService) {
-        this.plugin = plugin;
-        this.narrator = narrator;
-        this.spongeExecutorService = spongeExecutorService;
-    }
-
-    public StoryParser() {
-        this(null, null, null);
+    @Inject
+    public StoryParser(
+            Provider<CommandAction> commandActionProvider,
+            Provider<NarrateAction> narrateProvider,
+            Provider<TitleAction> titleActionProvider,
+            Provider<AwaitAction> awaitActionProvider,
+            Provider<MessageAction> messageActionProvider
+    ) {
+        this.commandActionProvider = commandActionProvider;
+        this.titleActionProvider = titleActionProvider;
+        this.narrateProvider = narrateProvider;
+        this.awaitActionProvider = awaitActionProvider;
+        this.messageActionProvider = messageActionProvider;
     }
 
     @SuppressWarnings("OrphanedFormatString") // "%await" is a real thing, here
@@ -85,7 +93,7 @@ public class StoryParser {
             } else if (line.startsWith("=")) {
                 addActionInConstruction();
                 String titleText = line.substring(1).trim();
-                titleActionInConstruction = new TitleAction(plugin);
+                titleActionInConstruction = titleActionProvider.get();
                 titleActionInConstruction.setText(newText(titleText));
             } else if (line.startsWith("@")) {
                 addActionInConstruction();
@@ -93,13 +101,13 @@ public class StoryParser {
                 int firstSpace = remainingLine.indexOf(' ');
                 String entityName = remainingLine.substring(0, firstSpace);
                 String narrateText = remainingLine.substring(firstSpace);
-                narrateActionInConstruction = new NarrateAction(narrator);
+                narrateActionInConstruction = narrateProvider.get();
                 narrateActionInConstruction.setEntity(entityName);
                 narrateActionInConstruction.setText(newText(narrateText));
             } else if (line.startsWith("/")) {
                 addActionInConstruction();
                 String remainingLine = line.substring(1).trim();
-                actions.add(new CommandAction(spongeExecutorService).setCommand(remainingLine));
+                actions.add(commandActionProvider.get().setCommand(remainingLine));
             } else if (line.startsWith("%in")) {
                 addActionInConstruction();
                 String remainingLine = line.substring("%in".length()).trim();
@@ -117,7 +125,7 @@ public class StoryParser {
                 String value = remainingLine.substring(0, remainingLine.length() - 1);
                 try {
                     int secsToWait = Integer.decode(value);
-                    actions.add(new AwaitAction(plugin).setMsToWait(secsToWait * 1000));
+                    actions.add(awaitActionProvider.get().setMsToWait(secsToWait * 1000));
                 } catch (NumberFormatException e) {
                     throw new SyntaxErrorException("%await currently only supports numeric value; example: %await 2s; but not: " + value, e);
                 }
@@ -128,7 +136,7 @@ public class StoryParser {
                     narrateActionInConstruction.setText(narrateActionInConstruction.getText().concat(Text.NEW_LINE).concat(newText(line)));
                 } else {
                     addActionInConstruction();
-                    actions.add(new MessageAction(plugin).setText(newText(line)));
+                    actions.add(messageActionProvider.get().setText(newText(line)));
                 }
             }
         }

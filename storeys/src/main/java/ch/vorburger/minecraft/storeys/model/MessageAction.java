@@ -18,16 +18,18 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import java.util.concurrent.CompletionStage;
+
+import javax.inject.Inject;
 
 public class MessageAction extends TextAction<Void> {
 
     private final ActionWaitHelper actionWaitHelper;
 
-    public MessageAction(PluginInstance plugin) {
+    @Inject
+    public MessageAction(ActionWaitHelper actionWaitHelper) {
         super();
-        this.actionWaitHelper = new ActionWaitHelper(plugin);
+        this.actionWaitHelper = actionWaitHelper;
     }
 
     @Override
