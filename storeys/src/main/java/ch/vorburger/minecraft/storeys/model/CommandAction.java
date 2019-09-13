@@ -51,6 +51,11 @@ public class CommandAction extends MainThreadAction<CommandResult> {
     }
 
     @Override
+    public void setParameter(String param) {
+        commandLineWithoutSlash = param;
+    }
+
+    @Override
     protected CommandResult executeInMainThread(ActionContext context) throws ActionException {
         CommandResult result = Sponge.getCommandManager().process(context.getCommandSource(), requireNonNull(commandLineWithoutSlash, "commandLineWithoutSlash"));
         LOG.info("processed command /{} from source {} with result {}", commandLineWithoutSlash, context.getCommandSource(), result);

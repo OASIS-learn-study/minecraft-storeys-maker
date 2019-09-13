@@ -42,12 +42,16 @@ public class TitleAction extends TextAction<Void> {
 
     @Inject
     public TitleAction(ActionWaitHelper helper) {
-        super();
         this.actionWaitHelper = helper;
     }
 
-    public void setSubtitle(Text subtitleText) {
-        this.subtitleText = subtitleText;
+    @Override
+    public void setParameter(String param) {
+        if (!param.startsWith("==")) {
+            super.setParameter(param);
+        } else {
+            subtitleText = Text.of(param.substring("==".length()).trim());
+        }
     }
 
     @Override

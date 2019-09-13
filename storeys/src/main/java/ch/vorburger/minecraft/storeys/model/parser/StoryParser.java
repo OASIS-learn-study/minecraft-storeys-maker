@@ -20,94 +20,40 @@ package ch.vorburger.minecraft.storeys.model.parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 
-import javax.annotation.concurrent.NotThreadSafe;
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 import ch.vorburger.minecraft.storeys.model.Action;
-import ch.vorburger.minecraft.storeys.model.AwaitAction;
-import ch.vorburger.minecraft.storeys.model.CommandAction;
-import ch.vorburger.minecraft.storeys.model.DynamicAction;
 import ch.vorburger.minecraft.storeys.model.LocationAction;
-import ch.vorburger.minecraft.storeys.model.MessageAction;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
 import ch.vorburger.minecraft.storeys.model.Story;
 import ch.vorburger.minecraft.storeys.model.TitleAction;
 import ch.vorburger.minecraft.storeys.util.MoreStrings;
 import com.google.common.base.Splitter;
 
-import org.spongepowered.api.scheduler.SpongeExecutorService;
-import org.spongepowered.api.text.Text;
-
-@NotThreadSafe
 public class StoryParser {
+    private final static Splitter newLineSplitter = Splitter.on('\n').trimResults();
 
-    private final static Splitter newLineSplitter = Splitter.on('\n');
-
-    private final Provider<CommandAction> commandActionProvider;
-    private final Provider<TitleAction> titleActionProvider;
-    private final Provider<NarrateAction> narrateProvider;
-    private final Provider<AwaitAction> awaitActionProvider;
-    private final Provider<MessageAction> messageActionProvider;
-
-    private List<Action<?>> actions;
-    private NarrateAction narrateActionInConstruction;
-    private TitleAction titleActionInConstruction;
-    private StringBuilder dynamicActionInConstructionScript;
+    private final CommandMapping mapping;
 
     @Inject
-    public StoryParser(
-            Provider<CommandAction> commandActionProvider,
-            Provider<NarrateAction> narrateProvider,
-            Provider<TitleAction> titleActionProvider,
-            Provider<AwaitAction> awaitActionProvider,
-            Provider<MessageAction> messageActionProvider
-    ) {
-        this.commandActionProvider = commandActionProvider;
-        this.titleActionProvider = titleActionProvider;
-        this.narrateProvider = narrateProvider;
-        this.awaitActionProvider = awaitActionProvider;
-        this.messageActionProvider = messageActionProvider;
+    public StoryParser(CommandMapping mapping) {
+        this.mapping = mapping;
     }
-
-    @SuppressWarnings("OrphanedFormatString") // "%await" is a real thing, here
-    public Story parse(String storyScript) throws SyntaxErrorException {
-        actions = new ArrayList<>();
-        narrateActionInConstruction = null;
-        titleActionInConstruction = null;
-        dynamicActionInConstructionScript = new StringBuilder();
-
-        for (String line : newLineSplitter.split(MoreStrings.normalizeCRLF(storyScript))) {
-            if (line.trim().isEmpty()) {
-                addActionInConstruction();
-            } else if (line.matches("^\\s*//.*")) {
-                continue;
-            } else if (line.startsWith("==")) {
-                // NB: We HAVE to check for "==" before "=" (cauz "==" also startsWith "=")
-                String subTitleText = line.substring(2).trim();
-                if (titleActionInConstruction == null) {
-                    throw new SyntaxErrorException("Subtitle (==) must immediately follow Title (=) : " + subTitleText);
-                }
-                titleActionInConstruction.setSubtitle(newText(subTitleText));
-            } else if (line.startsWith("=")) {
-                addActionInConstruction();
-                String titleText = line.substring(1).trim();
-                titleActionInConstruction = titleActionProvider.get();
-                titleActionInConstruction.setText(newText(titleText));
-            } else if (line.startsWith("@")) {
-                addActionInConstruction();
-                String remainingLine = line.substring(1).trim();
-                int firstSpace = remainingLine.indexOf(' ');
-                String entityName = remainingLine.substring(0, firstSpace);
-                String narrateText = remainingLine.substring(firstSpace);
-                narrateActionInConstruction = narrateProvider.get();
-                narrateActionInConstruction.setEntity(entityName);
-                narrateActionInConstruction.setText(newText(narrateText));
-            } else if (line.startsWith("/")) {
-                addActionInConstruction();
-                String remainingLine = line.substring(1).trim();
-                actions.add(commandActionProvider.get().setCommand(remainingLine));
+    
+    public Story parse(String story) {
+        List<Action<?>> actions = new ArrayList<>();
+        for (String line : newLineSplitter.split(MoreStrings.normalizeCRLF(story))) {
+            boolean match = false;
+            for (CommandMapping.Mapping mapping : mapping.getMappings()) {
+                Matcher matcher = mapping.getRegex().matcher(line);
+                if (matcher.find()) {
+                    Action<?> action = mapping.getActionProvider().get();
+                    actions.add(action);
+                    action.setParameter(matcher.group(1));
+                    match = true;
+                    break;
             } else if (line.startsWith("%in")) {
                 addActionInConstruction();
                 String remainingLine = line.substring("%in".length()).trim();
@@ -116,51 +62,24 @@ public class StoryParser {
                     throw new SyntaxErrorException("region must be 2 coordinates press F3 and write down XYZ for both corners");
                 }
                 actions.add(new LocationAction(plugin).setBox(remainingLine));
-            } else if (line.startsWith("%await")) {
-                addActionInConstruction();
-                String remainingLine = line.substring("%await".length()).trim();
-                if (!remainingLine.endsWith("s")) {
-                    throw new SyntaxErrorException("%await currently only supports seconds; example: %await 2s");
                 }
-                String value = remainingLine.substring(0, remainingLine.length() - 1);
-                try {
-                    int secsToWait = Integer.decode(value);
-                    actions.add(awaitActionProvider.get().setMsToWait(secsToWait * 1000));
-                } catch (NumberFormatException e) {
-                    throw new SyntaxErrorException("%await currently only supports numeric value; example: %await 2s; but not: " + value, e);
-                }
-            } else if (line.matches("^\\s+.*")) {
-                dynamicActionInConstructionScript.append(line);
-            } else {
-                if (narrateActionInConstruction != null) {
-                    narrateActionInConstruction.setText(narrateActionInConstruction.getText().concat(Text.NEW_LINE).concat(newText(line)));
+            }
+            if (!match) {
+                Action<?> lastAction = actions.isEmpty() ? null : actions.get(actions.size() - 1);
+                if (lastAction instanceof NarrateAction || lastAction instanceof TitleAction) {
+                    lastAction.setParameter(line);
                 } else {
-                    addActionInConstruction();
-                    actions.add(messageActionProvider.get().setText(newText(line)));
+                    Action<?> action = mapping.getDefaultAction().get();
+                    action.setParameter(line);
+                    actions.add(action);
                 }
             }
         }
-        addActionInConstruction();
         return new Story(actions);
     }
-
-    private void addActionInConstruction() {
-        if (narrateActionInConstruction != null) {
-            actions.add(narrateActionInConstruction);
-            narrateActionInConstruction = null;
-        } else if (titleActionInConstruction != null) {
-            actions.add(titleActionInConstruction);
-            titleActionInConstruction = null;
         } else if (dynamicActionInConstructionScript.length() != 0) {
             DynamicAction action = new DynamicAction(plugin);
             action.setScript(dynamicActionInConstructionScript.toString());
             actions.add(action);
             dynamicActionInConstructionScript = new StringBuilder();
-        }
-    }
-
-    private Text newText(String stringText) {
-        return Text.of(stringText);
-    }
-
 }

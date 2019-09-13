@@ -18,38 +18,29 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-import javax.inject.Inject;
-
-import ch.vorburger.minecraft.storeys.model.parser.SyntaxErrorException;
-
-public class AwaitAction implements Action<Void> {
-
-    private final ActionWaitHelper actionWaitHelper;
-    private int msToWait;
-
-    @Inject
-    public AwaitAction(ActionWaitHelper actionWaitHelper) {
-        this.actionWaitHelper = actionWaitHelper;
+/**
+ * Action that does nothing e.g. No Operation Action.
+ */
+public class NopAction implements Action<Void> {
+    @Override
+    public CompletionStage<Void> execute(ActionContext context) {
+        return CompletableFuture.completedFuture(null);
     }
-
 
     @Override
     public void setParameter(String param) {
-        if (!param.endsWith("s")) {
-            throw new SyntaxErrorException("%await currently only supports seconds; example: %await 2s");
-        }
-        msToWait = (Integer.decode(param.substring(0, param.length() - 1)) * 1000);
-    }
-
-    @Override
-    public CompletionStage<Void> execute(ActionContext context) {
-        return actionWaitHelper.executeAndWait(msToWait, () -> null);
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + ": time to wait: '" + msToWait + "' millis";
+        return getClass().getSimpleName();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this.getClass().equals(obj.getClass());
     }
 }
