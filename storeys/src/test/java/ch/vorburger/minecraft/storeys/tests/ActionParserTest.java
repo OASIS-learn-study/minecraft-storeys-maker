@@ -18,45 +18,80 @@
  */
 package ch.vorburger.minecraft.storeys.tests;
 
-import static com.google.common.truth.Truth.assertThat;
-
-import ch.vorburger.minecraft.storeys.model.TitleAction;
-import ch.vorburger.minecraft.storeys.model.parser.StoryParser;
-import ch.vorburger.minecraft.storeys.model.parser.ClassLoaderResourceStoryRepository;
-import ch.vorburger.minecraft.storeys.model.parser.SyntaxErrorException;
 import java.io.IOException;
 
-import org.junit.Ignore;
+import ch.vorburger.minecraft.storeys.model.Action;
+import ch.vorburger.minecraft.storeys.model.AwaitAction;
+import ch.vorburger.minecraft.storeys.model.CommandAction;
+import ch.vorburger.minecraft.storeys.model.MessageAction;
+import ch.vorburger.minecraft.storeys.model.NarrateAction;
+import ch.vorburger.minecraft.storeys.model.NopAction;
+import ch.vorburger.minecraft.storeys.model.Story;
+import ch.vorburger.minecraft.storeys.model.TitleAction;
+import ch.vorburger.minecraft.storeys.model.parser.ClassLoaderResourceStoryRepository;
+import ch.vorburger.minecraft.storeys.model.parser.CommandMapping;
+import ch.vorburger.minecraft.storeys.model.parser.StoryParser;
+import ch.vorburger.minecraft.storeys.model.parser.SyntaxErrorException;
+import org.junit.Before;
 import org.junit.Test;
+import org.spongepowered.api.scheduler.Scheduler;
+import org.spongepowered.api.scheduler.SpongeExecutorService;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.core.IsCollectionContaining.hasItems;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ActionParserTest {
 
-    private final StoryParser parser = new StoryParser(null, null, () -> new TitleAction(null), null, null);
+    private Scheduler mockScheduler = mock(Scheduler.class);
 
-    @Ignore // following use of Sponge.getScheduler() CommandAction extends MainThreadAction for bug #40
-    // TODO Refactoring (big) to make StoryParser decoupled from actual Minecraft code...
-    @Test public void helloStory() throws IOException, SyntaxErrorException {
-        assertThat(
-            parser.parse(new ClassLoaderResourceStoryRepository().getStoryScript("hello")).getActionsList())
-            .hasSize(10);
+    private final CommandMapping commandMapping = new CommandMapping(
+            () -> new CommandAction(null, mockScheduler),
+            () -> new NarrateAction(null),
+            () -> new TitleAction(null),
+            () -> new AwaitAction(null),
+            () -> new MessageAction(null));
+
+    private final StoryParser parser = new StoryParser(commandMapping);
+
+    private final Action<?>[] emptyList = new Action[]{new NopAction(), new NopAction(), new NopAction()};
+
+    @Before
+    public void setup() {
+        when(mockScheduler.createSyncExecutor(null)).thenReturn(mock(SpongeExecutorService.class));
     }
 
-    @Test public void empty() throws SyntaxErrorException {
-        assertThat(parser.parse("").getActionsList()).isEmpty();
+    @Test
+    public void helloStory() throws IOException, SyntaxErrorException {
+        String storyScript = new ClassLoaderResourceStoryRepository().getStoryScript("hello");
+        Story story = parser.parse(storyScript);
+        assertThat(story.getActionsList(), hasSize(23));
     }
 
-    @Test public void blanks() throws SyntaxErrorException {
-        assertThat(parser.parse("   \n \r\n  ").getActionsList()).isEmpty();
+    @Test
+    public void empty() throws SyntaxErrorException {
+        Story story = parser.parse("");
+        assertThat(story.getActionsList(), hasItems(new NopAction()));
     }
 
-    @Test public void comments() throws SyntaxErrorException {
-        assertThat(parser.parse("\n // Comment \r\n  ").getActionsList()).isEmpty();
+    @Test
+    public void blanks() throws SyntaxErrorException {
+        Story story = parser.parse("   \n \r\n  ");
+        assertThat(story.getActionsList(), hasItems(emptyList));
     }
 
-    @Test public void titles() throws SyntaxErrorException {
-        assertThat(parser.parse(
-                "= Once upon a time..\n== There was a pig.\n").getActionsList())
-            .hasSize(1);
+    @Test
+    public void comments() throws SyntaxErrorException {
+        Story story = parser.parse("\n // Comment \r\n  ");
+        assertThat(story.getActionsList(), hasItems(emptyList));
+    }
+
+    @Test
+    public void titles() throws SyntaxErrorException {
+        Story story = parser.parse("= Once upon a time..\n== There was a pig.");
+        assertThat(story.getActionsList(), hasSize(1));
     }
 
 }

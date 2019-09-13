@@ -56,5 +56,4 @@ export class Tester {
     }
 }
 
-let atester = new Tester();
-(<any>window).tester = atester;
+(<any>window).Tester = Tester;

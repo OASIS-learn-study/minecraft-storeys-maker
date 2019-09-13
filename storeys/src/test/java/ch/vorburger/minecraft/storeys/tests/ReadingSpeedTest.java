@@ -18,19 +18,22 @@
  */
 package ch.vorburger.minecraft.storeys.tests;
 
-import static com.google.common.truth.Truth.assertThat;
 import ch.vorburger.minecraft.storeys.ReadingSpeed;
 import org.junit.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.greaterThan;
 
 public class ReadingSpeedTest {
 
     @Test
     public final void empty() {
-        assertThat(new ReadingSpeed().msToRead("")).isEqualTo(0);
+        assertThat(new ReadingSpeed().msToRead(""), is(0));
     }
 
     @Test
     public final void example() {
-        assertThat(new ReadingSpeed(200).msToRead("Lorem Ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.")).isAtLeast(7100);
+        assertThat(new ReadingSpeed(200).msToRead("Lorem Ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."), greaterThan(7100));
     }
 }
