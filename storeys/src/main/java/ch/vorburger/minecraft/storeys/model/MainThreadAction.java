@@ -37,8 +37,7 @@ public abstract class MainThreadAction<T> implements Action<T> {
 
     private final ListeningScheduledExecutorService guavaifiedMinecraftExecutor;
 
-    protected MainThreadAction(PluginInstance plugin) {
-        SpongeExecutorService minecraftExecutor = Sponge.getScheduler().createSyncExecutor(plugin);
+    protected MainThreadAction(SpongeExecutorService minecraftExecutor) {
         guavaifiedMinecraftExecutor = MoreExecutors.listeningDecorator(minecraftExecutor);
     }
 

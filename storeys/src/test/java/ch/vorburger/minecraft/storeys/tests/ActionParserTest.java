@@ -29,7 +29,7 @@ import org.junit.Test;
 
 public class ActionParserTest {
 
-    private final StoryParser parser = new StoryParser(null, null);
+    private final StoryParser parser = new StoryParser();
 
     @Ignore // following use of Sponge.getScheduler() CommandAction extends MainThreadAction for bug #40
     // TODO Refactoring (big) to make StoryParser decoupled from actual Minecraft code...
@@ -40,15 +40,15 @@ public class ActionParserTest {
     }
 
     @Test public void empty() throws SyntaxErrorException {
-        assertThat(parser.parse("").getActionsList()).isEmpty();;
+        assertThat(parser.parse("").getActionsList()).isEmpty();
     }
 
     @Test public void blanks() throws SyntaxErrorException {
-        assertThat(parser.parse("   \n \r\n  ").getActionsList()).isEmpty();;
+        assertThat(parser.parse("   \n \r\n  ").getActionsList()).isEmpty();
     }
 
     @Test public void comments() throws SyntaxErrorException {
-        assertThat(parser.parse("\n // Comment \r\n  ").getActionsList()).isEmpty();;
+        assertThat(parser.parse("\n // Comment \r\n  ").getActionsList()).isEmpty();
     }
 
     @Test public void titles() throws SyntaxErrorException {

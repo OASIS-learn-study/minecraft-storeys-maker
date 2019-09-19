@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
 
 class NodeStarter {
     private static final String NODE_VERSION = "v10.15.3";
@@ -49,9 +50,15 @@ class NodeStarter {
             frontendPluginFactory.getNodeInstaller(proxyConfig).setNodeVersion(NODE_VERSION).install();
             frontendPluginFactory.getNPMInstaller(proxyConfig).setNpmVersion(NPM_VERSION).install();
             NpmRunner npmRunner = frontendPluginFactory.getNpmRunner(proxyConfig, "");
-            npmRunner.execute("install", new HashMap<>());
-            npmRunner.execute("start", new HashMap<>());
-        } catch (InstallationException | TaskRunnerException | IOException e) {
+            CompletableFuture.runAsync(() -> {
+                try {
+                    npmRunner.execute("install", new HashMap<>());
+                    npmRunner.execute("start", new HashMap<>());
+                } catch (TaskRunnerException e) {
+                    throw new RuntimeException("could not install and run node", e);
+                }
+            });
+        } catch (InstallationException | IOException e) {
             throw new RuntimeException("could not install and run node", e);
         }
     }
