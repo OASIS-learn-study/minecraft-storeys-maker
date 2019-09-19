@@ -21,6 +21,7 @@ package ch.vorburger.minecraft.storeys.model;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+import javax.inject.Inject;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -34,16 +35,20 @@ public class DynamicAction implements Action<Void>  {
     private static final String PREFIX = "var ItemTypes = Java.type('org.spongepowered.api.item.ItemTypes'); (function() {";
     private static final String POSTFIX = "})()";
 
-    private final PluginInstance plugin;
-    private String script;
+    private final StoryParser storyParser;
+    private final StoryPlayer storyPlayer;
 
-    public DynamicAction(PluginInstance plugin) {
-        this.plugin = plugin;
+    private String script = "";
+
+    @Inject
+    public DynamicAction(StoryParser storyParser, StoryPlayer storyPlayer) {
+        this.storyParser = storyParser;
+        this.storyPlayer = storyPlayer;
     }
 
-    public DynamicAction setScript(String script) {
-        this.script = script;
-        return this;
+    @Override
+    public void setParameter(String param) {
+        this.script += param;
     }
 
     @Override
@@ -56,10 +61,9 @@ public class DynamicAction implements Action<Void>  {
 
         try {
             String storyText = (String) engine.eval(PREFIX + script + POSTFIX);
-            Story story = new StoryParser().parse(storyText);
-            StoryPlayer player = new StoryPlayer(plugin);
+            Story story = storyParser.parse(storyText);
 
-            player.play(context, story).thenAccept(o -> future.complete(null));
+            storyPlayer.play(context, story).thenAccept(o -> future.complete(null));
         } catch (ScriptException | SyntaxErrorException e) {
             future.completeExceptionally(e);
         }

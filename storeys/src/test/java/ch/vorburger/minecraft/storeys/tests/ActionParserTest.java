@@ -23,6 +23,8 @@ import java.io.IOException;
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.AwaitAction;
 import ch.vorburger.minecraft.storeys.model.CommandAction;
+import ch.vorburger.minecraft.storeys.model.DynamicAction;
+import ch.vorburger.minecraft.storeys.model.LocationAction;
 import ch.vorburger.minecraft.storeys.model.MessageAction;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
 import ch.vorburger.minecraft.storeys.model.NopAction;
@@ -39,6 +41,7 @@ import org.spongepowered.api.scheduler.SpongeExecutorService;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -52,6 +55,8 @@ public class ActionParserTest {
             () -> new NarrateAction(null),
             () -> new TitleAction(null),
             () -> new AwaitAction(null),
+            () -> new DynamicAction(null, null),
+            LocationAction::new,
             () -> new MessageAction(null));
 
     private final StoryParser parser = new StoryParser(commandMapping);
@@ -67,19 +72,19 @@ public class ActionParserTest {
     public void helloStory() throws IOException, SyntaxErrorException {
         String storyScript = new ClassLoaderResourceStoryRepository().getStoryScript("hello");
         Story story = parser.parse(storyScript);
-        assertThat(story.getActionsList(), hasSize(23));
+        assertThat(story.getActionsList(), hasSize(12));
     }
 
     @Test
-    public void empty() throws SyntaxErrorException {
+    public void emptyActionList() throws SyntaxErrorException {
         Story story = parser.parse("");
-        assertThat(story.getActionsList(), hasItems(new NopAction()));
+        assertThat(story.getActionsList(), empty());
     }
 
     @Test
     public void blanks() throws SyntaxErrorException {
         Story story = parser.parse("   \n \r\n  ");
-        assertThat(story.getActionsList(), hasItems(emptyList));
+        assertThat(story.getActionsList(), hasSize(1));
     }
 
     @Test

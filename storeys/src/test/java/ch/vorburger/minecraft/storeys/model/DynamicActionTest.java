@@ -22,8 +22,12 @@ import java.io.IOException;
 import java.util.concurrent.CompletionStage;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
+import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.ReadingSpeed;
+import ch.vorburger.minecraft.storeys.StoryPlayer;
 import ch.vorburger.minecraft.storeys.model.parser.ClassLoaderResourceStoryRepository;
+import ch.vorburger.minecraft.storeys.model.parser.CommandMapping;
+import ch.vorburger.minecraft.storeys.model.parser.StoryParser;
 import ch.vorburger.minecraft.storeys.model.parser.TestPlainTextSerializer;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,9 +51,18 @@ public class DynamicActionTest {
     public void execute() throws IOException {
         // given
         PluginInstance pluginInstance = mock(PluginInstance.class);
+        CommandMapping mapping = new CommandMapping(
+                () -> new CommandAction(null, null),
+                () -> new NarrateAction(null),
+                () -> new TitleAction(null),
+                () -> new AwaitAction(null),
+                () -> new DynamicAction(null, null),
+                () -> new LocationAction(null),
+                () -> new MessageAction(new ActionWaitHelper(pluginInstance)));
+        StoryParser storyParser = new StoryParser(mapping);
         String storyText = new ClassLoaderResourceStoryRepository().getStoryScript("dynamic-test");
-        DynamicAction dynamicAction = new DynamicAction(pluginInstance);
-        dynamicAction.setScript(storyText);
+        DynamicAction dynamicAction = new DynamicAction(storyParser, new StoryPlayer());
+        dynamicAction.setParameter(storyText);
         Player commandSource = mock(Player.class);
         CarriedInventory inventory = mock(CarriedInventory.class);
         when(commandSource.getInventory()).thenReturn(inventory);

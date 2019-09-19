@@ -25,23 +25,21 @@ import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.StoryPlayer;
-import ch.vorburger.minecraft.storeys.model.Action;
-import ch.vorburger.minecraft.storeys.model.ActionContext;
-import ch.vorburger.minecraft.storeys.model.DynamicAction;
-import ch.vorburger.minecraft.storeys.model.MessageAction;
-import ch.vorburger.minecraft.storeys.model.Story;
-import ch.vorburger.minecraft.storeys.model.TitleAction;
+import ch.vorburger.minecraft.storeys.model.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.api.scheduler.SpongeExecutorService;
 import org.spongepowered.api.text.title.Title;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class StoryParserTest {
 
@@ -52,8 +50,20 @@ public class StoryParserTest {
 
     private StoryParser getStoryParser() {
         PluginInstance pluginInstance = mock(PluginInstance.class);
-        SpongeExecutorService executorService = mock(SpongeExecutorService.class);
-        return new StoryParser(pluginInstance, new Narrator(pluginInstance), executorService);
+        Scheduler scheduler = mock(Scheduler.class);
+        when(scheduler.createSyncExecutor(isA(PluginInstance.class))).thenReturn(mock(SpongeExecutorService.class));
+
+        ActionWaitHelper actionWaitHelper = new ActionWaitHelper(pluginInstance);
+        CommandMapping commandMapping = new CommandMapping(
+                () -> new CommandAction(pluginInstance, scheduler),
+                () -> new NarrateAction(new Narrator(pluginInstance)),
+                () -> new TitleAction(actionWaitHelper),
+                () -> new AwaitAction(actionWaitHelper),
+                () -> new DynamicAction(null, null),
+                () -> new LocationAction(null),
+                () -> new MessageAction(actionWaitHelper));
+
+        return new StoryParser(commandMapping);
     }
 
     @Test
@@ -84,6 +94,7 @@ public class StoryParserTest {
 
         // then
         List<Action<?>> storyActionsList = story.getActionsList();
+        System.out.println("storyActionsList = " + storyActionsList);
         assertEquals(1, storyActionsList.size());
         assertEquals(DynamicAction.class, storyActionsList.get(0).getClass());
     }
@@ -98,7 +109,7 @@ public class StoryParserTest {
         Player commandSource = mock(Player.class);
 
         // when
-        StoryPlayer storyPlayer = new StoryPlayer(null);
+        StoryPlayer storyPlayer = new StoryPlayer();
         storyPlayer.play(new ActionContext(commandSource, new ReadingSpeed()), story);
 
         // then

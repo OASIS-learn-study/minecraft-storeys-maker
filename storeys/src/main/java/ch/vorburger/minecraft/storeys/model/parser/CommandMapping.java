@@ -24,19 +24,11 @@ import java.util.regex.Pattern;
 
 import javax.inject.Provider;
 
-import ch.vorburger.minecraft.storeys.model.Action;
-import ch.vorburger.minecraft.storeys.model.AwaitAction;
-import ch.vorburger.minecraft.storeys.model.CommandAction;
-import ch.vorburger.minecraft.storeys.model.MessageAction;
-import ch.vorburger.minecraft.storeys.model.NarrateAction;
-import ch.vorburger.minecraft.storeys.model.NopAction;
-import ch.vorburger.minecraft.storeys.model.TitleAction;
+import ch.vorburger.minecraft.storeys.model.*;
 import com.google.inject.Inject;
 
 public class CommandMapping {
     private List<Mapping> mappings = new ArrayList<>();
-
-    private final Provider<Action<?>> defaultAction;
 
     @Inject
     public CommandMapping(
@@ -44,19 +36,19 @@ public class CommandMapping {
             Provider<NarrateAction> narrateProvider,
             Provider<TitleAction> titleActionProvider,
             Provider<AwaitAction> awaitActionProvider,
+            Provider<DynamicAction> dynamicActionProvider,
+            Provider<LocationAction> locationActionProvider,
             Provider<MessageAction> messageActionProvider
     ) {
-        mappings.add(new Mapping(Pattern.compile("^%await\\s(.*)$"), awaitActionProvider::get));
+        mappings.add(new Mapping(Pattern.compile("(?s)^=\\s(.*==[^\\n]*)"), titleActionProvider::get));
+        mappings.add(new Mapping(Pattern.compile("(?s)^=\\s([^\\n]*)"), titleActionProvider::get));
+        mappings.add(new Mapping(Pattern.compile("(?s)^(@.+?)\\n\\n"), narrateProvider::get));
+        mappings.add(new Mapping(Pattern.compile("^%await\\s([^\\n]*)"), awaitActionProvider::get));
         mappings.add(new Mapping(Pattern.compile("^/([a-zA-Z]*\\s.*)"), commandActionProvider::get));
-        mappings.add(new Mapping(Pattern.compile("^=\\s(.*)$"), titleActionProvider::get));
-        mappings.add(new Mapping(Pattern.compile("^(@.*)$"), narrateProvider::get));
-        mappings.add(new Mapping(Pattern.compile("^//(.*)$"), NopAction::new));
-        mappings.add(new Mapping(Pattern.compile("^()$"), NopAction::new));
-        this.defaultAction = messageActionProvider::get;
-    }
-
-    Provider<Action<?>> getDefaultAction() {
-        return this.defaultAction;
+        mappings.add(new Mapping(Pattern.compile("(?s)^\\s+(.+?}\\n)"), dynamicActionProvider::get));
+        mappings.add(new Mapping(Pattern.compile("^%in\\s([^\\n]*)"), locationActionProvider::get));
+        mappings.add(new Mapping(Pattern.compile("^\\s*//(.*)"), NopAction::new));
+        mappings.add(new Mapping(Pattern.compile("^([^\\n]*)"), messageActionProvider::get));
     }
 
     public List<Mapping> getMappings() {
@@ -72,11 +64,11 @@ public class CommandMapping {
             this.actionProvider = actionProvider;
         }
 
-        public Pattern getRegex() {
+        Pattern getRegex() {
             return regex;
         }
 
-        public Provider<Action<?>> getActionProvider() {
+        Provider<Action<?>> getActionProvider() {
             return actionProvider;
         }
     }

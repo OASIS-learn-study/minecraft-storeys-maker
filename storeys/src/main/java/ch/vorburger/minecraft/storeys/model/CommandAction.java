@@ -20,6 +20,7 @@ package ch.vorburger.minecraft.storeys.model;
 
 import javax.inject.Inject;
 
+import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Sponge;

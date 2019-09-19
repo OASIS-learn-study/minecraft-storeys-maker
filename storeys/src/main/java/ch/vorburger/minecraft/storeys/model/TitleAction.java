@@ -47,10 +47,12 @@ public class TitleAction extends TextAction<Void> {
 
     @Override
     public void setParameter(String param) {
-        if (!param.startsWith("==")) {
+        String[] parts = param.split("==");
+        if (parts.length == 1) {
             super.setParameter(param);
         } else {
-            subtitleText = Text.of(param.substring("==".length()).trim());
+            super.setParameter(parts[0]);
+            subtitleText = Text.of(parts[1]);
         }
     }
 
@@ -79,4 +81,8 @@ public class TitleAction extends TextAction<Void> {
         });
     }
 
+    @Override
+    public String toString() {
+        return super.toString() + "==" + (subtitleText != null ? subtitleText.toString() : "null");
+    }
 }
