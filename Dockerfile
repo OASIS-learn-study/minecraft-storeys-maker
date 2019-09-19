@@ -10,5 +10,5 @@ COPY --from=build /project/web/build/libs/*-all.jar /data/mods/
 
 ENV EULA=TRUE
 ENV TYPE=SPONGEVANILLA
-EXPOSE 25565 25575
+EXPOSE 25565 25575 7070 8080
 ENTRYPOINT [ "/start" ]
