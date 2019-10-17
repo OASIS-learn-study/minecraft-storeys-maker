@@ -29,13 +29,12 @@ import java.util.Iterator;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.world.Locatable;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 public class LocatableInBoxCondition implements Condition {
 
-    private static final Splitter SLASH_SPLITTER = Splitter.on('/');
+    private static final Splitter SLASH_SPLITTER = Splitter.on(' ');
 
     private Player effectedPlayer;
 

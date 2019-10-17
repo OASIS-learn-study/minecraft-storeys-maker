@@ -6,8 +6,7 @@
 There are some characters in this world..
 Let's go meet them!
 
-/tp -235 64 230 17 12
-// TODO /tp @Piggy
+%in -311.300 76 11.628 -323.571 70.5 16.516
 
 @Piggy Hi there! I'm Piggy.
 Welcome to the storeys mod.  I'll be giving you a quick guided tour now...
