@@ -18,35 +18,22 @@
  */
 package ch.vorburger.minecraft.storeys.tests;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.model.Action;
-import ch.vorburger.minecraft.storeys.model.AwaitAction;
-import ch.vorburger.minecraft.storeys.model.CommandAction;
-import ch.vorburger.minecraft.storeys.model.DynamicAction;
-import ch.vorburger.minecraft.storeys.model.LocationAction;
-import ch.vorburger.minecraft.storeys.model.MessageAction;
-import ch.vorburger.minecraft.storeys.model.NarrateAction;
 import ch.vorburger.minecraft.storeys.model.NopAction;
 import ch.vorburger.minecraft.storeys.model.Story;
-import ch.vorburger.minecraft.storeys.model.TitleAction;
 import ch.vorburger.minecraft.storeys.model.parser.ClassLoaderResourceStoryRepository;
 import ch.vorburger.minecraft.storeys.model.parser.StoryParser;
+import ch.vorburger.minecraft.storeys.model.parser.StoryParserTest;
 import ch.vorburger.minecraft.storeys.model.parser.SyntaxErrorException;
 import org.junit.Before;
 import org.junit.Test;
-import org.spongepowered.api.scheduler.Scheduler;
-import org.spongepowered.api.scheduler.SpongeExecutorService;
+
+import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ActionParserTest {
 
@@ -56,18 +43,7 @@ public class ActionParserTest {
 
     @Before
     public void setup() {
-        Scheduler mockScheduler = mock(Scheduler.class);
-        when(mockScheduler.createSyncExecutor(null)).thenReturn(mock(SpongeExecutorService.class));
-        List<Action> actionList = Arrays.asList(
-                new CommandAction(null, mockScheduler),
-                new NarrateAction(null),
-                new TitleAction(null),
-                new AwaitAction(null),
-                new DynamicAction(null, null),
-                new LocationAction(),
-                new NopAction(),
-                new MessageAction(null));
-        parser = new StoryParser(actionList);
+        parser = StoryParserTest.getStoryParser();
     }
 
     @Test

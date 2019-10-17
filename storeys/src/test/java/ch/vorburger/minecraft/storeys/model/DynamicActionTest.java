@@ -18,31 +18,22 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.CompletionStage;
-
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
-import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.StoryPlayer;
 import ch.vorburger.minecraft.storeys.model.parser.ClassLoaderResourceStoryRepository;
-import ch.vorburger.minecraft.storeys.model.parser.CommandMapping;
 import ch.vorburger.minecraft.storeys.model.parser.StoryParser;
+import ch.vorburger.minecraft.storeys.model.parser.StoryParserTest;
 import ch.vorburger.minecraft.storeys.model.parser.TestPlainTextSerializer;
 import org.junit.Before;
 import org.junit.Test;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.type.CarriedInventory;
-import org.spongepowered.api.scheduler.Scheduler;
-import org.spongepowered.api.scheduler.SpongeExecutorService;
 
-import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import java.io.IOException;
+import java.util.concurrent.CompletionStage;
+
+import static org.mockito.Mockito.*;
 
 public class DynamicActionTest {
     @Before
@@ -54,19 +45,7 @@ public class DynamicActionTest {
     @SuppressWarnings("unchecked")
     public void execute() throws IOException {
         // given
-        PluginInstance pluginInstance = mock(PluginInstance.class);
-        Scheduler mockScheduler = mock(Scheduler.class);
-        when(mockScheduler.createSyncExecutor(pluginInstance)).thenReturn(mock(SpongeExecutorService.class));
-        List<Action> mapping = Arrays.asList(
-                new CommandAction(pluginInstance, mockScheduler),
-                new NarrateAction(null),
-                new TitleAction(null),
-                new AwaitAction(null),
-                new DynamicAction(null, null),
-                new LocationAction(),
-                new NopAction(),
-                new MessageAction(new ActionWaitHelper(pluginInstance)));
-        StoryParser storyParser = new StoryParser(mapping);
+        StoryParser storyParser = StoryParserTest.getStoryParser();
         String storyText = new ClassLoaderResourceStoryRepository().getStoryScript("dynamic-test");
         DynamicAction dynamicAction = new DynamicAction(storyParser, new StoryPlayer());
         dynamicAction.setParameter(storyText);

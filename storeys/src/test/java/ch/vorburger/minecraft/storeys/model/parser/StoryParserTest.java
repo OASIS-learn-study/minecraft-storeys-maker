@@ -18,10 +18,6 @@
  */
 package ch.vorburger.minecraft.storeys.model.parser;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.ReadingSpeed;
@@ -34,13 +30,15 @@ import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.api.scheduler.SpongeExecutorService;
 import org.spongepowered.api.text.title.Title;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class StoryParserTest {
 
@@ -49,7 +47,7 @@ public class StoryParserTest {
         TestPlainTextSerializer.inject();
     }
 
-    private StoryParser getStoryParser() {
+    public static StoryParser getStoryParser() {
         PluginInstance pluginInstance = mock(PluginInstance.class);
         Scheduler scheduler = mock(Scheduler.class);
         when(scheduler.createSyncExecutor(isA(PluginInstance.class))).thenReturn(mock(SpongeExecutorService.class));
