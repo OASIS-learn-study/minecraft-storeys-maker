@@ -29,20 +29,19 @@ import ch.vorburger.minecraft.storeys.model.Story;
 
 public class StoryParser {
 
-    private final CommandMapping mapping;
+    private final List<Action> mapping;
 
     @Inject
-    public StoryParser(CommandMapping mapping) {
+    public StoryParser(List<Action> mapping) {
         this.mapping = mapping;
     }
 
     public Story parse(String story) {
         List<Action<?>> actions = new ArrayList<>();
         while (!"".equals(story)) {
-            for (CommandMapping.Mapping mapping : mapping.getMappings()) {
-                Matcher matcher = mapping.getRegex().matcher(story);
+            for (Action action : mapping) {
+                Matcher matcher = action.getPattern().matcher(story);
                 if (matcher.find()) {
-                    Action<?> action = mapping.getActionProvider().get();
                     actions.add(action);
                     action.setParameter(matcher.group(1));
                     story = matcher.replaceFirst("").trim();

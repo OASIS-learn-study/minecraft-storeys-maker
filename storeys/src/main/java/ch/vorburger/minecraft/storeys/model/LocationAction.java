@@ -20,6 +20,7 @@ package ch.vorburger.minecraft.storeys.model;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.regex.Pattern;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.events.ConditionService;
@@ -43,6 +44,11 @@ public class LocationAction implements Action<Void> {
     @Override
     public void setParameter(String param) {
         this.coordinates = param;
+    }
+
+    @Override
+    public Pattern getPattern() {
+        return Pattern.compile("^%in\\s([^\\n]*)");
     }
 
     @Override

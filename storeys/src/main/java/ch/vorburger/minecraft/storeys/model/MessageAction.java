@@ -19,6 +19,7 @@
 package ch.vorburger.minecraft.storeys.model;
 
 import java.util.concurrent.CompletionStage;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -38,6 +39,11 @@ public class MessageAction extends TextAction<Void> {
             context.getCommandSource().sendMessage(getText());
             return null;
         });
+    }
+
+    @Override
+    public Pattern getPattern() {
+        return Pattern.compile("^([^\\n]*)");
     }
 
 }

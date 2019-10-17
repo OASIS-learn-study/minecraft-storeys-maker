@@ -20,6 +20,7 @@ package ch.vorburger.minecraft.storeys.model;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.regex.Pattern;
 
 /**
  * Action that does nothing e.g. No Operation Action.
@@ -32,6 +33,11 @@ public class NopAction implements Action<Void> {
 
     @Override
     public void setParameter(String param) {
+    }
+
+    @Override
+    public Pattern getPattern() {
+        return Pattern.compile("^\\s*//(.*)");
     }
 
     @Override

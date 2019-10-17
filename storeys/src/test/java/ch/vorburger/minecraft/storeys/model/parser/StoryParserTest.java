@@ -19,6 +19,7 @@
 package ch.vorburger.minecraft.storeys.model.parser;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
@@ -54,16 +55,17 @@ public class StoryParserTest {
         when(scheduler.createSyncExecutor(isA(PluginInstance.class))).thenReturn(mock(SpongeExecutorService.class));
 
         ActionWaitHelper actionWaitHelper = new ActionWaitHelper(pluginInstance);
-        CommandMapping commandMapping = new CommandMapping(
-                () -> new CommandAction(pluginInstance, scheduler),
-                () -> new NarrateAction(new Narrator(pluginInstance)),
-                () -> new TitleAction(actionWaitHelper),
-                () -> new AwaitAction(actionWaitHelper),
-                () -> new DynamicAction(null, null),
-                () -> new LocationAction(null),
-                () -> new MessageAction(actionWaitHelper));
+        List<Action> actionList = Arrays.asList(
+                new CommandAction(pluginInstance, scheduler),
+                new NarrateAction(new Narrator(pluginInstance)),
+                new TitleAction(actionWaitHelper),
+                new AwaitAction(actionWaitHelper),
+                new DynamicAction(null, null),
+                new LocationAction(),
+                new NopAction(),
+                new MessageAction(actionWaitHelper));
 
-        return new StoryParser(commandMapping);
+        return new StoryParser(actionList);
     }
 
     @Test
@@ -94,7 +96,6 @@ public class StoryParserTest {
 
         // then
         List<Action<?>> storyActionsList = story.getActionsList();
-        System.out.println("storyActionsList = " + storyActionsList);
         assertEquals(1, storyActionsList.size());
         assertEquals(DynamicAction.class, storyActionsList.get(0).getClass());
     }

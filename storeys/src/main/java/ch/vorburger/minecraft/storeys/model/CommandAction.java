@@ -27,6 +27,8 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.scheduler.Scheduler;
 
+import java.util.regex.Pattern;
+
 import static java.util.Objects.requireNonNull;
 
 public class CommandAction extends MainThreadAction<CommandResult> {
@@ -54,6 +56,11 @@ public class CommandAction extends MainThreadAction<CommandResult> {
     @Override
     public void setParameter(String param) {
         commandLineWithoutSlash = param;
+    }
+
+    @Override
+    public Pattern getPattern() {
+        return Pattern.compile("^/([a-zA-Z]*\\s.*)");
     }
 
     @Override

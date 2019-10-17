@@ -19,6 +19,7 @@
 package ch.vorburger.minecraft.storeys.model;
 
 import java.util.concurrent.CompletionStage;
+import java.util.regex.Pattern;
 import javax.annotation.CheckReturnValue;
 
 public interface Action<T> {
@@ -30,6 +31,8 @@ public interface Action<T> {
     CompletionStage<T> execute(ActionContext context);
 
     void setParameter(String param);
+
+    Pattern getPattern();
 
     // default <T> T requireNonNull(T obj, String propertyName) {
     // default void checkArgument(boolean test, String propertyValidationErrorMessage) {

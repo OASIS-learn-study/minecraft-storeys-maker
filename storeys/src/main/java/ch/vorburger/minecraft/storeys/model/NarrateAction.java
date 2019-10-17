@@ -57,6 +57,11 @@ public class NarrateAction extends TextAction<Void> {
     }
 
     @Override
+    public Pattern getPattern() {
+        return Pattern.compile("(?s)^(@.+?)\\n\\n");
+    }
+
+    @Override
     public CompletionStage<Void> execute(ActionContext context) {
         Locatable locatable = (Locatable) context.getCommandSource();
         World world = locatable.getWorld();

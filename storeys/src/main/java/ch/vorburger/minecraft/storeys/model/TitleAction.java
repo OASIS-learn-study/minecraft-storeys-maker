@@ -19,6 +19,7 @@
 package ch.vorburger.minecraft.storeys.model;
 
 import java.util.concurrent.CompletionStage;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -54,6 +55,11 @@ public class TitleAction extends TextAction<Void> {
             super.setParameter(parts[0]);
             subtitleText = Text.of(parts[1]);
         }
+    }
+
+    @Override
+    public Pattern getPattern() {
+        return Pattern.compile("(?s)^=\\s(.*==[^\\n]*)");
     }
 
     @Override

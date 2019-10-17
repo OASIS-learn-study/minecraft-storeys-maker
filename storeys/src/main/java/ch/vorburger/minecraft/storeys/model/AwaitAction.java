@@ -19,6 +19,7 @@
 package ch.vorburger.minecraft.storeys.model;
 
 import java.util.concurrent.CompletionStage;
+import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -41,6 +42,11 @@ public class AwaitAction implements Action<Void> {
             throw new SyntaxErrorException("%await currently only supports seconds; example: %await 2s");
         }
         msToWait = (Integer.decode(param.substring(0, param.length() - 1)) * 1000);
+    }
+
+    @Override
+    public Pattern getPattern() {
+        return Pattern.compile("^%await\\s([^\\n]*)");
     }
 
     @Override

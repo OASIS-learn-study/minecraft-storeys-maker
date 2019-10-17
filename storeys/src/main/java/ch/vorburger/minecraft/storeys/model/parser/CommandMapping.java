@@ -18,59 +18,35 @@
  */
 package ch.vorburger.minecraft.storeys.model.parser;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import javax.inject.Provider;
-
 import ch.vorburger.minecraft.storeys.model.*;
 import com.google.inject.Inject;
+import com.google.inject.Provides;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class CommandMapping {
-    private List<Mapping> mappings = new ArrayList<>();
+    private List<Action> mappings;
 
     @Inject
     public CommandMapping(
-            Provider<CommandAction> commandActionProvider,
-            Provider<NarrateAction> narrateProvider,
-            Provider<TitleAction> titleActionProvider,
-            Provider<AwaitAction> awaitActionProvider,
-            Provider<DynamicAction> dynamicActionProvider,
-            Provider<LocationAction> locationActionProvider,
-            Provider<MessageAction> messageActionProvider
+            CommandAction commandActionProvider,
+            NarrateAction narrateProvider,
+            TitleAction titleActionProvider,
+            AwaitAction awaitActionProvider,
+            DynamicAction dynamicActionProvider,
+            LocationAction locationActionProvider,
+            NopAction nopAction,
+            MessageAction messageActionProvider
     ) {
-        mappings.add(new Mapping(Pattern.compile("(?s)^=\\s(.*==[^\\n]*)"), titleActionProvider::get));
-        mappings.add(new Mapping(Pattern.compile("(?s)^=\\s([^\\n]*)"), titleActionProvider::get));
-        mappings.add(new Mapping(Pattern.compile("(?s)^(@.+?)\\n\\n"), narrateProvider::get));
-        mappings.add(new Mapping(Pattern.compile("^%await\\s([^\\n]*)"), awaitActionProvider::get));
-        mappings.add(new Mapping(Pattern.compile("^/([a-zA-Z]*\\s.*)"), commandActionProvider::get));
-        mappings.add(new Mapping(Pattern.compile("(?s)^\\s+(.+?}\\n)"), dynamicActionProvider::get));
-        mappings.add(new Mapping(Pattern.compile("^%in\\s([^\\n]*)"), locationActionProvider::get));
-        mappings.add(new Mapping(Pattern.compile("^\\s*//(.*)"), NopAction::new));
-        mappings.add(new Mapping(Pattern.compile("^([^\\n]*)"), messageActionProvider::get));
+        mappings = Arrays.asList(commandActionProvider, narrateProvider, titleActionProvider, awaitActionProvider,
+                dynamicActionProvider, locationActionProvider, nopAction, messageActionProvider
+        );
     }
 
-    public List<Mapping> getMappings() {
+    @Provides
+    public List<Action> getMappings() {
         return mappings;
-    }
-
-    public static class Mapping {
-        private final Pattern regex;
-        private final Provider<Action<?>> actionProvider;
-
-        Mapping(Pattern regex,  Provider<Action<?>> actionProvider) {
-            this.regex = regex;
-            this.actionProvider = actionProvider;
-        }
-
-        Pattern getRegex() {
-            return regex;
-        }
-
-        Provider<Action<?>> getActionProvider() {
-            return actionProvider;
-        }
     }
 
 }

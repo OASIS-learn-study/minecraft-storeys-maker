@@ -19,7 +19,10 @@
 package ch.vorburger.minecraft.storeys.tests;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
+import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.AwaitAction;
 import ch.vorburger.minecraft.storeys.model.CommandAction;
@@ -31,7 +34,6 @@ import ch.vorburger.minecraft.storeys.model.NopAction;
 import ch.vorburger.minecraft.storeys.model.Story;
 import ch.vorburger.minecraft.storeys.model.TitleAction;
 import ch.vorburger.minecraft.storeys.model.parser.ClassLoaderResourceStoryRepository;
-import ch.vorburger.minecraft.storeys.model.parser.CommandMapping;
 import ch.vorburger.minecraft.storeys.model.parser.StoryParser;
 import ch.vorburger.minecraft.storeys.model.parser.SyntaxErrorException;
 import org.junit.Before;
@@ -48,24 +50,24 @@ import static org.mockito.Mockito.when;
 
 public class ActionParserTest {
 
-    private Scheduler mockScheduler = mock(Scheduler.class);
-
-    private final CommandMapping commandMapping = new CommandMapping(
-            () -> new CommandAction(null, mockScheduler),
-            () -> new NarrateAction(null),
-            () -> new TitleAction(null),
-            () -> new AwaitAction(null),
-            () -> new DynamicAction(null, null),
-            LocationAction::new,
-            () -> new MessageAction(null));
-
-    private final StoryParser parser = new StoryParser(commandMapping);
+    private StoryParser parser;
 
     private final Action<?>[] emptyList = new Action[]{new NopAction(), new NopAction(), new NopAction()};
 
     @Before
     public void setup() {
+        Scheduler mockScheduler = mock(Scheduler.class);
         when(mockScheduler.createSyncExecutor(null)).thenReturn(mock(SpongeExecutorService.class));
+        List<Action> actionList = Arrays.asList(
+                new CommandAction(null, mockScheduler),
+                new NarrateAction(null),
+                new TitleAction(null),
+                new AwaitAction(null),
+                new DynamicAction(null, null),
+                new LocationAction(),
+                new NopAction(),
+                new MessageAction(null));
+        parser = new StoryParser(actionList);
     }
 
     @Test

@@ -19,6 +19,8 @@
 package ch.vorburger.minecraft.storeys.model;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
@@ -34,6 +36,8 @@ import org.junit.Test;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.type.CarriedInventory;
+import org.spongepowered.api.scheduler.Scheduler;
+import org.spongepowered.api.scheduler.SpongeExecutorService;
 
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
@@ -51,14 +55,17 @@ public class DynamicActionTest {
     public void execute() throws IOException {
         // given
         PluginInstance pluginInstance = mock(PluginInstance.class);
-        CommandMapping mapping = new CommandMapping(
-                () -> new CommandAction(null, null),
-                () -> new NarrateAction(null),
-                () -> new TitleAction(null),
-                () -> new AwaitAction(null),
-                () -> new DynamicAction(null, null),
-                () -> new LocationAction(null),
-                () -> new MessageAction(new ActionWaitHelper(pluginInstance)));
+        Scheduler mockScheduler = mock(Scheduler.class);
+        when(mockScheduler.createSyncExecutor(pluginInstance)).thenReturn(mock(SpongeExecutorService.class));
+        List<Action> mapping = Arrays.asList(
+                new CommandAction(pluginInstance, mockScheduler),
+                new NarrateAction(null),
+                new TitleAction(null),
+                new AwaitAction(null),
+                new DynamicAction(null, null),
+                new LocationAction(),
+                new NopAction(),
+                new MessageAction(new ActionWaitHelper(pluginInstance)));
         StoryParser storyParser = new StoryParser(mapping);
         String storyText = new ClassLoaderResourceStoryRepository().getStoryScript("dynamic-test");
         DynamicAction dynamicAction = new DynamicAction(storyParser, new StoryPlayer());
