@@ -25,7 +25,6 @@ import ch.vorburger.minecraft.storeys.model.parser.ClassLoaderResourceStoryRepos
 import ch.vorburger.minecraft.storeys.model.parser.StoryParser;
 import ch.vorburger.minecraft.storeys.model.parser.StoryParserTest;
 import ch.vorburger.minecraft.storeys.model.parser.SyntaxErrorException;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -37,14 +36,9 @@ import static org.hamcrest.core.IsCollectionContaining.hasItems;
 
 public class ActionParserTest {
 
-    private StoryParser parser;
+    private StoryParser parser = StoryParserTest.getStoryParser();
 
     private final Action<?>[] emptyList = new Action[]{new NopAction(), new NopAction(), new NopAction()};
-
-    @Before
-    public void setup() {
-        parser = StoryParserTest.getStoryParser();
-    }
 
     @Test
     public void helloStory() throws IOException, SyntaxErrorException {

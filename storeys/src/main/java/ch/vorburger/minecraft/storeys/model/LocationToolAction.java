@@ -20,7 +20,6 @@ package ch.vorburger.minecraft.storeys.model;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.regex.Pattern;
 
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.data.key.Keys;
@@ -58,12 +57,6 @@ public class LocationToolAction implements Action<Void> {
 
     @Override
     public void setParameter(String param) {
-    }
-
-    @Override
-    public Pattern getPattern() {
-        // not used in story parser
-        return null;
     }
 
     public static ItemStack locationEventCreateTool() {

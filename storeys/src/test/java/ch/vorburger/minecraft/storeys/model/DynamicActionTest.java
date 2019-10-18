@@ -33,7 +33,9 @@ import org.spongepowered.api.item.inventory.type.CarriedInventory;
 import java.io.IOException;
 import java.util.concurrent.CompletionStage;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DynamicActionTest {
     @Before
