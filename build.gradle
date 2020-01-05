@@ -64,7 +64,7 @@ subprojects {
 
         implementation 'org.spongepowered:spongeapi:7.0.0'
 
-        testImplementation 'junit:junit:4.12'
+        testImplementation 'junit:junit:4.13'
         testImplementation('com.google.truth:truth:1.0') {
             // NOT 0.31+ which pull 'com.google.guava:guava:20.0', but causes a mess for Gradle's testCompile VS compile; Gradle bug?!
             exclude group: 'com.google.guava'
