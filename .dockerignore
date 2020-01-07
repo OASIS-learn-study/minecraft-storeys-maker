@@ -1,8 +1,8 @@
 .git
 build
-gradle
+# gradle
 
-storeys
-scratch
+# storeys
+# scratch
 
 bin
