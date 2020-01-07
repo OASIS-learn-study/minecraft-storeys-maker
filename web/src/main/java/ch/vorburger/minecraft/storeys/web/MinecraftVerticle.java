@@ -37,6 +37,9 @@ import io.vertx.serviceproxy.ServiceBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -55,12 +58,14 @@ public class MinecraftVerticle extends AbstractHttpServerVerticle implements Eve
     private final TokenProvider tokenProvider;
     private Handler<Message<JsonObject>> actionsConsumer;
 
-    public MinecraftVerticle(int httpPort, Minecraft minecraft, TokenProvider tokenProvider) {
+    @Inject
+    public MinecraftVerticle(@Named("http-port") int httpPort, Minecraft minecraft, TokenProvider tokenProvider) {
         super(httpPort);
         this.minecraft = minecraft;
         this.tokenProvider = tokenProvider;
     }
 
+    @Inject
     public void setActionsConsumer(Handler<Message<JsonObject>> actionsConsumer) {
         this.actionsConsumer = actionsConsumer;
     }

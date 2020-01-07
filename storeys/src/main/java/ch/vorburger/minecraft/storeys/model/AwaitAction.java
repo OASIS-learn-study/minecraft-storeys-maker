@@ -18,27 +18,38 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
-import com.google.common.base.Preconditions;
 import java.util.concurrent.CompletionStage;
+
+import javax.inject.Inject;
+
+import ch.vorburger.minecraft.storeys.model.parser.SyntaxErrorException;
 
 public class AwaitAction implements Action<Void> {
 
     private final ActionWaitHelper actionWaitHelper;
     private int msToWait;
 
-    public AwaitAction(PluginInstance plugin) {
-        this.actionWaitHelper = new ActionWaitHelper(plugin);
+    @Inject
+    public AwaitAction(ActionWaitHelper actionWaitHelper) {
+        this.actionWaitHelper = actionWaitHelper;
     }
 
-    public AwaitAction setMsToWait(int msToWait) {
-        Preconditions.checkArgument(msToWait > 100, "msToWait > 100");
-        this.msToWait = msToWait;
-        return this;
+
+    @Override
+    public void setParameter(String param) {
+        if (!param.endsWith("s")) {
+            throw new SyntaxErrorException("%await currently only supports seconds; example: %await 2s, not " + param);
+        }
+        msToWait = (Integer.decode(param.substring(0, param.length() - 1)) * 1000);
     }
 
     @Override
     public CompletionStage<Void> execute(ActionContext context) {
         return actionWaitHelper.executeAndWait(msToWait, () -> null);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + ": time to wait: '" + msToWait + "' millis";
     }
 }

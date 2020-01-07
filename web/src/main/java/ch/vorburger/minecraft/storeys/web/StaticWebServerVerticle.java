@@ -24,6 +24,9 @@ import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 /**
  * Vert.x Verticle serving static content.
  *
@@ -35,7 +38,8 @@ public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
 
     private final String webRoot;
 
-    public StaticWebServerVerticle(int httpPort) {
+    @Inject
+    public StaticWebServerVerticle(@Named("web-http-port") int httpPort) {
         super(httpPort);
         this.webRoot = "static"; // ~= ../scratch/dist/*.js
     }

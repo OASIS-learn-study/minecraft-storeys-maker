@@ -22,15 +22,21 @@ import static java.util.Objects.requireNonNull;
 
 import ch.vorburger.minecraft.storeys.Narrator;
 import java.util.concurrent.CompletionStage;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.inject.Inject;
+
 import org.spongepowered.api.world.Locatable;
 import org.spongepowered.api.world.World;
 
 public class NarrateAction extends TextAction<Void> {
-
+    private static final Pattern ENTITY_NAME_PATTERN = Pattern.compile("@([a-zA-Z]*)\\s");
     private final Narrator narrator;
 
     private String entityName;
 
+    @Inject
     public NarrateAction(Narrator narrator) {
         this.narrator = narrator;
     }
@@ -38,6 +44,16 @@ public class NarrateAction extends TextAction<Void> {
     public NarrateAction setEntity(String entityName) {
         this.entityName = requireNonNull(entityName, "entityName");
         return this;
+    }
+    
+    @Override
+    public void setParameter(String param) {
+        Matcher matcher = ENTITY_NAME_PATTERN.matcher(param);
+        if (matcher.find()) {
+            entityName = matcher.group(1);
+            param = matcher.replaceAll("");
+        }
+        super.setParameter(param);
     }
 
     @Override
@@ -48,4 +64,8 @@ public class NarrateAction extends TextAction<Void> {
         return narrator.narrate(world, requireNonNull(entityName, "entityName"), getText().toPlain(), context.getReadingSpeed());
     }
 
+    @Override
+    public String toString() {
+        return "\"" + super.toString() + "\" says: " + entityName;
+    }
 }

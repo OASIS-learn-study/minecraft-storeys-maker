@@ -42,8 +42,8 @@ public class Activator implements BundleActivator {
 
         // TODO reigster GuardGameModeJoinListener
 
-        context.registerService(CommandRegistration.class, new StoryCommand(osgiPlugin, Paths.get("config/storeys")), null);
-        context.registerService(CommandRegistration.class, new NarrateCommand(osgiPlugin), null);
+        //context.registerService(CommandRegistration.class, new StoryCommand(osgiPlugin, Paths.get("config/storeys")), null);
+//        context.registerService(CommandRegistration.class, new NarrateCommand(osgiPlugin), null);
     }
 
     @Override

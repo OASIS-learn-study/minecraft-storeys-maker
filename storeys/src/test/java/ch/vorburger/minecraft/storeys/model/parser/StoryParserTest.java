@@ -18,30 +18,38 @@
  */
 package ch.vorburger.minecraft.storeys.model.parser;
 
-import java.io.IOException;
-import java.util.List;
-
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.StoryPlayer;
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.ActionContext;
+import ch.vorburger.minecraft.storeys.model.ActionWaitHelper;
+import ch.vorburger.minecraft.storeys.model.AwaitAction;
+import ch.vorburger.minecraft.storeys.model.CommandAction;
 import ch.vorburger.minecraft.storeys.model.DynamicAction;
+import ch.vorburger.minecraft.storeys.model.LocationAction;
 import ch.vorburger.minecraft.storeys.model.MessageAction;
+import ch.vorburger.minecraft.storeys.model.NarrateAction;
 import ch.vorburger.minecraft.storeys.model.Story;
 import ch.vorburger.minecraft.storeys.model.TitleAction;
 import org.junit.Before;
 import org.junit.Test;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.api.scheduler.SpongeExecutorService;
 import org.spongepowered.api.text.title.Title;
 
+import java.io.IOException;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class StoryParserTest {
 
@@ -50,10 +58,22 @@ public class StoryParserTest {
         TestPlainTextSerializer.inject();
     }
 
-    private StoryParser getStoryParser() {
+    public static StoryParser getStoryParser() {
         PluginInstance pluginInstance = mock(PluginInstance.class);
-        SpongeExecutorService executorService = mock(SpongeExecutorService.class);
-        return new StoryParser(pluginInstance, new Narrator(pluginInstance), executorService);
+        Scheduler scheduler = mock(Scheduler.class);
+        when(scheduler.createSyncExecutor(isA(PluginInstance.class))).thenReturn(mock(SpongeExecutorService.class));
+
+        ActionWaitHelper actionWaitHelper = new ActionWaitHelper(pluginInstance);
+        CommandMapping commandMapping = new CommandMapping(
+                () -> new CommandAction(pluginInstance, scheduler),
+                () -> new NarrateAction(new Narrator(pluginInstance)),
+                () -> new TitleAction(actionWaitHelper),
+                () -> new AwaitAction(actionWaitHelper),
+                () -> new DynamicAction(null, null),
+                LocationAction::new,
+                () -> new MessageAction(actionWaitHelper));
+
+        return new StoryParser(commandMapping);
     }
 
     @Test
@@ -67,7 +87,7 @@ public class StoryParserTest {
 
         // then
         List<Action<?>> storyActionsList = story.getActionsList();
-        assertTrue(!storyActionsList.isEmpty());
+        assertFalse(storyActionsList.isEmpty());
         assertEquals(TitleAction.class, storyActionsList.get(0).getClass());
         assertEquals(MessageAction.class, storyActionsList.get(1).getClass());
         assertEquals("CommandAction: /tp -235 64 230 17 12", storyActionsList.get(2).toString());
@@ -89,6 +109,23 @@ public class StoryParserTest {
     }
 
     @Test
+    public void parseMessage() throws IOException, SyntaxErrorException {
+        // given
+        String storyText = new ClassLoaderResourceStoryRepository().getStoryScript("message-test");
+        StoryParser storyParser = getStoryParser();
+
+        // when
+        Story story = storyParser.parse(storyText);
+
+        // then
+        List<Action<?>> storyActionsList = story.getActionsList();
+        assertEquals(2, storyActionsList.size());
+        assertEquals(MessageAction.class, storyActionsList.get(0).getClass());
+        MessageAction action = (MessageAction) storyActionsList.get(1);
+        assertEquals("Only to find the town almost empty.", action.getText().toPlain());
+    }
+
+    @Test
     public void execute() throws IOException, SyntaxErrorException {
         // given
         String storyText = new ClassLoaderResourceStoryRepository().getStoryScript("parse-test");
@@ -98,7 +135,7 @@ public class StoryParserTest {
         Player commandSource = mock(Player.class);
 
         // when
-        StoryPlayer storyPlayer = new StoryPlayer(null);
+        StoryPlayer storyPlayer = new StoryPlayer();
         storyPlayer.play(new ActionContext(commandSource, new ReadingSpeed()), story);
 
         // then

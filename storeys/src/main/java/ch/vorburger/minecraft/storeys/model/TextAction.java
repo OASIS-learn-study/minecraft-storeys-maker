@@ -39,6 +39,15 @@ public abstract class TextAction<T> implements Action<T> {
     }
 
     @Override
+    public void setParameter(String param) {
+        if (text == null) {
+            text = Text.of(param);
+        } else {
+            text = text.concat(Text.NEW_LINE).concat(Text.of(param));
+        }
+    }
+
+    @Override
     public String toString() {
         return getClass().getSimpleName() + ": " + (text != null ? text.toString() : "null");
     }

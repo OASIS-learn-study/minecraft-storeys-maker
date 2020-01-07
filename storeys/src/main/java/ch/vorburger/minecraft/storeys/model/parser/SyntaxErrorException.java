@@ -18,7 +18,7 @@
  */
 package ch.vorburger.minecraft.storeys.model.parser;
 
-public class SyntaxErrorException extends Exception {
+public class SyntaxErrorException extends RuntimeException {
 
     private static final long serialVersionUID = 8664176864484967885L;
 

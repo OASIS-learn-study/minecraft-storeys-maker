@@ -23,12 +23,17 @@ import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.api.Minecraft;
 import ch.vorburger.minecraft.storeys.api.impl.MinecraftImpl;
 import ch.vorburger.minecraft.storeys.api.impl.TokenCommand;
-import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.events.EventService;
 import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.simple.impl.TokenProviderImpl;
 import ch.vorburger.minecraft.storeys.util.Commands;
+import com.google.inject.Injector;
+import com.google.inject.TypeLiteral;
+import com.google.inject.name.Names;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
+import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Sponge;
@@ -62,6 +67,19 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
     public void start(PluginInstance plugin, Path configDir) throws Exception {
         super.start(plugin, configDir);
 
+        Injector injector = pluginInjector.createChildInjector(binder -> {
+            binder.bind(TokenProvider.class).to(TokenProviderImpl.class);
+            binder.bind(Minecraft.class).to(MinecraftImpl.class);
+            binder.bind(EventBusSender.class).to(MinecraftVerticle.class);
+            binder.bind(new TypeLiteral<Handler<Message<JsonObject>>>(){}).to(ActionsConsumer.class);
+            // TODO read from some configuration
+            binder.bind(Integer.class).annotatedWith(Names.named("http-port")).toInstance(8080);
+            binder.bind(Integer.class).annotatedWith(Names.named("web-http-port")).toInstance(7070);
+        });
+        actionsConsumer = injector.getInstance(ActionsConsumer.class);
+        MinecraftVerticle minecraftVerticle = injector.getInstance(MinecraftVerticle.class);
+        StaticWebServerVerticle staticWebServerVerticle = injector.getInstance(StaticWebServerVerticle.class);
+
         // TODO Other Event registrations should later go up into AbstractStoreysPlugin so that Script can have Event triggers as well, but for now:
         EventManager eventManager = Sponge.getEventManager();
         eventManager.registerListener(plugin, Join.class, event -> eventService.onPlayerJoin(event));
@@ -69,25 +87,17 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
         eventManager.registerListener(plugin, ChangeInventoryEvent.Held.class, event -> eventService.onChangeInventoryHeldEvent(event));
         // InteractItemEvent ?
 
-        TokenProvider tokenProvider = new TokenProviderImpl();
+        TokenProvider tokenProvider = injector.getInstance(TokenProvider.class);
         loginCommandMapping = Commands.register(plugin, new LoginCommand(tokenProvider));
         tokenCommandMapping = Commands.register(plugin, new TokenCommand(tokenProvider));
 
         try {
             try {
-                // TODO read from some configuration
-                int eventBusHttpPort = 8080;
-                int staticWebServerHttpPort = 7070;
-
                 vertxStarter = new VertxStarter();
-                eventService = new EventService(plugin);
+                eventService = injector.getInstance(EventService.class);
 
-                Minecraft minecraft = new MinecraftImpl(plugin);
-                MinecraftVerticle minecraftVerticle = new MinecraftVerticle(eventBusHttpPort, minecraft, tokenProvider);
-                actionsConsumer = new ActionsConsumer(plugin, eventService, new ConditionService(plugin), minecraftVerticle);
-                minecraftVerticle.setActionsConsumer(actionsConsumer);
                 vertxStarter.deployVerticle(minecraftVerticle).toCompletableFuture().get();
-                vertxStarter.deployVerticle(new StaticWebServerVerticle(staticWebServerHttpPort)).toCompletableFuture().get();
+                vertxStarter.deployVerticle(staticWebServerVerticle).toCompletableFuture().get();
 
             } catch (ExecutionException  | InterruptedException e) {
                 throw new IllegalStateException("Vert.x start-up failed", e);

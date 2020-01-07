@@ -18,12 +18,11 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
-import java.io.IOException;
-import java.util.concurrent.CompletionStage;
-
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.ReadingSpeed;
+import ch.vorburger.minecraft.storeys.StoryPlayer;
 import ch.vorburger.minecraft.storeys.model.parser.ClassLoaderResourceStoryRepository;
+import ch.vorburger.minecraft.storeys.model.parser.StoryParser;
+import ch.vorburger.minecraft.storeys.model.parser.StoryParserTest;
 import ch.vorburger.minecraft.storeys.model.parser.TestPlainTextSerializer;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +30,9 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.type.CarriedInventory;
 
-import static org.junit.Assert.assertNull;
+import java.io.IOException;
+import java.util.concurrent.CompletionStage;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -46,10 +47,10 @@ public class DynamicActionTest {
     @SuppressWarnings("unchecked")
     public void execute() throws IOException {
         // given
-        PluginInstance pluginInstance = mock(PluginInstance.class);
+        StoryParser storyParser = StoryParserTest.getStoryParser();
         String storyText = new ClassLoaderResourceStoryRepository().getStoryScript("dynamic-test");
-        DynamicAction dynamicAction = new DynamicAction(pluginInstance);
-        dynamicAction.setScript(storyText);
+        DynamicAction dynamicAction = new DynamicAction(storyParser, new StoryPlayer());
+        dynamicAction.setParameter(storyText);
         Player commandSource = mock(Player.class);
         CarriedInventory inventory = mock(CarriedInventory.class);
         when(commandSource.getInventory()).thenReturn(inventory);

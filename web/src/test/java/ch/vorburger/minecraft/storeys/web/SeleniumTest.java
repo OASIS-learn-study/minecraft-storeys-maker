@@ -18,7 +18,10 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 
 import ch.vorburger.minecraft.storeys.api.HandType;
@@ -54,6 +57,9 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.entity.living.player.Player;
+
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
 
 /**
  * Integration test, based on WebDriver.
@@ -134,7 +140,7 @@ public class SeleniumTest {
 
     @Test
     public void a_testBasicSetUp() {
-        assertThat(webDriver.getTitle()).isEqualTo("Test");
+        assertThat(webDriver.getTitle(), is("Test"));
         assertNoBrowserConsoleLogErrors();
 
         // Let's just make sure that WD executeScript() works fine:
@@ -142,8 +148,8 @@ public class SeleniumTest {
         assertEquals(3, number);
 
         Object value = js.executeScript("return ext !== undefined");
-        assertThat(value).isInstanceOf(Boolean.class);
-        assertThat(value).isNotNull();
+        assertThat(value, is(instanceOf(Boolean.class)));
+        assertThat(value, notNullValue());
         awaitUntilJSReturnsValue("scratchMinecraftExtension not ready", "return ext.scratchMinecraftExtension !== undefined");
     }
 
@@ -152,7 +158,7 @@ public class SeleniumTest {
         final String message = "hello, world";
         testEventBusCall("sendTitle", message);
 
-        assertThat(testMinecraft.results.get("lastTitle")).isEqualTo(message);
+        assertThat(testMinecraft.results.get("lastTitle"), is(message));
     }
 
     @Test
@@ -160,19 +166,21 @@ public class SeleniumTest {
         final String text = "Hi and welcome to Minecraft";
         final String entity = "joe";
         testEventBusCall("narrate", entity, text);
-        assertThat(testMinecraft.results.get("entity")).isEqualTo(entity);
-        assertThat(testMinecraft.results.get("text")).isEqualTo(text);
+        assertThat(testMinecraft.results.get("entity"), is(entity));
+        assertThat(testMinecraft.results.get("text"), is(text));
     }
 
     @Test
     public void e_testNegativeAPI() {
-        assertThat(runTesterJSAndGetFailures()).containsExactly("getItemHeld expected Apple but actually got Nothing");
+        assertThat(runTesterJSAndGetFailures(), contains("getItemHeld expected Apple but actually got Nothing"));
     }
 
     @Test
     public void e_testPositiveAPI() {
         testMinecraft.itemsHeld.put(HandType.MainHand, ItemType.Apple);
-        assertThat(runTesterJSAndGetFailures().isEmpty());
+        List<String> actual = runTesterJSAndGetFailures();
+        System.out.println("actual = " + actual);
+        assertThat(actual, empty());
     }
 
     // TODO testWhenCommand
@@ -181,7 +189,7 @@ public class SeleniumTest {
 
     @SuppressWarnings("unchecked")
     private List<String> runTesterJSAndGetFailures() {
-        js.executeScript("tester.test()");
+        js.executeScript("window.tester = new Tester(); tester.test()");
         assertNoBrowserConsoleLogErrors();
         awaitUntilJSReturnsValue("Client side test is not yet done", "return tester.isDone() === true");
         return (List<String>) js.executeScript("return tester.failures");

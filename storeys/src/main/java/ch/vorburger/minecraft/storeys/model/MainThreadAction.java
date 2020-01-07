@@ -24,7 +24,7 @@ import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.spotify.futures.CompletableFuturesExtra;
 import java.util.concurrent.CompletionStage;
-import org.spongepowered.api.Sponge;
+import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.api.scheduler.SpongeExecutorService;
 
 /**
@@ -37,7 +37,8 @@ public abstract class MainThreadAction<T> implements Action<T> {
 
     private final ListeningScheduledExecutorService guavaifiedMinecraftExecutor;
 
-    protected MainThreadAction(SpongeExecutorService minecraftExecutor) {
+    protected MainThreadAction(PluginInstance plugin, Scheduler scheduler) {
+        SpongeExecutorService minecraftExecutor = scheduler.createSyncExecutor(plugin);
         guavaifiedMinecraftExecutor = MoreExecutors.listeningDecorator(minecraftExecutor);
     }
 

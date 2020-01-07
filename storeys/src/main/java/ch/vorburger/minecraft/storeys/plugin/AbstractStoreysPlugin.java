@@ -18,19 +18,23 @@
  */
 package ch.vorburger.minecraft.storeys.plugin;
 
+import java.nio.file.Path;
+
+import javax.inject.Inject;
+
 import ch.vorburger.minecraft.osgi.api.AbstractPlugin;
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.commands.NarrateCommand;
 import ch.vorburger.minecraft.storeys.commands.StoryCommand;
 import ch.vorburger.minecraft.storeys.guard.GuardGameModeJoinListener;
 import ch.vorburger.minecraft.storeys.util.Commands;
-import java.nio.file.Path;
-import javax.inject.Inject;
+import com.google.inject.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.config.ConfigDir;
+import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
@@ -45,6 +49,15 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
     @ConfigDir(sharedRoot = false)
     private Path configDir;
 
+    @Inject
+    protected Injector pluginInjector;
+
+    @Inject
+    private EventManager eventManager;
+
+    @Inject
+    private CommandManager commandManager;
+
     private CommandMapping narrateCommandMapping;
     private CommandMapping storyCommandMapping;
 
@@ -54,11 +67,15 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
         start(this, this.configDir);
     }
 
-    protected void start(PluginInstance plugin, @SuppressWarnings("hiding") Path configDir) throws Exception {
-        Sponge.getEventManager().registerListener(plugin, Join.class, new GuardGameModeJoinListener());
+    protected void start(PluginInstance plugin, Path configDir) throws Exception {
+        eventManager.registerListener(plugin, Join.class, new GuardGameModeJoinListener());
 
-        storyCommandMapping = Commands.register(plugin, new StoryCommand(plugin, configDir));
-        narrateCommandMapping = Commands.register(plugin, new NarrateCommand(plugin));
+        pluginInjector.createChildInjector(binder -> {
+            binder.bind(PluginInstance.class).toInstance(plugin);
+            binder.bind(Path.class).toInstance(configDir);
+        });
+        storyCommandMapping = Commands.register(plugin, pluginInjector.getInstance(StoryCommand.class));
+        narrateCommandMapping = Commands.register(plugin, pluginInjector.getInstance(NarrateCommand.class));
     }
 
     @Listener
@@ -68,10 +85,10 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
 
     protected void stop() throws Exception {
         if (narrateCommandMapping != null) {
-            Sponge.getCommandManager().removeMapping(narrateCommandMapping);
+            commandManager.removeMapping(narrateCommandMapping);
         }
         if (storyCommandMapping != null) {
-            Sponge.getCommandManager().removeMapping(storyCommandMapping);
+            commandManager.removeMapping(storyCommandMapping);
         }
     }
 }

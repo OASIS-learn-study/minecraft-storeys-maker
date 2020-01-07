@@ -22,8 +22,6 @@ import static org.spongepowered.api.command.args.GenericArguments.onlyOne;
 import static org.spongepowered.api.command.args.GenericArguments.string;
 import static org.spongepowered.api.text.Text.of;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
-import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.StoryPlayer;
 import ch.vorburger.minecraft.storeys.model.ActionContext;
@@ -38,7 +36,8 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 
-import org.spongepowered.api.Sponge;
+import javax.inject.Inject;
+
 import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -52,17 +51,18 @@ public class StoryCommand implements Command {
     private static final Text ARG_STORY = of("storyName");
 
     private final StoryRepository storyRepository;
-    private final StoryParser actionParser;
+    private final StoryParser storyParser;
     private final StoryPlayer storyPlayer;
 
-    public StoryCommand(PluginInstance plugin, Path configDir) {
+    @Inject
+    public StoryCommand(Path configDir, StoryParser storyParser, StoryPlayer storyPlayer) {
         File storiesDir = new File(configDir.toFile(), "stories");
         if (!storiesDir.exists()) {
             storiesDir.mkdirs();
         }
         storyRepository = new FileStoryRepository(storiesDir);
-        actionParser = new StoryParser(plugin, new Narrator(plugin), Sponge.getScheduler().createSyncExecutor(plugin));
-        storyPlayer = new StoryPlayer(plugin);
+        this.storyParser = storyParser;
+        this.storyPlayer = storyPlayer;
     }
 
     @Override
@@ -81,14 +81,14 @@ public class StoryCommand implements Command {
     }
 
     @Override
-    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        String storyName = args.<String>getOne(ARG_STORY).get();
+    public CommandResult execute(CommandSource commandSource, CommandContext commandContext) throws CommandException {
+        String storyName = commandContext.<String>getOne(ARG_STORY).get();
 
         CommandExceptions.doOrThrow("Failed to load & play '" + storyName + "' story, due to: ", () -> {
             String storyScript = storyRepository.getStoryScript(storyName);
-            Story story = actionParser.parse(storyScript);
+            Story story = storyParser.parse(storyScript);
             /* CompletionStage<?> completionStage = storyPlayer.play(..) */ // TODO keep this, so that a user can /stop the story again..
-            storyPlayer.play(new ActionContext(src, new ReadingSpeed()), story);
+            storyPlayer.play(new ActionContext(commandSource, new ReadingSpeed()), story);
         });
 
         return CommandResult.success();

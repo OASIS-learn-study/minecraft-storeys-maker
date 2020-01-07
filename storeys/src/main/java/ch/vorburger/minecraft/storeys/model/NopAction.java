@@ -18,26 +18,29 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-import javax.inject.Inject;
-
-public class MessageAction extends TextAction<Void> {
-
-    private final ActionWaitHelper actionWaitHelper;
-
-    @Inject
-    public MessageAction(ActionWaitHelper actionWaitHelper) {
-        super();
-        this.actionWaitHelper = actionWaitHelper;
+/**
+ * Action that does nothing e.g. No Operation Action.
+ */
+public class NopAction implements Action<Void> {
+    @Override
+    public CompletionStage<Void> execute(ActionContext context) {
+        return CompletableFuture.completedFuture(null);
     }
 
     @Override
-    public CompletionStage<Void> execute(ActionContext context) {
-        return actionWaitHelper.executeAndWait(context.getReadingSpeed().msToRead(getText()), () -> {
-            context.getCommandSource().sendMessage(getText());
-            return null;
-        });
+    public void setParameter(String param) {
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this.getClass().equals(obj.getClass());
+    }
 }

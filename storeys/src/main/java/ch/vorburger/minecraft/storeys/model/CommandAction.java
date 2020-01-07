@@ -18,11 +18,14 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
+import javax.inject.Inject;
+
+import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.scheduler.SpongeExecutorService;
+import org.spongepowered.api.scheduler.Scheduler;
 
 import static java.util.Objects.requireNonNull;
 
@@ -35,8 +38,9 @@ public class CommandAction extends MainThreadAction<CommandResult> {
 
     private String commandLineWithoutSlash;
 
-    public CommandAction(SpongeExecutorService spongeExecutorService) {
-        super(spongeExecutorService);
+    @Inject
+    public CommandAction(PluginInstance plugin, Scheduler scheduler) {
+        super(plugin, scheduler);
     }
 
     public CommandAction setCommand(String commandLine) {
@@ -45,6 +49,11 @@ public class CommandAction extends MainThreadAction<CommandResult> {
             commandLineWithoutSlash = commandLineWithoutSlash.substring(1);
         }
         return this;
+    }
+
+    @Override
+    public void setParameter(String param) {
+        commandLineWithoutSlash = param;
     }
 
     @Override

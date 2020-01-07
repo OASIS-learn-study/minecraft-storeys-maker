@@ -18,13 +18,14 @@
  */
 package ch.vorburger.minecraft.storeys.events;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import ch.vorburger.minecraft.storeys.events.ConditionService.ConditionServiceRegistration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 import org.spongepowered.api.entity.living.player.Player;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ConditionServiceTest {
 
@@ -46,12 +47,12 @@ public class ConditionServiceTest {
             }
         }, (player) -> hit.set(true));
         conditionService.run();
-        assertThat(hit.get()).isTrue();
+        assertThat(hit.get(), is(true));
 
         registration.unregister();
         hit.set(false);
         conditionService.run();
-        assertThat(hit.get()).isFalse();
+        assertThat(hit.get(), is(false));
     }
 
     @Test
@@ -73,30 +74,30 @@ public class ConditionServiceTest {
         }, (player) -> hits.incrementAndGet());
 
         conditionService.run();
-        assertThat(hits.get()).isEqualTo(0);
+        assertThat(hits.get(), is(0));
 
         isHitting.set(true);
         conditionService.run();
-        assertThat(hits.get()).isEqualTo(1);
+        assertThat(hits.get(), is(1));
 
         conditionService.run();
         // It must still be 1 and not 2 now!
-        assertThat(hits.get()).isEqualTo(1);
+        assertThat(hits.get(), is(1));
 
         conditionService.run();
-        assertThat(hits.get()).isEqualTo(1);
+        assertThat(hits.get(), is(1));
 
         isHitting.set(false);
         conditionService.run();
-        assertThat(hits.get()).isEqualTo(1);
+        assertThat(hits.get(), is(1));
 
         isHitting.set(true);
         conditionService.run();
-        assertThat(hits.get()).isEqualTo(2);
+        assertThat(hits.get(), is(2));
 
         registration.unregister();
         conditionService.run();
-        assertThat(hits.get()).isEqualTo(2);
+        assertThat(hits.get(), is(2));
     }
 
 }

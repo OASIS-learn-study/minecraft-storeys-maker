@@ -55,6 +55,10 @@ public class LocationToolAction implements Action<Void> {
         return new CompletableFuture<>();
     }
 
+    @Override
+    public void setParameter(String param) {
+    }
+
     public static ItemStack locationEventCreateTool() {
         final ItemStack item = ItemStack.builder().itemType(ItemTypes.IRON_AXE).build();
         item.offer(Keys.DISPLAY_NAME, Text.of(TextColors.BLUE, "Location tool"));

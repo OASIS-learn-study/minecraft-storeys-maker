@@ -27,20 +27,22 @@ import ch.vorburger.minecraft.storeys.events.LocatableInBoxCondition;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.world.Locatable;
 
-public class LocationAction implements Action<Void> {
-    private static ConditionService conditionService;
+import javax.inject.Inject;
 
+public class LocationAction implements Action<Void> {
+    private ConditionService conditionService;
     private String coordinates;
 
+    public LocationAction() {}
+
+    @Inject
     public LocationAction(PluginInstance plugin) {
-        if (conditionService == null) {
-            conditionService = new ConditionService(plugin);
-        }
+        conditionService = new ConditionService(plugin);
     }
 
-    public Action<?> setBox(String coordinates) {
-        this.coordinates = coordinates;
-        return this;
+    @Override
+    public void setParameter(String param) {
+        this.coordinates = param;
     }
 
     @Override
@@ -55,5 +57,10 @@ public class LocationAction implements Action<Void> {
             future.completeExceptionally(t);
         }
         return future;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + ": " + coordinates;
     }
 }

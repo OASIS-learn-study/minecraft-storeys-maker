@@ -20,8 +20,6 @@ package ch.vorburger.minecraft.storeys.api.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
-import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.api.HandType;
 import ch.vorburger.minecraft.storeys.api.ItemType;
@@ -40,8 +38,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -49,8 +45,10 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
-import org.spongepowered.api.scheduler.SpongeExecutorService;
 import org.spongepowered.api.text.Text;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 /**
  * Implementation of {@link Minecraft} Vert.x RPC service.
@@ -59,31 +57,33 @@ import org.spongepowered.api.text.Text;
  */
 public class MinecraftImpl implements Minecraft {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MinecraftImpl.class);
+    private final Provider<TitleAction> titleActionProvider;
+    private final Provider<NarrateAction> narrateActionProvider;
+    private final Provider<CommandAction> commandActionProvider;
 
-    private final PluginInstance pluginInstance;
-
-    public MinecraftImpl(PluginInstance pluginInstance) {
-        this.pluginInstance = pluginInstance;
+    @Inject
+    public MinecraftImpl(Provider<TitleAction> titleActionProvider, Provider<NarrateAction> narrateActionProvider, Provider<CommandAction> commandActionProvider) {
+        this.titleActionProvider = titleActionProvider;
+        this.narrateActionProvider = narrateActionProvider;
+        this.commandActionProvider = commandActionProvider;
     }
 
     @Override
     public void showTitle(String playerUUID, String message, Handler<AsyncResult<Void>> handler) {
-        CompletionStage<Void> completionStage = execute(getPlayer(playerUUID), new TitleAction(pluginInstance).setText(Text.of(message)));
+        CompletionStage<Void> completionStage = execute(getPlayer(playerUUID), titleActionProvider.get().setText(Text.of(message)));
         handler.handle(new CompletionStageBasedAsyncResult<>(completionStage));
     }
 
     @Override
     public void narrate(String playerUUID, String entity, String text, Handler<AsyncResult<Void>> handler) {
-        final NarrateAction narrateAction = new NarrateAction(new Narrator(pluginInstance));
+        final NarrateAction narrateAction = narrateActionProvider.get();
         narrateAction.setEntity(entity).setText(Text.of(text));
         handler.handle(new CompletionStageBasedAsyncResult<>(execute(getPlayer(playerUUID), narrateAction)));
     }
 
     @Override
     public void runCommand(String playerUUID, String command, Handler<AsyncResult<Void>> handler) {
-        SpongeExecutorService spongeExecutorService = Sponge.getScheduler().createAsyncExecutor(pluginInstance);
-        CompletionStage<CommandResult> completionStageWithResult = execute(getPlayer(playerUUID), new CommandAction(spongeExecutorService).setCommand(command));
+        CompletionStage<CommandResult> completionStageWithResult = execute(getPlayer(playerUUID), commandActionProvider.get().setCommand(command));
         CompletionStage<Void> voidCompletionStage = completionStageWithResult.thenAccept(commandResult -> { /* ignore */ });
         handler.handle(new CompletionStageBasedAsyncResult<>(voidCompletionStage));
     }

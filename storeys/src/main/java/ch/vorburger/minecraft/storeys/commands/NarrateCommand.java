@@ -28,6 +28,9 @@ import ch.vorburger.minecraft.storeys.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.util.Command;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+
+import javax.inject.Inject;
+
 import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -46,8 +49,9 @@ public class NarrateCommand implements Command {
 
     private final Narrator narrator;
 
-    public NarrateCommand(PluginInstance plugin) {
-        narrator = new Narrator(plugin);
+    @Inject
+    public NarrateCommand(Narrator narrator) {
+        this.narrator = narrator;
     }
 
     @Override

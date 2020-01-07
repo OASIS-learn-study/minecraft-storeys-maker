@@ -53,6 +53,8 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import javax.inject.Inject;
+
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -74,6 +76,7 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
     private final Map<String, Unregisterable> conditionRegistrations = new ConcurrentHashMap<>();
     private final Map<String, Pair<Location<World>, Location<World>>> playerBoxLocations = new ConcurrentHashMap<>();
 
+    @Inject
     public ActionsConsumer(PluginInstance plugin, EventService eventService,
             ConditionService conditionService, EventBusSender eventBusSender) {
         this.plugin = plugin;

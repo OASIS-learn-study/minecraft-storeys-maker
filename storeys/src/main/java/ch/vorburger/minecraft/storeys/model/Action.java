@@ -29,6 +29,8 @@ public interface Action<T> {
     @CheckReturnValue
     CompletionStage<T> execute(ActionContext context);
 
+    void setParameter(String param);
+
     // default <T> T requireNonNull(T obj, String propertyName) {
     // default void checkArgument(boolean test, String propertyValidationErrorMessage) {
 }
