@@ -27,12 +27,15 @@ import java.util.concurrent.TimeUnit;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import org.spongepowered.api.entity.living.player.Player;
 
+import javax.inject.Singleton;
+
 /**
  * Implementation of {@link TokenProvider} API.
  *
  * @author edewit - original author (in ActionsConsumer and LoginCommand)
  * @author Michael Vorburger.ch - refactored out into here, and use ConcurrentHashMap
  */
+@Singleton
 public class TokenProviderImpl implements TokenProvider {
     private String adminLoginCode = "learn.study.m1n3craft";
 
