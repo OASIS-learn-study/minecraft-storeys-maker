@@ -26,12 +26,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * Vert.x Verticle serving static content.
  *
  * @author Michael Vorburger.ch
  */
+@Singleton
 public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
 
     private static final Logger LOG = LoggerFactory.getLogger(StaticWebServerVerticle.class);

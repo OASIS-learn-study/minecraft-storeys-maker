@@ -23,10 +23,14 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+
+import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
@@ -42,7 +46,10 @@ public class EventService implements AutoCloseable {
     private final Map<String, Callback> onInteractEntityEventCallbacks = new ConcurrentHashMap<>();
 
     @Inject
-    public EventService() {
+    public EventService(PluginInstance plugin) {
+        // TODO Other Event registrations should later go up into AbstractStoreysPlugin so that Script can have Event triggers as well, but for now:
+        Sponge.getEventManager().registerListeners(plugin, this);
+        // InteractItemEvent ?
     }
 
     @Override
@@ -55,6 +62,7 @@ public class EventService implements AutoCloseable {
         }
     }
 
+    @Listener
     public void onPlayerJoin(Join event) throws Exception {
         Consumer<Join> callback = onPlayerJoinCallback.get();
         if (callback != null) {
@@ -67,6 +75,7 @@ public class EventService implements AutoCloseable {
         return () -> onInteractEntityEventCallbacks.remove(entityName);
     }
 
+    @Listener
     public void onInteractEntityEvent(InteractEntityEvent event) {
         // TODO This is bad, it means that entities are only recognized by name if they are not narrating..
         Optional<Text> optEntityNameText = event.getTargetEntity().get(Keys.DISPLAY_NAME);
@@ -84,6 +93,7 @@ public class EventService implements AutoCloseable {
         });
     }
 
+    @Listener
     public void onChangeInventoryHeldEvent(ChangeInventoryEvent.Held event) {
 /*
         LOG.info("onChangeInventory event={}", event);

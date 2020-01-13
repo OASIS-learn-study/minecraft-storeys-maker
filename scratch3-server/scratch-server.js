@@ -53,7 +53,7 @@ const executeScripts = async () => {
   const minecraft = await new storeys.MinecraftProvider(eventBusURL, code).connect();
 
   readFiles(scriptsFolder, async script => {
-    const scriptName = scriptsFolder + '/' + script;
+    const scriptName = path.resolve(scriptsFolder, script);
     try {
       await requireUncached(scriptName)(minecraft);
     } catch (error) {

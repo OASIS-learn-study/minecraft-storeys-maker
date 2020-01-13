@@ -27,6 +27,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +37,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
 @ThreadSafe
+@Singleton
 public class ConditionService implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConditionService.class);
@@ -89,6 +93,7 @@ public class ConditionService implements AutoCloseable {
     private final Set<Triple<Condition, AtomicBoolean, Callback>> checks = new CopyOnWriteArraySet<>();
     private final @Nullable Task task;
 
+    @Inject
     public ConditionService(PluginInstance plugin) {
         task = Task.builder().execute(this::run).intervalTicks(10).name(getClass().getSimpleName()).submit(requireNonNull(plugin, "plugin"));
     }
