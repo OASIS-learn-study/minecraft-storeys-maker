@@ -78,7 +78,7 @@ let ScratchExtensions: any;
         const eventName = method + args;
         if (!registeredConditions.has(eventName)) {
             registeredConditions.add(eventName);
-            minecraft[method].apply(minecraft, args).subscribe(register => {
+            minecraft[method].apply(minecraft, args).then(register => {
                 register.on().subscribe((data) => {
                     const loggedInPlayer = effectedPlayer;
                     effectedPlayer = data.playerUUID;
