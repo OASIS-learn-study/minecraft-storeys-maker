@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Singleton;
 
 import static java.util.Objects.requireNonNull;
 
@@ -47,6 +48,7 @@ import static java.util.Objects.requireNonNull;
  *
  * @author Michael Vorburger.ch
  */
+@Singleton
 public class MinecraftVerticle extends AbstractHttpServerVerticle implements EventBusSender {
 
     private static final Logger LOG = LoggerFactory.getLogger(MinecraftVerticle.class);

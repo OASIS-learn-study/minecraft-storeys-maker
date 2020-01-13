@@ -23,7 +23,6 @@ import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.api.Minecraft;
 import ch.vorburger.minecraft.storeys.api.impl.MinecraftImpl;
 import ch.vorburger.minecraft.storeys.api.impl.TokenCommand;
-import ch.vorburger.minecraft.storeys.events.EventService;
 import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.simple.impl.TokenProviderImpl;
@@ -38,10 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandMapping;
-import org.spongepowered.api.event.EventManager;
-import org.spongepowered.api.event.entity.InteractEntityEvent;
-import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
-import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
 import org.spongepowered.api.plugin.Plugin;
 
 import java.nio.file.Path;
@@ -57,7 +52,6 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
     private static final Logger LOG = LoggerFactory.getLogger(StoreysWebPlugin.class);
 
     private VertxStarter vertxStarter;
-    private EventService eventService;
     private ActionsConsumer actionsConsumer;
 
     private CommandMapping loginCommandMapping;
@@ -75,17 +69,11 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
             // TODO read from some configuration
             binder.bind(Integer.class).annotatedWith(Names.named("http-port")).toInstance(8080);
             binder.bind(Integer.class).annotatedWith(Names.named("web-http-port")).toInstance(7070);
+            binder.bind(LocationToolListener.class);
         });
         actionsConsumer = injector.getInstance(ActionsConsumer.class);
         MinecraftVerticle minecraftVerticle = injector.getInstance(MinecraftVerticle.class);
         StaticWebServerVerticle staticWebServerVerticle = injector.getInstance(StaticWebServerVerticle.class);
-
-        // TODO Other Event registrations should later go up into AbstractStoreysPlugin so that Script can have Event triggers as well, but for now:
-        EventManager eventManager = Sponge.getEventManager();
-        eventManager.registerListener(plugin, Join.class, event -> eventService.onPlayerJoin(event));
-        eventManager.registerListener(plugin, InteractEntityEvent.class, event -> eventService.onInteractEntityEvent(event));
-        eventManager.registerListener(plugin, ChangeInventoryEvent.Held.class, event -> eventService.onChangeInventoryHeldEvent(event));
-        // InteractItemEvent ?
 
         TokenProvider tokenProvider = injector.getInstance(TokenProvider.class);
         loginCommandMapping = Commands.register(plugin, new LoginCommand(tokenProvider));
@@ -94,7 +82,6 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
         try {
             try {
                 vertxStarter = new VertxStarter();
-                eventService = injector.getInstance(EventService.class);
 
                 vertxStarter.deployVerticle(minecraftVerticle).toCompletableFuture().get();
                 vertxStarter.deployVerticle(staticWebServerVerticle).toCompletableFuture().get();

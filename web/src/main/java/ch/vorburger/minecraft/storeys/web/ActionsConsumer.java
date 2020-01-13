@@ -20,22 +20,16 @@ package ch.vorburger.minecraft.storeys.web;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
-import ch.vorburger.minecraft.storeys.events.Condition;
 import ch.vorburger.minecraft.storeys.events.ConditionService;
-import ch.vorburger.minecraft.storeys.events.ConditionService.ConditionServiceRegistration;
 import ch.vorburger.minecraft.storeys.events.EventService;
-import ch.vorburger.minecraft.storeys.events.LocatableInBoxCondition;
 import ch.vorburger.minecraft.storeys.events.ScriptCommand;
 import ch.vorburger.minecraft.storeys.events.Unregisterable;
-import ch.vorburger.minecraft.storeys.model.LocationToolAction;
 import ch.vorburger.minecraft.storeys.simple.impl.NotLoggedInException;
-import com.flowpowered.math.vector.Vector3d;
 import com.google.common.base.Splitter;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
@@ -44,16 +38,13 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.event.block.InteractBlockEvent;
-import org.spongepowered.api.event.cause.EventContextKeys;
-import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import static java.util.Objects.requireNonNull;
 
@@ -62,6 +53,7 @@ import static java.util.Objects.requireNonNull;
  *
  * @author Michael Vorburger.ch
  */
+@Singleton
 public class ActionsConsumer implements Handler<Message<JsonObject>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActionsConsumer.class);
@@ -91,62 +83,6 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
                     .put("playerUUID", player.getUniqueId().toString());
             eventBusSender.send(message);
         });
-
-        Sponge.getEventManager().registerListener(plugin, InteractBlockEvent.class, event -> {
-            final Optional<ItemStackSnapshot> snapshot = event.getCause().getContext().get(EventContextKeys.USED_ITEM);
-            snapshot.ifPresent(itemStackSnapshot -> {
-                if (itemStackSnapshot.createGameDictionaryEntry().matches(LocationToolAction.locationEventCreateTool())) {
-                    Player player = (Player) event.getSource();
-                    event.getInteractionPoint().ifPresent(
-                            handleLocationToolEvent(event, itemStackSnapshot, player)
-                    );
-                }
-            });
-        });
-    }
-
-    private Consumer<Vector3d> handleLocationToolEvent(InteractBlockEvent event, ItemStackSnapshot itemStackSnapshot, Player player) {
-        return vector3d -> {
-            final String locationName = itemStackSnapshot.createStack().get(Keys.ITEM_LORE)
-                    .orElseThrow(IllegalArgumentException::new).get(0).toPlain();
-            final String playerBoxLocation = player.getUniqueId() + locationName;
-
-            final Location<World> eventLocation = new Location<>(player.getWorld(), vector3d);
-            final Pair<Location<World>, Location<World>> locationPair;
-
-            if (event instanceof InteractBlockEvent.Secondary) {
-                locationPair = updatePlayerBoxLocation(playerBoxLocation, null, eventLocation);
-                player.sendMessage(Text.of("second point set"));
-            } else {
-                locationPair = updatePlayerBoxLocation(playerBoxLocation, eventLocation, null);
-                player.sendMessage(Text.of("first point set"));
-            }
-
-            if (locationPair.getLeft() != null && locationPair.getRight() != null) {
-                final Condition condition = new LocatableInBoxCondition(player.getWorld(), locationPair);
-                final String name = "player_inside_" + locationName + player.getUniqueId().toString();
-                final Unregisterable unregisterable = conditionRegistrations.get(name);
-                if (unregisterable != null) {
-                    unregisterable.unregister();
-                }
-                ConditionServiceRegistration registration = conditionService.register(condition, (Player p) ->
-                        eventBusSender.send(new JsonObject().put("event", name).put("playerUUID", p.getUniqueId().toString())));
-                conditionRegistrations.put(name, registration);
-            }
-        };
-    }
-
-    private Pair<Location<World>, Location<World>> updatePlayerBoxLocation(String key, Location<World> locationLeft, Location<World> locationRight) {
-        Pair<Location<World>, Location<World>> locationPair = playerBoxLocations.get(key);
-        if (locationPair == null) {
-            locationPair = Pair.of(locationLeft, locationRight);
-        } else {
-            locationPair = Pair.of(locationLeft != null ? locationLeft : locationPair.getLeft(),
-                                   locationRight != null ? locationRight : locationPair.getRight());
-        }
-
-        playerBoxLocations.put(key, locationPair);
-        return locationPair;
     }
 
     @Override
