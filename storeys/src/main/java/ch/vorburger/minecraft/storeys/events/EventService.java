@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
@@ -46,9 +47,9 @@ public class EventService implements AutoCloseable {
     private final Map<String, Callback> onInteractEntityEventCallbacks = new ConcurrentHashMap<>();
 
     @Inject
-    public EventService(PluginInstance plugin) {
+    public EventService(PluginInstance plugin, EventManager eventManager) {
         // TODO Other Event registrations should later go up into AbstractStoreysPlugin so that Script can have Event triggers as well, but for now:
-        Sponge.getEventManager().registerListeners(plugin, this);
+        eventManager.registerListeners(plugin, this);
         // InteractItemEvent ?
     }
 

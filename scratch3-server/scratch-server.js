@@ -68,6 +68,7 @@ const executeScratchProjects = async () => {
   readFiles(scratchProjectFolder, async script => {
     const projectLocation = path.join(scratchProjectFolder, script);
     try {
+      global.settings.set('user', script.replace(/\.[^/.]+$/, ""));
       const fileReader = util.promisify(fs.readFile);
       const project = Buffer.from(await fileReader(projectLocation));
       virtualMachine.loadProject(project);

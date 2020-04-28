@@ -24,12 +24,20 @@ import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.events.LocatableInBoxCondition;
 import ch.vorburger.minecraft.storeys.events.Unregisterable;
 import ch.vorburger.minecraft.storeys.model.LocationToolAction;
+import ch.vorburger.minecraft.storeys.web.location.LocationHitBox;
+import ch.vorburger.minecraft.storeys.web.location.LocationPairSerializer;
 import com.flowpowered.math.vector.Vector3d;
+import com.google.common.reflect.TypeToken;
 import io.vertx.core.json.JsonObject;
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import ninja.leaping.configurate.loader.ConfigurationLoader;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
+import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 import org.apache.commons.lang3.tuple.Pair;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.EventContextKeys;
@@ -41,8 +49,12 @@ import org.spongepowered.api.world.World;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -52,12 +64,26 @@ public class LocationToolListener {
     private final Map<String, Unregisterable> conditionRegistrations = new ConcurrentHashMap<>();
     private final EventBusSender eventBusSender;
     private final ConditionService conditionService;
+    private final ConfigurationLoader<CommentedConfigurationNode> configurationLoader;
 
     @Inject
-    public LocationToolListener(PluginInstance plugin, EventBusSender eventBusSender, ConditionService conditionService) {
-        Sponge.getEventManager().registerListeners(plugin, this);
+    public LocationToolListener(PluginInstance plugin, EventManager eventManager, EventBusSender eventBusSender,
+                                ConditionService conditionService, ConfigurationLoader<CommentedConfigurationNode> loader) {
+        TypeSerializers.getDefaultSerializers().registerType(LocationPairSerializer.TYPE, new LocationPairSerializer());
+        eventManager.registerListeners(plugin, this);
         this.eventBusSender = eventBusSender;
         this.conditionService = conditionService;
+        this.configurationLoader = loader;
+
+        try {
+            ConfigurationNode rootNode = configurationLoader.load();
+            List<LocationHitBox> hitBoxList = new ArrayList<>(rootNode.getNode("locations").getList(LocationHitBox.TYPE));
+            for (LocationHitBox hitBox : hitBoxList) {
+                registerCondition(hitBox.getPlayerUUID(), hitBox.getName(), hitBox.getBox());
+            }
+        } catch (IOException | ObjectMappingException e) {
+            throw new RuntimeException("could not load locations from config", e);
+        }
     }
 
     @Listener
@@ -98,17 +124,34 @@ public class LocationToolListener {
             }
 
             if (locationPair.getLeft() != null && locationPair.getRight() != null) {
-                final Condition condition = new LocatableInBoxCondition(player.getWorld(), locationPair);
-                final String name = "player_inside_" + locationName + player.getUniqueId().toString();
-                final Unregisterable unregisterable = conditionRegistrations.get(name);
-                if (unregisterable != null) {
-                    unregisterable.unregister();
-                }
-                ConditionService.ConditionServiceRegistration registration = conditionService.register(condition, (Player p) ->
-                        eventBusSender.send(new JsonObject().put("event", name).put("playerUUID", p.getUniqueId().toString())));
-                conditionRegistrations.put(name, registration);
+                saveLocation(locationPair, player, locationName);
+                registerCondition(player.getUniqueId(), locationName, locationPair);
             }
         };
+    }
+
+    private void registerCondition(UUID player, String locationName, Pair<Location<World>, Location<World>> locationPair) {
+        final Condition condition = new LocatableInBoxCondition(locationPair);
+        final String name = "player_inside_" + locationName + player.toString();
+        final Unregisterable unregisterable = conditionRegistrations.get(name);
+        if (unregisterable != null) {
+            unregisterable.unregister();
+        }
+        ConditionService.ConditionServiceRegistration registration = conditionService.register(condition, (Player p) ->
+                eventBusSender.send(new JsonObject().put("event", name).put("playerUUID", p.getUniqueId().toString())));
+        conditionRegistrations.put(name, registration);
+    }
+
+    private void saveLocation(Pair<Location<World>, Location<World>> locationPair, Player player, String locationName) {
+        try {
+            ConfigurationNode rootNode = configurationLoader.load();
+            List<LocationHitBox> hitBoxList = new ArrayList<>(rootNode.getNode("locations").getList(LocationHitBox.TYPE));
+            hitBoxList.add(new LocationHitBox(player.getUniqueId(), locationName, locationPair));
+            rootNode.getNode("locations").setValue(new TypeToken<List<LocationHitBox>>(){}, hitBoxList);
+            configurationLoader.save(rootNode);
+        } catch (Exception e) {
+            throw new RuntimeException("could not save into config...", e);
+        }
     }
 
     private Pair<Location<World>, Location<World>> updatePlayerBoxLocation(String key, Location<World> locationLeft, Location<World> locationRight) {

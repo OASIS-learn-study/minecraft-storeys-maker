@@ -27,19 +27,28 @@ import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.simple.impl.TokenProviderImpl;
 import ch.vorburger.minecraft.storeys.util.Commands;
+import com.google.common.reflect.TypeToken;
 import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.ConfigurationOptions;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandMapping;
+import org.spongepowered.api.config.DefaultConfig;
+import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.plugin.Plugin;
 
+import javax.inject.Inject;
 import java.nio.file.Path;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 @Plugin(id = "storeys-web", name = "Vorburger.ch's Storeys with Web API", version = "1.0",
@@ -57,6 +66,10 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
     private CommandMapping loginCommandMapping;
     private CommandMapping tokenCommandMapping;
 
+    @Inject
+    @DefaultConfig(sharedRoot = true)
+    private ConfigurationLoader<CommentedConfigurationNode> configurationLoader;
+
     @Override
     public void start(PluginInstance plugin, Path configDir) throws Exception {
         super.start(plugin, configDir);
@@ -69,6 +82,7 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
             // TODO read from some configuration
             binder.bind(Integer.class).annotatedWith(Names.named("http-port")).toInstance(8080);
             binder.bind(Integer.class).annotatedWith(Names.named("web-http-port")).toInstance(7070);
+            binder.bind(new TypeLiteral<ConfigurationLoader<CommentedConfigurationNode>>(){}).toInstance(configurationLoader);
             binder.bind(LocationToolListener.class);
         });
         actionsConsumer = injector.getInstance(ActionsConsumer.class);
