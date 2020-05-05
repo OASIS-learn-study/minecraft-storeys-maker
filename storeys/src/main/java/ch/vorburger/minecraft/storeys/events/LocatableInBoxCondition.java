@@ -58,11 +58,11 @@ public class LocatableInBoxCondition implements Condition {
     }
 
     public LocatableInBoxCondition(World world, String coordinates) {
-        this(world, getCornerLocations(world, coordinates));
+        this(getCornerLocations(world, coordinates));
     }
 
-    public LocatableInBoxCondition(World world, Pair<Location<World>, Location<World>> corners) {
-        this(world, corners.getLeft(), corners.getRight());
+    public LocatableInBoxCondition(Pair<Location<World>, Location<World>> corners) {
+        this(corners.getLeft().getExtent(), corners.getLeft(), corners.getRight());
     }
 
     private static Pair<Location<World>, Location<World>> getCornerLocations(World world, String coordinates) {

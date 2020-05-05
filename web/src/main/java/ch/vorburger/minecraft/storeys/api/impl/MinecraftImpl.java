@@ -34,6 +34,7 @@ import ch.vorburger.minecraft.storeys.simple.impl.NotLoggedInException;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
@@ -113,11 +114,14 @@ public class MinecraftImpl implements Minecraft {
     }
 
     @Override
-	public void whenInside(String playerUUID, String name, Handler<AsyncResult<Void>> handler) {
+    public void whenInside(String playerUUID, String name, Handler<AsyncResult<Void>> handler) {
         final LocationToolAction locationToolAction = new LocationToolAction(name);
-        final CompletionStage<Void> completionStage = execute(getPlayer(playerUUID), locationToolAction);
-
-        handler.handle(new CompletionStageBasedAsyncResult<>(completionStage));
+        try {
+            final CompletionStage<Void> completionStage = execute(getPlayer(playerUUID), locationToolAction);
+            handler.handle(new CompletionStageBasedAsyncResult<>(completionStage));
+        } catch (NotLoggedInException e) {
+            // running a server side scratch file
+        }
     }
 
     private <T> CompletionStage<T> execute(CommandSource commandSource, Action<T> action) {
@@ -125,7 +129,7 @@ public class MinecraftImpl implements Minecraft {
     }
 
     private Player getPlayer(String playerUUID) {
-        requireNonNull(playerUUID, "playerUUID");
+        requireNonNull(playerUUID, "playerUUID null");
         return Sponge.getGame().getServer().getPlayer(UUID.fromString(playerUUID)).orElseThrow(() -> new NotLoggedInException(playerUUID));
     }
 
@@ -138,7 +142,7 @@ public class MinecraftImpl implements Minecraft {
 
         CompletionStageBasedAsyncResult(CompletionStage<T> completionStage) {
             completionStage.handle((newResult, newCause) -> {
-                synchronized(this) {
+                synchronized (this) {
                     CompletionStageBasedAsyncResult.this.result = newResult;
                     CompletionStageBasedAsyncResult.this.cause = newCause;
                     CompletionStageBasedAsyncResult.this.isHandled = true;

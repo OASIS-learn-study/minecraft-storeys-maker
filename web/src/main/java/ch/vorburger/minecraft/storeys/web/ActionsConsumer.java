@@ -62,20 +62,17 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
     // TODO Most of these should completely move into MinecraftImpl...
     private final PluginInstance plugin;
     private final EventService eventService;
-    private final ConditionService conditionService;
     private final EventBusSender eventBusSender;
 
     private final Map<String, Unregisterable> conditionRegistrations = new ConcurrentHashMap<>();
     private final Map<String, Pair<Location<World>, Location<World>>> playerBoxLocations = new ConcurrentHashMap<>();
 
     @Inject
-    public ActionsConsumer(PluginInstance plugin, EventService eventService,
-            ConditionService conditionService, EventBusSender eventBusSender) {
+    public ActionsConsumer(PluginInstance plugin, EventService eventService, EventBusSender eventBusSender) {
         this.plugin = plugin;
         this.eventBusSender = eventBusSender;
 
         this.eventService = eventService;
-        this.conditionService = conditionService;
 
         eventService.registerPlayerJoin(event -> {
             Player player = event.getTargetEntity();
