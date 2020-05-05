@@ -46,7 +46,7 @@ public class VertxStarterTest {
         VertxStarter vertxStarter = new VertxStarter();
         vertxStarter.deployVerticle(new StaticWebServerVerticle(3030)).toCompletableFuture().get();
         assertHTTP("http://localhost:3030/nok", 404);
-        assertHTTP("http://localhost:3030/minecraft.scratchx.js", 200);
+        assertHTTP("http://localhost:3030/index.html", 200);
         vertxStarter.stop();
     }
 

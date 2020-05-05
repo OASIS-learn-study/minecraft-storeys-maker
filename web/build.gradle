@@ -7,8 +7,7 @@ plugins {
 dependencies {
     implementation project(':api')
     implementation project(':storeys')
-    implementation project(':scratch')
-    // implementation project(':scratch3')
+    implementation project(':scratch3')
 
     implementation 'org.osgi:org.osgi.core:6.0.0'
     implementation 'ch.vorburger.minecraft.osgi:api:1.0.0'
@@ -40,8 +39,7 @@ shadowJar {
     // so instead of using exclude dependency we just do explicit include:
     include(project(':api'))
     include(project(':storeys'))
-    include(project(':scratch'))
-    // include(project(':scratch3'))
+    include(project(':scratch3'))
     include(dependency("io.vertx:vertx-core"))
     include(dependency("io.vertx:vertx-web"))
     include(dependency("io.vertx:vertx-auth-common"))
