@@ -67,7 +67,7 @@ subprojects {
         testImplementation 'junit:junit:4.13'
         testImplementation 'org.hamcrest:hamcrest-library:2.2'
         testImplementation 'org.slf4j:slf4j-simple:1.7.30'
-        testImplementation 'org.mockito:mockito-core:3.5.7'
+        testImplementation 'org.mockito:mockito-core:3.5.10'
     }
 
     test {
