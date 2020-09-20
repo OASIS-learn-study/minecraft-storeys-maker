@@ -1,6 +1,6 @@
 
 plugins {
-  id 'org.ajoberstar.grgit' version '4.0.2' apply false
+  id 'org.ajoberstar.grgit' version '4.1.0' apply false
   id "com.moowork.node" version "1.2.0"
 }
 
