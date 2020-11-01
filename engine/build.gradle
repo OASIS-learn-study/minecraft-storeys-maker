@@ -9,7 +9,7 @@ repositories {
 
 dependencies {
     // implementation 'com.google.guava:guava:27.0.1-jre'
-    implementation 'org.jline:jline:3.16.0'
+    implementation 'org.jline:jline:3.17.1'
     testImplementation 'junit:junit:4.13.1'
 }
 
