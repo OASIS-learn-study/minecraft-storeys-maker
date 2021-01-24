@@ -47,7 +47,7 @@ dependencies {
     // just for mapping our enums to catalog types,
     // but this is an implementation detail; users of this API won't directly use spongeapi themselves
     // TODO remove this again, and move enum mapping into impl instead of API...
-    implementation 'org.spongepowered:spongeapi:7.0.0'
+    implementation 'org.spongepowered:spongeapi:7.3.0'
 
     compile "io.vertx:vertx-core:$vertxVersion"
     compile "io.vertx:vertx-web:$vertxVersion"
