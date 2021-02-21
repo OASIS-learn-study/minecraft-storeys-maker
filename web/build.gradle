@@ -7,8 +7,8 @@ plugins {
 dependencies {
     implementation project(':api')
     implementation project(':storeys')
-    implementation project(':scratch')
-    // implementation project(':scratch3')
+    //implementation project(':scratch')
+    implementation project(':scratch3')
 
     implementation 'org.osgi:org.osgi.core:6.0.0'
     implementation 'ch.vorburger.minecraft.osgi:api:1.0.0'
@@ -16,6 +16,14 @@ dependencies {
 
     testCompile "org.seleniumhq.selenium:selenium-java:3.141.59"
     testCompile 'io.github.bonigarcia:webdrivermanager:3.8.1'
+}
+
+task runWithJavaExec(type: JavaExec) {
+  group = "Execution"
+  description = "Run the main class with JavaExecTask"
+  classpath = sourceSets.test.runtimeClasspath
+  main = "ch.vorburger.minecraft.storeys.web.SeleniumTest"
+  standardInput = System.in
 }
 
 shadowJar {
@@ -40,8 +48,8 @@ shadowJar {
     // so instead of using exclude dependency we just do explicit include:
     include(project(':api'))
     include(project(':storeys'))
-    include(project(':scratch'))
-    // include(project(':scratch3'))
+//    include(project(':scratch'))
+    include(project(':scratch3'))
     include(dependency("io.vertx:vertx-core"))
     include(dependency("io.vertx:vertx-web"))
     include(dependency("io.vertx:vertx-auth-common"))

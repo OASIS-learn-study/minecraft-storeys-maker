@@ -20,7 +20,6 @@ package ch.vorburger.minecraft.storeys.web;
 
 import com.github.eirslett.maven.plugins.frontend.lib.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,8 +39,8 @@ class NodeStarter {
     }
 
     void start() {
-        FrontendPluginFactory frontendPluginFactory = new FrontendPluginFactory(configDir.toFile(), new File("/tmp"));
         try {
+            FrontendPluginFactory frontendPluginFactory = new FrontendPluginFactory(configDir.toFile(), Files.createTempDirectory("stories").toFile());
             Path packageJson = configDir.resolve("package.json");
             if (Files.notExists(packageJson)) {
                 Files.copy(getClass().getResourceAsStream("/package.json"), packageJson);

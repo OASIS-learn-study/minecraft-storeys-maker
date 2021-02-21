@@ -43,7 +43,7 @@ public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
     @Inject
     public StaticWebServerVerticle(@Named("web-http-port") int httpPort) {
         super(httpPort);
-        this.webRoot = "static"; // ~= ../scratch/dist/*.js
+        this.webRoot = "static"; // ~= ../scratch-gui/build/*
     }
 
     public StaticWebServerVerticle(int httpPort, File webRoot) {

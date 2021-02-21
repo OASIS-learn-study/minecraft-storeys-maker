@@ -44,10 +44,7 @@ import org.spongepowered.api.text.format.TextColors;
  */
 public class LoginCommand implements Command {
 
-    private static final String SCRATCHX_URL_PREFIX = "http://scratchx.org/?url=%s&code=%s&eventBusURL=%s";
-    private String scratchX_JSExtensionURL = "http://localhost:7070/minecraft.scratchx.js";
-
-    private String scratch3URL = "http://localhost:8601/?";
+    private String scratch3URL = "http://localhost:7070/index.html?";
 
     private String eventBusURL = "http://localhost:8080";
     private String encodedEventBusURL;
@@ -56,7 +53,6 @@ public class LoginCommand implements Command {
 
     public LoginCommand(TokenProvider tokenProvider) {
         this.tokenProvider = tokenProvider;
-        scratchX_JSExtensionURL = getSystemPropertyEnvVarOrDefault("storeys_jsURL", scratchX_JSExtensionURL);
         scratch3URL = getSystemPropertyEnvVarOrDefault("storeys_scratchURL", scratch3URL);
         eventBusURL = getSystemPropertyEnvVarOrDefault("storeys_eventBusURL", eventBusURL);
         try {
@@ -99,15 +95,7 @@ public class LoginCommand implements Command {
                 Player player = (Player)src;
 
                 String code = tokenProvider.getCode(player);
-
-                String url;
-                if (args.hasAny("b")) {
-                    url = String.format(scratch3URL + "code=%s&eventBusURL=%s", code, encodedEventBusURL);
-                } else {
-                    url = String.format(SCRATCHX_URL_PREFIX,
-                        URLEncoder.encode(scratchX_JSExtensionURL, StandardCharsets.UTF_8.name()), code,
-                        encodedEventBusURL);
-                }
+                String url = String.format(scratch3URL + "code=%s&eventBusURL=%s", code, encodedEventBusURL);
 
                 src.sendMessage(Text.builder("Click here to open Scratch and MAKE actions").onClick(
                         TextActions.openUrl(new URL(url))).color(TextColors.GOLD).build());
