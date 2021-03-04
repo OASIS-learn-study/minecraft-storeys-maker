@@ -1,65 +1,63 @@
-
 plugins {
-  id 'org.ajoberstar.grgit' version '4.1.0' apply false
-  id "com.moowork.node" version "1.2.0"
+    id 'org.ajoberstar.grgit' version '4.1.0'
+    id "com.github.node-gradle.node" version "3.0.1"
 }
 
 dependencies {
-  implementation project(':api')
+    implementation project(':api')
 }
 
-import org.ajoberstar.grgit.Grgit
-
 node {
-  // https://github.com/srs/gradle-node-plugin/blob/master/docs/node.md#configuring-the-plugin
-  version = '8.11.1'
-  npmVersion = '6.0.1'
-  download = true
+    // https://github.com/srs/gradle-node-plugin/blob/master/docs/node.md#configuring-the-plugin
+    version = '14.15.4'
+    npmVersion = '6.14.5'
+    download = true
 }
 
 ['scratch-vm', 'scratch-gui'].collect {
     it
-}.eachWithIndex {dir, index ->
+}.eachWithIndex { dir, index ->
     def dest = file("$buildDir/$dir")
-    if (!dest.exists()) {
-      task "cloneScratch${index}" {
-        def repo = Grgit.clone(dir: dest, uri: "https://github.com/edewit/${dir}.git")
-        repo.checkout {
-          branch = 'storeys'
-          createBranch = true
-          startPoint = 'origin/storeys'
+    task "cloneScratch${index}" {
+        if (!dest.exists()) {
+            def repo = grgit.clone(dir: dest, uri: "https://github.com/edewit/${dir}.git")
+            repo.checkout {
+                branch = 'storeys'
+                createBranch = true
+                startPoint = 'origin/storeys'
+            }
         }
-      }
     }
 
-    task "npmDoInstall$index"(type: NpmTask) {
-      workingDir = dest
-      inputs.files(fileTree("node_modules'"))
-      inputs.files(fileTree("src"))
-      inputs.file("package.json")
-      args = ['install']
+    task "npmDoInstall$index"(type: NpmTask, dependsOn: "cloneScratch$index") {
+        workingDir = dest
+        args = ['install']
     }
 
-    task "npmBuildProd$index"(type: NpmTask) {
-      workingDir = dest
-      inputs.files(fileTree("dist"))
+    task "npmBuildProd$index"(type: NpmTask, dependsOn: "npmDoInstall$index") {
+        workingDir = dest
+        inputs.files(fileTree("${dest}/node_modules"))
+        inputs.files(fileTree("${dest}/src"))
+        inputs.file("${dest}/package.json")
+        inputs.file("${dest}/webpack.config.js")
 
-      dependsOn "npmDoInstall$index"
-      args = ['run', 'build']
+        outputs.dir("${dest}/dist")
+
+        args = ['run', 'build']
     }
 }
 
 task npmBuild {
-  dependsOn npmBuildProd0
-  dependsOn npmBuildProd1
+    dependsOn npmBuildProd0
+    dependsOn npmBuildProd1
 }
 
-assemble.dependsOn(npmBuild)
+jar.dependsOn(npmBuild)
 
 jar {
-  into 'static', {
-    from("$buildDir/scratch-gui/build") {
-        include '**/*.*'
+    into 'static', {
+        from("$buildDir/scratch-gui/build") {
+            include '**/*.*'
+        }
     }
-  }
 }

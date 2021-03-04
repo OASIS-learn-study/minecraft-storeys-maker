@@ -1,7 +1,7 @@
 Third scripting option
 ======================
 
-When using this plugin you can either write a story as a text file or create something simular using scratch,
+When using this plugin you can either write a story as a text file or create something similar using scratch,
 but there is a 3rd option you can also use javascript to create them.
 
 In the config directory you will find a folder called "storyes-web/scripts" (after you started the server once)

@@ -1,5 +1,5 @@
 import { Subject } from 'rxjs';
-import * as EventBus from 'vertx3-eventbus-client';
+import * as EventBus from '@vertx/eventbus-bridge-client.js';
 import fetch from 'node-fetch';
 
 declare function require(moduleNames: string): any;
@@ -11,7 +11,7 @@ export class MinecraftProvider {
 
   connect(): Promise<Minecraft> {
     const fetchFunction = typeof window === 'undefined' ? fetch : window.fetch;
-    return fetchFunction(this.eventBusURL + '/login/' + this.code)
+    return fetchFunction(this.eventBusURL + '/login/' + encodeURI(this.code))
       .then(response => response.text())
       .then(token => new Minecraft(this.eventBusURL, token));
   }
@@ -25,7 +25,7 @@ export class Minecraft {
   private _onConnect: Promise<void>;
 
   constructor(eventBusURL: any, private token: string) {
-    this.eb = new EventBus(eventBusURL + '/eventbus?token=' + token);
+    this.eb = new EventBus(eventBusURL + '/eventbus?token=' + encodeURI(token));
     this.eb.enableReconnect(true);
 
     this._onConnect = new Promise<void>(resolve => {

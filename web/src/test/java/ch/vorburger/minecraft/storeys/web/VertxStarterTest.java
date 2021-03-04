@@ -23,7 +23,6 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import org.junit.Test;
 
@@ -50,10 +49,9 @@ public class VertxStarterTest {
         vertxStarter.stop();
     }
 
-    private void assertHTTP(String url, int expectedResponseCode) throws MalformedURLException, IOException {
+    private void assertHTTP(String url, int expectedResponseCode) throws IOException {
         HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
         con.setConnectTimeout(500);
-        con.setReadTimeout(500);
         assertEquals(expectedResponseCode, con.getResponseCode());
     }
 

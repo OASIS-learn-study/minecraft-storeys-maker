@@ -1,7 +1,7 @@
 // see also ../storeys/build.gradle
 
 plugins {
-    id 'com.github.johnrengelman.shadow' version '2.0.2'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
 dependencies {
@@ -13,8 +13,18 @@ dependencies {
     implementation 'ch.vorburger.minecraft.osgi:api:1.0.0'
     implementation 'com.github.eirslett:frontend-plugin-core:1.8.0'
 
+    implementation 'io.vertx:vertx-service-proxy:4.0.2'
+
     testCompile "org.seleniumhq.selenium:selenium-java:3.141.59"
     testCompile 'io.github.bonigarcia:webdrivermanager:4.3.1'
+}
+
+task runWithJavaExec(type: JavaExec) {
+  group = "Execution"
+  description = "Run the main class with JavaExecTask"
+  classpath = sourceSets.test.runtimeClasspath
+  main = "ch.vorburger.minecraft.storeys.web.SeleniumTest"
+  standardInput = System.in
 }
 
 shadowJar {
@@ -22,19 +32,11 @@ shadowJar {
   // causing java.lang.NoSuchMethodError: io.netty.util.NetUtil.isIpV4StackPreferred()Z at io.netty.resolver.dns.DnsNameResolver.<clinit>(DnsNameResolver.java:103)
   relocate 'io.netty', 'ch.vorburger.relocated.io.netty'
 
-  // [02:40:01 ERROR] [io.vertx.ext.web.impl.RoutingContextImplBase]: Unexpected exception in route
-  // Relocate Jackson, because with SpongeVanilla 1.12.2-7.1.0-BETA-13 (but not yet with 1.10.2-5.1.0-BETA-374)
-  // we otherwise hit java.lang.NoClassDefFoundError: com/fasterxml/jackson/databind/ObjectMapper
-  // Caused by: java.lang.ClassNotFoundException: com.fasterxml.jackson.databind.ObjectMapper
-  // java.lang.NoClassDefFoundError: Could not initialize class io.vertx.core.json.Json
-  // at io.vertx.core.json.JsonObject.encode(JsonObject.java:766) ~[JsonObject.class:?]
-  relocate 'com.fasterxml', 'ch.vorburger.relocated.com.fasterxml'
-
   // Exclude the Sponge Plugin class of our base (non-web) project, because our StoreysWebPlugin class also extends the AbstractStoreysPlugin
   exclude 'ch/vorburger/minecraft/storeys/plugin/StoreysPlugin.class'
 
   dependencies {
-    // http://imperceptiblethoughts.com/shadow/#filtering_dependencies
+    // https://imperceptiblethoughts.com/shadow/configuration/filtering/
     // NB "not being able to filter entire transitive dependency graphs"
     // so instead of using exclude dependency we just do explicit include:
     include(project(':api'))
@@ -42,6 +44,7 @@ shadowJar {
     include(project(':scratch3'))
     include(dependency("io.vertx:vertx-core"))
     include(dependency("io.vertx:vertx-web"))
+    include(dependency("io.vertx:vertx-web-common"))
     include(dependency("io.vertx:vertx-auth-common"))
     include(dependency("io.vertx:vertx-jwt"))
     include(dependency("io.vertx:vertx-auth-jwt"))
@@ -63,8 +66,7 @@ shadowJar {
     include(dependency("io.netty:netty-codec-http"))
     include(dependency("io.netty:netty-codec-http2"))
     include(dependency("com.fasterxml.jackson.core:jackson-core"))
-    include(dependency("com.fasterxml.jackson.core:jackson-databind"))
-    include(dependency("com.fasterxml.jackson.core:jackson-annotations"))
+    exclude 'module-info.class'
 
     // frontend-plugin and all it's dependencies
     // strictly speaking it's not meant to run production node
@@ -78,10 +80,6 @@ shadowJar {
     include(dependency("org.codehaus.plexus:plexus-utils"))
     include(dependency("org.codehaus.jackson:jackson-mapper-asl"))
     include(dependency("org.codehaus.jackson:jackson-core-asl"))
-
-    // must repeat those from ../storeys/build.gradle here:
-    include(dependency("ch.vorburger.minecraft.osgi:api"))
-    include(dependency('com.spotify:futures-extra'))
   }
 }
 

@@ -19,13 +19,12 @@
     "dist"
   ],
   "dependencies": {
+    "@vertx/eventbus-bridge-client.js": "^1.0.0",
     "jwt-decode": "^2.2.0",
     "node-fetch": "^2.5.0",
-    "rxjs": "^6.5.1",
-    "vertx3-eventbus-client": "3.7.0"
+    "rxjs": "^6.5.1"
   },
   "devDependencies": {
-    "@types/vertx3-eventbus-client": "3.5.0",
     "rollup": "1.10.1",
     "rollup-plugin-typescript2": "0.21.0",
     "typescript": "3.4.5"

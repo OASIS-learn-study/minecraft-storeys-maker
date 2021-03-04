@@ -7,6 +7,6 @@
     "start": "node node_modules/minecraft-storeys-scratch3-server/scratch-server.js"
   },
   "dependencies": {
-    "minecraft-storeys-scratch3-server": "0.0.1"
+    "minecraft-storeys-scratch3-server": "0.0.2"
   }
 }
