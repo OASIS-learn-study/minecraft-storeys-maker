@@ -17,7 +17,6 @@
   "devDependencies": {
     "@types/jasmine": "^2.8.16",
     "@types/lodash": "^4.14.122",
-    "@types/vertx3-eventbus-client": "^3.4.0",
     "awesome-typescript-loader": "^3.2.1",
     "cross-env": "^5.0.1",
     "css-loader": "^0.28.4",
@@ -45,5 +44,8 @@
     "webpack": "^3.3.0",
     "webpack-dashboard": "2.0.0",
     "webpack-dev-server": "2.9.1"
+  },
+  "dependencies": {
+    "@vertx/eventbus-bridge-client.js": "^1.0.0"
   }
 }

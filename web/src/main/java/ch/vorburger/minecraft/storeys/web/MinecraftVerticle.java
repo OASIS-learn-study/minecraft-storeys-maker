@@ -28,9 +28,9 @@ import io.vertx.ext.auth.KeyStoreOptions;
 import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.ext.auth.jwt.JWTAuthOptions;
 import io.vertx.ext.bridge.PermittedOptions;
-import io.vertx.ext.jwt.JWTOptions;
+import io.vertx.ext.auth.JWTOptions;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.handler.sockjs.BridgeOptions;
+import io.vertx.ext.web.handler.sockjs.SockJSBridgeOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 import io.vertx.serviceproxy.ServiceBinder;
@@ -92,8 +92,9 @@ public class MinecraftVerticle extends AbstractHttpServerVerticle implements Eve
         PermittedOptions inboundPermitted1 = new PermittedOptions().setAddress(Minecraft.ADDRESS);
         PermittedOptions inboundPermitted2 = new PermittedOptions().setAddress(EVENTBUS_MINECRAFT_ACTIONS_ADDRESS);
         PermittedOptions outboundPermitted1 = new PermittedOptions().setAddress(EVENTBUS_MINECRAFT_EVENTS_ADDRESS);
-        BridgeOptions bridgeOptions = new BridgeOptions().addInboundPermitted(inboundPermitted1)
+        SockJSBridgeOptions bridgeOptions = new SockJSBridgeOptions().addInboundPermitted(inboundPermitted1)
                 .addInboundPermitted(inboundPermitted2).addOutboundPermitted(outboundPermitted1);
+        router.mountSubRouter("/eventbus", sockJSHandler.bridge(bridgeOptions));
 
         JWTAuthOptions authConfig = new JWTAuthOptions()
                 .setKeyStore(new KeyStoreOptions()
@@ -117,7 +118,7 @@ public class MinecraftVerticle extends AbstractHttpServerVerticle implements Eve
             String token = ctx.request().getParam("token");
             authProvider.authenticate(new JsonObject().put("jwt", token), (result) -> {
                 if (result.succeeded()) {
-                    sockJSHandler.handle(ctx);
+                    ctx.next();
                 } else {
                     ctx.fail(401);
                 }

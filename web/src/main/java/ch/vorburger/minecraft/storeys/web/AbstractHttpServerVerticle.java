@@ -20,7 +20,7 @@ package ch.vorburger.minecraft.storeys.web;
 
 import com.google.common.collect.ImmutableSet;
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.ext.web.Router;
@@ -33,7 +33,7 @@ import io.vertx.ext.web.handler.CorsHandler;
  */
 public abstract class AbstractHttpServerVerticle extends AbstractVerticle {
 
-    private static final ImmutableSet<HttpMethod> ALL_HTTP_METHODS = ImmutableSet.<HttpMethod>builder().add(HttpMethod.values()).build();
+    private static final ImmutableSet<HttpMethod> ALL_HTTP_METHODS = ImmutableSet.<HttpMethod>builder().addAll(HttpMethod.values()).build();
 
     protected final int httpPort;
     private HttpServer httpServer;
@@ -43,29 +43,29 @@ public abstract class AbstractHttpServerVerticle extends AbstractVerticle {
     }
 
     @Override
-    public final void start(Future<Void> startFuture) throws Exception {
+    public void start(Promise<Void> startPromise) throws Exception {
         start();
 
         // http://vertx.io/docs/vertx-web/java/#_cors_handling
         Router router = Router.router(vertx);
-        router.route().handler(CorsHandler.create(/* "scratchx\\.org" */ "*").allowedMethods(ALL_HTTP_METHODS)
-            .allowedHeader("Access-Control-Request-Method")
-            .allowedHeader("Access-Control-Allow-Credentials")
-            .allowedHeader("Access-Control-Allow-Origin")
-            .allowedHeader("Access-Control-Allow-Headers")
-            .allowedHeader("Content-Type"));
+        router.route().handler(CorsHandler.create().allowedMethods(ALL_HTTP_METHODS)
+                .allowCredentials(true)
+                .allowedHeader("Access-Control-Allow-Method")
+                .allowedHeader("Access-Control-Allow-Origin")
+                .allowedHeader("Access-Control-Allow-Credentials")
+                .allowedHeader("Content-Type"));
 
         addRoutes(router);
 
         httpServer = vertx.createHttpServer();
-        httpServer.requestHandler(router::accept).listen(httpPort, asyncResult -> {
-            startFuture.handle(asyncResult.mapEmpty());
+        httpServer.requestHandler(router).listen(httpPort, asyncResult -> {
+            startPromise.handle(asyncResult.mapEmpty());
         });
     }
 
     @Override
-    public final void stop(Future<Void> stopFuture) throws Exception {
-        super.stop(stopFuture);
+    public void stop(Promise<Void> stopPromise) throws Exception {
+        super.stop(stopPromise);
     }
 
     @Override
