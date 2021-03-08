@@ -1,6 +1,6 @@
 {
   "name": "minecraft-storeys-scratch3-server",
-  "version": "0.0.2",
+  "version": "0.0.5",
   "description": "simple server to run scripts and scratch projects on the minecraft server",
   "main": "scratch-server.js",
   "author": "edewit",
@@ -13,6 +13,6 @@
   },
   "dependencies": {
     "minecraft-storeys": "0.0.3",
-    "minecraft-storeys-scratch-vm": "0.0.4"
+    "minecraft-storeys-scratch-vm": "0.0.7"
   }
 }

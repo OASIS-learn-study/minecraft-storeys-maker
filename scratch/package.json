@@ -11,13 +11,16 @@
     "build:dev": "webpack --config ./webpack.config.js --progress --profile --color --display-error-details --display-cached",
     "build:prod": "cross-env NODE_ENV=production webpack --config ./webpack.config.js --progress --profile --color --display-error-details --display-cached --bail",
     "clean": "npm cache clear && rimraf -- dist",
-    "test": "karma start"
+    "mock-server": "./start-server.sh",
+    "karma": "wait-on http://localhost:9090 && karma start",
+    "test": "concurrently -k npm:mock-server npm:karma"
   },
   "license": "AGPL-3.0-only",
   "devDependencies": {
     "@types/jasmine": "^2.8.16",
     "@types/lodash": "^4.14.122",
     "awesome-typescript-loader": "^3.2.1",
+    "concurrently": "^5.2.0",
     "cross-env": "^5.0.1",
     "css-loader": "^0.28.4",
     "ejs-loader": "^0.3.3",
@@ -41,6 +44,7 @@
     "tslint": "^5.13.1",
     "tslint-loader": "^3.5.3",
     "typescript": "^3.3.3333",
+    "wait-on": "^5.2.1",
     "webpack": "^3.3.0",
     "webpack-dashboard": "2.0.0",
     "webpack-dev-server": "2.9.1"

@@ -43,12 +43,10 @@ import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.config.DefaultConfig;
-import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.plugin.Plugin;
 
 import javax.inject.Inject;
 import java.nio.file.Path;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 @Plugin(id = "storeys-web", name = "Vorburger.ch's Storeys with Web API", version = "1.0",

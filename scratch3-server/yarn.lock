@@ -326,11 +326,6 @@ es6-promise@~3.0.2:
   resolved "https://registry.yarnpkg.com/es6-promise/-/es6-promise-3.0.2.tgz#010d5858423a5f118979665f46486a95c6ee2bb6"
   integrity sha1-AQ1YWEI6XxGJeWZfRkhqlcbuK7Y=
 
-escape-html@1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/escape-html/-/escape-html-1.0.3.tgz#0258eae4d3d0c0974de1c169188ef0051d1d1988"
-  integrity sha1-Aljq5NPQwJdN4cFpGI7wBR0dGYg=
-
 eventsource@^1.0.7:
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/eventsource/-/eventsource-1.0.7.tgz#8fbc72c93fcd34088090bc0a4e64f4b5cee6d8d0"
@@ -706,10 +701,10 @@ min-document@^2.19.0:
   dependencies:
     dom-walk "^0.1.0"
 
-minecraft-storeys-scratch-vm@0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/minecraft-storeys-scratch-vm/-/minecraft-storeys-scratch-vm-0.0.3.tgz#ba92ce57de786506c28c8c4b8d26f4df6a893175"
-  integrity sha512-dyPetRiCNZ/akI4nOaw46HR248W+dLUF1ucnaSpFmf0tramEZAeVtXkdG6dPWkObPVPbYSTI2q+x4qaWEPi9Vw==
+minecraft-storeys-scratch-vm@0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/minecraft-storeys-scratch-vm/-/minecraft-storeys-scratch-vm-0.0.6.tgz#b5a073ac36474211c8e7912fd0cbe3562d365c53"
+  integrity sha512-8L/OnMMx05FXRLTcA/8GLrpuW3MozNNOSWxYJ4jYtQ8ALfUuLklfP6H7zgRYsZfz+64aW7sOnWJl47eYfj5Nnw==
   dependencies:
     "@vernier/godirect" "1.5.0"
     arraybuffer-loader "^1.0.6"
@@ -718,7 +713,6 @@ minecraft-storeys-scratch-vm@0.0.3:
     canvas-toBlob "1.0.0"
     decode-html "2.0.0"
     diff-match-patch "1.0.4"
-    escape-html "1.0.3"
     format-message "6.2.1"
     htmlparser2 "3.10.0"
     immutable "3.8.1"
@@ -728,7 +722,7 @@ minecraft-storeys-scratch-vm@0.0.3:
     nets "3.2.0"
     scratch-parser "5.0.0"
     scratch-sb1-converter "0.2.7"
-    scratch-translate-extension-languages "0.0.20181205140428"
+    scratch-translate-extension-languages "0.0.20191118205314"
     socket.io-client "2.0.4"
     text-encoding "0.7.0"
     worker-loader "^1.1.1"
@@ -985,10 +979,10 @@ scratch-sb1-converter@0.2.7:
     minilog "3.1.0"
     text-encoding "^0.7.0"
 
-scratch-translate-extension-languages@0.0.20181205140428:
-  version "0.0.20181205140428"
-  resolved "https://registry.yarnpkg.com/scratch-translate-extension-languages/-/scratch-translate-extension-languages-0.0.20181205140428.tgz#27746e4d628810c7b35f7e8caa5963be5349a8f9"
-  integrity sha512-vNE8LSIrJl5cCCS1yrR6wivtFhuJmHFhbZnTrkt/E3BfyqMBJgpqJTtYfi+up1sorc7AixhpHTARE6/t3D//MA==
+scratch-translate-extension-languages@0.0.20191118205314:
+  version "0.0.20191118205314"
+  resolved "https://registry.yarnpkg.com/scratch-translate-extension-languages/-/scratch-translate-extension-languages-0.0.20191118205314.tgz#9f781cc0c89785faba8ae86775a4915225676284"
+  integrity sha512-r0lvpgQjPMjbhI2wROrgoXzBhCvWJdkbAqJMfl2CdNqrwBpUXqLvNNtI3VtNLPJAcp9VfxEylkU9lVZ0gvU46Q==
 
 set-immediate-shim@~1.0.1:
   version "1.0.1"
