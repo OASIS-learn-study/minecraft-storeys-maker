@@ -121,6 +121,7 @@ public class MinecraftImpl implements Minecraft {
             handler.handle(new CompletionStageBasedAsyncResult<>(completionStage));
         } catch (NotLoggedInException e) {
             // running a server side scratch file
+            handler.handle(Future.succeededFuture());
         }
     }
 

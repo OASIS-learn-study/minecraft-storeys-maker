@@ -36,6 +36,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
+
+import io.vertx.core.json.JsonObject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -106,7 +108,14 @@ public class SeleniumTest {
                 return UUID.randomUUID().toString();
             }
         });
-        minecraftVerticle.setActionsConsumer(event -> LOG.warn("Received event, but ignoring/not handling in this test: {}", event.body()));
+        minecraftVerticle.setActionsConsumer(event -> {
+            JsonObject json = event.body();
+            if ("registerCondition".equals(json.getString("action"))) {
+                String condition = json.getString("condition");
+                event.reply(condition);
+                minecraftVerticle.send(new JsonObject().put("event", condition).put("playerUUID", "dummy"));
+            }
+        });
         vertxStarter.deployVerticle(minecraftVerticle).toCompletableFuture().get();
         vertxStarter.deployVerticle(new StaticWebServerVerticle(9090, new File("../scratch/dist"))).toCompletableFuture().get();
     }
@@ -225,7 +234,7 @@ public class SeleniumTest {
         for (LogEntry entry : logEntries) {
             System.out.println("BROWSER: " + new Date(entry.getTimestamp()) + " " + entry.getLevel() + " " + entry.getMessage());
             String messageInLowerCase = entry.getMessage().toLowerCase();
-            if (entry.getLevel().equals(Level.SEVERE) || messageInLowerCase.contains("error") || messageInLowerCase.contains("Uncaught ")) {
+            if (entry.getLevel().equals(Level.SEVERE) || messageInLowerCase.contains("error") || messageInLowerCase.contains("uncaught ")) {
                 if (firstMessage == null) {
                     firstMessage = entry.getMessage();
                 }

@@ -24,11 +24,21 @@ describe('ScratchX Custom Blocks Integration Tests', () => {
         done();
     });
 
-    // it('should respond to whenInside event', async done => {
-    //     const registration = await minecraft.whenEntityRightClicked("joe");
-    //     registration.on().subscribe(async response => {
-    //         await minecraft.showTitle(response.playerUUID, "hello my little friend");
-    //         done();
-    //     })
-    // });
+    it('should respond to whenEntityRightClicked event', async done => {
+        const registration = await minecraft.whenEntityRightClicked('joe');
+        registration.on().subscribe(async response => {
+            await minecraft.showTitle(response.playerUUID, 'hello my little friend');
+            registration.unregister();
+            done();
+        });
+    });
+
+    it('should respond to whenInside event', async done => {
+        const registration = await minecraft.whenInside('dummy', 'location-name');
+        registration.on().subscribe(async response => {
+            await minecraft.showTitle(response.playerUUID, "welcome to my location!");
+            registration.unregister();
+            done();
+        });
+    });
 })

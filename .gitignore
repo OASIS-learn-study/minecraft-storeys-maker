@@ -24,3 +24,4 @@ web/.vertx/file-cache-*
 
 .vscode/
 .history/
+.vertx/
