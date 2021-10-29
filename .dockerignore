@@ -1,8 +1,36 @@
+# No need for the Dockerfile itself, this makes it much faster to make small changes in it
+Dockerfile
+
+# No need to push big ./.git/ into container, it's not required to build
 .git
-build
-# gradle
 
-# storeys
-# scratch
 
-bin
+# Keep this in sync with .gitignore:
+
+.settings/
+.project
+.classpath
+
+bin/
+.apt_generated/
+xtend-gen/
+.rpt2_cache/
+.gradle/
+build/
+out/
+.gradletasknamecache
+/.nb-gradle/
+dist/
+
+.idea/
+*.iml
+
+node_modules/
+coverage/
+*d.ts
+
+web/.vertx/file-cache-*
+
+.vscode/
+.history/
+.vertx/
