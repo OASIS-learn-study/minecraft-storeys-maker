@@ -1,10 +1,5 @@
 # minecraft-storeys-maker Scratch integration
 
-## For end-users on OpenShift
-
-See [../README.md](../README.md).
-
-
 ## For developers
 
 Build the entire project (not just the `scratch/` or `web/`) via `./gradlew build`.
