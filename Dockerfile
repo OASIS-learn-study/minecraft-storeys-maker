@@ -3,7 +3,7 @@ FROM openjdk:8-jdk as build
 RUN apt-get update
 COPY . /project
 WORKDIR /project
-RUN ./gradlew build -x test
+RUN ./gradlew build -PexcludeTests="**/SeleniumTest*"
 
 FROM itzg/minecraft-server:java8
 COPY --from=build /project/web/build/libs/*-all.jar /mods/
