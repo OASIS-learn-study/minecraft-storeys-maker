@@ -13,6 +13,6 @@
   },
   "dependencies": {
     "minecraft-storeys": "0.0.3",
-    "minecraft-storeys-scratch-vm": "0.0.7"
+    "minecraft-storeys-scratch-vm": "0.0.8"
   }
 }
