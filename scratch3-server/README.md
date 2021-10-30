@@ -17,5 +17,5 @@ module.exports = (async (minecraft) => {
 ```
 
 This will register a listener for when an entity named "joe" gets right clicked and let him say: "hello my little friend".
-The [minecraft object](api/src/main/typescript/observable-wrapper.ts) has all the functions that the scratch has, this is what scratch uses as well.
+The [minecraft object](../api/src/main/typescript/observable-wrapper.ts) has all the functions that the scratch has, this is what scratch uses as well.
 These scripts get started run when the server starts.

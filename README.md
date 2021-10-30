@@ -18,12 +18,9 @@ This project has four parts, delivered separately:
 
 ## Get it
 
-[Download the latest storeys-master-all.jar file from Bintray](https://bintray.com/vorburger/minecraft/minecraft-storeys-maker#files).
-
-Place it into your [spongepowered.org](https://www.spongepowered.org) Minecraft, typically the `mods/` directory of a Vanilla server.
+Place the `storeys-master-all.jar` into your [spongepowered.org](https://www.spongepowered.org) Minecraft, typically the `mods/` directory of a Vanilla server.
 
 Tested on Sponge Vanilla 7.0.0 (Minecraft 1.12.1) and Sponge Vanilla 5.1.0 (Minecraft 1.10.2).  Likely works on Sponge Forge as well.
-
 
 ## Use it
 
@@ -77,63 +74,14 @@ You can obviously mix the order and repeat titles, comments, chats, narrations, 
 
 #### Dockerfile
 
-    cd ../s2i-minecraft-server
-    docker build -t minecraft-server .
-
-    cd ../minecraft-storeys-maker
     docker build -t minecraft-storeys-maker .
 
     docker run --rm -p 25565:25565 -p 8080:8080 -p 7070:7070 minecraft-storeys-maker
 
-#### S2I
-
-With S2I, and with git reset and clean due to #28 and #71:
-
-    cd ../s2i-minecraft-server
-    s2i build --copy . fabric8/s2i-java s2i-minecraft-server
-
-    cd ../minecraft-storeys-maker
-    git reset --hard; git clean -d -f -x
-    s2i build --copy . s2i-minecraft-server minecraft-storeys-maker
-
-    docker run --rm -p 25565:25565 -p 8080:8080 -p 7070:7070 minecraft-storeys-maker
-
-### OpenShift simple
-
-    oc new-build fabric8/s2i-java~https://github.com/vorburger/s2i-minecraft-server
-
-    oc new-app s2i-minecraft-server~https://github.com/vorburger/minecraft-storeys-maker.git
-
-This may fail if Builds have memory constraints; if so, Edit YAML to change `resources: {}` to `resources:\n  limits:\n    memory: 2Gi`.
-
-Now expose the [Minecraft server port 25565 via a LoadBalancer service](https://github.com/vorburger/s2i-minecraft-server/),
-and similarly also (specific to this plugin) expose our JS web site code and Vert.x EventBus port, for now via Edit YAML
-on the minecraft-storeys-maker(-server) Service, and adding 7070 and 8080 just like 25565.  NB that you do not set the
-`nodePort:` when editing the YAML; it will get automatically added.  We then have to set Environment variables
-on the minecraft-storeys-maker(-server) Deployment:
-
-    oc get services
+We also have to set Environment variables on the minecraft-storeys-maker(-server) Deployment:
 
     storeys_jsURL = http://<EXTERNAL-IP>:7070/minecraft.scratchx.js
     storeys_eventBusURL = http://<EXTERNAL-IP>:8080/eventbus
-
-
-### OpenShift development
-
-It helps to Edit YAML to add `incremental: true` to the `strategy:` / `sourceStrategy:` (This may not work on OpenShift Online, yet).
-
-To use an un-published S2I Java builder image you have to first:
-
-    oc new-build https://github.com/fabric8io-images/s2i --context-dir=java/images/centos
-
-and then:
-
-    oc new-build s2i~https://github.com/vorburger/s2i-minecraft-server
-
-If have this project's source code locally, then (the `rm .../node_modules` is because of [issue 28](https://github.com/vorburger/minecraft-storeys-maker/issues/28)):
-
-    rm -rf scratch/.gradle/ scratch/node_modules
-    oc start-build minecraft-storeys-maker --from-dir=. --follow
 
 
 ## FAQ
