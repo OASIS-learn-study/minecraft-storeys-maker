@@ -5,7 +5,7 @@ COPY . /project
 WORKDIR /project
 RUN ./gradlew build -x test
 
-FROM itzg/minecraft-server
+FROM itzg/minecraft-server:java8
 COPY --from=build /project/web/build/libs/*-all.jar /data/mods/
 
 ENV EULA=TRUE
