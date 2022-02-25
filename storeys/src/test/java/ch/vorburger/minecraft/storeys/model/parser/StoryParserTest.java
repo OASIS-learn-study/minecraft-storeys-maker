@@ -19,7 +19,6 @@
 package ch.vorburger.minecraft.storeys.model.parser;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
@@ -48,6 +47,7 @@ import org.junit.Test;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.api.scheduler.SpongeExecutorService;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.title.Title;
 
 public class StoryParserTest {
@@ -80,10 +80,14 @@ public class StoryParserTest {
 
         // then
         List<Action<?>> storyActionsList = story.getActionsList();
-        assertFalse(storyActionsList.isEmpty());
+        assertEquals(4, storyActionsList.size());
         assertEquals(TitleAction.class, storyActionsList.get(0).getClass());
         assertEquals(MessageAction.class, storyActionsList.get(1).getClass());
-        assertEquals("CommandAction: /tp -235 64 230 17 12", storyActionsList.get(2).toString());
+        NarrateAction narrateAction = (NarrateAction) storyActionsList.get(2);
+        assertEquals("Piggy", narrateAction.getEntityName());
+        assertEquals(Text.of("Hi there! I'm Piggy.\nWelcome to the storeys mod.  I'll be giving you a quick guided tour now..."),
+                narrateAction.getText());
+        assertEquals("CommandAction: /tp -235 64 230 17 12", storyActionsList.get(3).toString());
     }
 
     @Test public void parseDynamic() throws IOException, SyntaxErrorException {
