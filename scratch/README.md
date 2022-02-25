@@ -17,8 +17,8 @@ Start the Minecraft server, and pass the URL where the ScratchX extension is ava
 
     java -Dstoreys_jsURL=http://localhost:3000/minecraft.scratchx.js -jar spongevanilla-*.jar
 
-Connect to your Minecraft server with the Minecraft client GUI, and use the `/login` console command.
-This will reply with a link to http://scratchx.org in the Minecraft chat.
+Connect to your Minecraft server with the Minecraft client GUI, and use the console command
+[as documented here](../README.md#dockerfile).
 
 To develop new extensions to our Vert.x-based Minecraft remote API, we often first (before doing above) start the main() method of the SeleniumTest, which starts the TestMinecraft implementation, use `npm start` as above to run the client, and then open http://localhost:3000/?eventBusURL=http://localhost:6060/eventbus, and try out things in the Browser's Console.
 
