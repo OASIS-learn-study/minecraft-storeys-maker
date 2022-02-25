@@ -78,7 +78,7 @@ You can obviously mix the order and repeat titles, comments, chats, narrations, 
 
     docker run -it --rm -p 25565:25565 -p 8080:8080 -p 7070:7070 minecraft-storeys-maker
 
-We also have to set Environment variables on the minecraft-storeys-maker(-server) Deployment:
+If you want to run on a diffenent host then localhost, you'll need to set the following environment variables:
 
     storeys_gui = http://<EXTERNAL-IP>:7070/index.html
     storeys_eventBusURL = http://<EXTERNAL-IP>:8080/
