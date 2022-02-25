@@ -76,7 +76,10 @@ You can obviously mix the order and repeat titles, comments, chats, narrations, 
 
     docker build -t minecraft-storeys-maker .
 
-    docker run -it --rm -p 25565:25565 -p 8080:8080 -p 7070:7070 minecraft-storeys-maker
+    docker run -it --rm -e OPS=73551f35-7acb-45c0-bc65-8083c53eec69 -p 25565:25565 -p 8080:8080 -p 7070:7070 minecraft-storeys-maker
+
+Now you can use the `/make` (AKA `/scratch`) command to get the URL to Scratch where you can "make a plugin".
+(The `OPS` with your Minecraft ID is required because the command requires permission; alternatively [use permissions](https://github.com/OASIS-learn-study/minecraft-storeys-maker/issues/276).)
 
 If you want to run on a diffenent host then localhost, you'll need to set the following environment variables:
 
