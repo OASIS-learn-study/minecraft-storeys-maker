@@ -6,7 +6,7 @@ WORKDIR /project
 RUN ./gradlew build -x test
 
 FROM itzg/minecraft-server:java8
-COPY --from=build /project/web/build/libs/*-all.jar /data/mods/
+COPY --from=build /project/web/build/libs/*-all.jar /mods/
 
 ENV EULA=TRUE
 ENV TYPE=SPONGEVANILLA
