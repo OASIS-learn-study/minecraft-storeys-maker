@@ -1,4 +1,4 @@
-# <a href="https://www.learn.study"><img src="logo/oasis.learn.study-Minecraft-Scratch-HighRes.png" width="100"/></a> minecraft-storeys-maker [![Build Status](https://travis-ci.com/OASIS-learn-study/minecraft-storeys-maker.svg?branch=master)](https://travis-ci.com/OASIS-learn-study/minecraft-storeys-maker)
+# <a href="https://www.learn.study"><img src="logo/oasis.learn.study-Minecraft-Scratch-HighRes.png" width="100"/></a> minecraft-storeys-maker
 
 Minecraft extension to make your own stories in, with and for Minecraft - it's like being a movie director!
 
