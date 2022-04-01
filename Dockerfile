@@ -5,6 +5,7 @@ COPY . /project
 WORKDIR /project
 RUN ./gradlew build -x test
 
+# Keep any changes made here strictly in sync with Dockerfile-local
 FROM itzg/minecraft-server:java8
 COPY --from=build /project/web/build/libs/*-all.jar /mods/
 
