@@ -20,7 +20,6 @@ package ch.vorburger.minecraft.storeys.web;
 
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
-import java.io.File;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -41,12 +40,7 @@ public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
 
     @Inject public StaticWebServerVerticle(@Named("web-http-port") int httpPort) {
         super(httpPort);
-        webRoot = "static"; // ~= ../scratch/dist/*.js
-    }
-
-    public StaticWebServerVerticle(int httpPort, File webRoot) {
-        super(httpPort);
-        this.webRoot = webRoot.getPath();
+        webRoot = "static"; // = ../scratch3/node_modules/minecraft-storeys-scratch-gui/build/
     }
 
     @Override protected void addRoutes(Router router) {

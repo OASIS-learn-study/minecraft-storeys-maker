@@ -20,7 +20,6 @@ package ch.vorburger.minecraft.storeys.web;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -59,7 +58,7 @@ public class VertxStarterTest {
     public static void main(String[] args) throws Exception {
         VertxStarter vertxStarter = new VertxStarter();
 
-        vertxStarter.deployVerticle(new StaticWebServerVerticle(9090, new File("../scratch"))).toCompletableFuture().get();
+        vertxStarter.deployVerticle(new StaticWebServerVerticle(9090)).toCompletableFuture().get();
 
         Mains.waitForEnter();
 

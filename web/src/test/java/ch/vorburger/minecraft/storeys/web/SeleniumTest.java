@@ -32,7 +32,6 @@ import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.web.test.TestMinecraft;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import io.vertx.core.json.JsonObject;
-import java.io.File;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Date;
@@ -42,6 +41,7 @@ import java.util.logging.Level;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.openqa.selenium.JavascriptExecutor;
@@ -57,26 +57,20 @@ import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.spongepowered.api.entity.living.player.Player;
 
 /**
  * Integration test, based on WebDriver.
- * This does not test Minecraft itself nor the ScratchX UI but the code in this project which sits between the two.
+ * This does not test Minecraft itself nor the Scratch UI but the code in this project which sits between the two.
  *
  * @author Michael Vorburger.ch
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING) // required because tests are not yet completely independent, see sleep()
 public class SeleniumTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SeleniumTest.class);
-
     // TODO use https://www.testcontainers.org
 
-    // TODO @Test public void testLoadInScratchX() {
-    // find some trick to pipe from http://scratchx.org to be able to load local file...
-    // then open http://scratchx.org/?url=... like LoginCommand does.
+    // TODO @Test public void testLoadInScratch() by openingURL like LoginCommand does
 
     private static VertxStarter vertxStarter;
     private static TestMinecraft testMinecraft;
@@ -112,7 +106,7 @@ public class SeleniumTest {
             }
         });
         vertxStarter.deployVerticle(minecraftVerticle).toCompletableFuture().get();
-        vertxStarter.deployVerticle(new StaticWebServerVerticle(9090, new File("../scratch/dist"))).toCompletableFuture().get();
+        vertxStarter.deployVerticle(new StaticWebServerVerticle(9090)).toCompletableFuture().get();
     }
 
     private static void startWebDriver() {
@@ -141,13 +135,17 @@ public class SeleniumTest {
         vertxStarter.stop();
     }
 
-    @Test public void a_testBasicSetUp() {
-        assertThat(webDriver.getTitle(), is("Test"));
-        assertNoBrowserConsoleLogErrors();
+    @Test public void a_testPageTitle() {
+        assertThat(webDriver.getTitle(), is("Scratch 3.0 GUI"));
 
         // Let's just make sure that WD executeScript() works fine:
         long number = (Long) js.executeScript("return 1 + 2;");
         assertEquals(3, number);
+    }
+
+    @Ignore // TODO replace scratch/ (ScratchX) with scratch3/ (or api/) equivalent
+    @Test public void a_testBasicSetUp() {
+        assertNoBrowserConsoleLogErrors();
 
         Object value = js.executeScript("return ext !== undefined");
         assertThat(value, is(instanceOf(Boolean.class)));
@@ -155,6 +153,7 @@ public class SeleniumTest {
         awaitUntilJSReturnsValue("scratchMinecraftExtension not ready", "return ext.scratchMinecraftExtension !== undefined");
     }
 
+    @Ignore // TODO replace scratch/ (ScratchX) with scratch3/ (or api/) equivalent
     @Test public void b_testSendTitle() {
         final String message = "hello, world";
         testEventBusCall("sendTitle", message);
@@ -162,6 +161,7 @@ public class SeleniumTest {
         assertThat(testMinecraft.results.get("lastTitle"), is(message));
     }
 
+    @Ignore // TODO replace scratch/ (ScratchX) with scratch3/ (or api/) equivalent
     @Test public void c_testNarrate() {
         final String text = "Hi and welcome to Minecraft";
         final String entity = "joe";
@@ -170,10 +170,12 @@ public class SeleniumTest {
         assertThat(testMinecraft.results.get("text"), is(text));
     }
 
+    @Ignore // TODO replace scratch/ (ScratchX) with scratch3/ (or api/) equivalent
     @Test public void e_testNegativeAPI() {
         assertThat(runTesterJSAndGetFailures(), contains("getItemHeld expected Apple but actually got Nothing"));
     }
 
+    @Ignore // TODO replace scratch/ (ScratchX) with scratch3/ (or api/) equivalent
     @Test public void e_testPositiveAPI() {
         testMinecraft.itemsHeld.put(HandType.MainHand, ItemType.Apple);
         List<String> actual = runTesterJSAndGetFailures();
@@ -224,7 +226,7 @@ public class SeleniumTest {
             System.out.println("BROWSER: " + new Date(entry.getTimestamp()) + " " + entry.getLevel() + " " + entry.getMessage());
             String messageInLowerCase = entry.getMessage().toLowerCase();
             if ((entry.getLevel().equals(Level.SEVERE) || messageInLowerCase.contains("error") || messageInLowerCase.contains("uncaught "))
-                    && (firstMessage == null)) {
+                    && firstMessage == null) {
                 firstMessage = entry.getMessage();
             }
         }
