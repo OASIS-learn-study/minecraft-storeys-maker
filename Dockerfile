@@ -14,6 +14,9 @@ ENV EULA=TRUE
 ENV TYPE=SPONGEVANILLA
 ENV OVERRIDE_SERVER_PROPERTIES=true
 ENV MOTD="§a§l/make§r your §bown§r Plugins/Mods, §l§6with Scratch!"
+ENV SPAWN_PROTECTION=0
+ENV DIFFICULTY=peaceful
+ENV MODE=creative
 EXPOSE 25565 25575 7070 8080
 ENTRYPOINT [ "/data-init/start-custom" ]
 
