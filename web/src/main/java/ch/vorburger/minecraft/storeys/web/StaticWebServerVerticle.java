@@ -22,10 +22,10 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.ext.web.handler.StaticHandler;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +35,7 @@ import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import io.vertx.ext.web.handler.StaticHandler;
 import org.apache.commons.io.IOUtils;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -56,7 +57,6 @@ public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
     private final Path configDir;
 
     @Inject public StaticWebServerVerticle(Path configDir, @Named("web-http-port") int httpPort) {
-        this.configDir = configDir;
         super(httpPort);
         webRoot = "static"; // = ../scratch3/node_modules/minecraft-storeys-scratch-gui/build/
         this.configDir = configDir;
@@ -118,6 +118,10 @@ public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
             }
         });
 
+        // see https://github.com/vorburger/minecraft-storeys-maker/issues/97 re. setFilesReadOnly(false) &
+        // setCachingEnabled(false)
+        router.route("/*").handler(
+                StaticHandler.create().setDirectoryListing(true).setWebRoot(webRoot).setCachingEnabled(false).setFilesReadOnly(false));
         LOG.info("Going to serve static web content from {} on port {}", webRoot, httpPort);
     }
 
