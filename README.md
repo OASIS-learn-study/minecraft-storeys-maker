@@ -74,6 +74,13 @@ You can obviously mix the order and repeat titles, comments, chats, narrations, 
 
     docker build -t minecraft-storeys-maker .
 
+or
+
+    ./gradlew build [-x test]
+    docker build -f Dockerfile-local -t minecraft-storeys-maker .
+
+and then:
+
     docker run -it --rm -e OPS=73551f35-7acb-45c0-bc65-8083c53eec69 \
         -v $HOME/MinecraftData:/data:Z \
         -p 25565:25565 -p 8080:8080 -p 7070:7070 minecraft-storeys-maker

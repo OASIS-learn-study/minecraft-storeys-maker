@@ -1,0 +1,9 @@
+# This assumes that "./gradlew build [-x test]" was run
+# Keep any changes made here strictly in sync with Dockerfile
+FROM itzg/minecraft-server:java8
+COPY web/build/libs/*-all.jar /mods/
+
+ENV EULA=TRUE
+ENV TYPE=SPONGEVANILLA
+EXPOSE 25565 25575 7070 8080
+ENTRYPOINT [ "/start" ]
