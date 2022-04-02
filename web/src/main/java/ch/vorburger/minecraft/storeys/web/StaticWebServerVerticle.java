@@ -21,12 +21,11 @@ package ch.vorburger.minecraft.storeys.web;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
 import java.io.File;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Vert.x Verticle serving static content.
@@ -40,10 +39,9 @@ public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
 
     private final String webRoot;
 
-    @Inject
-    public StaticWebServerVerticle(@Named("web-http-port") int httpPort) {
+    @Inject public StaticWebServerVerticle(@Named("web-http-port") int httpPort) {
         super(httpPort);
-        this.webRoot = "static"; // ~= ../scratch/dist/*.js
+        webRoot = "static"; // ~= ../scratch/dist/*.js
     }
 
     public StaticWebServerVerticle(int httpPort, File webRoot) {
@@ -51,10 +49,11 @@ public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
         this.webRoot = webRoot.getPath();
     }
 
-    @Override
-    protected void addRoutes(Router router) {
-        // see https://github.com/vorburger/minecraft-storeys-maker/issues/97 re. setFilesReadOnly(false) & setCachingEnabled(false)
-        router.route("/*").handler(StaticHandler.create().setDirectoryListing(true).setWebRoot(webRoot).setCachingEnabled(false).setFilesReadOnly(false));
+    @Override protected void addRoutes(Router router) {
+        // see https://github.com/vorburger/minecraft-storeys-maker/issues/97 re. setFilesReadOnly(false) &
+        // setCachingEnabled(false)
+        router.route("/*").handler(
+                StaticHandler.create().setDirectoryListing(true).setWebRoot(webRoot).setCachingEnabled(false).setFilesReadOnly(false));
         LOG.info("Going to serve static web content from {} on port {}", webRoot, httpPort);
     }
 

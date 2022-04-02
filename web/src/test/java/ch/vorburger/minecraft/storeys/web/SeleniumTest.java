@@ -19,6 +19,8 @@
 package ch.vorburger.minecraft.storeys.web;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -29,6 +31,7 @@ import ch.vorburger.minecraft.storeys.api.ItemType;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.web.test.TestMinecraft;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import io.vertx.core.json.JsonObject;
 import java.io.File;
 import java.text.MessageFormat;
 import java.time.Duration;
@@ -36,8 +39,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
-
-import io.vertx.core.json.JsonObject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -60,9 +61,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.entity.living.player.Player;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.empty;
-
 /**
  * Integration test, based on WebDriver.
  * This does not test Minecraft itself nor the ScratchX UI but the code in this project which sits between the two.
@@ -77,8 +75,8 @@ public class SeleniumTest {
     // TODO use https://www.testcontainers.org
 
     // TODO @Test public void testLoadInScratchX() {
-    //    find some trick to pipe from http://scratchx.org to be able to load local file...
-    //    then open http://scratchx.org/?url=... like LoginCommand does.
+    // find some trick to pipe from http://scratchx.org to be able to load local file...
+    // then open http://scratchx.org/?url=... like LoginCommand does.
 
     private static VertxStarter vertxStarter;
     private static TestMinecraft testMinecraft;
@@ -87,8 +85,7 @@ public class SeleniumTest {
     private static JavascriptExecutor js;
     private static FluentWait<WebDriver> awaitWD;
 
-    @BeforeClass
-    public static void setupClass() throws Exception {
+    @BeforeClass public static void setupClass() throws Exception {
         startVertx();
         startWebDriver();
     }
@@ -98,13 +95,11 @@ public class SeleniumTest {
         vertxStarter = new VertxStarter();
         MinecraftVerticle minecraftVerticle = new MinecraftVerticle(6060, testMinecraft, new TokenProvider() {
 
-            @Override
-            public String getCode(Player player) {
+            @Override public String getCode(Player player) {
                 return UUID.randomUUID().toString();
             }
 
-            @Override
-            public String login(String code) {
+            @Override public String login(String code) {
                 return UUID.randomUUID().toString();
             }
         });
@@ -141,14 +136,12 @@ public class SeleniumTest {
         webDriver.get("http://localhost:9090/index.html?eventBusURL=http%3A%2F%2Flocalhost%3A6060");
     }
 
-    @AfterClass
-    public static void tearDownClass() throws Exception {
+    @AfterClass public static void tearDownClass() throws Exception {
         webDriver.close();
         vertxStarter.stop();
     }
 
-    @Test
-    public void a_testBasicSetUp() {
+    @Test public void a_testBasicSetUp() {
         assertThat(webDriver.getTitle(), is("Test"));
         assertNoBrowserConsoleLogErrors();
 
@@ -162,16 +155,14 @@ public class SeleniumTest {
         awaitUntilJSReturnsValue("scratchMinecraftExtension not ready", "return ext.scratchMinecraftExtension !== undefined");
     }
 
-    @Test
-    public void b_testSendTitle() {
+    @Test public void b_testSendTitle() {
         final String message = "hello, world";
         testEventBusCall("sendTitle", message);
 
         assertThat(testMinecraft.results.get("lastTitle"), is(message));
     }
 
-    @Test
-    public void c_testNarrate() {
+    @Test public void c_testNarrate() {
         final String text = "Hi and welcome to Minecraft";
         final String entity = "joe";
         testEventBusCall("narrate", entity, text);
@@ -179,13 +170,11 @@ public class SeleniumTest {
         assertThat(testMinecraft.results.get("text"), is(text));
     }
 
-    @Test
-    public void e_testNegativeAPI() {
+    @Test public void e_testNegativeAPI() {
         assertThat(runTesterJSAndGetFailures(), contains("getItemHeld expected Apple but actually got Nothing"));
     }
 
-    @Test
-    public void e_testPositiveAPI() {
+    @Test public void e_testPositiveAPI() {
         testMinecraft.itemsHeld.put(HandType.MainHand, ItemType.Apple);
         List<String> actual = runTesterJSAndGetFailures();
         System.out.println("actual = " + actual);
@@ -196,8 +185,7 @@ public class SeleniumTest {
 
     // TODO testAllOtherBlocks...
 
-    @SuppressWarnings("unchecked")
-    private List<String> runTesterJSAndGetFailures() {
+    @SuppressWarnings("unchecked") private List<String> runTesterJSAndGetFailures() {
         js.executeScript("window.tester = new Tester(); tester.test()");
         assertNoBrowserConsoleLogErrors();
         awaitUntilJSReturnsValue("Client side test is not yet done", "return tester.isDone() === true");
@@ -223,7 +211,8 @@ public class SeleniumTest {
         } catch (TimeoutException e) {
             // If we timed out, it's useful to print the Browser log, and check it for errors
             assertNoBrowserConsoleLogErrors();
-            // This re-throw will not be reached if there was a browser, and that's just fine, because we probably have better details
+            // This re-throw will not be reached if there was a browser, and that's just fine, because we probably have better
+            // details
             throw e;
         }
     }
@@ -234,10 +223,9 @@ public class SeleniumTest {
         for (LogEntry entry : logEntries) {
             System.out.println("BROWSER: " + new Date(entry.getTimestamp()) + " " + entry.getLevel() + " " + entry.getMessage());
             String messageInLowerCase = entry.getMessage().toLowerCase();
-            if (entry.getLevel().equals(Level.SEVERE) || messageInLowerCase.contains("error") || messageInLowerCase.contains("uncaught ")) {
-                if (firstMessage == null) {
-                    firstMessage = entry.getMessage();
-                }
+            if ((entry.getLevel().equals(Level.SEVERE) || messageInLowerCase.contains("error") || messageInLowerCase.contains("uncaught "))
+                    && (firstMessage == null)) {
+                firstMessage = entry.getMessage();
             }
         }
         if (firstMessage != null) {

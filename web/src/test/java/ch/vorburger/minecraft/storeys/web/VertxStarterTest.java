@@ -33,14 +33,14 @@ import org.junit.Test;
  */
 public class VertxStarterTest {
 
-    @Test
-    public final void testVertxStarterStartStopWithoutVerticle() throws Exception {
+    @Test public final void testVertxStarterStartStopWithoutVerticle() throws Exception {
         VertxStarter vertxStarter = new VertxStarter();
         vertxStarter.stop();
     }
 
     @Test
-    // NB: This test MAY not pass in-IDE (if the Gradle support doesn't correctly add ../scratch/dist/*.js to the classpath under static/), but it does pass on the build
+    // NB: This test MAY not pass in-IDE (if the Gradle support doesn't correctly add ../scratch/dist/*.js to the classpath
+    // under static/), but it does pass on the build
     public final void testStaticWebContent() throws Exception {
         VertxStarter vertxStarter = new VertxStarter();
         vertxStarter.deployVerticle(new StaticWebServerVerticle(3030)).toCompletableFuture().get();
