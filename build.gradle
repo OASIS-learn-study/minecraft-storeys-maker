@@ -71,6 +71,11 @@ subprojects {
     }
 
     test {
+        // https://github.com/OASIS-learn-study/minecraft-storeys-maker/pull/265/
+        if (project.hasProperty('excludeTests')) {
+            exclude project.property('excludeTests')
+        }
+
         testLogging {
             // more verbose, but sometimes useful; see e.g. https://github.com/vorburger/minecraft-storeys-maker/pull/16
             events "failed", "passed", "skipped"

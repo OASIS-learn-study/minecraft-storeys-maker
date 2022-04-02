@@ -2,7 +2,7 @@ FROM openjdk:8-jdk as build
 
 COPY . /project
 WORKDIR /project
-RUN ./gradlew build -x test
+RUN ./gradlew build -PexcludeTests="**/SeleniumTest*"
 
 # Keep any changes made here strictly in sync with Dockerfile-local
 FROM itzg/minecraft-server:java8
