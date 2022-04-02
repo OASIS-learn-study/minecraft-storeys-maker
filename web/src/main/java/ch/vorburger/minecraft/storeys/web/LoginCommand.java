@@ -44,7 +44,7 @@ import org.spongepowered.api.text.format.TextColors;
  */
 public class LoginCommand implements Command {
 
-    private String scratchGui = "http://localhost:7070/index.html";
+    private String scratchGui = "http://localhost:7070/minecraft.html";
     private String eventBusURL = "http://localhost:8080";
     private String encodedEventBusURL;
 
@@ -94,7 +94,7 @@ public class LoginCommand implements Command {
                 Player player = (Player)src;
 
                 String code = tokenProvider.getCode(player);
-                String url = String.format("%s?code=%s&eventBusURL=%s", scratchGui, code, encodedEventBusURL);
+                String url = String.format("%s?code=%s&eventBusURL=%s#init", scratchGui, code, encodedEventBusURL);
 
                 src.sendMessage(Text.builder("Click here to open Scratch and MAKE actions").onClick(
                         TextActions.openUrl(new URL(url))).color(TextColors.GOLD).build());

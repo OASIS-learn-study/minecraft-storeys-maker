@@ -106,7 +106,7 @@ public class SeleniumTest {
             }
         });
         vertxStarter.deployVerticle(minecraftVerticle).toCompletableFuture().get();
-        vertxStarter.deployVerticle(new StaticWebServerVerticle(9090)).toCompletableFuture().get();
+        vertxStarter.deployVerticle(new StaticWebServerVerticle(null, 9090)).toCompletableFuture().get();
     }
 
     private static void startWebDriver() {
