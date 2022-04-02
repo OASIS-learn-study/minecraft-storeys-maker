@@ -1,0 +1,7 @@
+#!/bin/bash
+set -euox pipefail
+
+cp /data-init/server.properties /data/
+cp /data-init/server-icon.png /data/
+
+/start
