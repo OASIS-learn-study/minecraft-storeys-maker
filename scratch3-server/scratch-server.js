@@ -17,6 +17,8 @@ global.settings.set('code', code);
 const scriptsFolder = './scripts';
 const scratchProjectFolder = './scratch';
 
+const runningVms = {};
+
 (() => {
   [scratchProjectFolder, scriptsFolder].forEach(folder => {
     if (!fs.existsSync(folder)) {
@@ -30,16 +32,9 @@ const requireUncached = (module) => {
   return require(module)
 }
 
-let fsWait = false;
 const readFiles = async (folder, callback) => {
-  fs.watch(folder, (type, file) => {
-    if (file && fs.existsSync(file)) {
-      if (fsWait) return;
-      fsWait = setTimeout(() => {
-        fsWait = false;
-      }, 100);
-      callback(file);
-    }
+  fs.watch(folder, (_, file) => {
+    callback(file);
   });
 
   const readdir = util.promisify(fs.readdir);
@@ -67,13 +62,18 @@ const executeScratchProjects = async () => {
 
   readFiles(scratchProjectFolder, async script => {
     const projectLocation = path.join(scratchProjectFolder, script);
-    try {
-      global.settings.set('user', script.replace(/\.[^/.]+$/, ""));
-      const fileReader = util.promisify(fs.readFile);
-      const project = Buffer.from(await fileReader(projectLocation));
-      virtualMachine.loadProject(project);
-    } catch (error) {
-      console.error('could not execute script', error);
+    if (fs.existsSync(projectLocation)) {
+      runningVms[script] = virtualMachine;
+      try {
+        global.settings.set('user', script.replace(/\.[^/.]+$/, ""));
+        const fileReader = util.promisify(fs.readFile);
+        const project = Buffer.from(await fileReader(projectLocation));
+        virtualMachine.loadProject(project);
+      } catch (error) {
+        console.error('could not execute script', error);
+      }
+    } else {
+      runningVms[script].stopAll();
     }
   });
 
