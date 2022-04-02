@@ -8,6 +8,7 @@ dependencies {
     implementation('com.spotify:futures-extra:4.0.0') {
         exclude group: 'com.google.guava' 
     }
+    testCompile project(':test-utils')
 }
 
 shadowJar {

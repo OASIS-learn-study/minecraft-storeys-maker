@@ -43,11 +43,6 @@ ext {
 }
 
 dependencies {
-    // just for mapping our enums to catalog types,
-    // but this is an implementation detail; users of this API won't directly use spongeapi themselves
-    // TODO remove this again, and move enum mapping into impl instead of API...
-    implementation 'org.spongepowered:spongeapi:7.3.0'
-
     compile "io.vertx:vertx-core:$vertxVersion"
     compile "io.vertx:vertx-web:$vertxVersion"
     compile "io.vertx:vertx-auth-jwt:$vertxVersion"
@@ -58,6 +53,7 @@ dependencies {
     annotationProcessor "io.vertx:vertx-service-proxy:$vertxVersion"
 
     testCompile "io.vertx:vertx-unit:$vertxVersion"
+    testCompile project(':test-utils')
 }
 
 eclipse {
