@@ -40,18 +40,17 @@ public class GuardGameModeJoinListener implements EventListener<Join> {
         GameMode newGameMode = null;
         Player player = joinEvent.getTargetEntity();
         // NB: Order and use of if and not else if - because higher permission overrides lower...
+        // But beware that OPS on servers without permissions plugin (such as LuckPerms) have all permissions;
+        // therefore the last permission must be the one which we wants an OPS to have!
         if (player.hasPermission("storeys.guard.adventure")) {
             newGameMode = GameModes.ADVENTURE;
         }
         if (player.hasPermission("storeys.guard.creative")) {
             newGameMode = GameModes.CREATIVE;
         }
-        if (player.hasPermission("storeys.guard.survival")) {
-            newGameMode = GameModes.SURVIVAL;
-        }
         if (newGameMode != null) {
             player.offer(Keys.GAME_MODE, newGameMode);
-            LOG.info("Player {} game mode {}", player, newGameMode);
+            LOG.info("Setting Player {} game mode to {} due to their storeys.guard.* permissions", player.getName(), newGameMode);
         }
     }
 
