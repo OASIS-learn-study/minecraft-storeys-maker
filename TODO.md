@@ -64,7 +64,6 @@
 - [ ] world plugin which can load previously saved (parts of SMALL) world dumps
 - [ ] script to create the demo world with Piggy & Chestnut: /summon, /name etc. (How to fence, leash?)
 - [ ] script gen. from existing world?!
-- [ ] Bundle hello.story into JAR and extract on start, if not present
 
 ### Marketing
 

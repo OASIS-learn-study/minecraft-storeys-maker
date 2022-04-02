@@ -1,0 +1,28 @@
+# Ignore everything...
+*
+
+# ...except:
+!.gitignore
+
+# https://minecraft.fandom.com/el/wiki/Level_format
+!world
+world/*
+!world/level*.dat
+
+# !world/data
+# world/data/*
+# !world/data/villages.dat
+
+!world/region
+world/region/*
+!world/region/*.mca
+
+!config
+config/*
+!config/storeys-web
+config/storeys-web/*
+!config/storeys-web/stories
+config/storeys-web/stories/*
+!config/storeys-web/stories/*.story
+
+# https://stackoverflow.com/questions/987142/make-gitignore-ignore-everything-except-a-few-files explains the weird format above.

@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euox pipefail
+
+# https://github.com/OASIS-learn-study/minecraft-storeys-maker#build-it
+./gradlew build
+podman build -f Dockerfile-local -t minecraft-storeys-maker .
+podman run -it --rm -e OPS=73551f35-7acb-45c0-bc65-8083c53eec69 \
+    -v $PWD/minecraft-server-test-data:/data:Z -e UID=0 -e GID=0 \
+    -p 25565:25565 -p 8080:8080 -p 7070:7070 minecraft-storeys-maker
+
+# The `OPS` with your Minecraft ID is required because the command requires permission;
+# alternatively [use permissions](https://github.com/OASIS-learn-study/minecraft-storeys-maker/issues/276).
+
+# Note that `-e UID=0 -e GID=0` makes `itzg/minecraft-server`'s processes run as `root`
+# (instead of its default UID/GID `1000` which is hard-coded in its `setup-user.sh`),
+# and that (somewhat counter intuitively) will actually run as your unprivileged user on the host,
+# see https://github.com/itzg/docker-minecraft-server#running-as-alternate-usergroup-id
+# and https://github.com/containers/podman/blob/v2.2.1/docs/tutorials/rootless_tutorial.md#using-volumes.
+
+# TODO HOW-TO --userns keep-id
+# NOT --uidmap=0:100000:65536 --uidmap=1000:100000:65536 --gidmap=1000:100000:65536 --gidmap=0:100000:65536
+# NOT --userns=host --user=$(id -un):$(id -gn)
