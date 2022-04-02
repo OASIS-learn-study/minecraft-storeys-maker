@@ -18,6 +18,8 @@
  */
 package ch.vorburger.minecraft.storeys.guard;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.gamemode.GameMode;
@@ -32,8 +34,9 @@ import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
  */
 public class GuardGameModeJoinListener implements EventListener<Join> {
 
-    @Override
-    public void handle(Join joinEvent) throws Exception {
+    private static final Logger LOG = LoggerFactory.getLogger(GuardGameModeJoinListener.class);
+
+    @Override public void handle(Join joinEvent) throws Exception {
         GameMode newGameMode = null;
         Player player = joinEvent.getTargetEntity();
         // NB: Order and use of if and not else if - because higher permission overrides lower...
@@ -48,6 +51,7 @@ public class GuardGameModeJoinListener implements EventListener<Join> {
         }
         if (newGameMode != null) {
             player.offer(Keys.GAME_MODE, newGameMode);
+            LOG.info("Player {} game mode {}", player, newGameMode);
         }
     }
 
