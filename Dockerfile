@@ -1,6 +1,5 @@
 FROM openjdk:8-jdk as build
 
-RUN apt-get update
 COPY . /project
 WORKDIR /project
 RUN ./gradlew build -x test
