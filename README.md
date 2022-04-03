@@ -1,107 +1,17 @@
 # <a href="https://www.learn.study"><img src="logo/oasis.learn.study-Minecraft-Scratch-HighRes.png" width="100"/></a> minecraft-storeys-maker
 
-Minecraft extension to make your own stories in, with and for Minecraft - it's like being a movie director!
+Minecraft server extension to make your own stories in, with and for Minecraft - it's like being a movie director!
+
+Using [Story text files](docs/story.md) and the `/make` [command](docs/commands.md) with new Scratch Blocks for _Visual Programming_.
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=ZHHUB7R0gEo
 " target="_blank"><img src="http://img.youtube.com/vi/ZHHUB7R0gEo/0.jpg"
 alt="Minecraft Stories Maker" width="480" height="360" border="10" /></a>
 
-Please do Star & Watch this GitHub project if you like it!
+* [Discord](https://discord.gg/NPbutxm)
+* https://www.learn.study has a live Minecraft server with this!
+* [The Testing doc](docs/testing.md) describes how to manually walk through our end-to-end testing scenario to try it out locally.
+* [Docs](docs/) about [architecture](docs/architecture.md), [developing](docs/develop.md), an [FAQ](docs/faq.md), [deploy & ops](docs/ops.md) and [history](docs/history/)
+* [YouTube Playlist](https://www.youtube.com/playlist?list=PL7PA3zq_6Oqce-C2MhAK4FWb98OTFVrQo) with more related videos.
 
-## Scratch integration
-
-This project has four parts, delivered separately:
-1. Minecraft plugin, described below, lets you create stories by writing .story text files.
-1. Another Minecraft plugin, [described in a separate README](/scratch/README.md), lets you script Minecraft with Scratch!
-1. Third option, [in another separate README](/scratch3-server/README.md), create a javascript 'story'.
-1. Separately, and not (yet?) Minecraft integrated, [the Engine](engine/README.md).
-
-## Get it
-
-Place the `storeys-master-all.jar` into your [spongepowered.org](https://www.spongepowered.org) Minecraft, typically the `mods/` directory of a Vanilla server.
-
-Tested on Sponge Vanilla 7.0.0 (Minecraft 1.12.1) and Sponge Vanilla 5.1.0 (Minecraft 1.10.2).  Likely works on Sponge Forge as well.
-
-## Use it
-
-Write your own .story file, e.g. see [test.story](minecraft-server-test-data/config/storeys-web/stories/test.story).
-
-Run it with `/story <story-name>` (without .story suffix, so e.g. `/story hello`)
-
-## Story syntax
-
-    // Comment
-
-    = Title
-    == Subtitle
-
-    /tp 0 0 0
-
-    %await 2s
-
-    /tp -235 64 230 17 12
-
-    This is something which will appear on the chat.
-
-    @entityName this is something that the entity will "narrate" (in its name tag, like a speech bubble in a cartoon)
-    you can use more than one line; everything until the next paragraph break (double new line) will be part of the narration.
-    You do not have to break up the text yourself - it will automatically be "chopped up" appropriately by itself.
-
-    Now this will appear on the chat again (unless there is a '@' character in front again).
-
-You can of course use ANY Minecraft command in any line that starts with the '/' character, not just /tp.
-
-An entity's name must be given to your actors with a name tag (created via an Anvil), as always in normal Minecraft.
-
-The `%await` action is is useful e.g. if you are teleporting your viewer around to show him a scenery,
-and need the story to "pause" (to appreciate the beauty of your creation).  You do not need to explicitly use this
-otherwise, as the story automatically pauses appropriately when narrating, showing titles and chat.
-
-You can obviously mix the order and repeat titles, comments, chats, narrations, commands and actions.
-
-## Commands
-
-* `/story <story-name>` plays a story, read from `config/storeys/stories/<story-name>.story`
-* `/narrate <entityName> Text..` makes an entity "narrate" the _Text_
-
-## Build it
-
-### Locally
-
-    ./gradlew build
-
-### Locally in a container (Dockerfile)
-
-    docker build -t minecraft-storeys-maker .
-
-or
-
-    ./test
-
-Now you can use the `/make` (AKA `/scratch`) command to get the URL to Scratch where you can "make a plugin".
-
-[The _Testing_ doc](docs/testing.md) describes how to manually walk through our end-to-end testing scenario.
-
-If you want to run on a diffenent host then localhost, you'll need to set the following environment variables:
-
-    storeys_gui = http://<EXTERNAL-IP>:7070/index.html
-    storeys_eventBusURL = http://<EXTERNAL-IP>:8080/
-
-
-### GCP
-
-A _Series N1: f1-micro (1 vCPU, 614 MB memory)_ is too small and crash loops; but
-a _Series N1: g1-small (1 vCPU, 1.7 GB memory)_ seems to suffice for 1 or 2 player; otherwise
-a _N1 standard_ or
-a _e2-medium (2 vCPU, 4 GB memory)_ or more is recommended.
-
-Remember to set the environment variables as above, add a persistent `/data` volume, and create an appropriate firewall rule.
-
-_TODO Cost: $x VM + $y PD + $7 (?) static IP + $z Ingress+Egress = $TBD._
-
-
-## FAQ
-
-**Seriously, "storeys" (not _"stories"_) Maker, are you mental?** Yeah.. just to avoid any possible confusion with Minecraft Story Mode! ;-)
-
-**License? Contributions?** Licensed under the [GNU Affero General Public License v3.0 (AGPLv3)](LICENSE).  Contributions most welcome.
+Please do Star & Watch this GitHub project if you like this Minecraft server plugin!

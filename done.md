@@ -23,3 +23,4 @@ _[see TODO](TODO.md) for what's still to be done_
 - [X] README & Video (by D?)
 - [X] CI (incl. also building our deps)
 - [X] LICENSE-HEADER
+- [X] much simplify the README
