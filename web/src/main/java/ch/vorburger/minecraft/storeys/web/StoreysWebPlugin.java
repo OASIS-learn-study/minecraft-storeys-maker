@@ -102,7 +102,7 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
                 throw new IllegalStateException("Vert.x start-up failed", e);
             }
 
-            new NodeStarter(configDir).start();
+            new NodeStarter(configDir, plugin).start();
         } catch (RuntimeException e) {
             // If something went wrong during the Vert.x set up, we must unregister the commands registered in super.start()
             // so that, under OSGi, we'll manage to cleanly restart when whatever problem caused the start up to fail is fixed again.
