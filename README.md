@@ -24,7 +24,7 @@ Tested on Sponge Vanilla 7.0.0 (Minecraft 1.12.1) and Sponge Vanilla 5.1.0 (Mine
 
 ## Use it
 
-Write your own .story file, e.g. see [hello.story](storeys/src/main/resources/hello.story).
+Write your own .story file, e.g. see [test.story](minecraft-server-test-data/config/storeys-web/stories/test.story).
 
 Run it with `/story <story-name>` (without .story suffix, so e.g. `/story hello`)
 
@@ -76,17 +76,11 @@ You can obviously mix the order and repeat titles, comments, chats, narrations, 
 
 or
 
-    ./gradlew build [-x test]
-    docker build -f Dockerfile-local -t minecraft-storeys-maker .
-
-and then:
-
-    docker run -it --rm -e OPS=73551f35-7acb-45c0-bc65-8083c53eec69 \
-        -v $HOME/MinecraftData:/data:Z \
-        -p 25565:25565 -p 8080:8080 -p 7070:7070 minecraft-storeys-maker
+    ./test
 
 Now you can use the `/make` (AKA `/scratch`) command to get the URL to Scratch where you can "make a plugin".
-(The `OPS` with your Minecraft ID is required because the command requires permission; alternatively [use permissions](https://github.com/OASIS-learn-study/minecraft-storeys-maker/issues/276).)
+
+[The _Testing_ doc](docs/testing.md) describes how to manually walk through our end-to-end testing scenario.
 
 If you want to run on a diffenent host then localhost, you'll need to set the following environment variables:
 
