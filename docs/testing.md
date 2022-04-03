@@ -21,6 +21,12 @@ Now test that Michael can make a new project:
    * when / `demo`
    * `Piggy` speaks `I like Scratch`
 1. `/demo` should work
+1. click _Save_
+1. close Browser
+1. _TODO `/demo` should still work, but currently doesn't anymore (because project JSON wasn't automagically moved from `/minecraft-server-test-data/config/storeys-web/working/` to `storeys-web/scratch/`)_
+1. `/make` again
+1. Verify that previously created blocks still appear
+1. _TODO `/demo` should still work, but currently doesn't, because of `IllegalArgumentException: A plugin may not register multiple commands for the same alias ('demo')` in log; this needs more thoughts in general._
 
 ## JavaScript
 
