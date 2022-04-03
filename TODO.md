@@ -3,12 +3,24 @@
 _[see our Milestones](https://github.com/OASIS-learn-study/minecraft-storeys-maker/milestones), and_
 _[see done](done.md) for what's already finished._
 
-## Testing
+## Next Steps
 
-- [ ] add Scratch 3.0 scenario to initial testing.md from #300
-- [ ] add JS to testing.md, see https://github.com/OASIS-learn-study/minecraft-storeys-maker/tree/develop/scratch3-server;
-      but there is no /scripts/ folder in minecraft-server-test-data/config/storeys-web/^ only
-- [ ] make `SeleniumTest` either do something useful again (test the JS API, without any Scratch), or.. remove it?! (Shame.)
+- [ ] add `DynamicAction` to `docs/testing.md` using `dynamic-test.story`
+- [ ] allow `javax.script` "local JS" instead of remote Vert.x API in `config/storeys-web/scripts`
+- [ ] extend JS script (`dynamic-test.story` or JS) with custom command registration
+- [ ] sandbox "local JS" scripts so that they can't do `java.lang.System.exit(-1)` and what not
+
+- [ ] **fix #310 for correct _unregistering_** (for Scratch + `DynamicAction` scripts)
+- [ ] **make Scratch server-side only** (autosaved; subset of #52)
+
+- [ ] switch JS in-process scripts from Nashorn (?) to GraalVM's `javax.script` JSR-223 implementation (#295)
+- [ ] make Scratch server-side use our own Minecraft Java/JS API, instead of Vert.x Event Bus
+
+- [ ] Java API simple example (in-process not remote, and fixed not hot-reloading, yet)
+- [ ] Java API with hot-reloading
+- [ ] make `SeleniumTest` either do something useful again (test the JS API, without any Scratch), or.. remove it now?! (Shame.)
+- [ ] code Java & JS in Codespace and continously git live sync into container?
+- [ ] switch from Scratch to Blockly? (#264)
 
 ## Docs
 
@@ -18,14 +30,6 @@ _[see done](done.md) for what's already finished._
 ## Ops
 
 - [ ] LuckPerms + MagiBridge #276
-
-## Features
-
-
-- [ ] Java API simple example (in-process not remote, and fixed not hot-reloading, yet)
-- [ ] Scripts with JSR 223 `javax.script` support (see existing `DynamicAction`)
-- [ ] Scripts with correct automatic command etc. de-registration
-- [ ] Java API with hot-reloading
 
 ## Bugs
 
