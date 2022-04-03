@@ -18,6 +18,10 @@
  */
 package ch.vorburger.minecraft.storeys.model.parser;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.collection.IsEmptyCollection.empty;
+import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
@@ -38,11 +42,12 @@ import ch.vorburger.minecraft.storeys.model.DynamicAction;
 import ch.vorburger.minecraft.storeys.model.LocationAction;
 import ch.vorburger.minecraft.storeys.model.MessageAction;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
+import ch.vorburger.minecraft.storeys.model.NopAction;
 import ch.vorburger.minecraft.storeys.model.Story;
 import ch.vorburger.minecraft.storeys.model.TitleAction;
 import java.io.IOException;
 import java.util.List;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Scheduler;
@@ -52,7 +57,9 @@ import org.spongepowered.api.text.title.Title;
 
 public class StoryParserTest {
 
-    @Before public void initialize() throws Exception {
+    private final Action<?>[] emptyList = new Action[] { new NopAction(), new NopAction(), new NopAction() };
+
+    @BeforeClass public static void initialize() throws Exception {
         TestPlainTextSerializer.inject();
     }
 
@@ -68,6 +75,32 @@ public class StoryParserTest {
                 () -> new MessageAction(actionWaitHelper));
 
         return new StoryParser(commandMapping);
+    }
+
+    @Test public void helloStory() throws IOException, SyntaxErrorException {
+        String storyScript = new ClassLoaderResourceStoryRepository().getStoryScript("hello");
+        Story story = getStoryParser().parse(storyScript);
+        assertThat(story.getActionsList(), hasSize(12));
+    }
+
+    @Test public void emptyActionList() throws SyntaxErrorException {
+        Story story = getStoryParser().parse("");
+        assertThat(story.getActionsList(), empty());
+    }
+
+    @Test public void blanks() throws SyntaxErrorException {
+        Story story = getStoryParser().parse("   \n \r\n  ");
+        assertThat(story.getActionsList(), hasSize(1));
+    }
+
+    @Test public void comments() throws SyntaxErrorException {
+        Story story = getStoryParser().parse("\n // Comment \r\n  ");
+        assertThat(story.getActionsList(), hasItems(emptyList));
+    }
+
+    @Test public void titles() throws SyntaxErrorException {
+        Story story = getStoryParser().parse("= Once upon a time..\n== There was a pig.");
+        assertThat(story.getActionsList(), hasSize(1));
     }
 
     @Test public void parse() throws IOException, SyntaxErrorException {
