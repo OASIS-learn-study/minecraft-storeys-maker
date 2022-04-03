@@ -29,7 +29,7 @@ public class TextSplitter {
     /**
      * Split text into segments of ideally maxLength.
      * Splitting is by occurrence space, and if some words are longer than maxLength,
-     * then some segments may contain single words which are longer than maxLenght.
+     * then some segments may contain single words which are longer than maxLength.
      */
     public Iterable<String> split(int maxLength, String text) {
         Preconditions.checkArgument(maxLength > 0, "maxLength < 1");
