@@ -3,4 +3,4 @@ set -euox pipefail
 
 git clean -dfX minecraft-server-test-data
 
-git reset --hard
+git restore minecraft-server-test-data
