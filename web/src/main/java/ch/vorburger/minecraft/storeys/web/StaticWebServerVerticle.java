@@ -100,11 +100,13 @@ public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
             String userId = context.pathParam("userId");
             ProjectEditor editor = new ProjectEditor(userId, configDir);
 
-            if (editor.hasBackendFile()) {
+            if (editor.hasBackendFile() || editor.hasWorkingFile()) {
                 final HttpServerResponse response = context.response();
                 Buffer buffer = Buffer.buffer();
                 try {
-                    editor.moveProjectToWorking();
+                    if (editor.hasBackendFile()) {
+                        editor.moveProjectToWorking();
+                    }
 
                     readProjectJson(editor.getWorkingLocation().toFile(), buffer);
                     response.setChunked(true);

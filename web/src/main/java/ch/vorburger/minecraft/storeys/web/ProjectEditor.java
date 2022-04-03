@@ -45,9 +45,11 @@ public class ProjectEditor {
         return Files.exists(getBackendLocation());
     }
 
-    private void moveProject(Path scratchProject, Path workingProject) {
+    public boolean hasWorkingFile() { return Files.exists(getWorkingLocation()); }
+
+    private void moveProject(Path source, Path destination) {
         try {
-            Files.move(workingProject, scratchProject);
+            Files.move(source, destination);
         } catch (IOException e) {
             throw new RuntimeException("Could not move project to working folder", e);
         }
