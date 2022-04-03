@@ -18,24 +18,15 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
+import ch.vorburger.exec.ManagedProcessBuilder;
+import ch.vorburger.exec.ManagedProcessException;
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
-import com.github.eirslett.maven.plugins.frontend.lib.FrontendPluginFactory;
-import com.github.eirslett.maven.plugins.frontend.lib.InstallationException;
-import com.github.eirslett.maven.plugins.frontend.lib.NpmRunner;
-import com.github.eirslett.maven.plugins.frontend.lib.ProxyConfig;
-import com.github.eirslett.maven.plugins.frontend.lib.TaskRunnerException;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
 import org.spongepowered.api.Sponge;
 
 class NodeStarter {
-    private static final String NODE_VERSION = "v10.15.3";
-    private static final String NPM_VERSION = "6.4.1";
-    private final ProxyConfig proxyConfig = new ProxyConfig(new ArrayList<>());
 
     private final Path configDir;
     private final PluginInstance plugin;
@@ -45,22 +36,22 @@ class NodeStarter {
         this.plugin = plugin;
     }
 
+    void npm(String arg) throws ManagedProcessException {
+        new ManagedProcessBuilder("npm").addArgument(arg).setWorkingDirectory(configDir.toFile()).build().start().waitForExit();
+    }
+
     void start() {
         Sponge.getScheduler().createAsyncExecutor(plugin).execute(() -> {
             try {
-                FrontendPluginFactory frontendPluginFactory = new FrontendPluginFactory(configDir.toFile(), new File("/tmp"));
                 Path packageJson = configDir.resolve("package.json");
                 if (Files.notExists(packageJson)) {
                     Files.copy(getClass().getResourceAsStream("/package.json"), packageJson);
                 }
 
-                frontendPluginFactory.getNodeInstaller(proxyConfig).setNodeVersion(NODE_VERSION).install();
-                frontendPluginFactory.getNPMInstaller(proxyConfig).setNpmVersion(NPM_VERSION).install();
-                NpmRunner npmRunner = frontendPluginFactory.getNpmRunner(proxyConfig, "");
+                npm("install");
+                npm("start");
 
-                npmRunner.execute("install", new HashMap<>());
-                npmRunner.execute("start", new HashMap<>());
-            } catch (TaskRunnerException | InstallationException | IOException e) {
+            } catch (IOException | ManagedProcessException e) {
                 throw new RuntimeException("could not install and run node", e);
             }
         });

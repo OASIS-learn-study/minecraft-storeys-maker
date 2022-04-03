@@ -18,10 +18,7 @@ dependencies {
 
     implementation 'commons-io:commons-io:2.11.0'
     implementation 'org.osgi:org.osgi.core:6.0.0'
-    implementation('com.github.eirslett:frontend-plugin-core:1.8.0') {
-      // webdrivermanager has newer versions of all of these, and the Eclipse Gradle integration is too dumb to exclude the older one, so ClasspathHellDuplicatesCheckerTest fails without this in Eclipse (only, on ./gradlew test it passes, which is weird).
-      exclude group: 'commons-io'
-    }
+    implementation 'ch.vorburger.exec:exec:3.1.3'
 
     implementation 'io.vertx:vertx-service-proxy:4.0.2'
 
@@ -83,18 +80,10 @@ shadowJar {
     include(dependency("com.fasterxml.jackson.core:jackson-core"))
     exclude 'module-info.class'
 
-    // frontend-plugin and all it's dependencies
-    // strictly speaking it's not meant to run production node
-    // but it's fine for now
-    include(dependency("com.github.eirslett:frontend-plugin-core"))
-    include(dependency("org.apache.commons:commons-compress"))
-    include(dependency("org.apache.httpcomponents:httpclient"))
-    include(dependency("org.apache.httpcomponents:httpcore"))
+    // vorburger's exec and all it's transitive dependencies
+    include(dependency("ch.vorburger.exec:exec"))
     include(dependency("org.apache.commons:commons-exec"))
-    include(dependency("commons-logging:commons-logging"))
-    include(dependency("org.codehaus.plexus:plexus-utils"))
-    include(dependency("org.codehaus.jackson:jackson-mapper-asl"))
-    include(dependency("org.codehaus.jackson:jackson-core-asl"))
+    include(dependency("org.apache.commons:commons-collections4"))
   }
 }
 
