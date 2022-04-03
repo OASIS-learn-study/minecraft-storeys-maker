@@ -6,17 +6,32 @@ plugins {
 
 dependencies {
     implementation project(':api')
-    implementation project(':storeys')
+    implementation(project(':storeys')) {
+      // because this is already "shadowed" into the :storeys JAR
+      exclude group: 'com.spotify', module: 'futures-extra'
+      exclude group: 'ch.vorburger.minecraft.osgi', module: 'api'
+    }
     implementation project(':scratch3')
 
+    // compileOnly for what is "shadowed" into :storeys at runtime, but still needed at compile-time
+    compileOnly 'ch.vorburger.minecraft.osgi:api:1.0.0'
+
+    implementation 'commons-io:commons-io:2.11.0'
     implementation 'org.osgi:org.osgi.core:6.0.0'
-    implementation 'ch.vorburger.minecraft.osgi:api:1.0.0'
-    implementation 'com.github.eirslett:frontend-plugin-core:1.8.0'
+    implementation('com.github.eirslett:frontend-plugin-core:1.8.0') {
+      // webdrivermanager has newer versions of all of these, and the Eclipse Gradle integration is too dumb to exclude the older one, so ClasspathHellDuplicatesCheckerTest fails without this in Eclipse (only, on ./gradlew test it passes, which is weird).
+      exclude group: 'commons-io'
+    }
 
     implementation 'io.vertx:vertx-service-proxy:4.0.2'
 
-    testCompile "org.seleniumhq.selenium:selenium-java:3.141.59"
-    testCompile 'io.github.bonigarcia:webdrivermanager:4.3.1'
+    testCompile 'org.seleniumhq.selenium:selenium-java:3.141.59'
+    testCompile('io.github.bonigarcia:webdrivermanager:4.3.1') {
+      exclude group: 'commons-io'
+      exclude group: 'commons-codec'
+      exclude group: 'org.apache.commons', module: 'commons-compress'
+    }
+    testCompile project(':test-utils')
 }
 
 task runWithJavaExec(type: JavaExec) {

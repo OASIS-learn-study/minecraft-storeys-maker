@@ -1,0 +1,4 @@
+dependencies {
+    implementation 'io.github.classgraph:classgraph:4.8.143'
+    testImplementation 'junit:junit:4.13.2'
+}
