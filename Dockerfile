@@ -5,7 +5,7 @@ WORKDIR /project
 RUN ./gradlew build -PexcludeTests="**/SeleniumTest*"
 
 # Keep any changes made here strictly in sync with Dockerfile-local
-FROM itzg/minecraft-server:java8
+FROM itzg/minecraft-server:java8-multiarch
 COPY --from=build /project/web/build/libs/*-all.jar /mods/
 COPY minecraft-server/* /data-init/
 

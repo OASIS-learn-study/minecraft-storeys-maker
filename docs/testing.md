@@ -16,6 +16,12 @@
 
 1. _TODO_, see [JS scripting](../scratch3-server/README.md#third-scripting-option)
 
+## Troubleshooting
+
+To see what's going on inside the container, use:
+
+    podman exec -it storeys bash
+
 ## Clean Up
 
     ./clean
