@@ -71,7 +71,7 @@ public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
             context.response().send();
         });
         router.get("/project/init").handler(context -> {
-            final InputStream stream = getClass().getResourceAsStream("/project.json");
+            final InputStream stream = getClass().getResourceAsStream("/scratch3-initial.json");
             try {
                 context.response().send(IOUtils.toString(stream));
             } catch (IOException e) {

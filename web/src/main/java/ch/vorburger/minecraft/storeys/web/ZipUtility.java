@@ -18,6 +18,10 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
+import ch.vorburger.minecraft.storeys.guard.GuardGameModeJoinListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -29,6 +33,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 public class ZipUtility {
+    private static final Logger LOG = LoggerFactory.getLogger(ZipUtility.class);
 
     private final File zipFilePath;
 
@@ -88,7 +93,7 @@ public class ZipUtility {
     }
 
     private static void logException(Exception e) {
-        e.printStackTrace();
+        LOG.error("Could not create project file", e);
     }
 
 }

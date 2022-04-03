@@ -18,11 +18,15 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class ProjectEditor {
+    private static final Logger LOG = LoggerFactory.getLogger(ProjectEditor.class);
     private static final String SCRATCH_PROJECT_EXTENSION = ".sb3";
 
     private final String playerId;
@@ -51,13 +55,22 @@ public class ProjectEditor {
         try {
             Files.move(source, destination);
         } catch (IOException e) {
-            throw new RuntimeException("Could not move project to working folder", e);
+            LOG.error("Could not move project to folder", e);
         }
     }
 
     public Path getWorkingLocation() {
-        Path scratchProjects = configDir.resolve("scratch");
-        return scratchProjects.resolve("..").resolve("working").resolve(playerId + SCRATCH_PROJECT_EXTENSION);
+        final Path scratchProjects = configDir.resolve("scratch");
+        final Path working = scratchProjects.resolve("..").resolve("working");
+
+        if (!Files.exists(working)) {
+            try {
+                Files.createDirectory(working);
+            } catch (IOException e) {
+                LOG.error("Could not create working directory", e);
+            }
+        }
+        return working.resolve(playerId + SCRATCH_PROJECT_EXTENSION);
     }
 
     private Path getBackendLocation() {
