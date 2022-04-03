@@ -24,5 +24,8 @@ config/storeys-web/*
 !config/storeys-web/stories
 config/storeys-web/stories/*
 !config/storeys-web/stories/*.story
+!config/storeys-web/scratch
+config/storeys-web/scratch/*
+!config/storeys-web/scratch/*.sb3
 
 # https://stackoverflow.com/questions/987142/make-gitignore-ignore-everything-except-a-few-files explains the weird format above.
