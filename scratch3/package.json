@@ -5,6 +5,6 @@
   "author": "edewit",
   "license": "AGPL-3.0-only",
   "dependencies": {
-    "minecraft-storeys-scratch-gui": "0.0.4"
+    "minecraft-storeys-scratch-gui": "0.0.5"
   }
 }
