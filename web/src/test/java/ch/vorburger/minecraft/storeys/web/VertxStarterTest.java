@@ -23,6 +23,8 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Paths;
+
 import org.junit.Test;
 
 /**
@@ -42,7 +44,7 @@ public class VertxStarterTest {
     // under static/), but it does pass on the build
     public final void testStaticWebContent() throws Exception {
         VertxStarter vertxStarter = new VertxStarter();
-        vertxStarter.deployVerticle(new StaticWebServerVerticle(3030)).toCompletableFuture().get();
+        vertxStarter.deployVerticle(new StaticWebServerVerticle(Paths.get("/tmp"), 3030)).toCompletableFuture().get();
         assertHTTP("http://localhost:3030/nok", 404);
         assertHTTP("http://localhost:3030/index.html", 200);
         vertxStarter.stop();
@@ -58,7 +60,7 @@ public class VertxStarterTest {
     public static void main(String[] args) throws Exception {
         VertxStarter vertxStarter = new VertxStarter();
 
-        vertxStarter.deployVerticle(new StaticWebServerVerticle(9090)).toCompletableFuture().get();
+        vertxStarter.deployVerticle(new StaticWebServerVerticle(Paths.get("/tmp/config/storeys-web"), 7070)).toCompletableFuture().get();
 
         Mains.waitForEnter();
 
