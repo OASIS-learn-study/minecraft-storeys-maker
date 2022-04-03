@@ -5,7 +5,8 @@ _[see done](done.md) for what's already finished._
 
 ## Next Steps
 
-- [ ] add `DynamicAction` to `docs/testing.md` using `dynamic-test.story`
+- [ ] add more complete scenario to test server, e.g. something like the old
+      https://github.com/OASIS-learn-study/minecraft-storeys-maker/blob/develop/docs/history/Chestnut-demo.png
 - [ ] allow `javax.script` "local JS" instead of remote Vert.x API in `config/storeys-web/scripts`
 - [ ] extend JS script (`dynamic-test.story` or JS) with custom command registration
 - [ ] sandbox "local JS" scripts so that they can't do `java.lang.System.exit(-1)` and what not
