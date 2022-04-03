@@ -10,16 +10,21 @@ repositories {
 dependencies {
     // implementation 'com.google.guava:guava:27.0.1-jre'
     implementation 'org.jline:jline:3.19.0'
+    compile 'javax.websocket:javax.websocket-api:1.0'
+    compile 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.2.7.v20150116'
+    compile 'org.eclipse.jetty.websocket:javax-websocket-client-impl:9.2.7.v20150116'
     testImplementation 'junit:junit:4.13.2'
 }
 
 mainClassName = 'study.learn.storeys.engine.Main'
 
 jar {
-  manifest {
-    attributes(
-      // 'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
-      'Main-Class': 'study.learn.storeys.engine.Main'
-    )
-  }
+    manifest {
+        attributes(
+                'Main-Class': 'study.learn.storeys.engine.Main'
+        )
+    }
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }

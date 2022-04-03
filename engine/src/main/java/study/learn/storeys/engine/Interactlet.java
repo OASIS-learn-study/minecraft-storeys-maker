@@ -26,7 +26,7 @@ import java.util.List;
 public abstract class Interactlet {
 
     // https://github.com/vorburger/mSara/blob/9691b9893e234b3b56e52ce885bf601bb38eb6df/saraswathi1/src/ch/vorburger/saraswathi/Interactlet.java
-    abstract protected void interact(Prompter<Void> prompter) throws IOException;
+    abstract public void interact(Prompter<Void> prompter) throws IOException;
 
     // The following exists to avoid static import of Prompt.aString() & Co.
     // because IDEs such as e.g. VS Code / GitPod.io have the nasty habit of removing

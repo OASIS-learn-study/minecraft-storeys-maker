@@ -4,18 +4,20 @@
 
 [Use the Web IDE GitPod.io to edit and run this project](https://gitpod.io#https://github.com/vorburger/minecraft-storeys-maker/tree/master/engine)!  [![Gitpod.io](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io#https://github.com/vorburger/minecraft-storeys-maker/tree/master/engine) 
 
-## How to run it
+## How to run it (commandline)
 
     cd engine
 
     ../gradlew :engine:build
 
-    unzip -o build/distributions/engine-1.0.0-SNAPSHOT.zip -d build/distributions/
+    java -jar build/libs/engine-1.0.0-SNAPSHOT.jar
 
-    build/distributions/engine-1.0.0-SNAPSHOT/bin/engine
+## Server version
 
-NB: `java -jar build/libs/engine-1.0.0-SNAPSHOT.jar` does not yet work.
+    java -jar build/libs/engine-1.0.0-SNAPSHOT.jar server
+
+    Then open 'prompt-client.html' in a browser of your choice
 
 PS: `../gradlew run` doesn't really work
 (even if you add `run { standardInput = System.in }`),
-because we need a real full terminal, without Gradle's continous build prompt.
+because we need a real full terminal, without Gradle's continuous build prompt.
