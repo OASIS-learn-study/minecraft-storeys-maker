@@ -1,6 +1,6 @@
 # This assumes that "./gradlew build [-x test]" was run
 # Keep any changes made here strictly in sync with Dockerfile
-FROM itzg/minecraft-server:java8
+FROM itzg/minecraft-server:java8-multiarch
 COPY web/build/libs/*-all.jar /mods/
 COPY minecraft-server/* /data-init/
 

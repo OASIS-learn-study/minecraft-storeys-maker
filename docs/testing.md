@@ -9,20 +9,28 @@
 
 ## Scratch 3.0
 
-1. `/make` and click link from Chat, open Scratch UI, add Minecraft Extension from lower-right hand corner
+First test that Eric's (!) saved project (which is in git) works:
+
+1. Right click the "Piggy" and verify it say "Hello, my friend!"
+1. type `/scratch_test` verify the title shown
+
+Now test that Michael can make a new project:
+
+1. `/make` and click the link in the Minecraft Chat to open the Scratch UI in the browser
 1. Add
-   * when / `test-scratch`
-   * title `Hello from Scratch`
+   * when / `demo`
    * `Piggy` speaks `I like Scratch`
-1. `/test-scratch` should work
-1. Add
-   * when `Piggy` right clicked
-   * `Piggy` speaks `Oink!`
-1. right clicking Piggy should work
+1. `/demo` should work
 
 ## JavaScript
 
 1. _TODO_, see [JS scripting](../scratch3-server/README.md#third-scripting-option)
+
+## Troubleshooting
+
+To see what's going on inside the container, use:
+
+    podman exec -it storeys bash
 
 ## Clean Up
 

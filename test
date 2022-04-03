@@ -4,7 +4,7 @@ set -euox pipefail
 # https://github.com/OASIS-learn-study/minecraft-storeys-maker#build-it
 ./gradlew build
 podman build -f Dockerfile-local -t minecraft-storeys-maker .
-podman run -it --rm -e OPS=73551f35-7acb-45c0-bc65-8083c53eec69 \
+podman run -it --rm --name storeys -e OPS=73551f35-7acb-45c0-bc65-8083c53eec69,fb79c1a9-72bd-34dc-9775-c2ac868d7ccf \
     -v $PWD/minecraft-server-test-data:/data:Z -e UID=0 -e GID=0 \
     -p 25565:25565 -p 8080:8080 -p 7070:7070 minecraft-storeys-maker
 
