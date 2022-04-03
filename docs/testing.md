@@ -11,7 +11,7 @@
 
 First test that Eric's (!) saved project (which is in git) works:
 
-1. Right click the "Piggy" and verify it say "Hello, my friend!"
+1. Right click _Piggy_ and verify it says _"Hello, my friend!"_
 1. type `/scratch_test` verify the title shown
 
 Now test that Michael can make a new project:
@@ -26,11 +26,20 @@ Now test that Michael can make a new project:
 1. _TODO `/demo` should still work, but currently doesn't anymore (because project JSON wasn't automagically moved from `/minecraft-server-test-data/config/storeys-web/working/` to `storeys-web/scratch/`)_
 1. `/make` again
 1. Verify that previously created blocks still appear
-1. _TODO `/demo` should still work, but currently doesn't, because of `IllegalArgumentException: A plugin may not register multiple commands for the same alias ('demo')` in log; this needs more thoughts in general._
+1. _TODO bug #310 `/demo` should still work, but currently doesn't, because of `IllegalArgumentException: A plugin may not register multiple commands for the same alias ('demo')` in log; this needs more thoughts in general._
 
 ## JavaScript
 
-1. _TODO_, see [JS scripting](../scratch3-server/README.md#third-scripting-option)
+Test [JS scripting](../scratch3-server/README.md#third-scripting-option):
+
+1. Right click _Chestnut_ the horse
+1. Verify [`test.js`](minecraft-server-test-data/config/storeys-web/scripts/test.js) happened as expected
+
+The following doesn't work yet, but should after bug #310 is resolved:
+
+1. `nano minecraft-server-test-data/config/storeys-web/scripts/test.js` and change the title text
+1. Right click _Chestnut_ the horse
+1. Verify new title is shown
 
 ## Troubleshooting
 

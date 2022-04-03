@@ -5,7 +5,7 @@ When using this plugin you can either write a story as a text file or create som
 but there is a 3rd option you can also use javascript to create them.
 
 In the config directory you will find a folder called "storyes-web/scripts" (after you started the server once)
-you can put a javascript file in this folder that looks like this:
+you can put a JavaScript file in this folder that looks like this, see also [testing docs](../docs/testing.md):
 
 ```javascript
 module.exports = (async (minecraft) => {
