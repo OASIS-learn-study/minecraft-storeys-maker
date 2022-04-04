@@ -18,20 +18,21 @@
  */
 package ch.vorburger.minecraft.storeys.util;
 
-import java.util.regex.Pattern;
+import static ch.vorburger.minecraft.storeys.util.MoreStrings.normalizeCRLF;
+import static ch.vorburger.minecraft.storeys.util.MoreStrings.trimCRLF;
+import static org.junit.Assert.assertEquals;
 
-public final class MoreStrings {
+import org.junit.Test;
 
-    private final static Pattern PATTERN = Pattern.compile("(^[\\r\\n]+|[\\r\\n]+$)");
+public class MoreStringsTest {
 
-    private MoreStrings() {
+    @Test public void testNormalizeCRLF() {
+        assertEquals("\nhello, \nworld\n", normalizeCRLF("\nhello, \nworld\n"));
+        assertEquals("\nhello, \nworld\n", normalizeCRLF("\r\nhello, \r\nworld\r\n"));
     }
 
-    public static String normalizeCRLF(String text) {
-        return text.replace("\r\n", "\n");
-    }
-
-    public static String trimCRLF(String text) {
-        return normalizeCRLF(PATTERN.matcher(text).replaceAll(""));
+    @Test public void testTrimCRLF() {
+        assertEquals("hello, \nworld", trimCRLF("\nhello, \nworld\n"));
+        assertEquals("hello, \nworld", trimCRLF("\r\nhello, \r\nworld\n\n"));
     }
 }
