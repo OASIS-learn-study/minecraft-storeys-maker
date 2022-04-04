@@ -1,3 +1,3 @@
-include 'test-utils', 'engine', 'api', 'storeys', 'web', 'scratch3', 'test-mineflayer'
+include 'test-utils', 'engine', 'api-jvm', 'api-jvm-impl', 'example', 'storeys', 'api', 'web', 'scratch3', 'test-mineflayer'
 
 rootProject.name = 'minecraft-storeys-maker'

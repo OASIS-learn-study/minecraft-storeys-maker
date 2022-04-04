@@ -18,9 +18,9 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
+import ch.vorburger.minecraft.storeys.japi.util.CommandExceptions;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.util.Command;
-import ch.vorburger.minecraft.utils.CommandExceptions;
 import com.google.common.collect.ImmutableList;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -40,7 +40,7 @@ import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 
 /**
- * Minecraft console command to login to ScratchX.
+ * Minecraft console command to login to Scratch.
  */
 public class LoginCommand implements Command {
 

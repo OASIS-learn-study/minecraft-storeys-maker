@@ -22,7 +22,7 @@ import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.events.Condition;
 import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.events.LocatableInBoxCondition;
-import ch.vorburger.minecraft.storeys.events.Unregisterable;
+import ch.vorburger.minecraft.storeys.japi.impl.Unregisterable;
 import ch.vorburger.minecraft.storeys.model.LocationToolAction;
 import ch.vorburger.minecraft.storeys.web.location.LocationHitBox;
 import ch.vorburger.minecraft.storeys.web.location.LocationPairSerializer;

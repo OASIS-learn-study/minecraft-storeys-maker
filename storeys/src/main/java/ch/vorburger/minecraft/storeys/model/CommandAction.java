@@ -30,6 +30,8 @@ import org.spongepowered.api.scheduler.Scheduler;
 
 public class CommandAction extends MainThreadAction<CommandResult> {
 
+    // TODO This should eventually just delegate to ch.vorburger.minecraft.storeys.japi.impl.MinecraftJvmImpl.cmd(String)
+
     private static final Logger LOG = LoggerFactory.getLogger(CommandAction.class);
 
     // TODO It would be good if there was a way to know when a /command was "done" ..

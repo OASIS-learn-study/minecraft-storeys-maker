@@ -19,6 +19,7 @@
 package ch.vorburger.minecraft.storeys.events;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
+import ch.vorburger.minecraft.storeys.japi.impl.Unregisterable;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;

@@ -19,6 +19,6 @@ But first of all, I'd like to introduce you to a good friend of mine - let me ta
 
 @Chestnut Howdy.  I'm Chestnut.
 
-You can find out more on https://github.com/vorburger/minecraft-storeys-maker
+You can find out more on https://github.com/OASIS-learn-study/minecraft-storeys-maker
 
 We hope you like this mod. Now go and make your own STORY!

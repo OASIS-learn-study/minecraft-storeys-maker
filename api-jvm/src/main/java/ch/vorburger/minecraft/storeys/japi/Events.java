@@ -16,10 +16,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys.events;
+package ch.vorburger.minecraft.storeys.japi;
 
-public interface Unregisterable {
+public interface Events {
 
-    void unregister();
+    // This is intentionally NOT returning CommandResult, to keep it simple, for scripting.
+    void whenCommand(String name, Callback callback);
 
+    // TODO add more "event handlers" here; see
+    // https://github.com/OASIS-learn-study/minecraft-storeys-maker/blob/develop/api/src/main/typescript/observable-wrapper.ts
 }

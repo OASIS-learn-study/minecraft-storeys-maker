@@ -19,9 +19,10 @@
 package ch.vorburger.minecraft.storeys.events;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
+import ch.vorburger.minecraft.storeys.japi.impl.Unregisterable;
+import ch.vorburger.minecraft.storeys.japi.util.CommandExceptions;
 import ch.vorburger.minecraft.storeys.util.Command;
 import ch.vorburger.minecraft.storeys.util.Commands;
-import ch.vorburger.minecraft.utils.CommandExceptions;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.spongepowered.api.Sponge;

@@ -40,10 +40,13 @@ shadowJar {
     // https://imperceptiblethoughts.com/shadow/configuration/filtering/
     // NB "not being able to filter entire transitive dependency graphs"
     // so instead of using exclude dependency we just do explicit include:
+
     include(project(':api'))
     include(project(':scratch3'))
-
     include(project(':storeys'))
+    include(project(':api-jvm'))
+    include(project(':api-jvm-impl'))
+    include(project(':example'))
     include(dependency('ch.vorburger.minecraft.osgi:api'))
     include(dependency('com.spotify:futures-extra'))
 
