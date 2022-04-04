@@ -23,7 +23,7 @@ import static java.util.Objects.requireNonNull;
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.events.EventService;
 import ch.vorburger.minecraft.storeys.events.ScriptCommand;
-import ch.vorburger.minecraft.storeys.events.Unregisterable;
+import ch.vorburger.minecraft.storeys.japi.impl.Unregisterable;
 import ch.vorburger.minecraft.storeys.simple.impl.NotLoggedInException;
 import com.google.common.base.Splitter;
 import io.vertx.core.Handler;

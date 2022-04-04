@@ -23,6 +23,8 @@ import org.spongepowered.api.entity.living.player.Player;
 @FunctionalInterface
 public interface Callback {
 
+    // TODO replace (eventually) with ch.vorburger.minecraft.storeys.japi.Callback ?
+
     void call(Player invoker) throws Exception;
 
 }

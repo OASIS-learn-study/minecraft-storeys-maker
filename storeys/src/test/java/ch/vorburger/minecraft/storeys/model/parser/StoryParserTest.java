@@ -56,8 +56,6 @@ import org.spongepowered.api.text.title.Title;
 
 public class StoryParserTest {
 
-    private final Action<?>[] emptyList = new Action[] { new NopAction(), new NopAction(), new NopAction() };
-
     @BeforeClass public static void initialize() throws Exception {
         TestPlainTextSerializer.inject();
     }

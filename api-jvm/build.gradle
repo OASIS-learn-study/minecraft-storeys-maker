@@ -1,0 +1,5 @@
+
+// TODO Build refactoring so that this module inherits only spongeapi WITHOUT everything else from the subprojects {} in ../build.gradle
+
+dependencies {
+}

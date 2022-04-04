@@ -22,7 +22,10 @@ import ch.vorburger.minecraft.osgi.api.AbstractPlugin;
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.commands.NarrateCommand;
 import ch.vorburger.minecraft.storeys.commands.StoryCommand;
+import ch.vorburger.minecraft.storeys.example.ExampleScript;
 import ch.vorburger.minecraft.storeys.guard.GuardGameModeJoinListener;
+import ch.vorburger.minecraft.storeys.japi.impl.Scripts;
+import ch.vorburger.minecraft.storeys.japi.impl.Unregisterable;
 import ch.vorburger.minecraft.storeys.util.Commands;
 import com.google.inject.Injector;
 import java.nio.file.Path;
@@ -55,9 +58,11 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
     private CommandMapping narrateCommandMapping;
     private CommandMapping storyCommandMapping;
 
+    private Unregisterable example;
+
     @Listener public void onGameStartingServer(GameStartingServerEvent event) throws Exception {
-        LOG.info("See https://github.com/vorburger/minecraft-storeys-maker for how to use /story and /narrate commands");
-        start(this, this.configDir);
+        LOG.info("See https://github.com/OASIS-learn-study/minecraft-storeys-maker for how to use /story and /narrate commands");
+        start(this, configDir);
     }
 
     protected void start(PluginInstance plugin, Path configDir) throws Exception {
@@ -69,6 +74,8 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
         });
         storyCommandMapping = Commands.register(plugin, pluginInjector.getInstance(StoryCommand.class));
         narrateCommandMapping = Commands.register(plugin, pluginInjector.getInstance(NarrateCommand.class));
+
+        example = Scripts.init(plugin, new ExampleScript());
     }
 
     @Listener public void onGameStoppingServer(GameStoppingServerEvent event) throws Exception {
@@ -76,6 +83,8 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
     }
 
     protected void stop() throws Exception {
+        example.unregister();
+
         if (narrateCommandMapping != null) {
             commandManager.removeMapping(narrateCommandMapping);
         }

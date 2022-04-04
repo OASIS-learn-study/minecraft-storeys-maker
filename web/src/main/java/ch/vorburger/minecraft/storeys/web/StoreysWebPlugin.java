@@ -20,7 +20,6 @@ package ch.vorburger.minecraft.storeys.web;
 
 import ch.vorburger.minecraft.osgi.api.Listeners;
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
-import ch.vorburger.minecraft.storeys.api.Minecraft;
 import ch.vorburger.minecraft.storeys.api.impl.MinecraftImpl;
 import ch.vorburger.minecraft.storeys.api.impl.TokenCommand;
 import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
@@ -45,7 +44,7 @@ import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.plugin.Plugin;
 
-@Plugin(id = "storeys-web", name = "Vorburger.ch's Storeys with Web API", version = "1.0", description = "Makes entities narrate story lines so you can make your own movie in Minecraft", url = "https://github.com/vorburger/minecraft-storeys-maker", authors = "Michael Vorburger.ch")
+@Plugin(id = "storeys-web", name = "Vorburger.ch's Storeys with Web API", version = "1.0", description = "Makes entities narrate story lines so you can make your own movie in Minecraft", url = "https://github.com/OASIS-learn-study/minecraft-storeys-maker", authors = "Michael Vorburger.ch")
 public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners {
     // do not extend StoreysPlugin, because we exclude that class in shadowJar
 
@@ -65,7 +64,7 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
 
         Injector injector = pluginInjector.createChildInjector(binder -> {
             binder.bind(TokenProvider.class).to(TokenProviderImpl.class);
-            binder.bind(Minecraft.class).to(MinecraftImpl.class);
+            binder.bind(ch.vorburger.minecraft.storeys.api.Minecraft.class).to(MinecraftImpl.class);
             binder.bind(EventBusSender.class).to(MinecraftVerticle.class);
             binder.bind(new TypeLiteral<Handler<Message<JsonObject>>>() {
             }).to(ActionsConsumer.class);

@@ -2,11 +2,14 @@
 
 ## Java Code
 
-* `api/` is (should be) Storeys' API, for both JS with Vert.x client + Java
+* `api/` is Storeys' Remote JavaScript with Vert.x API client
+* `api-jvm/` is Storeys' Local JVM API for in-process Local JavaScript scripts (no Vert.x) & Java. It should only depend on the Sponge API, nothing else.
+* `api-jvm-impl/` implements the `api-jvm/` API. It should only depend on `api-jvm` (and on `storeys`, later at the _grand inversion_ when we flip it upside down)
+* `example/` is a simple sample plugin written in Java. It should only depend on `api-jvm`, nothing else.
 * `engine/` will be an interactive dialogs runtime, useable both in Minecraft and standalone
-* `storeys/` is the core module including `/narrate` and `.story` DSL
+* `storeys/` is the original core project and includes the `/narrate` command and `.story` DSL with `/story` _(TODO factor out Story DSL into `dsl/` module)_
 * `test-utils/` is a minor technical utility for classpath duplication detection
-* `web/` contains the Vert.x server back-end for both the Scratch integration and JS
+* `web/` implements `api/` with a Vert.x server back-end for (a) Remote Scratch, (b) Scratch Server, (c) hand-written Remote JS (running both b+c within Node.JS)
 
 ## JavaScript Code
 

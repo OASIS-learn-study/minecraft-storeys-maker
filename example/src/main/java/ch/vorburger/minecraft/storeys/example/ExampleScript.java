@@ -1,0 +1,50 @@
+/*
+ * ch.vorburger.minecraft.storeys
+ *
+ * Copyright (C) 2016 - 2018 Michael Vorburger.ch <mike@vorburger.ch>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package ch.vorburger.minecraft.storeys.example;
+
+import ch.vorburger.minecraft.storeys.japi.Events;
+import ch.vorburger.minecraft.storeys.japi.Script;
+import org.spongepowered.api.item.ItemTypes;
+
+/**
+ * Example Script.
+ * Simpler than full-blown Sponge API plugin.
+ * While this is written in Java, the idea is that this should look almost identical in TypeScript.
+ */
+public class ExampleScript implements Script {
+
+    @Override public void init(Events e) {
+        e.whenCommand("example", m -> {
+            // TODO test that this is correctly asynchronously chained - each line wait for execution...
+            m.cmd("/title @s hello, world");
+            m.cmd("/tp 232 63 216 -180 25");
+            m.cmd("/narrate Piggy Hello! I'm Piggy.");
+            m.cmd("/say Message in the Chat");
+            m.cmd("/title @s The End");
+        });
+        e.whenCommand("another", m -> {
+            m.cmd("/title @s Namaste. Curry pour tous!");
+            if (!m.player().getInventory().contains(ItemTypes.FISHING_ROD)) {
+                m.cmd("/say There may be a fishing rod hidden somewhere… look for it, and then catch a fish!");
+            } else {
+                m.cmd("/say Go fishing with the rod in your inventory..");
+            }
+        });
+    }
+}
