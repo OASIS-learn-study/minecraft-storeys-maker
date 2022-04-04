@@ -21,7 +21,7 @@ _[see done](done.md) for what's already finished._
 - [ ] Java API simple example (in-process not remote, and fixed not hot-reloading, yet)
 - [ ] Java API with hot-reloading
 - [ ] make `SeleniumTest` either do something useful again (test the JS API, without any Scratch), or.. remove it now?! (Shame.)
-- [ ] code Java & JS in Codespace and continously git live sync into container?
+- [ ] code Java & JS in Codespace and continously git live sync into container? Using (something like) https://github.com/tkellogg/dura
 - [ ] switch from Scratch to Blockly? (#264)
 
 ## Docs
