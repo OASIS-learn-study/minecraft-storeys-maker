@@ -7,6 +7,7 @@ _[see done](done.md) for what's already finished._
 
 - [ ] add more complete scenario to test server, e.g. something like the old
       https://github.com/OASIS-learn-study/minecraft-storeys-maker/blob/develop/docs/history/Chestnut-demo.png
+
 - [ ] add `DynamicAction` to `docs/testing.md` using `dynamic-test.story`
 - [ ] allow `javax.script` "local JS" instead of remote Vert.x API in `config/storeys-web/scripts`
 - [ ] extend JS script (`dynamic-test.story` or JS) with custom command registration

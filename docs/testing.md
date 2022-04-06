@@ -28,7 +28,7 @@ Now test that Michael can make a new project:
 1. Verify that previously created blocks still appear
 1. _TODO bug #310 `/demo` should still work, but currently doesn't, because of `IllegalArgumentException: A plugin may not register multiple commands for the same alias ('demo')` in log; this needs more thoughts in general._
 
-## JavaScript
+## JavaScript remote via Vert.x (original)
 
 Test [JS scripting](../scratch3-server/README.md#third-scripting-option):
 
@@ -40,6 +40,11 @@ The following doesn't work yet, but should after bug #310 is resolved:
 1. `nano minecraft-server-test-data/config/storeys-web/scripts/test.js` and change the title text
 1. Right click _Chestnut_ the horse
 1. Verify new title is shown
+
+## JavaScript local (new)
+
+1. `/story js`
+1. Verify [`js.story`](../minecraft-server-test-data/config/storeys-web/stories/js.story) happened as expected
 
 ## Troubleshooting
 
