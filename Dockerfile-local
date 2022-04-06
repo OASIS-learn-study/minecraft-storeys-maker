@@ -1,6 +1,10 @@
 # This assumes that "./gradlew build [-x test]" was run
 # Keep any changes made here strictly in sync with Dockerfile
 FROM itzg/minecraft-server:java8-multiarch
+
+# https://github.com/nodesource/distributions/blob/master/README.md#installation-instructions
+RUN curl -fsSL https://deb.nodesource.com/setup_17.x | bash - && apt install -y nodejs && node --version
+
 COPY web/build/libs/*-all.jar /mods/
 COPY minecraft-server/* /data-init/
 
