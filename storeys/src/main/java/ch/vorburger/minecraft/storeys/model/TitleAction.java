@@ -18,6 +18,8 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
+import static ch.vorburger.minecraft.storeys.util.MoreStrings.trimCRLF;
+
 import java.util.concurrent.CompletionStage;
 
 import javax.inject.Inject;
@@ -49,10 +51,10 @@ public class TitleAction extends TextAction<Void> {
     public void setParameter(String param) {
         String[] parts = param.split("==");
         if (parts.length == 1) {
-            super.setParameter(param);
+            super.setParameter(trimCRLF(param));
         } else {
-            super.setParameter(parts[0]);
-            subtitleText = Text.of(parts[1].trim());
+            super.setParameter(trimCRLF(parts[0]));
+            subtitleText = Text.of(trimCRLF(parts[1].trim()));
         }
     }
 

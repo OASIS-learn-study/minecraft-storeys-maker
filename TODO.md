@@ -7,6 +7,8 @@ _[see done](done.md) for what's already finished._
 
 - [ ] add more complete scenario to test server, e.g. something like the old
       https://github.com/OASIS-learn-study/minecraft-storeys-maker/blob/develop/docs/history/Chestnut-demo.png
+
+- [ ] add `DynamicAction` to `docs/testing.md` using `dynamic-test.story`
 - [ ] allow `javax.script` "local JS" instead of remote Vert.x API in `config/storeys-web/scripts`
 - [ ] extend JS script (`dynamic-test.story` or JS) with custom command registration
 - [ ] sandbox "local JS" scripts so that they can't do `java.lang.System.exit(-1)` and what not
@@ -20,7 +22,7 @@ _[see done](done.md) for what's already finished._
 - [ ] Java API simple example (in-process not remote, and fixed not hot-reloading, yet)
 - [ ] Java API with hot-reloading
 - [ ] make `SeleniumTest` either do something useful again (test the JS API, without any Scratch), or.. remove it now?! (Shame.)
-- [ ] code Java & JS in Codespace and continously git live sync into container?
+- [ ] code Java & JS in Codespace and continously git live sync into container? Using (something like) https://github.com/tkellogg/dura
 - [ ] switch from Scratch to Blockly? (#264)
 
 ## Docs
@@ -34,7 +36,6 @@ _[see done](done.md) for what's already finished._
 
 ## Bugs
 
-- [ ] fix ugly LF seen in title of `test.story`
 - [ ] print error to user of `/story` (only) when entity to narrate wasn't found
 - [ ] story editor in Book
 - [ ] /wpm command, to set per-Player ReadingSpeed
