@@ -1,6 +1,6 @@
 # Testing
 
-    ./test
+Run [`./test`](../test), then open your Minecraft client to connect to `localhost` and try the following.
 
 ## Story DSL
 
@@ -33,7 +33,7 @@ Now test that Michael can make a new project:
 Test [JS scripting](../scratch3-server/README.md#third-scripting-option):
 
 1. Right click _Chestnut_ the horse
-1. Verify [`test.js`](minecraft-server-test-data/config/storeys-web/scripts/test.js) happened as expected
+1. Verify [`test.js`](../minecraft-server-test-data/config/storeys-web/scripts/test.js) happened as expected
 
 The following doesn't work yet, but should after bug #310 is resolved:
 
@@ -49,6 +49,5 @@ To see what's going on inside the container, use:
 
 ## Clean Up
 
-    ./clean
-
-This WILL LOOSE anything that's [ignored and not commited to git](../minecraft-server-test-data/.gitignore)!!!
+Run [`./clean`](../clean), this WILL LOOSE any in-game world changes
+that are [ignored and not commited to git](../minecraft-server-test-data/.gitignore)!

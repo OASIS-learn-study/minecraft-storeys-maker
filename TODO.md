@@ -27,11 +27,14 @@ _[see done](done.md) for what's already finished._
 ## Docs
 
 - [ ] add an architecture.md in docs/
-- [ ] much simplify the README
 
 ## Ops
 
 - [ ] LuckPerms + MagiBridge #276
+
+## ML?!
+
+- [ ] [something like in this vide](&list=PL7PA3zq_6Oqce-C2MhAK4FWb98OTFVrQo&index=6) within Minecraft?!
 
 ## Bugs
 
