@@ -18,6 +18,17 @@
  */
 package ch.vorburger.minecraft.storeys.model.parser;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.collection.IsEmptyCollection.empty;
+import static org.hamcrest.core.IsCollectionContaining.hasItems;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.ReadingSpeed;
@@ -31,30 +42,24 @@ import ch.vorburger.minecraft.storeys.model.DynamicAction;
 import ch.vorburger.minecraft.storeys.model.LocationAction;
 import ch.vorburger.minecraft.storeys.model.MessageAction;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
+import ch.vorburger.minecraft.storeys.model.NopAction;
 import ch.vorburger.minecraft.storeys.model.Story;
 import ch.vorburger.minecraft.storeys.model.TitleAction;
-import org.junit.Before;
+import java.io.IOException;
+import java.util.List;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.api.scheduler.SpongeExecutorService;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.title.Title;
-
-import java.io.IOException;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class StoryParserTest {
 
-    @Before
-    public void initialize() throws Exception {
+    private final Action<?>[] emptyList = new Action[] { new NopAction(), new NopAction(), new NopAction() };
+
+    @BeforeClass public static void initialize() throws Exception {
         TestPlainTextSerializer.inject();
     }
 
@@ -64,20 +69,41 @@ public class StoryParserTest {
         when(scheduler.createSyncExecutor(isA(PluginInstance.class))).thenReturn(mock(SpongeExecutorService.class));
 
         ActionWaitHelper actionWaitHelper = new ActionWaitHelper(pluginInstance);
-        CommandMapping commandMapping = new CommandMapping(
-                () -> new CommandAction(pluginInstance, scheduler),
-                () -> new NarrateAction(new Narrator(pluginInstance)),
-                () -> new TitleAction(actionWaitHelper),
-                () -> new AwaitAction(actionWaitHelper),
-                () -> new DynamicAction(null, null),
-                LocationAction::new,
+        CommandMapping commandMapping = new CommandMapping(() -> new CommandAction(pluginInstance, scheduler),
+                () -> new NarrateAction(new Narrator(pluginInstance)), () -> new TitleAction(actionWaitHelper),
+                () -> new AwaitAction(actionWaitHelper), () -> new DynamicAction(null, null), LocationAction::new,
                 () -> new MessageAction(actionWaitHelper));
 
         return new StoryParser(commandMapping);
     }
 
-    @Test
-    public void parse() throws IOException, SyntaxErrorException {
+    @Test public void helloStory() throws IOException, SyntaxErrorException {
+        String storyScript = new ClassLoaderResourceStoryRepository().getStoryScript("hello");
+        Story story = getStoryParser().parse(storyScript);
+        assertThat(story.getActionsList(), hasSize(12));
+    }
+
+    @Test public void emptyActionList() throws SyntaxErrorException {
+        Story story = getStoryParser().parse("");
+        assertThat(story.getActionsList(), empty());
+    }
+
+    @Test public void blanks() throws SyntaxErrorException {
+        Story story = getStoryParser().parse("   \n \r\n  ");
+        assertThat(story.getActionsList(), hasSize(1));
+    }
+
+    @Test public void comments() throws SyntaxErrorException {
+        Story story = getStoryParser().parse("\n // Comment \r\n  ");
+        assertThat(story.getActionsList(), hasItems(emptyList));
+    }
+
+    @Test public void titles() throws SyntaxErrorException {
+        Story story = getStoryParser().parse("= Once upon a time..\n== There was a pig.");
+        assertThat(story.getActionsList(), hasSize(1));
+    }
+
+    @Test public void parse() throws IOException, SyntaxErrorException {
         // given
         String storyText = new ClassLoaderResourceStoryRepository().getStoryScript("parse-test");
         StoryParser storyParser = getStoryParser();
@@ -87,14 +113,17 @@ public class StoryParserTest {
 
         // then
         List<Action<?>> storyActionsList = story.getActionsList();
-        assertFalse(storyActionsList.isEmpty());
+        assertEquals(4, storyActionsList.size());
         assertEquals(TitleAction.class, storyActionsList.get(0).getClass());
         assertEquals(MessageAction.class, storyActionsList.get(1).getClass());
-        assertEquals("CommandAction: /tp -235 64 230 17 12", storyActionsList.get(2).toString());
+        NarrateAction narrateAction = (NarrateAction) storyActionsList.get(2);
+        assertEquals("Piggy", narrateAction.getEntityName());
+        assertEquals(Text.of("Hi there! I'm Piggy.\nWelcome to the storeys mod.  I'll be giving you a quick guided tour now..."),
+                narrateAction.getText());
+        assertEquals("CommandAction: /tp -235 64 230 17 12", storyActionsList.get(3).toString());
     }
 
-    @Test
-    public void parseDynamic() throws IOException, SyntaxErrorException {
+    @Test public void parseDynamic() throws IOException, SyntaxErrorException {
         // given
         String storyText = new ClassLoaderResourceStoryRepository().getStoryScript("dynamic-test");
         StoryParser storyParser = getStoryParser();
@@ -108,8 +137,7 @@ public class StoryParserTest {
         assertEquals(DynamicAction.class, storyActionsList.get(0).getClass());
     }
 
-    @Test
-    public void parseMessage() throws IOException, SyntaxErrorException {
+    @Test public void parseMessage() throws IOException, SyntaxErrorException {
         // given
         String storyText = new ClassLoaderResourceStoryRepository().getStoryScript("message-test");
         StoryParser storyParser = getStoryParser();
@@ -125,8 +153,7 @@ public class StoryParserTest {
         assertEquals("Only to find the town almost empty.", action.getText().toPlain());
     }
 
-    @Test
-    public void execute() throws IOException, SyntaxErrorException {
+    @Test public void execute() throws IOException, SyntaxErrorException {
         // given
         String storyText = new ClassLoaderResourceStoryRepository().getStoryScript("parse-test");
         StoryParser storyParser = getStoryParser();
