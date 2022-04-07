@@ -20,6 +20,7 @@ package ch.vorburger.minecraft.storeys.web;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 
@@ -37,9 +38,11 @@ import java.util.zip.ZipInputStream;
 
 import io.vertx.ext.web.handler.StaticHandler;
 import org.apache.commons.io.IOUtils;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,13 +59,15 @@ public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
     private final String webRoot;
     private final Path configDir;
 
-    @Inject public StaticWebServerVerticle(Path configDir, @Named("web-http-port") int httpPort) {
+    @Inject
+    public StaticWebServerVerticle(Path configDir, @Named("web-http-port") int httpPort) {
         super(httpPort);
         webRoot = "static"; // = ../scratch3/node_modules/minecraft-storeys-scratch-gui/build/
         this.configDir = configDir;
     }
 
-    @Override protected void addRoutes(Router router) {
+    @Override
+    protected void addRoutes(Router router) {
         // see https://github.com/vorburger/minecraft-storeys-maker/issues/97 re. setFilesReadOnly(false) &
         String projectPath = "/project/:userId";
         router.get("/project/:userId/end").handler(context -> {
@@ -93,7 +98,7 @@ public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
             } catch (IOException e) {
                 throw new RuntimeException("Couldn't create / update scratch project", e);
             }
-            context.response().send(userId);
+            context.response().end(new JsonObject().put("id", userId).encodePrettily());
         });
 
         router.get(projectPath).handler(context -> {

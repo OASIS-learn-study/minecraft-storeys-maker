@@ -40,15 +40,15 @@ public class CommandMapping {
             Provider<LocationAction> locationActionProvider,
             Provider<MessageAction> messageActionProvider
     ) {
-        mappings.add(new Mapping(Pattern.compile("(?s)^=\\s(.*==[^\\n]*)"), titleActionProvider::get));
-        mappings.add(new Mapping(Pattern.compile("(?s)^=\\s([^\\n]*)"), titleActionProvider::get));
-        mappings.add(new Mapping(Pattern.compile("(?s)^(@.+?)\\n\\n"), narrateProvider::get));
-        mappings.add(new Mapping(Pattern.compile("^%await\\s([^\\n]*)"), awaitActionProvider::get));
-        mappings.add(new Mapping(Pattern.compile("^/([a-zA-Z]*\\s.*)"), commandActionProvider::get));
-        mappings.add(new Mapping(Pattern.compile("(?s)^\\s+(.+?}\\n)"), dynamicActionProvider::get));
-        mappings.add(new Mapping(Pattern.compile("^%in\\s([^\\n]*)"), locationActionProvider::get));
-        mappings.add(new Mapping(Pattern.compile("^\\s*//(.*)"), NopAction::new));
-        mappings.add(new Mapping(Pattern.compile("^([^\\n]*)"), messageActionProvider::get));
+        mappings.add(new Mapping(Pattern.compile("^==?\\s(.*)\\n"), titleActionProvider::get));
+        mappings.add(new Mapping(Pattern.compile("^(@.*)\\n"), narrateProvider::get));
+        mappings.add(new Mapping(Pattern.compile("^%await\\s(.*)\\n"), awaitActionProvider::get));
+        mappings.add(new Mapping(Pattern.compile("^/([^/].*)\\n"), commandActionProvider::get));
+        mappings.add(new Mapping(Pattern.compile("^[ \\t]{2,}(.*\\n)"), dynamicActionProvider::get));
+        mappings.add(new Mapping(Pattern.compile("^%in\\s(.*)\\n"), locationActionProvider::get));
+        mappings.add(new Mapping(Pattern.compile("^\\s*//(.*)\\n"), NopAction::new));
+        mappings.add(new Mapping(Pattern.compile("^(\\s*\\n)"), NopAction::new));
+        mappings.add(new Mapping(Pattern.compile("^([^\\n]*)\\n"), messageActionProvider::get));
     }
 
     public List<Mapping> getMappings() {

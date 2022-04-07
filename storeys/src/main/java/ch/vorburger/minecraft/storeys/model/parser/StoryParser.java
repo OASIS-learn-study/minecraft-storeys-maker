@@ -25,6 +25,7 @@ import java.util.regex.Matcher;
 import javax.inject.Inject;
 
 import ch.vorburger.minecraft.storeys.model.Action;
+import ch.vorburger.minecraft.storeys.model.NopAction;
 import ch.vorburger.minecraft.storeys.model.Story;
 
 public class StoryParser {
@@ -38,14 +39,18 @@ public class StoryParser {
 
     public Story parse(String story) {
         List<Action<?>> actions = new ArrayList<>();
+        Action<?> prevAction = null;
         while (!"".equals(story)) {
             for (CommandMapping.Mapping mapping : mapping.getMappings()) {
                 Matcher matcher = mapping.getRegex().matcher(story);
                 if (matcher.find()) {
                     Action<?> action = mapping.getActionProvider().get();
-                    actions.add(action);
                     action.setParameter(matcher.group(1));
-                    story = matcher.replaceFirst("").trim();
+                    if (prevAction == null || !prevAction.add(action)) {
+                        actions.add(action);
+                        prevAction = action;
+                    }
+                    story = matcher.replaceFirst("");
                     break;
                 }
             }

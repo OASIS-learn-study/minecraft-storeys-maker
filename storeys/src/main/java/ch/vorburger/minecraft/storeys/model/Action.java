@@ -18,6 +18,8 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
+import ch.vorburger.minecraft.storeys.model.parser.SyntaxErrorException;
+
 import java.util.concurrent.CompletionStage;
 import javax.annotation.CheckReturnValue;
 
@@ -30,6 +32,10 @@ public interface Action<T> {
     CompletionStage<T> execute(ActionContext context);
 
     void setParameter(String param);
+
+    default boolean add(Action<?> action) {
+        return false;
+    }
 
     // default <T> T requireNonNull(T obj, String propertyName) {
     // default void checkArgument(boolean test, String propertyValidationErrorMessage) {
