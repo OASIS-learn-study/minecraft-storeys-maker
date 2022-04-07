@@ -84,6 +84,16 @@ public class TitleAction extends TextAction<Void> {
     }
 
     @Override
+    public boolean add(Action<?> action) {
+        if (action instanceof TitleAction) {
+            this.subtitleText = ((TitleAction) action).getText();
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
     public String toString() {
         return super.toString() + "==" + (subtitleText != null ? subtitleText.toString() : "null");
     }

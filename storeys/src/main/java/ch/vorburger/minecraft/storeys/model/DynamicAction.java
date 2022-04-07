@@ -31,7 +31,7 @@ import ch.vorburger.minecraft.storeys.StoryPlayer;
 import ch.vorburger.minecraft.storeys.model.parser.StoryParser;
 import ch.vorburger.minecraft.storeys.model.parser.SyntaxErrorException;
 
-public class DynamicAction implements Action<Void>  {
+public class DynamicAction implements Action<Void> {
     private static final String PREFIX = "var ItemTypes = Java.type('org.spongepowered.api.item.ItemTypes'); (function() {";
     private static final String POSTFIX = "})()";
 
@@ -69,6 +69,15 @@ public class DynamicAction implements Action<Void>  {
         }
 
         return future;
+    }
+
+    @Override
+    public boolean add(Action<?> action) {
+        if (action instanceof DynamicAction) {
+            script += ((DynamicAction) action).script;
+            return true;
+        }
+        return false;
     }
 
     @Override

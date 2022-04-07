@@ -19,6 +19,7 @@
 package ch.vorburger.minecraft.storeys.model;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Story {
 
@@ -31,5 +32,12 @@ public class Story {
 
     public List<Action<?>> getActionsList() {
         return actionsList;
+    }
+
+    @Override
+    public String toString() {
+        return "Story{" +
+                "actionsList=" + actionsList.stream().map(e -> e.toString() + "\n").collect(Collectors.toList()) +
+                '}';
     }
 }
