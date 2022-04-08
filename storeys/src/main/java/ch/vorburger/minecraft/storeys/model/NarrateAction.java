@@ -68,7 +68,7 @@ public class NarrateAction extends TextAction<Void> {
     @Override
     public boolean add(Action<?> action) {
         if (action instanceof TextAction) {
-            this.setText(((TextAction<?>) action).getText().concat(Text.NEW_LINE).concat(getText()));
+            this.setText(getText().concat(Text.NEW_LINE).concat(((TextAction<?>) action).getText()));
             return true;
         }
         return false;
