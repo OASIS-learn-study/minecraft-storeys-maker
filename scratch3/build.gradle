@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.node-gradle.node" version "3.0.1"
+    id "com.github.node-gradle.node" version "3.2.1"
 }
 
 dependencies {
@@ -12,7 +12,6 @@ node {
     npmVersion = '8.1.0'
     download = true
 }
-
 
 jar.dependsOn(npm_install)
 
