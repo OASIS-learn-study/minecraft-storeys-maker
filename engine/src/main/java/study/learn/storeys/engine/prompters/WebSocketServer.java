@@ -43,7 +43,8 @@ public class WebSocketServer {
 
     private Interactlet initialInteractlet;
 
-    private WebSocketServer() {}
+    private WebSocketServer() {
+    }
 
     public static WebSocketServer newInstance(Interactlet interactlet) {
         Server server = new Server();
@@ -59,16 +60,15 @@ public class WebSocketServer {
         webSocketServer.initialInteractlet = interactlet;
         try {
             ServerContainer container = WebSocketServerContainerInitializer.configureContext(context);
-            ServerEndpointConfig config = ServerEndpointConfig.Builder.create(webSocketServer.getClass(),
-                                                                              webSocketServer.getClass().getAnnotation(ServerEndpoint.class).value())
+            ServerEndpointConfig config = ServerEndpointConfig.Builder
+                    .create(webSocketServer.getClass(), webSocketServer.getClass().getAnnotation(ServerEndpoint.class).value())
                     .configurator(new ServerEndpointConfig.Configurator() {
                         @Override
-                        @SuppressWarnings("unchecked")
-                        public <T> T getEndpointInstance(Class<T> endpointClass) throws InstantiationException {
+                        @SuppressWarnings("unchecked") public <T> T getEndpointInstance(Class<T> endpointClass)
+                                throws InstantiationException {
                             return (T) webSocketServer;
                         }
-                    })
-                    .build();
+                    }).build();
             container.addEndpoint(config);
 
             server.start();
@@ -78,8 +78,7 @@ public class WebSocketServer {
         return webSocketServer;
     }
 
-    @OnOpen
-    public void onOpen(Session session) {
+    @OnOpen public void onOpen(Session session) {
         SimplePrompter<Void> prompter = new SimplePrompter<>(new WebsocketPrompterIO(session));
         sessions.put(session.getId(), prompter);
         CompletableFuture.runAsync(() -> {
@@ -91,13 +90,11 @@ public class WebSocketServer {
         });
     }
 
-    @OnMessage
-    public void handleTextMessage(Session session, String message) {
-        ((WebsocketPrompterIO)sessions.get(session.getId()).getIo()).trigger(message);
+    @OnMessage public void handleTextMessage(Session session, String message) {
+        ((WebsocketPrompterIO) sessions.get(session.getId()).getIo()).trigger(message);
     }
 
-    @OnClose
-    public void onClose(Session session) {
+    @OnClose public void onClose(Session session) {
         sessions.remove(session.getId());
     }
 }

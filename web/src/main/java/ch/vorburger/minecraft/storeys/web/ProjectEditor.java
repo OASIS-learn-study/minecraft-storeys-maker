@@ -48,7 +48,9 @@ public class ProjectEditor {
         return Files.exists(getBackendLocation());
     }
 
-    public boolean hasWorkingFile() { return Files.exists(getWorkingLocation()); }
+    public boolean hasWorkingFile() {
+        return Files.exists(getWorkingLocation());
+    }
 
     private void moveProject(Path source, Path destination) {
         try {

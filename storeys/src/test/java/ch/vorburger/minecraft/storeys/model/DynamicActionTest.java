@@ -37,14 +37,12 @@ import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.type.CarriedInventory;
 
 public class DynamicActionTest {
-    @Before
-    public void initialize() throws Exception {
+    @Before public void initialize() throws Exception {
         TestPlainTextSerializer.inject();
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    public void execute() throws IOException {
+    @SuppressWarnings("unchecked") public void execute() throws IOException {
         // given
         StoryParser storyParser = StoryParserTest.getStoryParser();
         String storyText = new ClassLoaderResourceStoryRepository().getStoryScript("dynamic-test");

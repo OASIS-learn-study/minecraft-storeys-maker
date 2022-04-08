@@ -55,15 +55,13 @@ public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
     private final String webRoot;
     private final Path configDir;
 
-    @Inject
-    public StaticWebServerVerticle(Path configDir, @Named("web-http-port") int httpPort) {
+    @Inject public StaticWebServerVerticle(Path configDir, @Named("web-http-port") int httpPort) {
         super(httpPort);
         webRoot = "static"; // = ../scratch3/node_modules/minecraft-storeys-scratch-gui/build/
         this.configDir = configDir;
     }
 
-    @Override
-    protected void addRoutes(Router router) {
+    @Override protected void addRoutes(Router router) {
         // see https://github.com/vorburger/minecraft-storeys-maker/issues/97 re. setFilesReadOnly(false) &
         String projectPath = "/project/:userId";
         router.get("/project/:userId/end").handler(context -> {
@@ -90,7 +88,8 @@ public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
                 if (!Files.exists(workingProject)) {
                     workingProject.toFile().createNewFile();
                 }
-                new ZipUtility(workingProject.toFile()).addOrReplaceEntry("project.json", new ByteArrayInputStream(projectJson.getBytes(StandardCharsets.UTF_8)));
+                new ZipUtility(workingProject.toFile()).addOrReplaceEntry("project.json",
+                        new ByteArrayInputStream(projectJson.getBytes(StandardCharsets.UTF_8)));
             } catch (IOException e) {
                 throw new RuntimeException("Couldn't create / update scratch project", e);
             }
@@ -127,7 +126,6 @@ public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
                 StaticHandler.create().setDirectoryListing(true).setWebRoot(webRoot).setCachingEnabled(false).setFilesReadOnly(false));
         LOG.info("Going to serve static web content from {} on port {}", webRoot, httpPort);
     }
-
 
     private void readProjectJson(File zipFile, Buffer buf) throws IOException {
         FileInputStream fileInputStream = new FileInputStream(zipFile);

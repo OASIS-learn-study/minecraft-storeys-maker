@@ -29,20 +29,16 @@ import org.spongepowered.api.entity.living.player.Player;
 
 public class ConditionServiceTest {
 
-    @Test
-    public final void testConditionServiceBasics() {
-        @SuppressWarnings("resource")
-        ConditionService conditionService = new ConditionService();
+    @Test public final void testConditionServiceBasics() {
+        @SuppressWarnings("resource") ConditionService conditionService = new ConditionService();
         final AtomicBoolean hit = new AtomicBoolean(false);
 
         ConditionServiceRegistration registration = conditionService.register(new Condition() {
-            @Override
-            public boolean isHot() {
+            @Override public boolean isHot() {
                 return true;
             }
 
-            @Override
-            public Player getEffectedPlayer() {
+            @Override public Player getEffectedPlayer() {
                 return null;
             }
         }, (player) -> hit.set(true));
@@ -55,20 +51,16 @@ public class ConditionServiceTest {
         assertThat(hit.get(), is(false));
     }
 
-    @Test
-    public final void testConditionServiceFiresOnlyOnChange() {
-        @SuppressWarnings("resource")
-        ConditionService conditionService = new ConditionService();
+    @Test public final void testConditionServiceFiresOnlyOnChange() {
+        @SuppressWarnings("resource") ConditionService conditionService = new ConditionService();
         final AtomicBoolean isHitting = new AtomicBoolean(false);
         final AtomicInteger hits = new AtomicInteger(0);
         ConditionServiceRegistration registration = conditionService.register(new Condition() {
-            @Override
-            public boolean isHot() {
+            @Override public boolean isHot() {
                 return isHitting.get();
             }
 
-            @Override
-            public Player getEffectedPlayer() {
+            @Override public Player getEffectedPlayer() {
                 return null;
             }
         }, (player) -> hits.incrementAndGet());

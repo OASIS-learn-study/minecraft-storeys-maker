@@ -48,24 +48,20 @@ public class ScriptCommand implements Command, Unregisterable {
 
     private final ImmutableList<String> aliases;
 
-    @Override
-    public List<String> aliases() {
+    @Override public List<String> aliases() {
         return aliases;
     }
 
-    @Override
-    public CommandCallable callable() {
+    @Override public CommandCallable callable() {
         return CommandSpec.builder().executor(this).build();
     }
 
-    @Override
-    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+    @Override public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         CommandExceptions.doOrThrow("Failed, due to: ", () -> callback.call((Player) src));
         return CommandResult.success();
     }
 
-    @Override
-    public void unregister() {
+    @Override public void unregister() {
         Sponge.getCommandManager().removeMapping(commandMapping);
     }
 

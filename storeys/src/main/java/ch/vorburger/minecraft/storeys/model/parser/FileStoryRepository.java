@@ -33,8 +33,7 @@ public class FileStoryRepository implements StoryRepository {
         this.rootDirectory = rootDirectory;
     }
 
-    @Override
-    public String getStoryScript(String storyName) throws IOException {
+    @Override public String getStoryScript(String storyName) throws IOException {
         return Files.asCharSource(new File(rootDirectory, storyName + ".story"), UTF_8).read();
     }
 

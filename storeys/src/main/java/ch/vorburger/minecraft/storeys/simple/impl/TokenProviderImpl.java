@@ -50,8 +50,8 @@ public class TokenProviderImpl implements TokenProvider {
 
     TokenProviderImpl(int pollInterval, TimeUnit pollIntevalUnit, long tokenValidTime) {
         this.tokenValidTime = tokenValidTime;
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
-                () -> validLogins.values().removeIf(token -> !token.isValid()), 0, pollInterval, pollIntevalUnit);
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> validLogins.values().removeIf(token -> !token.isValid()), 0,
+                pollInterval, pollIntevalUnit);
         adminLoginCode = getSystemPropertyEnvVarOrDefault("storeys_admincode", adminLoginCode);
     }
 
@@ -67,15 +67,13 @@ public class TokenProviderImpl implements TokenProvider {
         return defaultValue;
     }
 
-    @Override
-    public String getCode(Player player) {
+    @Override public String getCode(Player player) {
         String code = UUID.randomUUID().toString();
         validLogins.put(code, new Token(player.getIdentifier(), tokenValidTime));
         return code;
     }
 
-    @Override
-    public String login(String code) {
+    @Override public String login(String code) {
         if (adminLoginCode.equals(code)) {
             return "";
         }

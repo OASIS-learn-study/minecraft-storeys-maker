@@ -59,43 +59,40 @@ public class MinecraftImpl implements Minecraft {
     private final Provider<NarrateAction> narrateActionProvider;
     private final Provider<CommandAction> commandActionProvider;
 
-    @Inject
-    public MinecraftImpl(Provider<TitleAction> titleActionProvider, Provider<NarrateAction> narrateActionProvider, Provider<CommandAction> commandActionProvider) {
+    @Inject public MinecraftImpl(Provider<TitleAction> titleActionProvider, Provider<NarrateAction> narrateActionProvider,
+            Provider<CommandAction> commandActionProvider) {
         this.titleActionProvider = titleActionProvider;
         this.narrateActionProvider = narrateActionProvider;
         this.commandActionProvider = commandActionProvider;
     }
 
-    @Override
-    public void showTitle(String playerUUID, String message, Handler<AsyncResult<Void>> handler) {
+    @Override public void showTitle(String playerUUID, String message, Handler<AsyncResult<Void>> handler) {
         CompletionStage<Void> completionStage = execute(getPlayer(playerUUID), titleActionProvider.get().setText(Text.of(message)));
         handler.handle(new CompletionStageBasedAsyncResult<>(completionStage));
     }
 
-    @Override
-    public void narrate(String playerUUID, String entity, String text, Handler<AsyncResult<Void>> handler) {
+    @Override public void narrate(String playerUUID, String entity, String text, Handler<AsyncResult<Void>> handler) {
         final NarrateAction narrateAction = narrateActionProvider.get();
         narrateAction.setEntity(entity).setText(Text.of(text));
         handler.handle(new CompletionStageBasedAsyncResult<>(execute(getPlayer(playerUUID), narrateAction)));
     }
 
-    @Override
-    public void runCommand(String playerUUID, String command, Handler<AsyncResult<Void>> handler) {
-        CompletionStage<CommandResult> completionStageWithResult = execute(getPlayer(playerUUID), commandActionProvider.get().setCommand(command));
-        CompletionStage<Void> voidCompletionStage = completionStageWithResult.thenAccept(commandResult -> { /* ignore */ });
+    @Override public void runCommand(String playerUUID, String command, Handler<AsyncResult<Void>> handler) {
+        CompletionStage<CommandResult> completionStageWithResult = execute(getPlayer(playerUUID),
+                commandActionProvider.get().setCommand(command));
+        CompletionStage<Void> voidCompletionStage = completionStageWithResult.thenAccept(commandResult -> {
+            /* ignore */ });
         handler.handle(new CompletionStageBasedAsyncResult<>(voidCompletionStage));
     }
 
-    @Override
-    public void getItemHeld(String playerUUID, HandType hand, Handler<AsyncResult<ItemType>> handler) {
+    @Override public void getItemHeld(String playerUUID, HandType hand, Handler<AsyncResult<ItemType>> handler) {
         Player player = getPlayer(playerUUID);
         Optional<ItemStack> optItemStack = player.getItemInHand(hand.getCatalogType());
         ItemType itemType = optItemStack.map(ItemStack::getType).map(ItemType::getEnum).orElse(ItemType.Nothing);
         handler.handle(Future.succeededFuture(itemType));
     }
 
-    @Override
-    public void addRemoveItem(String playerUUID, int amount, ItemType item, Handler<AsyncResult<Void>> handler) {
+    @Override public void addRemoveItem(String playerUUID, int amount, ItemType item, Handler<AsyncResult<Void>> handler) {
         Player player = getPlayer(playerUUID);
         item.getCatalogType().ifPresent(itemType -> {
             if (amount < 0) {
@@ -110,8 +107,7 @@ public class MinecraftImpl implements Minecraft {
         handler.handle(Future.succeededFuture());
     }
 
-    @Override
-    public void whenInside(String playerUUID, String name, Handler<AsyncResult<Void>> handler) {
+    @Override public void whenInside(String playerUUID, String name, Handler<AsyncResult<Void>> handler) {
         final LocationToolAction locationToolAction = new LocationToolAction(name);
         try {
             final CompletionStage<Void> completionStage = execute(getPlayer(playerUUID), locationToolAction);
@@ -131,7 +127,8 @@ public class MinecraftImpl implements Minecraft {
         return Sponge.getGame().getServer().getPlayer(UUID.fromString(playerUUID)).orElseThrow(() -> new NotLoggedInException(playerUUID));
     }
 
-    // TODO does a helper class like this already exist somewhere in Vert.x? Can Vert.x directly gen. code with CompletionStage or CompletableFuture signatures?
+    // TODO does a helper class like this already exist somewhere in Vert.x? Can Vert.x directly gen. code with
+    // CompletionStage or CompletableFuture signatures?
     private static class CompletionStageBasedAsyncResult<T> implements AsyncResult<T> {
 
         private T result;
@@ -149,23 +146,19 @@ public class MinecraftImpl implements Minecraft {
             });
         }
 
-        @Override
-        public synchronized T result() {
+        @Override public synchronized T result() {
             return result;
         }
 
-        @Override
-        public synchronized Throwable cause() {
+        @Override public synchronized Throwable cause() {
             return cause;
         }
 
-        @Override
-        public synchronized boolean succeeded() {
+        @Override public synchronized boolean succeeded() {
             return isHandled && cause == null;
         }
 
-        @Override
-        public synchronized boolean failed() {
+        @Override public synchronized boolean failed() {
             return cause != null;
         }
     }

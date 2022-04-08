@@ -36,16 +36,14 @@ public class ConsoleIO implements SimplePrompterIO {
         this.jico = Objects.requireNonNull(console, "No Console");
     }
 
-    @Override
- public String readLine(String prompt, List<Text> choices) throws IOException {
+    @Override public String readLine(String prompt, List<Text> choices) throws IOException {
         for (int i = 0; i < choices.size(); i++) {
             jico.format("    %d: %s\n", i + 1, choices.get(i).getString());
         }
         return jico.readLine("%s ", prompt);
     }
 
-    @Override
-    public void writeLine(String info) {
+    @Override public void writeLine(String info) {
         jico.format("%s\n", info);
         jico.flush();
     }

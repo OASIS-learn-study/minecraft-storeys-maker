@@ -22,6 +22,7 @@ import ch.vorburger.minecraft.storeys.simple.Token;
 
 /**
  * Thrown when the user is not logged in
+ * 
  * @author edewit
  */
 public class NotLoggedInException extends RuntimeException {

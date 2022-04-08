@@ -43,8 +43,7 @@ public class SimplePrompter<T> implements Prompter<T> {
         return io;
     }
 
-    @Override
-    public <X> Prompter<X> await(Prompt<X> prompt) throws IOException {
+    @Override public <X> Prompter<X> await(Prompt<X> prompt) throws IOException {
         Class<?> expectedType = prompt.getType();
         String promptText = prompt.getPrefix().getString();
         if (expectedType.equals(Void.TYPE)) {

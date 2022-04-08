@@ -54,27 +54,22 @@ public class ConditionService implements AutoCloseable {
             this.delegate = delegate;
         }
 
-        @Override
-        public boolean isHot() {
+        @Override public boolean isHot() {
             return delegate.isHot();
         }
 
-        @Override
-        public Player getEffectedPlayer() {
+        @Override public Player getEffectedPlayer() {
             return delegate.getEffectedPlayer();
         }
 
-        @Override
-        public final boolean equals(Object obj) {
+        @Override public final boolean equals(Object obj) {
             return super.equals(obj);
         }
 
-        @Override
-        public final int hashCode() {
+        @Override public final int hashCode() {
             return super.hashCode();
         }
     }
-
 
     public class ConditionServiceRegistration implements Unregisterable {
         private final Triple<Condition, AtomicBoolean, Callback> entry;
@@ -83,8 +78,7 @@ public class ConditionService implements AutoCloseable {
             this.entry = entry;
         }
 
-        @Override
-  public void unregister() {
+        @Override public void unregister() {
             checks.remove(entry);
         }
     }
@@ -92,31 +86,29 @@ public class ConditionService implements AutoCloseable {
     private final Set<Triple<Condition, AtomicBoolean, Callback>> checks = new CopyOnWriteArraySet<>();
     private final @Nullable Task task;
 
-    @Inject
-    public ConditionService(PluginInstance plugin) {
-        task = Task.builder().execute(this::run).intervalTicks(10).name(getClass().getSimpleName()).submit(requireNonNull(plugin, "plugin"));
+    @Inject public ConditionService(PluginInstance plugin) {
+        task = Task.builder().execute(this::run).intervalTicks(10).name(getClass().getSimpleName())
+                .submit(requireNonNull(plugin, "plugin"));
     }
 
-    @VisibleForTesting
-    ConditionService() {
+    @VisibleForTesting ConditionService() {
         task = null;
     }
 
-    @Override
-    public void close() {
+    @Override public void close() {
         if (task != null) {
             task.cancel();
         }
     }
 
     public ConditionServiceRegistration register(Condition condition, Callback callback) {
-        Triple<Condition, AtomicBoolean, Callback> entry = Triple.of(new DelegatingCondition(condition), new AtomicBoolean(false), callback);
+        Triple<Condition, AtomicBoolean, Callback> entry = Triple.of(new DelegatingCondition(condition), new AtomicBoolean(false),
+                callback);
         checks.add(entry);
         return new ConditionServiceRegistration(entry);
     }
 
-    @VisibleForTesting
-    void run() {
+    @VisibleForTesting void run() {
         for (Triple<Condition, AtomicBoolean, Callback> check : checks) {
             final Condition condition = check.getLeft();
             final boolean isHot = condition.isHot();

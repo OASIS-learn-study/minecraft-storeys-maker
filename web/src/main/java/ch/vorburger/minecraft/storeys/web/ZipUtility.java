@@ -56,7 +56,8 @@ public class ZipUtility {
         temporaryFile.delete();
     }
 
-    private static void addOrReplaceEntry(File source, String entry, InputStream entryData, ZipOutputStream zipOutputStream) throws IOException {
+    private static void addOrReplaceEntry(File source, String entry, InputStream entryData, ZipOutputStream zipOutputStream)
+            throws IOException {
         writeZipEntry(zipOutputStream, entry, entryData);
 
         if (source.length() != 0) {

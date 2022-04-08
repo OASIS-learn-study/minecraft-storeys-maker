@@ -44,8 +44,7 @@ public abstract class MainThreadAction<T> implements Action<T> {
 
     abstract protected T executeInMainThread(ActionContext context) throws ActionException;
 
-    @Override
-    public CompletionStage<T> execute(ActionContext context) {
+    @Override public CompletionStage<T> execute(ActionContext context) {
         ListenableFuture<T> future = guavaifiedMinecraftExecutor.submit(() -> executeInMainThread(context));
         return CompletableFuturesExtra.toCompletableFuture(future);
     }

@@ -63,16 +63,14 @@ public class ReadingSpeed {
         return msForText;
     }
 
-    @Override
-    public int hashCode() {
+    @Override public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + wpm;
         return result;
     }
 
-    @Override
-    public boolean equals(Object obj) {
+    @Override public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
@@ -89,8 +87,7 @@ public class ReadingSpeed {
         return true;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return "ReadingSpeed[wpm=" + wpm + "]";
     }
 

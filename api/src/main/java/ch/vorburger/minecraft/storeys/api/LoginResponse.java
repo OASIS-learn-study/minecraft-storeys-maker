@@ -48,8 +48,7 @@ public class LoginResponse {
         this.playerUuid = playerUuid;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return toJson().encodePrettily();
     }
 }

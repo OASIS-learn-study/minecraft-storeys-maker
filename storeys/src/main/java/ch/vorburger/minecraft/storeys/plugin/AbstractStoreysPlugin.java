@@ -44,23 +44,18 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractStoreysPlugin.class);
 
     @Inject
-    @ConfigDir(sharedRoot = false)
-    private Path configDir;
+    @ConfigDir(sharedRoot = false) private Path configDir;
 
-    @Inject
-    protected Injector pluginInjector;
+    @Inject protected Injector pluginInjector;
 
-    @Inject
-    private EventManager eventManager;
+    @Inject private EventManager eventManager;
 
-    @Inject
-    private CommandManager commandManager;
+    @Inject private CommandManager commandManager;
 
     private CommandMapping narrateCommandMapping;
     private CommandMapping storyCommandMapping;
 
-    @Listener
-    public void onGameStartingServer(GameStartingServerEvent event) throws Exception {
+    @Listener public void onGameStartingServer(GameStartingServerEvent event) throws Exception {
         LOG.info("See https://github.com/vorburger/minecraft-storeys-maker for how to use /story and /narrate commands");
         start(this, this.configDir);
     }
@@ -76,8 +71,7 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
         narrateCommandMapping = Commands.register(plugin, pluginInjector.getInstance(NarrateCommand.class));
     }
 
-    @Listener
-    public void onGameStoppingServer(GameStoppingServerEvent event) throws Exception {
+    @Listener public void onGameStoppingServer(GameStoppingServerEvent event) throws Exception {
         stop();
     }
 

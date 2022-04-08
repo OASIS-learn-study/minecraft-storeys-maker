@@ -46,31 +46,26 @@ public class NarrateCommand implements Command {
 
     private final Narrator narrator;
 
-    @Inject
-    public NarrateCommand(Narrator narrator) {
+    @Inject public NarrateCommand(Narrator narrator) {
         this.narrator = narrator;
     }
 
-    @Override
-    public List<String> aliases() {
+    @Override public List<String> aliases() {
         return ImmutableList.of("narrate");
     }
 
-    @Override
-    public CommandCallable callable() {
-        return CommandSpec.builder()
-            .description(Text.of("Make an entity character narrate story lines"))
-         // .permission("storeys.commands.narrate") ?
-            .arguments(
-                    // TODO when Sponge uses entity names instead of UUIDs:
-                    // onlyOne(entity(ARG_ENTITY)), // TODO requiringPermission()
-                    onlyOne(GenericArguments.string(ARG_ENTITY)), // TODO requiringPermission()
-                    remainingJoinedStrings(ARG_TEXT) // remainingRawJoinedStrings ?
-            ).executor(this).build();
+    @Override public CommandCallable callable() {
+        return CommandSpec.builder().description(Text.of("Make an entity character narrate story lines"))
+                // .permission("storeys.commands.narrate") ?
+                .arguments(
+                        // TODO when Sponge uses entity names instead of UUIDs:
+                        // onlyOne(entity(ARG_ENTITY)), // TODO requiringPermission()
+                        onlyOne(GenericArguments.string(ARG_ENTITY)), // TODO requiringPermission()
+                        remainingJoinedStrings(ARG_TEXT) // remainingRawJoinedStrings ?
+                ).executor(this).build();
     }
 
-    @Override
-    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+    @Override public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         String text = args.<String>getOne(ARG_TEXT).get();
 
         // TODO when Sponge uses entity names instead of UUIDs:
@@ -79,7 +74,7 @@ public class NarrateCommand implements Command {
 
         String entityName = args.<String>getOne(ARG_ENTITY).get();
         EntityUniverse world = ((Locatable) src).getWorld();
-        narrator.narrate(world , entityName, text, new ReadingSpeed());
+        narrator.narrate(world, entityName, text, new ReadingSpeed());
 
         return CommandResult.success();
     }

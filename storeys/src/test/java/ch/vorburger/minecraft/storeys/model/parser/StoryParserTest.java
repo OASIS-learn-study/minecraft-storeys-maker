@@ -117,8 +117,8 @@ public class StoryParserTest {
         assertEquals(MessageAction.class, storyActionsList.get(1).getClass());
         NarrateAction narrateAction = (NarrateAction) storyActionsList.get(2);
         assertEquals("Piggy", narrateAction.getEntityName());
-        assertEquals(Text.of("Hi there! I'm Piggy.").concat(Text.NEW_LINE).concat(Text.of("Welcome to the storeys mod.  I'll be giving you a quick guided tour now...")),
-                narrateAction.getText());
+        assertEquals(Text.of("Hi there! I'm Piggy.").concat(Text.NEW_LINE)
+                .concat(Text.of("Welcome to the storeys mod.  I'll be giving you a quick guided tour now...")), narrateAction.getText());
         assertEquals("CommandAction: /tp -235 64 230 17 12", storyActionsList.get(3).toString());
         assertEquals(NarrateAction.class, storyActionsList.get(4).getClass());
     }

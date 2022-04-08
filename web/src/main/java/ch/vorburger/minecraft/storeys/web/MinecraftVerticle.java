@@ -59,31 +59,26 @@ public class MinecraftVerticle extends AbstractHttpServerVerticle implements Eve
     private final TokenProvider tokenProvider;
     private Handler<Message<JsonObject>> actionsConsumer;
 
-    @Inject
-    public MinecraftVerticle(@Named("http-port") int httpPort, Minecraft minecraft, TokenProvider tokenProvider) {
+    @Inject public MinecraftVerticle(@Named("http-port") int httpPort, Minecraft minecraft, TokenProvider tokenProvider) {
         super(httpPort);
         this.minecraft = minecraft;
         this.tokenProvider = tokenProvider;
     }
 
-    @Inject
-    public void setActionsConsumer(Handler<Message<JsonObject>> actionsConsumer) {
+    @Inject public void setActionsConsumer(Handler<Message<JsonObject>> actionsConsumer) {
         this.actionsConsumer = actionsConsumer;
     }
 
-    @Override
-    public void start() throws Exception {
+    @Override public void start() throws Exception {
         String address = Minecraft.ADDRESS;
         new ServiceBinder(vertx).setAddress(address).addInterceptor(new LoggingInterceptor()).register(Minecraft.class, minecraft);
         LOG.info("Registered service on the event bus at address: {}", address);
     }
 
-    @Override
-    public void stopVerticle() throws Exception {
+    @Override public void stopVerticle() throws Exception {
     }
 
-    @Override
-    protected void addRoutes(Router router) {
+    @Override protected void addRoutes(Router router) {
         vertx.eventBus().consumer(EVENTBUS_MINECRAFT_ACTIONS_ADDRESS, requireNonNull(actionsConsumer, "missing setActionsConsumer()"));
 
         SockJSHandlerOptions sockJSHandleOptions = new SockJSHandlerOptions().setHeartbeatInterval(5432);
@@ -96,10 +91,7 @@ public class MinecraftVerticle extends AbstractHttpServerVerticle implements Eve
         router.mountSubRouter("/eventbus", sockJSHandler.bridge(bridgeOptions));
 
         JWTAuthOptions authConfig = new JWTAuthOptions()
-                .setKeyStore(new KeyStoreOptions()
-                        .setType("jceks")
-                        .setPath("keystore.jceks")
-                        .setPassword("_2y47[-53YLf}/frv.Q\""));
+                .setKeyStore(new KeyStoreOptions().setType("jceks").setPath("keystore.jceks").setPassword("_2y47[-53YLf}/frv.Q\""));
 
         JWTAuth authProvider = JWTAuth.create(vertx, authConfig);
 
@@ -127,8 +119,7 @@ public class MinecraftVerticle extends AbstractHttpServerVerticle implements Eve
         LOG.info("Started Vert.x distributed BiDi event-bus HTTP server on port {}", httpPort);
     }
 
-    @Override
-    public void send(Object message) {
+    @Override public void send(Object message) {
         vertx.eventBus().publish(EVENTBUS_MINECRAFT_EVENTS_ADDRESS, message);
         LOG.info("Sent to EventBus: {}", message);
     }

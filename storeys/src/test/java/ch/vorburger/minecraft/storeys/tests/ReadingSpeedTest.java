@@ -27,13 +27,13 @@ import org.junit.Test;
 
 public class ReadingSpeedTest {
 
-    @Test
-    public final void empty() {
+    @Test public final void empty() {
         assertThat(new ReadingSpeed().msToRead(""), is(0));
     }
 
-    @Test
-    public final void example() {
-        assertThat(new ReadingSpeed(200).msToRead("Lorem Ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."), greaterThan(7100));
+    @Test public final void example() {
+        assertThat(new ReadingSpeed(200).msToRead(
+                "Lorem Ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."),
+                greaterThan(7100));
     }
 }

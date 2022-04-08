@@ -33,8 +33,7 @@ public class EngineTest {
 
     class EchoInteractlet extends Interactlet {
         @Override public void interact(Prompter<Void> prompter) throws IOException {
-            prompter.await(aString("Say something, I'll echo it:"))
-                .await(reply -> bye(reply));
+            prompter.await(aString("Say something, I'll echo it:")).await(reply -> bye(reply));
         }
     }
 

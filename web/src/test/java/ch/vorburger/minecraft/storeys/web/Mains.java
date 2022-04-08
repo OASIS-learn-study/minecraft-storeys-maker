@@ -31,7 +31,8 @@ import java.io.InputStreamReader;
  */
 public final class Mains {
 
-    private Mains() { }
+    private Mains() {
+    }
 
     public static void waitForEnter() throws IOException {
         System.out.println("Running now... press Enter to Stop.");

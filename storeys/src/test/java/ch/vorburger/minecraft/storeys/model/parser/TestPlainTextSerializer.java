@@ -56,29 +56,26 @@ public class TestPlainTextSerializer implements SafeTextSerializer {
         modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
     }
 
-    @Override
-    public String getId() {
+    @Override public String getId() {
         return "sponge:plain";
     }
 
-    @Override
-    public String getName() {
+    @Override public String getName() {
         return "Plain Text";
     }
 
-    @Override
-    public Text deserialize(String input) {
+    @Override public Text deserialize(String input) {
         return Text.of(input);
     }
 
-    @Override
-    public String serialize(Text text) {
+    @Override public String serialize(Text text) {
         final StringBuilder ret = new StringBuilder();
         for (Text child : text.withChildren()) {
             if (child instanceof LiteralText) {
                 ret.append(((LiteralText) child).getContent());
             } else if (child instanceof TranslatableText) {
-                ret.append(((TranslatableText) child).getTranslation().get(Locales.DEFAULT, convertArgs(((TranslatableText) child).getArguments())));
+                ret.append(((TranslatableText) child).getTranslation().get(Locales.DEFAULT,
+                        convertArgs(((TranslatableText) child).getArguments())));
             } else if (child instanceof ScoreText) {
                 ret.append(((ScoreText) child).getScore().getScore());
             } else if (child instanceof SelectorText) {

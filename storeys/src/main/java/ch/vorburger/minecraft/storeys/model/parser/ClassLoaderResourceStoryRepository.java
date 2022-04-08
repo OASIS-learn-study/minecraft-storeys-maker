@@ -26,8 +26,7 @@ import java.io.IOException;
 
 public class ClassLoaderResourceStoryRepository implements StoryRepository {
 
-    @Override
-    public String getStoryScript(String storyName) throws IOException {
+    @Override public String getStoryScript(String storyName) throws IOException {
         return Resources.toString(getResource(ClassLoaderResourceStoryRepository.class, "/" + storyName + ".story"), UTF_8);
     }
 

@@ -32,7 +32,8 @@ public class Thing extends Interactlet {
     @Override public void interact(Prompter<Void> prompter) throws IOException {
         List<String> actionsOrQuit = new ArrayList<>(actions);
         actionsOrQuit.add("ignore and do nothing with (go back)");
-        // TODO - aChoice choices should be a Map, not List.. or, if you pass a List, it should return an int not a String to say which one was chosen
+        // TODO - aChoice choices should be a Map, not List.. or, if you pass a List, it should return an int not a String to
+        // say which one was chosen
         prompter.await(aChoice("It's " + name + ", which you can...", actionsOrQuit));
     }
 }

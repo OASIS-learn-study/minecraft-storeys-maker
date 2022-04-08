@@ -31,8 +31,7 @@ public class ActionWaitHelper {
 
     private final PluginInstance plugin;
 
-    @Inject
-    public ActionWaitHelper(PluginInstance plugin) {
+    @Inject public ActionWaitHelper(PluginInstance plugin) {
         this.plugin = plugin;
     }
 
@@ -40,11 +39,7 @@ public class ActionWaitHelper {
         CompletableFuture<T> future = new CompletableFuture<>();
         try {
             T returnValue = callable.call();
-            Task.builder()
-                .async()
-                .execute(() -> future.complete(returnValue))
-                .delay(msToWaitAfterRunning, MILLISECONDS)
-                .submit(plugin);
+            Task.builder().async().execute(() -> future.complete(returnValue)).delay(msToWaitAfterRunning, MILLISECONDS).submit(plugin);
 
         } catch (Throwable throwable) {
             future.completeExceptionally(throwable);

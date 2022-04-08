@@ -40,13 +40,11 @@ public class TitleAction extends TextAction<Void> {
 
     private Text subtitleText;
 
-    @Inject
-    public TitleAction(ActionWaitHelper helper) {
+    @Inject public TitleAction(ActionWaitHelper helper) {
         this.actionWaitHelper = helper;
     }
 
-    @Override
-    public void setParameter(String param) {
+    @Override public void setParameter(String param) {
         String[] parts = param.split("==");
         if (parts.length == 1) {
             super.setParameter(trimCRLF(param));
@@ -56,8 +54,7 @@ public class TitleAction extends TextAction<Void> {
         }
     }
 
-    @Override
-    public CompletionStage<Void> execute(ActionContext context) {
+    @Override public CompletionStage<Void> execute(ActionContext context) {
         Text bothTexts = getText().concat(subtitleText != null ? subtitleText : Text.EMPTY);
         int msToRead = context.getReadingSpeed().msToRead(bothTexts) + FADE_IN_MS + FADE_OUT_MS;
 
@@ -81,8 +78,7 @@ public class TitleAction extends TextAction<Void> {
         });
     }
 
-    @Override
-    public boolean add(Action<?> action) {
+    @Override public boolean add(Action<?> action) {
         if (action instanceof TitleAction) {
             this.subtitleText = ((TitleAction) action).getText();
             return true;
@@ -91,8 +87,7 @@ public class TitleAction extends TextAction<Void> {
         return false;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return super.toString() + "==" + (subtitleText != null ? subtitleText.toString() : "null");
     }
 }

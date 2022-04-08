@@ -36,39 +36,36 @@ public class TokenProviderImplTest {
 
     private TokenProvider tokenProvider;
 
-    @Test
-    public void getCode() {
-        //given
+    @Test public void getCode() {
+        // given
         final Player player = mock(Player.class);
         final String uuid = UUID.randomUUID().toString();
 
-        //when
+        // when
         when(player.getIdentifier()).thenReturn(uuid);
         final String code = tokenProvider.getCode(player);
 
-        //then
+        // then
         assertEquals(uuid, tokenProvider.login(code));
     }
 
-    @Test(expected = NotLoggedInException.class)
-    public void shouldThrowWhenNotValidLogin() {
-        //when
+    @Test(expected = NotLoggedInException.class) public void shouldThrowWhenNotValidLogin() {
+        // when
         tokenProvider.login("invalid code");
     }
 
-    @Test(expected = NotLoggedInException.class)
-    public void shouldRemoveTokensAfterTimeOut() throws InterruptedException {
-        //given
+    @Test(expected = NotLoggedInException.class) public void shouldRemoveTokensAfterTimeOut() throws InterruptedException {
+        // given
         tokenProvider = new TokenProviderImpl(100, TimeUnit.MILLISECONDS, TimeUnit.SECONDS.toMillis(1));
         Player player = mock(Player.class);
         final String uuid = UUID.randomUUID().toString();
 
-        //when
+        // when
         when(player.getIdentifier()).thenReturn(uuid);
         final String code = tokenProvider.getCode(player);
         Thread.sleep(1100);
 
-        //then
+        // then
         tokenProvider.login(code);
     }
 }

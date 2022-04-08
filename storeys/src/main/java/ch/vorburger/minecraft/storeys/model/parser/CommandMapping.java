@@ -36,16 +36,10 @@ import javax.inject.Provider;
 public class CommandMapping {
     private List<Mapping> mappings = new ArrayList<>();
 
-    @Inject
-    public CommandMapping(
-            Provider<CommandAction> commandActionProvider,
-            Provider<NarrateAction> narrateProvider,
-            Provider<TitleAction> titleActionProvider,
-            Provider<AwaitAction> awaitActionProvider,
-            Provider<DynamicAction> dynamicActionProvider,
-            Provider<LocationAction> locationActionProvider,
-            Provider<MessageAction> messageActionProvider
-    ) {
+    @Inject public CommandMapping(Provider<CommandAction> commandActionProvider, Provider<NarrateAction> narrateProvider,
+            Provider<TitleAction> titleActionProvider, Provider<AwaitAction> awaitActionProvider,
+            Provider<DynamicAction> dynamicActionProvider, Provider<LocationAction> locationActionProvider,
+            Provider<MessageAction> messageActionProvider) {
         mappings.add(new Mapping(Pattern.compile("^==?\\s(.*)\\n"), titleActionProvider::get));
         mappings.add(new Mapping(Pattern.compile("^(@.*)\\n"), narrateProvider::get));
         mappings.add(new Mapping(Pattern.compile("^%await\\s(.*)\\n"), awaitActionProvider::get));
@@ -65,7 +59,7 @@ public class CommandMapping {
         private final Pattern regex;
         private final Provider<Action<?>> actionProvider;
 
-        Mapping(Pattern regex,  Provider<Action<?>> actionProvider) {
+        Mapping(Pattern regex, Provider<Action<?>> actionProvider) {
             this.regex = regex;
             this.actionProvider = actionProvider;
         }

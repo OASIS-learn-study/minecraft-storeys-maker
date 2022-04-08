@@ -25,14 +25,12 @@ public class MessageAction extends TextAction<Void> {
 
     private final ActionWaitHelper actionWaitHelper;
 
-    @Inject
-    public MessageAction(ActionWaitHelper actionWaitHelper) {
+    @Inject public MessageAction(ActionWaitHelper actionWaitHelper) {
         super();
         this.actionWaitHelper = actionWaitHelper;
     }
 
-    @Override
-    public CompletionStage<Void> execute(ActionContext context) {
+    @Override public CompletionStage<Void> execute(ActionContext context) {
         return actionWaitHelper.executeAndWait(context.getReadingSpeed().msToRead(getText()), () -> {
             context.getCommandSource().sendMessage(getText());
             return null;

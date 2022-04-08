@@ -30,14 +30,11 @@ import org.spongepowered.api.world.World;
 public class LocationHitBox {
     public static TypeToken<LocationHitBox> TYPE = TypeToken.of(LocationHitBox.class);
 
-    @Setting(value="player")
-    private UUID playerUUID;
+    @Setting(value = "player") private UUID playerUUID;
 
-    @Setting(value="name")
-    private String name;
+    @Setting(value = "name") private String name;
 
-    @Setting(value="hitbox")
-    private Pair<Location<World>, Location<World>> box;
+    @Setting(value = "hitbox") private Pair<Location<World>, Location<World>> box;
 
     public LocationHitBox() {
     }

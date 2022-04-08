@@ -64,8 +64,7 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
     private final Map<String, Unregisterable> conditionRegistrations = new ConcurrentHashMap<>();
     private final Map<String, Pair<Location<World>, Location<World>>> playerBoxLocations = new ConcurrentHashMap<>();
 
-    @Inject
-    public ActionsConsumer(PluginInstance plugin, EventService eventService, EventBusSender eventBusSender) {
+    @Inject public ActionsConsumer(PluginInstance plugin, EventService eventService, EventBusSender eventBusSender) {
         this.plugin = plugin;
         this.eventBusSender = eventBusSender;
 
@@ -73,14 +72,13 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
 
         eventService.registerPlayerJoin(event -> {
             Player player = event.getTargetEntity();
-            JsonObject message = new JsonObject().put("event", "playerJoined").put("player", player.getName())
-                    .put("playerUUID", player.getUniqueId().toString());
+            JsonObject message = new JsonObject().put("event", "playerJoined").put("player", player.getName()).put("playerUUID",
+                    player.getUniqueId().toString());
             eventBusSender.send(message);
         });
     }
 
-    @Override
-    public void handle(Message<JsonObject> message) {
+    @Override public void handle(Message<JsonObject> message) {
         LOG.info("Handling (old style) action message received on EventBus: {}", message.body().encodePrettily());
 
         JsonObject json = message.body();
@@ -88,20 +86,20 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
 
         try {
             switch (json.getString("action")) {
-            case "ping": {
-                message.reply("pong");
-                LOG.info("ping & pong ACK reply");
-                break;
-            }
-            case "registerCondition": {
-                String condition = json.getString("condition");
-                registerCondition(requireNonNull(condition, "condition"));
-                message.reply(condition);
-                break;
-            }
-            default:
-                LOG.error("Unknown action in message: " + message.body().encodePrettily());
-                break;
+                case "ping": {
+                    message.reply("pong");
+                    LOG.info("ping & pong ACK reply");
+                    break;
+                }
+                case "registerCondition": {
+                    String condition = json.getString("condition");
+                    registerCondition(requireNonNull(condition, "condition"));
+                    message.reply(condition);
+                    break;
+                }
+                default:
+                    LOG.error("Unknown action in message: " + message.body().encodePrettily());
+                    break;
             }
         } catch (Exception e) {
             // TODO make red etc. like in that command helper
@@ -124,18 +122,22 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
                 eventBusSender.send(new JsonObject().put("event", conditionAsText).put("playerUUID", player.getUniqueId().toString()));
             });
             conditionRegistrations.put(conditionAsText, scriptCommand);
-        })) {} else if (runIfStartsWith(conditionAsText, "entity_interaction:", entityNameSlashInteraction -> {
+        })) {
+        } else if (runIfStartsWith(conditionAsText, "entity_interaction:", entityNameSlashInteraction -> {
             Iterator<String> parts = SLASH_SPLITTER.split(entityNameSlashInteraction).iterator();
             String entityName = parts.next();
             // String interaction = parts.next();
             conditionRegistrations.put(conditionAsText, eventService.registerInteractEntity(entityName, (Player player) -> {
                 eventBusSender.send(new JsonObject().put("event", conditionAsText).put("playerUUID", player.getUniqueId().toString()));
             }));
-        })) {} else if (runIfStartsWith(conditionAsText, "playerJoined", empty -> {
+        })) {
+        } else if (runIfStartsWith(conditionAsText, "playerJoined", empty -> {
             // Ignore (we registered for this globally, above)
-        })) {} else if (runIfStartsWith(conditionAsText, "player_inside", empty -> {
+        })) {
+        } else if (runIfStartsWith(conditionAsText, "player_inside", empty -> {
             // Ignore (we registered for this globally, above)
-        })) {} else {
+        })) {
+        } else {
             LOG.error("Unknown condition: " + conditionAsText);
         }
     }

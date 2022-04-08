@@ -30,8 +30,7 @@ public class StoryParser {
 
     private final CommandMapping mapping;
 
-    @Inject
-    public StoryParser(CommandMapping mapping) {
+    @Inject public StoryParser(CommandMapping mapping) {
         this.mapping = mapping;
     }
 

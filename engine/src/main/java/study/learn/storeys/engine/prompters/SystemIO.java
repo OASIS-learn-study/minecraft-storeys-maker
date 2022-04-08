@@ -28,8 +28,8 @@ import study.learn.storeys.engine.Text;
 
 public class SystemIO implements SimplePrompterIO {
 
- private final BufferedReader input;
- private final PrintStream output;
+    private final BufferedReader input;
+    private final PrintStream output;
 
     public SystemIO() {
         this(System.in, System.out);
@@ -38,10 +38,9 @@ public class SystemIO implements SimplePrompterIO {
     public SystemIO(InputStream in, PrintStream out) {
         this.input = new BufferedReader(new InputStreamReader(in));
         this.output = out;
- }
+    }
 
- @Override
- public String readLine(String prompt, List<Text> choices) throws IOException {
+    @Override public String readLine(String prompt, List<Text> choices) throws IOException {
         for (int i = 0; i < choices.size(); i++) {
             output.println("    " + (i + 1) + ": " + choices.get(i).getString());
         }
@@ -50,8 +49,7 @@ public class SystemIO implements SimplePrompterIO {
         return input.readLine();
     }
 
-    @Override
-    public void writeLine(String info) {
+    @Override public void writeLine(String info) {
         output.println(info);
     }
 }
