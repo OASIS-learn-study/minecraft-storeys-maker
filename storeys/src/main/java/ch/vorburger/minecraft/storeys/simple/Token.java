@@ -26,6 +26,6 @@ package ch.vorburger.minecraft.storeys.simple;
 public abstract class Token {
 
     @Override
-	public abstract String toString();
+ public abstract String toString();
 
 }

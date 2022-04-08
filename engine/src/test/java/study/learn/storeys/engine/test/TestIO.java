@@ -37,18 +37,18 @@ public class TestIO implements SimplePrompterIO {
         return lastWritten;
     }
 
-	@Override
-	public String readLine(String prompt, List<Text> choices) throws IOException {
-		// NOT writeLine(prompt);
+ @Override
+ public String readLine(String prompt, List<Text> choices) throws IOException {
+  // NOT writeLine(prompt);
         String nowRead = nextRead;
         if (nowRead == null)
             throw new IllegalStateException("Must setNextRead() before asking: " + prompt);
         nextRead = null;
         return nowRead;
-	}
+ }
 
-	@Override
-	public void writeLine(String info) throws IOException {
+ @Override
+ public void writeLine(String info) throws IOException {
         this.lastWritten = info;
-	}
+ }
 }
