@@ -13,3 +13,5 @@ Welcome to the storeys mod.  I'll be giving you a quick guided tour now...
   }
 
 /tp -235 64 230 17 12
+
+@Rigo Hih hah, I'm the horse.

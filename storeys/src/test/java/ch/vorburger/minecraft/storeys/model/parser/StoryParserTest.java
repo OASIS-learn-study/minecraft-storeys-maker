@@ -110,7 +110,7 @@ public class StoryParserTest {
 
         // then
         List<Action<?>> storyActionsList = story.getActionsList();
-        assertEquals(9, storyActionsList.size());
+        assertEquals(11, storyActionsList.size());
         assertEquals(TitleAction.class, storyActionsList.get(0).getClass());
         assertEquals(MessageAction.class, storyActionsList.get(2).getClass());
         NarrateAction narrateAction = (NarrateAction) storyActionsList.get(4);
@@ -118,6 +118,8 @@ public class StoryParserTest {
         assertEquals(Text.of("Hi there! I'm Piggy.").concat(Text.NEW_LINE).concat(Text.of("Welcome to the storeys mod.  I'll be giving you a quick guided tour now...")),
                 narrateAction.getText());
         assertEquals("CommandAction: /tp -235 64 230 17 12", storyActionsList.get(8).toString());
+        assertEquals(NopAction.class, storyActionsList.get(9).getClass());
+        assertEquals(NarrateAction.class, storyActionsList.get(10).getClass());
     }
 
     @Test public void parseDynamic() throws IOException, SyntaxErrorException {
