@@ -40,14 +40,16 @@ public class StoryParser {
     public Story parse(String story) {
         List<Action<?>> actions = new ArrayList<>();
         Action<?> prevAction = null;
-        while (!"".equals(story)) {
+        while (!"".equals(story.trim())) {
             for (CommandMapping.Mapping mapping : mapping.getMappings()) {
                 Matcher matcher = mapping.getRegex().matcher(story);
                 if (matcher.find()) {
                     Action<?> action = mapping.getActionProvider().get();
                     action.setParameter(matcher.group(1));
                     if (prevAction == null || !prevAction.add(action)) {
-                        actions.add(action);
+                        if (!(action instanceof NopAction)) {
+                            actions.add(action);
+                        }
                         prevAction = action;
                     }
                     story = matcher.replaceFirst("");
