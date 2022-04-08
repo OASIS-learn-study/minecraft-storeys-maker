@@ -6,20 +6,12 @@ plugins {
 
 dependencies {
     implementation project(':api')
-    implementation(project(':storeys')) {
-      // because this is already "shadowed" into the :storeys JAR
-      exclude group: 'com.spotify', module: 'futures-extra'
-      exclude group: 'ch.vorburger.minecraft.osgi', module: 'api'
-    }
+    implementation(project(':storeys'))
     implementation project(':scratch3')
 
-    // compileOnly for what is "shadowed" into :storeys at runtime, but still needed at compile-time
-    compileOnly 'ch.vorburger.minecraft.osgi:api:1.0.0'
-
-    implementation 'commons-io:commons-io:2.11.0'
     implementation 'org.osgi:org.osgi.core:6.0.0'
+    implementation 'commons-io:commons-io:2.11.0'
     implementation 'ch.vorburger.exec:exec:3.1.3'
-
     implementation 'io.vertx:vertx-service-proxy:4.0.2'
 
     testCompile 'org.seleniumhq.selenium:selenium-java:3.141.59'
@@ -44,16 +36,17 @@ shadowJar {
   // causing java.lang.NoSuchMethodError: io.netty.util.NetUtil.isIpV4StackPreferred()Z at io.netty.resolver.dns.DnsNameResolver.<clinit>(DnsNameResolver.java:103)
   relocate 'io.netty', 'ch.vorburger.relocated.io.netty'
 
-  // Exclude the Sponge Plugin class of our base (non-web) project, because our StoreysWebPlugin class also extends the AbstractStoreysPlugin
-  exclude 'ch/vorburger/minecraft/storeys/plugin/StoreysPlugin.class'
-
   dependencies {
     // https://imperceptiblethoughts.com/shadow/configuration/filtering/
     // NB "not being able to filter entire transitive dependency graphs"
     // so instead of using exclude dependency we just do explicit include:
     include(project(':api'))
-    include(project(':storeys'))
     include(project(':scratch3'))
+
+    include(project(':storeys'))
+    include(dependency('ch.vorburger.minecraft.osgi:api'))
+    include(dependency('com.spotify:futures-extra'))
+
     include(dependency("io.vertx:vertx-core"))
     include(dependency("io.vertx:vertx-web"))
     include(dependency("io.vertx:vertx-web-common"))

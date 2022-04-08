@@ -1,31 +1,8 @@
-plugins {
-    id 'com.github.johnrengelman.shadow' version '2.0.2'
-}
 
 dependencies {
-    implementation 'org.osgi:org.osgi.core:6.0.0'
-    implementation 'ch.vorburger.minecraft.osgi:api:1.0.0'
+    api 'ch.vorburger.minecraft.osgi:api:1.0.0'
     implementation('com.spotify:futures-extra:4.0.0') {
         exclude group: 'com.google.guava' 
     }
     testCompile project(':test-utils')
 }
-
-shadowJar {
-  dependencies {
-    // http://imperceptiblethoughts.com/shadow/#filtering_dependencies
-    // NB "not being able to filter entire transitive dependency graphs"
-    // so instead of using exclude dependency we just do explicit include:
-    include(dependency('ch.vorburger.minecraft.osgi:api'))
-    include(dependency('com.spotify:futures-extra'))
-  }
-}
-
-artifacts {
-    shadowJar;
-}
-
-assemble.dependsOn(shadowJar);
-
-// install.dependsOn(shadowJar);
-// install.enabled = false
