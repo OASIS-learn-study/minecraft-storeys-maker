@@ -24,9 +24,7 @@ import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-
 import javax.inject.Inject;
-
 import org.spongepowered.api.scheduler.Task;
 
 public class ActionWaitHelper {

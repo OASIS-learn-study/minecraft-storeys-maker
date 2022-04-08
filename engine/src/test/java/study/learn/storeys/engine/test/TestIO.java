@@ -20,7 +20,6 @@ package study.learn.storeys.engine.test;
 
 import java.io.IOException;
 import java.util.List;
-
 import study.learn.storeys.engine.Text;
 import study.learn.storeys.engine.prompters.SimplePrompterIO;
 

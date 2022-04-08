@@ -21,7 +21,6 @@ package study.learn.storeys.engine.places;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import study.learn.storeys.engine.Interactlet;
 import study.learn.storeys.engine.Prompter;
 

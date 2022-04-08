@@ -27,15 +27,15 @@ import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.simple.impl.TokenProviderImpl;
 import ch.vorburger.minecraft.storeys.util.Commands;
-import com.google.common.reflect.TypeToken;
 import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
-import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.ConfigurationOptions;
+import java.nio.file.Path;
+import java.util.concurrent.ExecutionException;
+import javax.inject.Inject;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.slf4j.Logger;
@@ -44,10 +44,6 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.plugin.Plugin;
-
-import javax.inject.Inject;
-import java.nio.file.Path;
-import java.util.concurrent.ExecutionException;
 
 @Plugin(id = "storeys-web", name = "Vorburger.ch's Storeys with Web API", version = "1.0",
     description = "Makes entities narrate story lines so you can make your own movie in Minecraft",

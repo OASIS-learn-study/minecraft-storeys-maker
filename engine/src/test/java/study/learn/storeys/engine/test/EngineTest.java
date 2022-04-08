@@ -21,9 +21,7 @@ package study.learn.storeys.engine.test;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-
 import org.junit.Test;
-
 import study.learn.storeys.engine.Interactlet;
 import study.learn.storeys.engine.Prompter;
 import study.learn.storeys.engine.prompters.SimplePrompter;

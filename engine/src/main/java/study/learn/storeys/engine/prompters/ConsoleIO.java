@@ -22,7 +22,6 @@ import java.io.Console;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-
 import study.learn.storeys.engine.Text;
 
 public class ConsoleIO implements SimplePrompterIO {

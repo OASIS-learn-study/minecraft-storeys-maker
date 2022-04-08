@@ -18,14 +18,20 @@
  */
 package ch.vorburger.minecraft.storeys.model.parser;
 
+import ch.vorburger.minecraft.storeys.model.Action;
+import ch.vorburger.minecraft.storeys.model.AwaitAction;
+import ch.vorburger.minecraft.storeys.model.CommandAction;
+import ch.vorburger.minecraft.storeys.model.DynamicAction;
+import ch.vorburger.minecraft.storeys.model.LocationAction;
+import ch.vorburger.minecraft.storeys.model.MessageAction;
+import ch.vorburger.minecraft.storeys.model.NarrateAction;
+import ch.vorburger.minecraft.storeys.model.NopAction;
+import ch.vorburger.minecraft.storeys.model.TitleAction;
+import com.google.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-
 import javax.inject.Provider;
-
-import ch.vorburger.minecraft.storeys.model.*;
-import com.google.inject.Inject;
 
 public class CommandMapping {
     private List<Mapping> mappings = new ArrayList<>();

@@ -20,12 +20,10 @@ package study.learn.storeys.engine.prompters;
 
 import java.io.IOException;
 import java.util.List;
-
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
-
 import study.learn.storeys.engine.Text;
 
 public class JLineIO implements SimplePrompterIO {

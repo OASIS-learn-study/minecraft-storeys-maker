@@ -18,16 +18,14 @@
  */
 package ch.vorburger.minecraft.storeys.simple.impl;
 
+import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import ch.vorburger.minecraft.storeys.simple.TokenProvider;
-import org.spongepowered.api.entity.living.player.Player;
-
 import javax.inject.Singleton;
+import org.spongepowered.api.entity.living.player.Player;
 
 /**
  * Implementation of {@link TokenProvider} API.

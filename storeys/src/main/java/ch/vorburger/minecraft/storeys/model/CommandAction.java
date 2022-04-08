@@ -18,17 +18,15 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
-import javax.inject.Inject;
+import static java.util.Objects.requireNonNull;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
-import ch.vorburger.minecraft.storeys.model.parser.SyntaxErrorException;
+import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.scheduler.Scheduler;
-
-import static java.util.Objects.requireNonNull;
 
 public class CommandAction extends MainThreadAction<CommandResult> {
 

@@ -18,11 +18,9 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
-import java.util.concurrent.CompletionStage;
-
-import javax.inject.Inject;
-
 import ch.vorburger.minecraft.storeys.model.parser.SyntaxErrorException;
+import java.util.concurrent.CompletionStage;
+import javax.inject.Inject;
 
 public class AwaitAction implements Action<Void> {
 

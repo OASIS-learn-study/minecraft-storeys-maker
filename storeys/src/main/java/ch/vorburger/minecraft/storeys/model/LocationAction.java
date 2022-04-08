@@ -18,16 +18,14 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.events.LocatableInBoxCondition;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import javax.inject.Inject;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.world.Locatable;
-
-import javax.inject.Inject;
 
 public class LocationAction implements Action<Void> {
     private ConditionService conditionService;

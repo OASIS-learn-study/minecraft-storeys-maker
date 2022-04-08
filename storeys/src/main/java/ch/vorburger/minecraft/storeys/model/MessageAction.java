@@ -19,7 +19,6 @@
 package ch.vorburger.minecraft.storeys.model;
 
 import java.util.concurrent.CompletionStage;
-
 import javax.inject.Inject;
 
 public class MessageAction extends TextAction<Void> {

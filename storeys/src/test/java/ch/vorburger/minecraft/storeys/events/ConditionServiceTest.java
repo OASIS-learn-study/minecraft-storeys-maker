@@ -18,14 +18,14 @@
  */
 package ch.vorburger.minecraft.storeys.events;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import ch.vorburger.minecraft.storeys.events.ConditionService.ConditionServiceRegistration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 import org.spongepowered.api.entity.living.player.Player;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ConditionServiceTest {
 

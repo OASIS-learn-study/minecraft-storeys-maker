@@ -24,9 +24,7 @@ import static java.lang.Math.min;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Splitter;
-
 import java.util.Iterator;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.world.Location;

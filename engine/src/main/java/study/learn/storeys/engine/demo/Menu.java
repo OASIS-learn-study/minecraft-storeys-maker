@@ -20,7 +20,6 @@ package study.learn.storeys.engine.demo;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import study.learn.storeys.engine.Interactlet;
 import study.learn.storeys.engine.Prompter;
 

@@ -18,10 +18,6 @@
  */
 package ch.vorburger.minecraft.storeys.plugin;
 
-import java.nio.file.Path;
-
-import javax.inject.Inject;
-
 import ch.vorburger.minecraft.osgi.api.AbstractPlugin;
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.commands.NarrateCommand;
@@ -29,6 +25,8 @@ import ch.vorburger.minecraft.storeys.commands.StoryCommand;
 import ch.vorburger.minecraft.storeys.guard.GuardGameModeJoinListener;
 import ch.vorburger.minecraft.storeys.util.Commands;
 import com.google.inject.Injector;
+import java.nio.file.Path;
+import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.command.CommandManager;

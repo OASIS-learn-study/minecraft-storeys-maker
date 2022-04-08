@@ -21,7 +21,6 @@ package study.learn.storeys.engine.prompters;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-
 import study.learn.storeys.engine.Prompt;
 import study.learn.storeys.engine.Prompter;
 import study.learn.storeys.engine.util.CheckedFunction;

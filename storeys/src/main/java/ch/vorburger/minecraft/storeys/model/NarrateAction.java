@@ -21,12 +21,10 @@ package ch.vorburger.minecraft.storeys.model;
 import static java.util.Objects.requireNonNull;
 
 import ch.vorburger.minecraft.storeys.Narrator;
-
 import java.util.concurrent.CompletionStage;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
-
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Locatable;
 import org.spongepowered.api.world.World;

@@ -18,16 +18,15 @@
  */
 package ch.vorburger.minecraft.storeys.simple.impl;
 
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
-import ch.vorburger.minecraft.storeys.simple.TokenProvider;
-import org.junit.Test;
-import org.spongepowered.api.entity.living.player.Player;
-
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import ch.vorburger.minecraft.storeys.simple.TokenProvider;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import org.junit.Test;
+import org.spongepowered.api.entity.living.player.Player;
 
 public class TokenProviderImplTest {
 

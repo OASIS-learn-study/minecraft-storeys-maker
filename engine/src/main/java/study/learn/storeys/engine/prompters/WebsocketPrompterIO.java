@@ -21,10 +21,8 @@ package study.learn.storeys.engine.prompters;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
-
 import study.learn.storeys.engine.Text;
 
 public class WebsocketPrompterIO implements SimplePrompterIO {

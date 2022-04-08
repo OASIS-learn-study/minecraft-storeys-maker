@@ -18,18 +18,15 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
+import ch.vorburger.minecraft.storeys.StoryPlayer;
+import ch.vorburger.minecraft.storeys.model.parser.StoryParser;
+import ch.vorburger.minecraft.storeys.model.parser.SyntaxErrorException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-
 import javax.inject.Inject;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
-import ch.vorburger.minecraft.storeys.StoryPlayer;
-import ch.vorburger.minecraft.storeys.model.parser.StoryParser;
-import ch.vorburger.minecraft.storeys.model.parser.SyntaxErrorException;
 
 public class DynamicAction implements Action<Void> {
     private static final String PREFIX = "var ItemTypes = Java.type('org.spongepowered.api.item.ItemTypes'); (function() {";

@@ -21,9 +21,7 @@ package ch.vorburger.minecraft.storeys.model;
 import static ch.vorburger.minecraft.storeys.util.MoreStrings.trimCRLF;
 
 import java.util.concurrent.CompletionStage;
-
 import javax.inject.Inject;
-
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.effect.Viewer;
 import org.spongepowered.api.text.Text;

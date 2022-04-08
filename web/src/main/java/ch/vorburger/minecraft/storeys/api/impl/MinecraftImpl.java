@@ -34,11 +34,11 @@ import ch.vorburger.minecraft.storeys.simple.impl.NotLoggedInException;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
-
+import javax.inject.Inject;
+import javax.inject.Provider;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
@@ -47,9 +47,6 @@ import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 import org.spongepowered.api.text.Text;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
 
 /**
  * Implementation of {@link Minecraft} Vert.x RPC service.

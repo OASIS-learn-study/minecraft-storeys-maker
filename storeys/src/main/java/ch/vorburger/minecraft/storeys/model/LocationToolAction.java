@@ -18,9 +18,10 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
+import static java.util.Collections.singletonList;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.HandTypes;
@@ -29,8 +30,6 @@ import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
-
-import static java.util.Collections.singletonList;
 
 public class LocationToolAction implements Action<Void> {
 

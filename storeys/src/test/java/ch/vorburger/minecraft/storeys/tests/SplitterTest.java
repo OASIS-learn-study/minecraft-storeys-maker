@@ -18,12 +18,12 @@
  */
 package ch.vorburger.minecraft.storeys.tests;
 
-import ch.vorburger.minecraft.storeys.TextSplitter;
-import org.junit.Test;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.iterableWithSize;
+
+import ch.vorburger.minecraft.storeys.TextSplitter;
+import org.junit.Test;
 
 public class SplitterTest {
 

@@ -18,12 +18,10 @@
  */
 package study.learn.storeys.engine.demo;
 
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
-
-import com.google.common.collect.ImmutableList;
-
 import study.learn.storeys.engine.Interactlet;
 import study.learn.storeys.engine.Prompter;
 

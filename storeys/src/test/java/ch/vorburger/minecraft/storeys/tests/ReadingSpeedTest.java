@@ -18,12 +18,12 @@
  */
 package ch.vorburger.minecraft.storeys.tests;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+
 import ch.vorburger.minecraft.storeys.ReadingSpeed;
 import org.junit.Test;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.greaterThan;
 
 public class ReadingSpeedTest {
 
