@@ -10,14 +10,15 @@ repositories {
 dependencies {
     // implementation 'com.google.guava:guava:27.0.1-jre'
     implementation 'org.jline:jline:3.19.0'
-    compile 'javax.websocket:javax.websocket-api:1.0'
-    compile 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.2.7.v20150116'
-    compile 'org.eclipse.jetty.websocket:javax-websocket-client-impl:9.2.7.v20150116'
+    implementation 'javax.websocket:javax.websocket-api:1.0'
+    implementation 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.2.7.v20150116'
+    implementation 'org.eclipse.jetty.websocket:javax-websocket-client-impl:9.2.7.v20150116'
     testImplementation 'junit:junit:4.13.2'
 }
 
 mainClassName = 'study.learn.storeys.engine.Main'
 
+/* TODO this broke during the upgrade to Gradle 7
 jar {
     manifest {
         attributes(
@@ -25,6 +26,8 @@ jar {
         )
     }
     from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
+*/
