@@ -13,8 +13,14 @@ node {
     download = true
 }
 
+task npmInstallDep(type: NpmTask, dependsOn: 'npmSetup') {
+    inputs.file('package.json')
+    outputs.upToDateWhen { file('node_modules').exists() }
 
-jar.dependsOn(npm_install)
+    npmCommand = ['install']
+}
+
+jar.configure { dependsOn(npmInstallDep) }
 
 jar {
     into 'static', {
