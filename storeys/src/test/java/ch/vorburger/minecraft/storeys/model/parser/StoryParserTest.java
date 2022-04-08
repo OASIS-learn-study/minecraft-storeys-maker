@@ -90,6 +90,11 @@ public class StoryParserTest {
         assertThat(story.getActionsList(), empty());
     }
 
+    @Test public void blanks() throws SyntaxErrorException {
+        Story story = getStoryParser().parse("   \n \r\n  ");
+        assertThat(story.getActionsList(), empty());
+    }
+
     @Test public void comments() throws SyntaxErrorException {
         Story story = getStoryParser().parse("\n // Comment \n");
         assertThat(story.getActionsList(), empty());
