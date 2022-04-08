@@ -9,6 +9,7 @@ buildscript {
 
 plugins {
     id 'java-library'
+    id 'com.github.hierynomus.license' version '0.16.1'
     // id 'net.ltgt.errorprone' version '0.0.13'
 }
 
@@ -35,6 +36,7 @@ subprojects {
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
+    apply plugin: 'com.github.hierynomus.license'
     apply plugin: 'biz.aQute.bnd.builder'
 
     repositories {
@@ -42,6 +44,15 @@ subprojects {
         maven {
             name = 'sponge'
             url = 'https://repo.spongepowered.org/maven'
+        }
+    }
+
+    license {
+        header rootProject.file('LICENSE-HEADER')
+        strictCheck true
+        excludes(['**/*.json'])
+        mapping {
+            java='SLASHSTAR_STYLE'
         }
     }
 
