@@ -9,7 +9,6 @@ buildscript {
 
 plugins {
     id 'java-library'
-    id 'com.github.hierynomus.license' version '0.14.0'
     // id 'net.ltgt.errorprone' version '0.0.13'
 }
 
@@ -23,17 +22,7 @@ allprojects  {
     description = 'Make your own stories in, with and for Minecraft!'
 
     apply plugin: 'java-library'
-    apply plugin: 'com.github.hierynomus.license'
     // apply plugin: 'net.ltgt.errorprone'
-
-    license {
-        header rootProject.file('LICENSE-HEADER')
-        strictCheck true
-        exclude '**/*.json'
-        mapping {
-            java='SLASHSTAR_STYLE'
-        }
-    }
 
     tasks.withType(JavaCompile) {
       options.compilerArgs << "-Xlint:unchecked"
