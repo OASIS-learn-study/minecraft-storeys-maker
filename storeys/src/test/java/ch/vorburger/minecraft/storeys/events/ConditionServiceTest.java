@@ -41,7 +41,7 @@ public class ConditionServiceTest {
             @Override public Player getEffectedPlayer() {
                 return null;
             }
-        }, (player) -> hit.set(true));
+        }, player -> hit.set(true));
         conditionService.run();
         assertThat(hit.get(), is(true));
 
@@ -55,7 +55,7 @@ public class ConditionServiceTest {
         @SuppressWarnings("resource") ConditionService conditionService = new ConditionService();
         final AtomicBoolean isHitting = new AtomicBoolean(false);
         final AtomicInteger hits = new AtomicInteger(0);
-        ConditionServiceRegistration registration = conditionService.register(new Condition() {
+        final ConditionServiceRegistration registration = conditionService.register(new Condition() {
             @Override public boolean isHot() {
                 return isHitting.get();
             }
@@ -63,7 +63,7 @@ public class ConditionServiceTest {
             @Override public Player getEffectedPlayer() {
                 return null;
             }
-        }, (player) -> hits.incrementAndGet());
+        }, player -> hits.incrementAndGet());
 
         conditionService.run();
         assertThat(hits.get(), is(0));

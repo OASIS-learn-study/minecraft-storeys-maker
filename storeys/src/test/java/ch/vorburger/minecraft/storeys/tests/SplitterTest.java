@@ -88,7 +88,7 @@ public class SplitterTest {
         assertThat(new TextSplitter().split(123, "\nhello\n"), contains("hello"));
     }
 
-    @Test public void WindowsCR_LF() {
+    @Test public void windowsCR_LF() {
         assertThat(new TextSplitter().split(123, "\r\n"), iterableWithSize(0));
         assertThat(new TextSplitter().split(123, "\r\nhello\r\n"), contains("hello"));
         assertThat(new TextSplitter().split(123, "hello\r\nworld"), contains("hello", "world"));

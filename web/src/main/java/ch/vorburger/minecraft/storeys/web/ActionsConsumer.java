@@ -123,6 +123,7 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
             });
             conditionRegistrations.put(conditionAsText, scriptCommand);
         })) {
+            // empty if block, weird - but intentional
         } else if (runIfStartsWith(conditionAsText, "entity_interaction:", entityNameSlashInteraction -> {
             Iterator<String> parts = SLASH_SPLITTER.split(entityNameSlashInteraction).iterator();
             String entityName = parts.next();
@@ -131,12 +132,15 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
                 eventBusSender.send(new JsonObject().put("event", conditionAsText).put("playerUUID", player.getUniqueId().toString()));
             }));
         })) {
+            // empty if block, weird - but intentional
         } else if (runIfStartsWith(conditionAsText, "playerJoined", empty -> {
             // Ignore (we registered for this globally, above)
         })) {
+            // empty if block, weird - but intentional
         } else if (runIfStartsWith(conditionAsText, "player_inside", empty -> {
             // Ignore (we registered for this globally, above)
         })) {
+            // empty if block, weird - but intentional
         } else {
             LOG.error("Unknown condition: " + conditionAsText);
         }
