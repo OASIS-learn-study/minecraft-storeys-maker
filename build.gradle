@@ -10,6 +10,7 @@ buildscript {
 plugins {
     id 'checkstyle'
     id 'java-library'
+    id 'com.github.hierynomus.license' version '0.16.1'
     // id 'net.ltgt.errorprone' version '0.0.13'
 }
 
@@ -30,6 +31,7 @@ subprojects {
     apply plugin: 'checkstyle'
     apply plugin: 'java-library'
     apply plugin: 'biz.aQute.bnd.builder'
+    apply plugin: 'com.github.hierynomus.license'
     // apply plugin: 'net.ltgt.errorprone'
 
     tasks.withType(JavaCompile) {
@@ -43,6 +45,15 @@ subprojects {
         maven {
             name = 'sponge'
             url = 'https://repo.spongepowered.org/maven'
+        }
+    }
+
+    license {
+        header rootProject.file('LICENSE-HEADER')
+        strictCheck true
+        excludes(['**/*.json'])
+        mapping {
+            java='SLASHSTAR_STYLE'
         }
     }
 
