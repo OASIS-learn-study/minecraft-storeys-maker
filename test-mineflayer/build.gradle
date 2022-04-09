@@ -1,0 +1,22 @@
+plugins {
+    id "com.github.node-gradle.node" version "3.2.1"
+}
+
+node {
+    // https://github.com/srs/gradle-node-plugin/blob/master/docs/node.md#configuring-the-plugin
+    version = '16.0.0'
+    npmVersion = '7.24.0'
+    download = true
+}
+
+task npmInstallDep(type: NpmTask, dependsOn: 'npmSetup') {
+    inputs.file('package.json')
+    outputs.upToDateWhen { file('node_modules').exists() }
+
+    npmCommand = ['install']
+}
+
+task npmTest(type: NpmTask, dependsOn: 'npmInstallDep') {
+    args = ['test']
+}
+
