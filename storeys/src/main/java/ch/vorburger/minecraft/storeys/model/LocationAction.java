@@ -18,35 +18,31 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.events.LocatableInBoxCondition;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import javax.inject.Inject;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.world.Locatable;
-
-import javax.inject.Inject;
 
 public class LocationAction implements Action<Void> {
     private ConditionService conditionService;
     private String coordinates;
 
-    public LocationAction() {}
+    public LocationAction() {
+    }
 
-    @Inject
-    public LocationAction(PluginInstance plugin) {
+    @Inject public LocationAction(PluginInstance plugin) {
         conditionService = new ConditionService(plugin);
     }
 
-    @Override
-    public void setParameter(String param) {
+    @Override public void setParameter(String param) {
         this.coordinates = param;
     }
 
-    @Override
-    public CompletionStage<Void> execute(ActionContext context) {
+    @Override public CompletionStage<Void> execute(ActionContext context) {
         CompletableFuture<Void> future = new CompletableFuture<>();
         try {
             Locatable locatable = (Locatable) context.getCommandSource();
@@ -59,8 +55,7 @@ public class LocationAction implements Action<Void> {
         return future;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return getClass().getSimpleName() + ": " + coordinates;
     }
 }

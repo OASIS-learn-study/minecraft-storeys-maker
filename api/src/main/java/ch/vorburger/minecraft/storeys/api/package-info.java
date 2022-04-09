@@ -16,7 +16,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-@ModuleGen(name="Minecraft", groupPackage = "ch.vorburger.minecraft.storeys.api")
+
+/**
+ * JavaScript API of Storeys Minecraft plugin.
+ */
+@ModuleGen(name = "Minecraft", groupPackage = "ch.vorburger.minecraft.storeys.api")
 package ch.vorburger.minecraft.storeys.api;
 
 import io.vertx.codegen.annotations.ModuleGen;

@@ -73,31 +73,26 @@ public class LoginCommand implements Command {
         return defaultValue;
     }
 
-    @Override
-    public CommandCallable callable() {
-        return CommandSpec.builder()
-                .description(Text.of("Login into ScratchX web interface"))
-                .permission("storeys.command.make")
+    @Override public CommandCallable callable() {
+        return CommandSpec.builder().description(Text.of("Login into ScratchX web interface")).permission("storeys.command.make")
                 .arguments(GenericArguments.flags().permissionFlag("storeys.command.make.beta", "b").buildWith(GenericArguments.none()))
                 .executor(this).build();
     }
 
-    @Override
-    public List<String> aliases() {
+    @Override public List<String> aliases() {
         return ImmutableList.of("make", "scratch");
     }
 
-    @Override
-    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+    @Override public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         if (src instanceof Player) {
             CommandExceptions.doOrThrow("loginURL", () -> {
-                Player player = (Player)src;
+                Player player = (Player) src;
 
                 String code = tokenProvider.getCode(player);
                 String url = String.format("%s?code=%s&eventBusURL=%s#init", scratchGui, code, encodedEventBusURL);
 
-                src.sendMessage(Text.builder("Click here to open Scratch and MAKE actions").onClick(
-                        TextActions.openUrl(new URL(url))).color(TextColors.GOLD).build());
+                src.sendMessage(Text.builder("Click here to open Scratch and MAKE actions").onClick(TextActions.openUrl(new URL(url)))
+                        .color(TextColors.GOLD).build());
             });
         } else {
             src.sendMessage(Text.builder("Command source must be Player").color(TextColors.RED).build());

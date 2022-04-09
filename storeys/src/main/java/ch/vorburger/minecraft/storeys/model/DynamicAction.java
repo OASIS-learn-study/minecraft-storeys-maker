@@ -18,18 +18,15 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
+import ch.vorburger.minecraft.storeys.StoryPlayer;
+import ch.vorburger.minecraft.storeys.model.parser.StoryParser;
+import ch.vorburger.minecraft.storeys.model.parser.SyntaxErrorException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-
 import javax.inject.Inject;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
-import ch.vorburger.minecraft.storeys.StoryPlayer;
-import ch.vorburger.minecraft.storeys.model.parser.StoryParser;
-import ch.vorburger.minecraft.storeys.model.parser.SyntaxErrorException;
 
 public class DynamicAction implements Action<Void> {
     private static final String PREFIX = "var ItemTypes = Java.type('org.spongepowered.api.item.ItemTypes'); (function() {";
@@ -40,19 +37,16 @@ public class DynamicAction implements Action<Void> {
 
     private String script = "";
 
-    @Inject
-    public DynamicAction(StoryParser storyParser, StoryPlayer storyPlayer) {
+    @Inject public DynamicAction(StoryParser storyParser, StoryPlayer storyPlayer) {
         this.storyParser = storyParser;
         this.storyPlayer = storyPlayer;
     }
 
-    @Override
-    public void setParameter(String param) {
+    @Override public void setParameter(String param) {
         this.script += param;
     }
 
-    @Override
-    public CompletionStage<Void> execute(ActionContext context) {
+    @Override public CompletionStage<Void> execute(ActionContext context) {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
         ScriptEngineManager manager = new ScriptEngineManager();
@@ -71,8 +65,7 @@ public class DynamicAction implements Action<Void> {
         return future;
     }
 
-    @Override
-    public boolean add(Action<?> action) {
+    @Override public boolean add(Action<?> action) {
         if (action instanceof DynamicAction) {
             script += ((DynamicAction) action).script;
             return true;
@@ -80,8 +73,7 @@ public class DynamicAction implements Action<Void> {
         return false;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return getClass().getSimpleName() + ": " + script;
     }
 }

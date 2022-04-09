@@ -18,22 +18,19 @@
  */
 package ch.vorburger.minecraft.storeys.model.parser;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-
-import javax.inject.Inject;
-
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.NopAction;
 import ch.vorburger.minecraft.storeys.model.Story;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import javax.inject.Inject;
 
 public class StoryParser {
 
     private final CommandMapping mapping;
 
-    @Inject
-    public StoryParser(CommandMapping mapping) {
+    @Inject public StoryParser(CommandMapping mapping) {
         this.mapping = mapping;
     }
 

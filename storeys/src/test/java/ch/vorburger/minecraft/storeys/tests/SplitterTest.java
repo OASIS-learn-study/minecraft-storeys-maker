@@ -18,74 +18,63 @@
  */
 package ch.vorburger.minecraft.storeys.tests;
 
-import ch.vorburger.minecraft.storeys.TextSplitter;
-import org.junit.Test;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.iterableWithSize;
 
+import ch.vorburger.minecraft.storeys.TextSplitter;
+import org.junit.Test;
+
 public class SplitterTest {
 
-    @Test(expected = NullPointerException.class)
-    public void nulled() {
+    @Test(expected = NullPointerException.class) public void nulled() {
         new TextSplitter().split(123, null);
     }
 
-    @Test
-    public void simplest() {
+    @Test public void simplest() {
         assertThat(new TextSplitter().split(123, "hello"), contains("hello"));
     }
 
-    @Test
-    public void twoInOne() {
+    @Test public void twoInOne() {
         assertThat(new TextSplitter().split(123, "hello world"), contains("hello world"));
         assertThat(new TextSplitter().split(11, "hello world"), contains("hello world"));
     }
 
-    @Test
-    public void twoInTwo() {
+    @Test public void twoInTwo() {
         assertThat(new TextSplitter().split(5, "hello world"), contains("hello", "world"));
         assertThat(new TextSplitter().split(6, "hello world"), contains("hello", "world"));
         assertThat(new TextSplitter().split(7, "hello world"), contains("hello", "world"));
     }
 
-    @Test
-    public void threeInTwo() {
+    @Test public void threeInTwo() {
         assertThat(new TextSplitter().split(7, "hello, wor ld"), contains("hello,", "wor ld"));
     }
 
-    @Test
-    public void tooSmall() {
+    @Test public void tooSmall() {
         assertThat(new TextSplitter().split(1, "hello"), contains("hello"));
         assertThat(new TextSplitter().split(1, "hello world"), contains("hello", "world"));
     }
 
-    @Test
-    public void splitAtCR() {
+    @Test public void splitAtCR() {
         assertThat(new TextSplitter().split(123, "hello \n world"), contains("hello", "world"));
         assertThat(new TextSplitter().split(123, "hello\nworld"), contains("hello", "world"));
         assertThat(new TextSplitter().split(1, "hello there\nworld"), contains("hello", "there", "world"));
     }
 
-    @Test
-    public void multipleCR() {
+    @Test public void multipleCR() {
         assertThat(new TextSplitter().split(123, "hello\n\nworld"), contains("hello", "world"));
         assertThat(new TextSplitter().split(123, "hello\n  \nworld"), contains("hello", "world"));
     }
 
-    @Test
-    public void emptyTest() {
+    @Test public void emptyTest() {
         assertThat(new TextSplitter().split(123, ""), iterableWithSize(0));
     }
 
-    @Test
-    public void oneChar() {
+    @Test public void oneChar() {
         assertThat(new TextSplitter().split(123, "a"), contains("a"));
     }
 
-    @Test
-    public void leadingTrailingSpaces() {
+    @Test public void leadingTrailingSpaces() {
         assertThat(new TextSplitter().split(123, " "), iterableWithSize(0));
         assertThat(new TextSplitter().split(123, "  "), iterableWithSize(0));
         assertThat(new TextSplitter().split(123, " hello "), contains("hello"));
@@ -93,27 +82,23 @@ public class SplitterTest {
         assertThat(new TextSplitter().split(13, " hello   world  "), contains("hello   world"));
     }
 
-    @Test
-    public void leadingTrailingCR() {
+    @Test public void leadingTrailingCR() {
         assertThat(new TextSplitter().split(123, "\n"), iterableWithSize(0));
         assertThat(new TextSplitter().split(123, "\n\n"), iterableWithSize(0));
         assertThat(new TextSplitter().split(123, "\nhello\n"), contains("hello"));
     }
 
-    @Test
-    public void WindowsCR_LF() {
+    @Test public void windowsCR_LF() {
         assertThat(new TextSplitter().split(123, "\r\n"), iterableWithSize(0));
         assertThat(new TextSplitter().split(123, "\r\nhello\r\n"), contains("hello"));
         assertThat(new TextSplitter().split(123, "hello\r\nworld"), contains("hello", "world"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void negative() {
+    @Test(expected = IllegalArgumentException.class) public void negative() {
         new TextSplitter().split(-1, "hello");
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void zero() {
+    @Test(expected = IllegalArgumentException.class) public void zero() {
         new TextSplitter().split(0, "hello");
     }
 

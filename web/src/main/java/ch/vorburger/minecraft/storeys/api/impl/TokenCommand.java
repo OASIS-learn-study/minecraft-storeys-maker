@@ -45,29 +45,24 @@ public class TokenCommand implements Command {
         this.tokenProvider = newTokenProvider;
     }
 
-    @Override
-    public CommandCallable callable() {
-        return CommandSpec.builder()
-                .permission("storeys.token.new")
-                .description(Text.of("Obtain API token for player"))
-                .executor(this).build();
+    @Override public CommandCallable callable() {
+        return CommandSpec.builder().permission("storeys.token.new").description(Text.of("Obtain API token for player")).executor(this)
+                .build();
     }
 
-    @Override
-    public List<String> aliases() {
+    @Override public List<String> aliases() {
         return ImmutableList.of("token");
     }
 
-    @Override
-    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+    @Override public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         if (src instanceof Player) {
             CommandExceptions.doOrThrow("loginURL", () -> {
-                Player player = (Player)src;
+                Player player = (Player) src;
 
                 String token = tokenProvider.getCode(player);
 
-                src.sendMessage(Text.builder("Shift click here to insert your API Token to copy clipboard").onShiftClick(
-                        TextActions.insertText(token)).color(TextColors.GREEN).build());
+                src.sendMessage(Text.builder("Shift click here to insert your API Token to copy clipboard")
+                        .onShiftClick(TextActions.insertText(token)).color(TextColors.GREEN).build());
             });
         }
         return CommandResult.empty();

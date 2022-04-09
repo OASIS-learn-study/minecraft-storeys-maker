@@ -21,7 +21,6 @@ package study.learn.storeys.engine.places;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
-
 import study.learn.storeys.engine.Interactlet;
 import study.learn.storeys.engine.Prompter;
 
@@ -36,10 +35,10 @@ public class Place extends Interactlet {
     @Override public void interact(Prompter<Void> prompter) throws IOException {
         prompter.await(aChoice("You are in " + description + ". ", null));
         // if (!things.isEmpty()) {
-        //    "Here there is/are {things}"
+        // "Here there is/are {things}"
         // if (!nextPlaces.isEmpty() {
-        //    "From here you can go to {places}"
+        // "From here you can go to {places}"
         // else
-        //    bye("The End");
+        // bye("The End");
     }
 }

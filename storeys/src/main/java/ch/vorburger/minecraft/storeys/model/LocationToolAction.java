@@ -18,9 +18,10 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
+import static java.util.Collections.singletonList;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.HandTypes;
@@ -30,8 +31,6 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
-import static java.util.Collections.singletonList;
-
 public class LocationToolAction implements Action<Void> {
 
     private final String name;
@@ -40,23 +39,21 @@ public class LocationToolAction implements Action<Void> {
         this.name = name;
     }
 
-    @Override
-    public CompletionStage<Void> execute(ActionContext context) {
+    @Override public CompletionStage<Void> execute(ActionContext context) {
         final CommandSource source = context.getCommandSource();
         if (source instanceof Player) {
             Player player = (Player) source;
             final ItemStack itemInHand = locationEventCreateTool();
             itemInHand.offer(Keys.ITEM_LORE, singletonList(Text.of(name)));
             player.setItemInHand(HandTypes.MAIN_HAND, itemInHand);
-            //TODO translation?
+            // TODO translation?
             player.sendMessage(Text.of(TextColors.YELLOW, "use this axe to draw the the points where the player should enter"));
         }
 
         return new CompletableFuture<>();
     }
 
-    @Override
-    public void setParameter(String param) {
+    @Override public void setParameter(String param) {
     }
 
     public static ItemStack locationEventCreateTool() {

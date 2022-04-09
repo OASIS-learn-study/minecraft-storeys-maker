@@ -18,10 +18,6 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
-import ch.vorburger.minecraft.storeys.guard.GuardGameModeJoinListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -31,6 +27,8 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ZipUtility {
     private static final Logger LOG = LoggerFactory.getLogger(ZipUtility.class);
@@ -58,7 +56,8 @@ public class ZipUtility {
         temporaryFile.delete();
     }
 
-    private static void addOrReplaceEntry(File source, String entry, InputStream entryData, ZipOutputStream zipOutputStream) throws IOException {
+    private static void addOrReplaceEntry(File source, String entry, InputStream entryData, ZipOutputStream zipOutputStream)
+            throws IOException {
         writeZipEntry(zipOutputStream, entry, entryData);
 
         if (source.length() != 0) {

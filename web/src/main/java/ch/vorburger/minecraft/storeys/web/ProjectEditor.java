@@ -18,12 +18,11 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProjectEditor {
     private static final Logger LOG = LoggerFactory.getLogger(ProjectEditor.class);
@@ -49,7 +48,9 @@ public class ProjectEditor {
         return Files.exists(getBackendLocation());
     }
 
-    public boolean hasWorkingFile() { return Files.exists(getWorkingLocation()); }
+    public boolean hasWorkingFile() {
+        return Files.exists(getWorkingLocation());
+    }
 
     private void moveProject(Path source, Path destination) {
         try {

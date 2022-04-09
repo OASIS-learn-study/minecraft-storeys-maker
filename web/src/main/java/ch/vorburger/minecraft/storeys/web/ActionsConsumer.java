@@ -18,14 +18,9 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
+import static java.util.Objects.requireNonNull;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
-import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.events.EventService;
 import ch.vorburger.minecraft.storeys.events.ScriptCommand;
 import ch.vorburger.minecraft.storeys.events.Unregisterable;
@@ -34,6 +29,13 @@ import com.google.common.base.Splitter;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,11 +44,6 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Vert.x EventBus consumer handler.
@@ -67,8 +64,7 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
     private final Map<String, Unregisterable> conditionRegistrations = new ConcurrentHashMap<>();
     private final Map<String, Pair<Location<World>, Location<World>>> playerBoxLocations = new ConcurrentHashMap<>();
 
-    @Inject
-    public ActionsConsumer(PluginInstance plugin, EventService eventService, EventBusSender eventBusSender) {
+    @Inject public ActionsConsumer(PluginInstance plugin, EventService eventService, EventBusSender eventBusSender) {
         this.plugin = plugin;
         this.eventBusSender = eventBusSender;
 
@@ -76,14 +72,13 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
 
         eventService.registerPlayerJoin(event -> {
             Player player = event.getTargetEntity();
-            JsonObject message = new JsonObject().put("event", "playerJoined").put("player", player.getName())
-                    .put("playerUUID", player.getUniqueId().toString());
+            JsonObject message = new JsonObject().put("event", "playerJoined").put("player", player.getName()).put("playerUUID",
+                    player.getUniqueId().toString());
             eventBusSender.send(message);
         });
     }
 
-    @Override
-    public void handle(Message<JsonObject> message) {
+    @Override public void handle(Message<JsonObject> message) {
         LOG.info("Handling (old style) action message received on EventBus: {}", message.body().encodePrettily());
 
         JsonObject json = message.body();
@@ -91,20 +86,20 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
 
         try {
             switch (json.getString("action")) {
-            case "ping": {
-                message.reply("pong");
-                LOG.info("ping & pong ACK reply");
-                break;
-            }
-            case "registerCondition": {
-                String condition = json.getString("condition");
-                registerCondition(requireNonNull(condition, "condition"));
-                message.reply(condition);
-                break;
-            }
-            default:
-                LOG.error("Unknown action in message: " + message.body().encodePrettily());
-                break;
+                case "ping": {
+                    message.reply("pong");
+                    LOG.info("ping & pong ACK reply");
+                    break;
+                }
+                case "registerCondition": {
+                    String condition = json.getString("condition");
+                    registerCondition(requireNonNull(condition, "condition"));
+                    message.reply(condition);
+                    break;
+                }
+                default:
+                    LOG.error("Unknown action in message: " + message.body().encodePrettily());
+                    break;
             }
         } catch (Exception e) {
             // TODO make red etc. like in that command helper
@@ -127,18 +122,26 @@ public class ActionsConsumer implements Handler<Message<JsonObject>> {
                 eventBusSender.send(new JsonObject().put("event", conditionAsText).put("playerUUID", player.getUniqueId().toString()));
             });
             conditionRegistrations.put(conditionAsText, scriptCommand);
-        })) {} else if (runIfStartsWith(conditionAsText, "entity_interaction:", entityNameSlashInteraction -> {
+        })) {
+            // empty if block, weird - but intentional
+        } else if (runIfStartsWith(conditionAsText, "entity_interaction:", entityNameSlashInteraction -> {
             Iterator<String> parts = SLASH_SPLITTER.split(entityNameSlashInteraction).iterator();
             String entityName = parts.next();
             // String interaction = parts.next();
             conditionRegistrations.put(conditionAsText, eventService.registerInteractEntity(entityName, (Player player) -> {
                 eventBusSender.send(new JsonObject().put("event", conditionAsText).put("playerUUID", player.getUniqueId().toString()));
             }));
-        })) {} else if (runIfStartsWith(conditionAsText, "playerJoined", empty -> {
+        })) {
+            // empty if block, weird - but intentional
+        } else if (runIfStartsWith(conditionAsText, "playerJoined", empty -> {
             // Ignore (we registered for this globally, above)
-        })) {} else if (runIfStartsWith(conditionAsText, "player_inside", empty -> {
+        })) {
+            // empty if block, weird - but intentional
+        } else if (runIfStartsWith(conditionAsText, "player_inside", empty -> {
             // Ignore (we registered for this globally, above)
-        })) {} else {
+        })) {
+            // empty if block, weird - but intentional
+        } else {
             LOG.error("Unknown condition: " + conditionAsText);
         }
     }

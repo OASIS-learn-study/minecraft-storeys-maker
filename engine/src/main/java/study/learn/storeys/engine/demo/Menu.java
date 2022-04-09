@@ -20,7 +20,6 @@ package study.learn.storeys.engine.demo;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import study.learn.storeys.engine.Interactlet;
 import study.learn.storeys.engine.Prompter;
 
@@ -29,18 +28,24 @@ public class Menu extends Interactlet {
     @Override public void interact(Prompter<Void> prompter) throws IOException {
         AtomicBoolean quit = new AtomicBoolean(false);
         do {
-            prompter.await(aChoice("Where do you want to go today?",
-                "demo", "First Demo",
-                "monster1", "One Monster",
-                "quit", "Stop playing"))
-            .await(choice -> {
-                switch (choice) {
-                    case "demo": new Demo().interact(prompter); break;
-                    case "monster1": new Monster().interact(prompter); break;
-                    case "quit": quit.set(true);
-                }
-                return bye();
-            });
+            prompter.await(
+                    aChoice("Where do you want to go today?", "demo", "First Demo", "monster1", "One Monster", "quit", "Stop playing"))
+                    .await(choice -> {
+                        switch (choice) {
+                            case "demo":
+                                new Demo().interact(prompter);
+                                break;
+                            case "monster1":
+                                new Monster().interact(prompter);
+                                break;
+                            case "quit":
+                                quit.set(true);
+                                break;
+                            default:
+                                // ignore other choices
+                        }
+                        return bye();
+                    });
         } while (!quit.get());
     }
 }

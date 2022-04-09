@@ -18,16 +18,14 @@
  */
 package ch.vorburger.minecraft.storeys.simple.impl;
 
+import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import ch.vorburger.minecraft.storeys.simple.TokenProvider;
-import org.spongepowered.api.entity.living.player.Player;
-
 import javax.inject.Singleton;
+import org.spongepowered.api.entity.living.player.Player;
 
 /**
  * Implementation of {@link TokenProvider} API.
@@ -52,8 +50,8 @@ public class TokenProviderImpl implements TokenProvider {
 
     TokenProviderImpl(int pollInterval, TimeUnit pollIntevalUnit, long tokenValidTime) {
         this.tokenValidTime = tokenValidTime;
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
-                () -> validLogins.values().removeIf(token -> !token.isValid()), 0, pollInterval, pollIntevalUnit);
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> validLogins.values().removeIf(token -> !token.isValid()), 0,
+                pollInterval, pollIntevalUnit);
         adminLoginCode = getSystemPropertyEnvVarOrDefault("storeys_admincode", adminLoginCode);
     }
 
@@ -69,15 +67,13 @@ public class TokenProviderImpl implements TokenProvider {
         return defaultValue;
     }
 
-    @Override
-    public String getCode(Player player) {
+    @Override public String getCode(Player player) {
         String code = UUID.randomUUID().toString();
         validLogins.put(code, new Token(player.getIdentifier(), tokenValidTime));
         return code;
     }
 
-    @Override
-    public String login(String code) {
+    @Override public String login(String code) {
         if (adminLoginCode.equals(code)) {
             return "";
         }

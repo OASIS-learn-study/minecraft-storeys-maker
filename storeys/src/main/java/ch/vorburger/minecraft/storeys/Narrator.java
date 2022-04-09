@@ -29,9 +29,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
-
 import javax.inject.Inject;
-
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
@@ -48,24 +46,22 @@ public class Narrator {
 
     private final int maxLength = 20;
 
-    @Inject
-    public Narrator(PluginInstance plugin) {
+    @Inject public Narrator(PluginInstance plugin) {
         super();
         this.plugin = plugin;
     }
 
     public CompletionStage<Void> narrate(EntityUniverse entityUniverse, String entityName, String text, ReadingSpeed readingSpeed) {
-        Entity entity = namedObjects.getEntity(entityUniverse, entityName).orElseThrow(() -> new IllegalArgumentException("No entity named: " + entityName));
+        Entity entity = namedObjects.getEntity(entityUniverse, entityName)
+                .orElseThrow(() -> new IllegalArgumentException("No entity named: " + entityName));
         return narrate(entity, text, readingSpeed);
     }
 
     public CompletionStage<Void> narrate(Entity entity, String text, ReadingSpeed readingSpeed) {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
-        Task.builder()
-            .execute(new NarratorTask(entity, splitter.split(maxLength, text), future))
-            .interval(readingSpeed.msToRead(maxLength), MILLISECONDS)
-            .submit(plugin);
+        Task.builder().execute(new NarratorTask(entity, splitter.split(maxLength, text), future))
+                .interval(readingSpeed.msToRead(maxLength), MILLISECONDS).submit(plugin);
 
         return future;
     }
@@ -88,8 +84,7 @@ public class Narrator {
             originalDisplayName = entity.get(DISPLAY_NAME);
         }
 
-        @Override
-        public void accept(Task task) {
+        @Override public void accept(Task task) {
             if (splitText.hasNext()) {
                 entity.offer(DISPLAY_NAME, Text.of(splitText.next()));
             } else {

@@ -18,34 +18,31 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import ch.vorburger.minecraft.storeys.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.StoryPlayer;
 import ch.vorburger.minecraft.storeys.model.parser.ClassLoaderResourceStoryRepository;
 import ch.vorburger.minecraft.storeys.model.parser.StoryParser;
 import ch.vorburger.minecraft.storeys.model.parser.StoryParserTest;
 import ch.vorburger.minecraft.storeys.model.parser.TestPlainTextSerializer;
+import java.io.IOException;
+import java.util.concurrent.CompletionStage;
 import org.junit.Before;
 import org.junit.Test;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.type.CarriedInventory;
 
-import java.io.IOException;
-import java.util.concurrent.CompletionStage;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 public class DynamicActionTest {
-    @Before
-    public void initialize() throws Exception {
+    @Before public void initialize() throws Exception {
         TestPlainTextSerializer.inject();
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    public void execute() throws IOException {
+    @SuppressWarnings("unchecked") public void execute() throws IOException {
         // given
         StoryParser storyParser = StoryParserTest.getStoryParser();
         String storyText = new ClassLoaderResourceStoryRepository().getStoryScript("dynamic-test");

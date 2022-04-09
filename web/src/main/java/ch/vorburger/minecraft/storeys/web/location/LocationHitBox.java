@@ -19,26 +19,22 @@
 package ch.vorburger.minecraft.storeys.web.location;
 
 import com.google.common.reflect.TypeToken;
+import java.util.UUID;
 import ninja.leaping.configurate.objectmapping.Setting;
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 import org.apache.commons.lang3.tuple.Pair;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import java.util.UUID;
-
 @ConfigSerializable
 public class LocationHitBox {
     public static TypeToken<LocationHitBox> TYPE = TypeToken.of(LocationHitBox.class);
 
-    @Setting(value="player")
-    private UUID playerUUID;
+    @Setting(value = "player") private UUID playerUUID;
 
-    @Setting(value="name")
-    private String name;
+    @Setting(value = "name") private String name;
 
-    @Setting(value="hitbox")
-    private Pair<Location<World>, Location<World>> box;
+    @Setting(value = "hitbox") private Pair<Location<World>, Location<World>> box;
 
     public LocationHitBox() {
     }

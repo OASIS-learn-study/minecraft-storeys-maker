@@ -34,10 +34,7 @@ public class Story {
         return actionsList;
     }
 
-    @Override
-    public String toString() {
-        return "Story{" +
-                "actionsList=" + actionsList.stream().map(e -> e.toString() + "\n").collect(Collectors.toList()) +
-                '}';
+    @Override public String toString() {
+        return "Story{" + "actionsList=" + actionsList.stream().map(e -> e.toString() + "\n").collect(Collectors.toList()) + '}';
     }
 }

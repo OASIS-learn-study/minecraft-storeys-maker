@@ -18,13 +18,12 @@
  */
 package ch.vorburger.minecraft.storeys.events;
 
-import java.util.List;
-
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.util.Command;
 import ch.vorburger.minecraft.storeys.util.Commands;
 import ch.vorburger.minecraft.utils.CommandExceptions;
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.command.CommandException;
@@ -49,24 +48,20 @@ public class ScriptCommand implements Command, Unregisterable {
 
     private final ImmutableList<String> aliases;
 
-    @Override
-    public List<String> aliases() {
+    @Override public List<String> aliases() {
         return aliases;
     }
 
-    @Override
-    public CommandCallable callable() {
+    @Override public CommandCallable callable() {
         return CommandSpec.builder().executor(this).build();
     }
 
-    @Override
-    public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+    @Override public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         CommandExceptions.doOrThrow("Failed, due to: ", () -> callback.call((Player) src));
         return CommandResult.success();
     }
 
-    @Override
-    public void unregister() {
+    @Override public void unregister() {
         Sponge.getCommandManager().removeMapping(commandMapping);
     }
 

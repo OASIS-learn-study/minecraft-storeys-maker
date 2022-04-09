@@ -28,10 +28,11 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 public class LocationPairSerializer implements TypeSerializer<Pair<Location<World>, Location<World>>> {
-    public static TypeToken<Pair<Location<World>, Location<World>>> TYPE = new TypeToken<Pair<Location<World>, Location<World>>>(){};
+    public static TypeToken<Pair<Location<World>, Location<World>>> TYPE = new TypeToken<Pair<Location<World>, Location<World>>>() {
+    };
 
-    @Override
-    public Pair<Location<World>, Location<World>> deserialize(TypeToken<?> type, ConfigurationNode value) throws ObjectMappingException {
+    @Override public Pair<Location<World>, Location<World>> deserialize(TypeToken<?> type, ConfigurationNode value)
+            throws ObjectMappingException {
         final String worldName = value.getNode("worldName").getString();
         final int x1 = value.getNode("x1").getInt();
         final int y1 = value.getNode("y1").getInt();
@@ -47,8 +48,8 @@ public class LocationPairSerializer implements TypeSerializer<Pair<Location<Worl
         return Pair.of(point1, point2);
     }
 
-    @Override
-    public void serialize(TypeToken<?> type, Pair<Location<World>, Location<World>> obj, ConfigurationNode value) throws ObjectMappingException {
+    @Override public void serialize(TypeToken<?> type, Pair<Location<World>, Location<World>> obj, ConfigurationNode value)
+            throws ObjectMappingException {
         value.getNode("x1").setValue(obj.getLeft().getBlockX());
         value.getNode("y1").setValue(obj.getLeft().getBlockY());
         value.getNode("z1").setValue(obj.getLeft().getBlockZ());

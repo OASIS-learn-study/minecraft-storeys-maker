@@ -18,16 +18,16 @@
  */
 package ch.vorburger.minecraft.storeys;
 
-import java.util.concurrent.CompletionStage;
-
 import ch.vorburger.minecraft.storeys.model.Action;
 import ch.vorburger.minecraft.storeys.model.ActionContext;
 import ch.vorburger.minecraft.storeys.model.Story;
+import java.util.concurrent.CompletionStage;
 
 public class StoryPlayer {
 
     public CompletionStage<?> play(ActionContext context, Story story) {
-        // TODO This must most probably run in an async (!) Task, similar to Narrator - or does it not (because Actions are already async) ?
+        // TODO This must most probably run in an async (!) Task, similar to Narrator - or does it not (because Actions are
+        // already async) ?
         CompletionStage<?> previousCompletionStage = null;
         for (Action<?> action : story.getActionsList()) {
             if (previousCompletionStage != null) {

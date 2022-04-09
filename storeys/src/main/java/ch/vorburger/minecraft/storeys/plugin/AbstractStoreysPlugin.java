@@ -18,10 +18,6 @@
  */
 package ch.vorburger.minecraft.storeys.plugin;
 
-import java.nio.file.Path;
-
-import javax.inject.Inject;
-
 import ch.vorburger.minecraft.osgi.api.AbstractPlugin;
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.commands.NarrateCommand;
@@ -29,6 +25,8 @@ import ch.vorburger.minecraft.storeys.commands.StoryCommand;
 import ch.vorburger.minecraft.storeys.guard.GuardGameModeJoinListener;
 import ch.vorburger.minecraft.storeys.util.Commands;
 import com.google.inject.Injector;
+import java.nio.file.Path;
+import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.command.CommandManager;
@@ -46,23 +44,18 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractStoreysPlugin.class);
 
     @Inject
-    @ConfigDir(sharedRoot = false)
-    private Path configDir;
+    @ConfigDir(sharedRoot = false) private Path configDir;
 
-    @Inject
-    protected Injector pluginInjector;
+    @Inject protected Injector pluginInjector;
 
-    @Inject
-    private EventManager eventManager;
+    @Inject private EventManager eventManager;
 
-    @Inject
-    private CommandManager commandManager;
+    @Inject private CommandManager commandManager;
 
     private CommandMapping narrateCommandMapping;
     private CommandMapping storyCommandMapping;
 
-    @Listener
-    public void onGameStartingServer(GameStartingServerEvent event) throws Exception {
+    @Listener public void onGameStartingServer(GameStartingServerEvent event) throws Exception {
         LOG.info("See https://github.com/vorburger/minecraft-storeys-maker for how to use /story and /narrate commands");
         start(this, this.configDir);
     }
@@ -78,8 +71,7 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
         narrateCommandMapping = Commands.register(plugin, pluginInjector.getInstance(NarrateCommand.class));
     }
 
-    @Listener
-    public void onGameStoppingServer(GameStoppingServerEvent event) throws Exception {
+    @Listener public void onGameStoppingServer(GameStoppingServerEvent event) throws Exception {
         stop();
     }
 

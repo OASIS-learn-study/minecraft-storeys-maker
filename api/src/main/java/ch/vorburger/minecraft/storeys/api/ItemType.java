@@ -47,15 +47,13 @@ public enum ItemType implements SpongeCataloged<Optional<org.spongepowered.api.i
      */
     Nothing,
 
-    Apple(APPLE), Beef(BEEF), Beetroot(BEETROOT), Boat(BOAT), Book(BOOK), Bow(BOW), Bowl(BOWL), Bread(BREAD),
-    Cactus(CACTUS), Cake(CAKE), Carrot(CARROT), Cauldron(CAULDRON), Chicken(CHICKEN), Clock(CLOCK),
-    Cookie(COOKIE),
+    Apple(APPLE), Beef(BEEF), Beetroot(BEETROOT), Boat(BOAT), Book(BOOK), Bow(BOW), Bowl(BOWL), Bread(BREAD), Cactus(CACTUS), Cake(CAKE),
+    Carrot(CARROT), Cauldron(CAULDRON), Chicken(CHICKEN), Clock(CLOCK), Cookie(COOKIE),
 
     /**
      * Holding none of the known previously listed items in hand.
      */
     Unknown;
-
 
     private final Optional<org.spongepowered.api.item.ItemType> itemType;
     private static Map<org.spongepowered.api.item.ItemType, ItemType> INVERSE;
@@ -68,8 +66,7 @@ public enum ItemType implements SpongeCataloged<Optional<org.spongepowered.api.i
         this.itemType = Optional.empty();
     }
 
-    @Override
-    public Optional<org.spongepowered.api.item.ItemType> getCatalogType() {
+    @Override public Optional<org.spongepowered.api.item.ItemType> getCatalogType() {
         return itemType;
     }
 

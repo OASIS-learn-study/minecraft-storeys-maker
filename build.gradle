@@ -8,6 +8,7 @@ buildscript {
 }
 
 plugins {
+    id 'checkstyle'
     id 'java-library'
     id 'com.github.hierynomus.license' version '0.16.1'
     // id 'net.ltgt.errorprone' version '0.0.13'
@@ -21,8 +22,16 @@ allprojects  {
     group = 'ch.vorburger.minecraft.storeys'
     version = '1.0.0-SNAPSHOT'
     description = 'Make your own stories in, with and for Minecraft!'
+}
 
+subprojects {
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    apply plugin: 'checkstyle'
     apply plugin: 'java-library'
+    apply plugin: 'biz.aQute.bnd.builder'
+    apply plugin: 'com.github.hierynomus.license'
     // apply plugin: 'net.ltgt.errorprone'
 
     tasks.withType(JavaCompile) {
@@ -30,14 +39,6 @@ allprojects  {
       // TODO apply same error-prone configuration as I've done in OpenDaylight's infrautils.parent
       // options.compilerArgs += [ '-Xlint:deprecation', '-Xep:FallThrough:ERROR', '-Xep:MutableConstantField:ERROR', '-Xep:DefaultCharset:ERROR' ]
     }
-}
-
-subprojects {
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
-
-    apply plugin: 'com.github.hierynomus.license'
-    apply plugin: 'biz.aQute.bnd.builder'
 
     repositories {
         jcenter()
@@ -57,6 +58,8 @@ subprojects {
     }
 
     dependencies {
+        checkstyle 'com.puppycrawl.tools:checkstyle:10.1'
+
         // errorprone 'com.google.errorprone:error_prone_core:2.3.1'
         // implementation 'com.google.errorprone:error_prone_annotations:2.3.1'
 
