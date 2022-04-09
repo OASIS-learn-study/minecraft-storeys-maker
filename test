@@ -12,6 +12,8 @@ podman run -it --rm --name storeys \
 # TODO for PR #348 with mineflayer: -e ONLINE_MODE=FALSE \
 # BUT this requires LuckPerms integration first (because OPS won't work anymore, nor Mineflayer)
 
+#run the tests
+./gradlew test-mineflayer:npmTest
 # The `OPS` with your Minecraft ID is required because the command requires permission;
 # alternatively [use permissions](https://github.com/OASIS-learn-study/minecraft-storeys-maker/issues/276).
 
