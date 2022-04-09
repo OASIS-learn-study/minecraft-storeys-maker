@@ -19,7 +19,6 @@
 package study.learn.storeys.engine;
 
 import java.io.IOException;
-
 import study.learn.storeys.engine.util.CheckedFunction;
 
 public interface Prompter<T> {

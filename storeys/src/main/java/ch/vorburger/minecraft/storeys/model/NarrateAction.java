@@ -21,12 +21,10 @@ package ch.vorburger.minecraft.storeys.model;
 import static java.util.Objects.requireNonNull;
 
 import ch.vorburger.minecraft.storeys.Narrator;
-
 import java.util.concurrent.CompletionStage;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
-
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Locatable;
 import org.spongepowered.api.world.World;
@@ -37,8 +35,7 @@ public class NarrateAction extends TextAction<Void> {
 
     private String entityName;
 
-    @Inject
-    public NarrateAction(Narrator narrator) {
+    @Inject public NarrateAction(Narrator narrator) {
         this.narrator = narrator;
     }
 
@@ -47,8 +44,7 @@ public class NarrateAction extends TextAction<Void> {
         return this;
     }
 
-    @Override
-    public void setParameter(String param) {
+    @Override public void setParameter(String param) {
         Matcher matcher = ENTITY_NAME_PATTERN.matcher(param);
         if (matcher.find()) {
             entityName = matcher.group(1);
@@ -57,16 +53,14 @@ public class NarrateAction extends TextAction<Void> {
         super.setParameter(param);
     }
 
-    @Override
-    public CompletionStage<Void> execute(ActionContext context) {
+    @Override public CompletionStage<Void> execute(ActionContext context) {
         Locatable locatable = (Locatable) context.getCommandSource();
         World world = locatable.getWorld();
 
         return narrator.narrate(world, requireNonNull(entityName, "entityName"), getText().toPlain(), context.getReadingSpeed());
     }
 
-    @Override
-    public boolean add(Action<?> action) {
+    @Override public boolean add(Action<?> action) {
         if (action instanceof TextAction) {
             this.setText(getText().concat(Text.NEW_LINE).concat(((TextAction<?>) action).getText()));
             return true;
@@ -78,8 +72,7 @@ public class NarrateAction extends TextAction<Void> {
         return entityName;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return "\"" + super.toString() + "\" says: " + entityName;
     }
 }

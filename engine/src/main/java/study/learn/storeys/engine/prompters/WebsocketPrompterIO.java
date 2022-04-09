@@ -21,10 +21,8 @@ package study.learn.storeys.engine.prompters;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
-
 import study.learn.storeys.engine.Text;
 
 public class WebsocketPrompterIO implements SimplePrompterIO {
@@ -39,8 +37,7 @@ public class WebsocketPrompterIO implements SimplePrompterIO {
         this.session = session;
     }
 
-    @Override
-    public String readLine(String prompt, List<Text> choices) throws IOException {
+    @Override public String readLine(String prompt, List<Text> choices) throws IOException {
         RemoteEndpoint.Async remote = session.getAsyncRemote();
         remote.sendText(prompt);
 
@@ -66,10 +63,8 @@ public class WebsocketPrompterIO implements SimplePrompterIO {
         return answer;
     }
 
-    @Override
-    public void writeLine(String info) throws IOException {
+    @Override public void writeLine(String info) throws IOException {
         session.getAsyncRemote().sendText(info);
     }
 
 }
-

@@ -20,12 +20,10 @@ package study.learn.storeys.engine.prompters;
 
 import java.io.IOException;
 import java.util.List;
-
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
-
 import study.learn.storeys.engine.Text;
 
 public class JLineIO implements SimplePrompterIO {
@@ -40,24 +38,22 @@ public class JLineIO implements SimplePrompterIO {
         this(TerminalBuilder.builder().system(true).build());
     }
 
-	public JLineIO(Terminal terminal) {
+    public JLineIO(Terminal terminal) {
         // this.terminal = terminal;
         this.lineReader = LineReaderBuilder.builder().terminal(terminal).appName("The Game!").build();
     }
 
-	@Override
-	public String readLine(String prompt, List<Text> choices) throws IOException {
+    @Override public String readLine(String prompt, List<Text> choices) throws IOException {
         // TODO make this a "menu" with Cursor up/down... that was kind of the whole point
         for (int i = 0; i < choices.size(); i++) {
             lineReader.printAbove("    " + (i + 1) + ": " + choices.get(i).getString());
         }
-		return lineReader.readLine(prompt + " ");
-	}
+        return lineReader.readLine(prompt + " ");
+    }
 
-	@Override
-	public void writeLine(String info) throws IOException {
+    @Override public void writeLine(String info) throws IOException {
         lineReader.getTerminal().writer().println(info);
         // It's important to flush now, because this may happen at the very end
         lineReader.getTerminal().writer().flush();
-	}
+    }
 }

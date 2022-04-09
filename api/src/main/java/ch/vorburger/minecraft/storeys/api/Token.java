@@ -23,7 +23,6 @@ import io.vertx.core.json.JsonObject;
 
 /**
  * Token for an operation on the {@link Minecraft} simple API.
- *
  * This identifies either a logged in Player or a "cause".
  */
 @DataObject(generateConverter = true)
@@ -69,17 +68,15 @@ public class Token {
         this.playerSource = playerSource;
     }
 
-    @Override
-    public int hashCode() {
+    @Override public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (loginCode == null ? 0 : loginCode.hashCode());
-        result = prime * result + (playerSource == null ? 0 : playerSource.hashCode());
+        result = (prime * result) + (loginCode == null ? 0 : loginCode.hashCode());
+        result = (prime * result) + (playerSource == null ? 0 : playerSource.hashCode());
         return result;
     }
 
-    @Override
-    public boolean equals(Object obj) {
+    @Override public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
@@ -107,8 +104,7 @@ public class Token {
         return true;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return "Token [loginCode=" + loginCode + ", playerSource=" + playerSource + "]";
     }
 

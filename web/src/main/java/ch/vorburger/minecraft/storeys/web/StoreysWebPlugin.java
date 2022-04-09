@@ -27,15 +27,15 @@ import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.simple.impl.TokenProviderImpl;
 import ch.vorburger.minecraft.storeys.util.Commands;
-import com.google.common.reflect.TypeToken;
 import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
-import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.ConfigurationOptions;
+import java.nio.file.Path;
+import java.util.concurrent.ExecutionException;
+import javax.inject.Inject;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.slf4j.Logger;
@@ -45,14 +45,7 @@ import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.plugin.Plugin;
 
-import javax.inject.Inject;
-import java.nio.file.Path;
-import java.util.concurrent.ExecutionException;
-
-@Plugin(id = "storeys-web", name = "Vorburger.ch's Storeys with Web API", version = "1.0",
-    description = "Makes entities narrate story lines so you can make your own movie in Minecraft",
-    url = "https://github.com/vorburger/minecraft-storeys-maker",
-    authors = "Michael Vorburger.ch")
+@Plugin(id = "storeys-web", name = "Vorburger.ch's Storeys with Web API", version = "1.0", description = "Makes entities narrate story lines so you can make your own movie in Minecraft", url = "https://github.com/vorburger/minecraft-storeys-maker", authors = "Michael Vorburger.ch")
 public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners {
     // do not extend StoreysPlugin, because we exclude that class in shadowJar
 
@@ -65,22 +58,22 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
     private CommandMapping tokenCommandMapping;
 
     @Inject
-    @DefaultConfig(sharedRoot = true)
-    private ConfigurationLoader<CommentedConfigurationNode> configurationLoader;
+    @DefaultConfig(sharedRoot = true) private ConfigurationLoader<CommentedConfigurationNode> configurationLoader;
 
-    @Override
-    public void start(PluginInstance plugin, Path configDir) throws Exception {
+    @Override public void start(PluginInstance plugin, Path configDir) throws Exception {
         super.start(plugin, configDir);
 
         Injector injector = pluginInjector.createChildInjector(binder -> {
             binder.bind(TokenProvider.class).to(TokenProviderImpl.class);
             binder.bind(Minecraft.class).to(MinecraftImpl.class);
             binder.bind(EventBusSender.class).to(MinecraftVerticle.class);
-            binder.bind(new TypeLiteral<Handler<Message<JsonObject>>>(){}).to(ActionsConsumer.class);
+            binder.bind(new TypeLiteral<Handler<Message<JsonObject>>>() {
+            }).to(ActionsConsumer.class);
             // TODO read from some configuration
             binder.bind(Integer.class).annotatedWith(Names.named("http-port")).toInstance(8080);
             binder.bind(Integer.class).annotatedWith(Names.named("web-http-port")).toInstance(7070);
-            binder.bind(new TypeLiteral<ConfigurationLoader<CommentedConfigurationNode>>(){}).toInstance(configurationLoader);
+            binder.bind(new TypeLiteral<ConfigurationLoader<CommentedConfigurationNode>>() {
+            }).toInstance(configurationLoader);
             binder.bind(LocationToolListener.class);
         });
         actionsConsumer = injector.getInstance(ActionsConsumer.class);
@@ -98,21 +91,21 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
                 vertxStarter.deployVerticle(minecraftVerticle).toCompletableFuture().get();
                 vertxStarter.deployVerticle(staticWebServerVerticle).toCompletableFuture().get();
 
-            } catch (ExecutionException  | InterruptedException e) {
+            } catch (ExecutionException | InterruptedException e) {
                 throw new IllegalStateException("Vert.x start-up failed", e);
             }
 
             new NodeStarter(configDir, plugin).start();
         } catch (RuntimeException e) {
             // If something went wrong during the Vert.x set up, we must unregister the commands registered in super.start()
-            // so that, under OSGi, we'll manage to cleanly restart when whatever problem caused the start up to fail is fixed again.
+            // so that, under OSGi, we'll manage to cleanly restart when whatever problem caused the start up to fail is fixed
+            // again.
             super.stop();
             throw e;
         }
     }
 
-    @Override
-    public void stop() throws Exception {
+    @Override public void stop() throws Exception {
         if (loginCommandMapping != null) {
             Sponge.getCommandManager().removeMapping(loginCommandMapping);
         }

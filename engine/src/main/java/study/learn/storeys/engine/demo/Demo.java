@@ -19,7 +19,6 @@
 package study.learn.storeys.engine.demo;
 
 import java.io.IOException;
-
 import study.learn.storeys.engine.Interactlet;
 import study.learn.storeys.engine.Prompter;
 
@@ -27,21 +26,18 @@ public class Demo extends Interactlet {
 
     @Override public void interact(Prompter<Void> prompter) throws IOException {
         prompter.await(aString("Hi there!  What's your name?"))
-            .await(name -> aChoice("hello, " + name + ".  What's your favourite colour?",
-                "green", "Green, like Nature",
-                "yellow", "Yellow, like a Sunflower",
-                "blue", "Blue, like the Sky"))
-            .await(choice -> anInt("All right - " + choice + " is a nice choice!  Tell me, how old are you?"))
-            .await(age -> {
-                if (age < 0) {
-                    return bye("What now?! ;) Bye, negative age guy.");
-                } else if (age < 12) {
-                    return bye("Hello kiddo!  See you later, alligator.");
-                } else if (age < 20) {
-                    return bye("Nice to meet you, " + age + " year old.  Bye now.");
-                } else {
-                    return bye("See you around, adult.");
-                }
-            });
+                .await(name -> aChoice("hello, " + name + ".  What's your favourite colour?", "green", "Green, like Nature", "yellow",
+                        "Yellow, like a Sunflower", "blue", "Blue, like the Sky"))
+                .await(choice -> anInt("All right - " + choice + " is a nice choice!  Tell me, how old are you?")).await(age -> {
+                    if (age < 0) {
+                        return bye("What now?! ;) Bye, negative age guy.");
+                    } else if (age < 12) {
+                        return bye("Hello kiddo!  See you later, alligator.");
+                    } else if (age < 20) {
+                        return bye("Nice to meet you, " + age + " year old.  Bye now.");
+                    } else {
+                        return bye("See you around, adult.");
+                    }
+                });
     }
 }

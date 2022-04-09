@@ -40,8 +40,7 @@ public final class ActionContext {
         return readingSpeed;
     }
 
-    @Override
-    public int hashCode() {
+    @Override public int hashCode() {
         final int prime = 31;
         int result = 1;
         result = prime * result + (commandSource == null ? 0 : commandSource.hashCode());
@@ -49,8 +48,7 @@ public final class ActionContext {
         return result;
     }
 
-    @Override
-    public boolean equals(Object obj) {
+    @Override public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
@@ -78,8 +76,7 @@ public final class ActionContext {
         return true;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return "ActionContext[commandSource=" + commandSource + ", readingSpeed=" + readingSpeed + "]";
     }
 

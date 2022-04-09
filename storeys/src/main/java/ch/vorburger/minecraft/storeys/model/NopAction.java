@@ -25,22 +25,18 @@ import java.util.concurrent.CompletionStage;
  * Action that does nothing e.g. No Operation Action.
  */
 public class NopAction implements Action<Void> {
-    @Override
-    public CompletionStage<Void> execute(ActionContext context) {
+    @Override public CompletionStage<Void> execute(ActionContext context) {
         return CompletableFuture.completedFuture(null);
     }
 
-    @Override
-    public void setParameter(String param) {
+    @Override public void setParameter(String param) {
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return getClass().getSimpleName();
     }
 
-    @Override
-    public boolean equals(Object obj) {
+    @Override public boolean equals(Object obj) {
         return this.getClass().equals(obj.getClass());
     }
 }

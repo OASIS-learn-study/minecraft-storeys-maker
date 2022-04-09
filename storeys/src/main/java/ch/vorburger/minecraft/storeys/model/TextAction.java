@@ -38,8 +38,7 @@ public abstract class TextAction<T> implements Action<T> {
         return this;
     }
 
-    @Override
-    public void setParameter(String param) {
+    @Override public void setParameter(String param) {
         if (text == null) {
             text = Text.of(param);
         } else {
@@ -47,8 +46,7 @@ public abstract class TextAction<T> implements Action<T> {
         }
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return getClass().getSimpleName() + ": " + (text != null ? text.toString() : "null");
     }
 

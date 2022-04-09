@@ -18,8 +18,6 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
-import ch.vorburger.minecraft.storeys.model.parser.SyntaxErrorException;
-
 import java.util.concurrent.CompletionStage;
 import javax.annotation.CheckReturnValue;
 
@@ -28,8 +26,7 @@ public interface Action<T> {
     // TODO throws ActionException or return list of ActionValidationViolation-s?
     // void validate();
 
-    @CheckReturnValue
-    CompletionStage<T> execute(ActionContext context);
+    @CheckReturnValue CompletionStage<T> execute(ActionContext context);
 
     void setParameter(String param);
 

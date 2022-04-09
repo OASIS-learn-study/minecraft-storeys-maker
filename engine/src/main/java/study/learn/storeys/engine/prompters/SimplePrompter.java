@@ -21,7 +21,6 @@ package study.learn.storeys.engine.prompters;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-
 import study.learn.storeys.engine.Prompt;
 import study.learn.storeys.engine.Prompter;
 import study.learn.storeys.engine.util.CheckedFunction;
@@ -44,8 +43,7 @@ public class SimplePrompter<T> implements Prompter<T> {
         return io;
     }
 
-    @Override
-    public <X> Prompter<X> await(Prompt<X> prompt) throws IOException {
+    @Override public <X> Prompter<X> await(Prompt<X> prompt) throws IOException {
         Class<?> expectedType = prompt.getType();
         String promptText = prompt.getPrefix().getString();
         if (expectedType.equals(Void.TYPE)) {

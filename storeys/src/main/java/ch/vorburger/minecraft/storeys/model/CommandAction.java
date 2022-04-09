@@ -18,29 +18,26 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
-import javax.inject.Inject;
+import static java.util.Objects.requireNonNull;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
-import ch.vorburger.minecraft.storeys.model.parser.SyntaxErrorException;
+import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.scheduler.Scheduler;
 
-import static java.util.Objects.requireNonNull;
-
 public class CommandAction extends MainThreadAction<CommandResult> {
 
     private static final Logger LOG = LoggerFactory.getLogger(CommandAction.class);
 
     // TODO It would be good if there was a way to know when a /command was "done" ..
-    //   to be able to make this an asynchronous Action returning a CompletionStage - but how?
+    // to be able to make this an asynchronous Action returning a CompletionStage - but how?
 
     private String commandLineWithoutSlash;
 
-    @Inject
-    public CommandAction(PluginInstance plugin, Scheduler scheduler) {
+    @Inject public CommandAction(PluginInstance plugin, Scheduler scheduler) {
         super(plugin, scheduler);
     }
 
@@ -52,20 +49,18 @@ public class CommandAction extends MainThreadAction<CommandResult> {
         return this;
     }
 
-    @Override
-    public void setParameter(String param) {
+    @Override public void setParameter(String param) {
         commandLineWithoutSlash = param;
     }
 
-    @Override
-    protected CommandResult executeInMainThread(ActionContext context) throws ActionException {
-        CommandResult result = Sponge.getCommandManager().process(context.getCommandSource(), requireNonNull(commandLineWithoutSlash, "commandLineWithoutSlash"));
+    @Override protected CommandResult executeInMainThread(ActionContext context) throws ActionException {
+        CommandResult result = Sponge.getCommandManager().process(context.getCommandSource(),
+                requireNonNull(commandLineWithoutSlash, "commandLineWithoutSlash"));
         LOG.info("processed command /{} from source {} with result {}", commandLineWithoutSlash, context.getCommandSource(), result);
         return result;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return getClass().getSimpleName() + ": " + (commandLineWithoutSlash != null ? ("/" + commandLineWithoutSlash) : "null");
     }
 }

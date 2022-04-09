@@ -21,9 +21,7 @@ package study.learn.storeys.engine.test;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-
 import org.junit.Test;
-
 import study.learn.storeys.engine.Interactlet;
 import study.learn.storeys.engine.Prompter;
 import study.learn.storeys.engine.prompters.SimplePrompter;
@@ -35,8 +33,7 @@ public class EngineTest {
 
     class EchoInteractlet extends Interactlet {
         @Override public void interact(Prompter<Void> prompter) throws IOException {
-            prompter.await(aString("Say something, I'll echo it:"))
-                .await(reply -> bye(reply));
+            prompter.await(aString("Say something, I'll echo it:")).await(reply -> bye(reply));
         }
     }
 

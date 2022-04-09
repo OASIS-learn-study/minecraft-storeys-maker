@@ -18,16 +18,15 @@
  */
 package ch.vorburger.minecraft.storeys.events;
 
+import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
+import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.EventManager;
@@ -37,8 +36,6 @@ import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
 import org.spongepowered.api.text.Text;
 
-import javax.inject.Inject;
-
 public class EventService implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(EventService.class);
@@ -46,15 +43,14 @@ public class EventService implements AutoCloseable {
     private final AtomicReference<Consumer<Join>> onPlayerJoinCallback = new AtomicReference<>();
     private final Map<String, Callback> onInteractEntityEventCallbacks = new ConcurrentHashMap<>();
 
-    @Inject
-    public EventService(PluginInstance plugin, EventManager eventManager) {
-        // TODO Other Event registrations should later go up into AbstractStoreysPlugin so that Script can have Event triggers as well, but for now:
+    @Inject public EventService(PluginInstance plugin, EventManager eventManager) {
+        // TODO Other Event registrations should later go up into AbstractStoreysPlugin so that Script can have Event triggers
+        // as well, but for now:
         eventManager.registerListeners(plugin, this);
         // InteractItemEvent ?
     }
 
-    @Override
-    public void close() throws Exception {
+    @Override public void close() throws Exception {
     }
 
     public void registerPlayerJoin(Consumer<Join> callback) {
@@ -63,8 +59,7 @@ public class EventService implements AutoCloseable {
         }
     }
 
-    @Listener
-    public void onPlayerJoin(Join event) throws Exception {
+    @Listener public void onPlayerJoin(Join event) throws Exception {
         Consumer<Join> callback = onPlayerJoinCallback.get();
         if (callback != null) {
             callback.accept(event);
@@ -76,13 +71,13 @@ public class EventService implements AutoCloseable {
         return () -> onInteractEntityEventCallbacks.remove(entityName);
     }
 
-    @Listener
-    public void onInteractEntityEvent(InteractEntityEvent event) {
+    @Listener public void onInteractEntityEvent(InteractEntityEvent event) {
         // TODO This is bad, it means that entities are only recognized by name if they are not narrating..
         Optional<Text> optEntityNameText = event.getTargetEntity().get(Keys.DISPLAY_NAME);
         LOG.debug("InteractEntityEvent: entityName={}; event={}", optEntityNameText, event);
         optEntityNameText.ifPresent(entityNameText -> {
-            Callback callback = onInteractEntityEventCallbacks.getOrDefault(entityNameText.toPlain(), (Player player) -> {});
+            Callback callback = onInteractEntityEventCallbacks.getOrDefault(entityNameText.toPlain(), (Player player) -> {
+            });
             if (callback != null) {
                 try {
                     callback.call(event.getCause().last(Player.class).orElse(null));
@@ -94,21 +89,19 @@ public class EventService implements AutoCloseable {
         });
     }
 
-    @Listener
-    public void onChangeInventoryHeldEvent(ChangeInventoryEvent.Held event) {
-/*
-        LOG.info("onChangeInventory event={}", event);
-        LOG.info("onChangeInventory event={}", event.getTargetInventory().first().toString());
-
-        Optional<Player> optPlayer = event.getCause().first(Player.class);
-        optPlayer.ifPresent(player -> {
-            // TODO https://github.com/vorburger/minecraft-storeys-maker/issues/34: Only get() ifPresent()
-            LOG.info("onChangeInventory item.id={}", player.getItemInHand(HandTypes.MAIN_HAND).get().getItem().getId());
-            LOG.info("onChangeInventory item.name={}", player.getItemInHand(HandTypes.MAIN_HAND).get().getItem().getName());
-            LOG.info("onChangeInventory item.type.id={}", player.getItemInHand(HandTypes.MAIN_HAND).get().getItem().getType().getId());
-            LOG.info("onChangeInventory item.type.name={}", player.getItemInHand(HandTypes.MAIN_HAND).get().getItem().getType().getName());
-        });
-*/
+    @Listener public void onChangeInventoryHeldEvent(ChangeInventoryEvent.Held event) {
+        /* LOG.info("onChangeInventory event={}", event);
+         * LOG.info("onChangeInventory event={}", event.getTargetInventory().first().toString());
+         * Optional<Player> optPlayer = event.getCause().first(Player.class);
+         * optPlayer.ifPresent(player -> {
+         * // TODO https://github.com/vorburger/minecraft-storeys-maker/issues/34: Only get() ifPresent()
+         * LOG.info("onChangeInventory item.id={}", player.getItemInHand(HandTypes.MAIN_HAND).get().getItem().getId());
+         * LOG.info("onChangeInventory item.name={}", player.getItemInHand(HandTypes.MAIN_HAND).get().getItem().getName());
+         * LOG.info("onChangeInventory item.type.id={}",
+         * player.getItemInHand(HandTypes.MAIN_HAND).get().getItem().getType().getId());
+         * LOG.info("onChangeInventory item.type.name={}",
+         * player.getItemInHand(HandTypes.MAIN_HAND).get().getItem().getType().getName());
+         * }); */
     }
 
 }

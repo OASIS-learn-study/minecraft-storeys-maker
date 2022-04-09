@@ -25,15 +25,13 @@ public enum HandType implements SpongeCataloged<org.spongepowered.api.data.type.
 
     MainHand(MAIN_HAND), OffHand(OFF_HAND);
 
-
     private final org.spongepowered.api.data.type.HandType handType;
 
     HandType(org.spongepowered.api.data.type.HandType handType) {
         this.handType = handType;
     }
 
-    @Override
-    public org.spongepowered.api.data.type.HandType getCatalogType() {
+    @Override public org.spongepowered.api.data.type.HandType getCatalogType() {
         return handType;
     }
 

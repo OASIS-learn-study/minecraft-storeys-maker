@@ -35,9 +35,7 @@ import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
-
 import javax.inject.Inject;
-
 import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -54,8 +52,7 @@ public class StoryCommand implements Command {
     private final StoryParser storyParser;
     private final StoryPlayer storyPlayer;
 
-    @Inject
-    public StoryCommand(Path configDir, StoryParser storyParser, StoryPlayer storyPlayer) {
+    @Inject public StoryCommand(Path configDir, StoryParser storyParser, StoryPlayer storyPlayer) {
         File storiesDir = new File(configDir.toFile(), "stories");
         if (!storiesDir.exists()) {
             storiesDir.mkdirs();
@@ -65,23 +62,18 @@ public class StoryCommand implements Command {
         this.storyPlayer = storyPlayer;
     }
 
-    @Override
-    public List<String> aliases() {
+    @Override public List<String> aliases() {
         return ImmutableList.of("story");
     }
 
-    @Override
-    public CommandCallable callable() {
-        return CommandSpec.builder()
-            .description(of("Tell a story"))
-            // .permission("storeys.commands.story") ?
-            .arguments(
-                onlyOne(string(ARG_STORY)) // TODO requiringPermission()
-            ).executor(this).build();
+    @Override public CommandCallable callable() {
+        return CommandSpec.builder().description(of("Tell a story"))
+                // .permission("storeys.commands.story") ?
+                .arguments(onlyOne(string(ARG_STORY)) // TODO requiringPermission()
+                ).executor(this).build();
     }
 
-    @Override
-    public CommandResult execute(CommandSource commandSource, CommandContext commandContext) throws CommandException {
+    @Override public CommandResult execute(CommandSource commandSource, CommandContext commandContext) throws CommandException {
         String storyName = commandContext.<String>getOne(ARG_STORY).get();
 
         CommandExceptions.doOrThrow("Failed to load & play '" + storyName + "' story, due to: ", () -> {

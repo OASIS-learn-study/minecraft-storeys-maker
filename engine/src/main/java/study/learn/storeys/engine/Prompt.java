@@ -26,8 +26,11 @@ import java.util.List;
 public abstract class Prompt<T> {
 
     abstract public Text getPrefix();
+
     abstract public List<String> getChoiceIDs();
+
     abstract public List<Text> getChoiceLabels();
+
     abstract public Class<?> getType();
 
     static Prompt<String> aString(String prefix) {
@@ -38,9 +41,9 @@ public abstract class Prompt<T> {
         return new Impl<>(prefix, Integer.class);
     }
 
-	static Prompt<String> aChoice(String prefix, List<String> choiceIDAndLabels) {
+    static Prompt<String> aChoice(String prefix, List<String> choiceIDAndLabels) {
         return new Impl<>(prefix, choiceIDAndLabels, List.class);
-	}
+    }
 
     static Prompt<Void> bye(String prefix) {
         return new Impl<>(prefix, Void.TYPE);
@@ -52,8 +55,8 @@ public abstract class Prompt<T> {
 
     private static class Impl<T> extends Prompt<T> {
         private final Text prefix;
-		private List<String> choiceIDs;
-		private List<Text> choiceLabels;
+        private List<String> choiceIDs;
+        private List<Text> choiceLabels;
         private final Class<?> type;
 
         Impl(String prefix, Class<?> type) {
@@ -72,32 +75,27 @@ public abstract class Prompt<T> {
                 this.choiceLabels.add(Text.ofString(choiceIDAndLabel.next()));
             }
         }
-/*
-        Impl(Text prefix, List<String> choiceIDs, List<Text> choiceLabels, Class<?> type) {
-            this.prefix = prefix;
-            this.choiceIDs = choiceIDs;
-            this.choiceLabels = choiceLabels;
-            this.type = type;
-        }
-*/
-		@Override
-        public Text getPrefix() {
+
+        /* Impl(Text prefix, List<String> choiceIDs, List<Text> choiceLabels, Class<?> type) {
+         * this.prefix = prefix;
+         * this.choiceIDs = choiceIDs;
+         * this.choiceLabels = choiceLabels;
+         * this.type = type;
+         * } */
+        @Override public Text getPrefix() {
             return this.prefix;
         }
 
-		@Override
-		public List<String> getChoiceIDs() {
-			return choiceIDs;
-		}
+        @Override public List<String> getChoiceIDs() {
+            return choiceIDs;
+        }
 
-		@Override
-		public List<Text> getChoiceLabels() {
-			return choiceLabels;
-		}
+        @Override public List<Text> getChoiceLabels() {
+            return choiceLabels;
+        }
 
-		@Override
-		public Class<?> getType() {
-			return this.type;
-		}
+        @Override public Class<?> getType() {
+            return this.type;
+        }
     }
 }

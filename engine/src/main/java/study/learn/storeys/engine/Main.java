@@ -19,7 +19,6 @@
 package study.learn.storeys.engine;
 
 import java.io.IOException;
-
 import study.learn.storeys.engine.demo.Menu;
 import study.learn.storeys.engine.prompters.JLineIO;
 import study.learn.storeys.engine.prompters.SimplePrompter;

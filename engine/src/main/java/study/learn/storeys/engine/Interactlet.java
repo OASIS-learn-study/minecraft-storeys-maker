@@ -46,8 +46,10 @@ public abstract class Interactlet {
 
     protected Prompt<String> aChoice(String prefix, String id1, String label1, String id2, String label2, String... moreChoices) {
         List<String> allChoices = new ArrayList<>(moreChoices.length + 4);
-        allChoices.add(id1);  allChoices.add(label1);
-        allChoices.add(id2);  allChoices.add(label2);
+        allChoices.add(id1);
+        allChoices.add(label1);
+        allChoices.add(id2);
+        allChoices.add(label2);
         allChoices.addAll(Arrays.asList(moreChoices));
         return aChoice(prefix, allChoices);
     }

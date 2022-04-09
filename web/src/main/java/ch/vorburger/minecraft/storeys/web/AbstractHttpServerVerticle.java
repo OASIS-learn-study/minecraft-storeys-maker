@@ -42,18 +42,15 @@ public abstract class AbstractHttpServerVerticle extends AbstractVerticle {
         this.httpPort = httpPort;
     }
 
-    @Override
-    public void start(Promise<Void> startPromise) throws Exception {
+    @Override public void start(Promise<Void> startPromise) throws Exception {
         start();
 
         // http://vertx.io/docs/vertx-web/java/#_cors_handling
         Router router = Router.router(vertx);
-        router.route().handler(CorsHandler.create().allowedMethods(ALL_HTTP_METHODS)
-                .allowCredentials(true)
-                .allowedHeader("Access-Control-Allow-Method")
-                .allowedHeader("Access-Control-Allow-Origin")
-                .allowedHeader("Access-Control-Allow-Credentials")
-                .allowedHeader("Content-Type"));
+        router.route()
+                .handler(CorsHandler.create().allowedMethods(ALL_HTTP_METHODS).allowCredentials(true)
+                        .allowedHeader("Access-Control-Allow-Method").allowedHeader("Access-Control-Allow-Origin")
+                        .allowedHeader("Access-Control-Allow-Credentials").allowedHeader("Content-Type"));
 
         addRoutes(router);
 
@@ -63,13 +60,11 @@ public abstract class AbstractHttpServerVerticle extends AbstractVerticle {
         });
     }
 
-    @Override
-    public void stop(Promise<Void> stopPromise) throws Exception {
+    @Override public void stop(Promise<Void> stopPromise) throws Exception {
         super.stop(stopPromise);
     }
 
-    @Override
-    public final void stop() throws Exception {
+    @Override public final void stop() throws Exception {
         stopVerticle();
         httpServer.close();
     }

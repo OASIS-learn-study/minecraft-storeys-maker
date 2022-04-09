@@ -33,8 +33,7 @@ public class Activator implements BundleActivator {
     private StoreysWebPlugin plugin;
     private ServiceReference<PluginInstance> pluginInstanceServiceRef;
 
-    @Override
-    public void start(BundleContext context) throws Exception {
+    @Override public void start(BundleContext context) throws Exception {
         LOG.info("storeys.web start()");
         pluginInstanceServiceRef = context.getServiceReference(PluginInstance.class);
         PluginInstance realPluginInstance = context.getService(pluginInstanceServiceRef);
@@ -43,8 +42,7 @@ public class Activator implements BundleActivator {
         plugin.start(realPluginInstance, Paths.get("config", "storeys"));
     }
 
-    @Override
-    public void stop(BundleContext context) throws Exception {
+    @Override public void stop(BundleContext context) throws Exception {
         LOG.info("storeys.web stop()");
         plugin.stop();
         context.ungetService(pluginInstanceServiceRef);

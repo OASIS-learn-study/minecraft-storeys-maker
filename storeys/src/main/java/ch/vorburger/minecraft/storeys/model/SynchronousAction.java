@@ -25,8 +25,7 @@ public interface SynchronousAction<T> extends Action<T> {
 
     T executeSynchronously(ActionContext context) throws ActionException;
 
-    @Override
-    default CompletionStage<T> execute(ActionContext context) {
+    @Override default CompletionStage<T> execute(ActionContext context) {
         try {
             return CompletableFuture.completedFuture(executeSynchronously(context));
         } catch (Throwable throwable) {

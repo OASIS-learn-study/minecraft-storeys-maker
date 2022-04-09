@@ -18,12 +18,10 @@
  */
 package study.learn.storeys.engine.demo;
 
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
-
-import com.google.common.collect.ImmutableList;
-
 import study.learn.storeys.engine.Interactlet;
 import study.learn.storeys.engine.Prompter;
 
@@ -44,11 +42,8 @@ public class Monster extends Interactlet {
         int playerHP = 10;
         int playerATT = 3;
 
-        prompter.await(aChoice("You have " + playerHP + " HP, and " + playerATT
-            + " damage.  You are faced with a monster that has a " + body + " and a " + head
-            + ". Where will you attack?",
-            body, body,
-            head, head));
+        prompter.await(aChoice("You have " + playerHP + " HP, and " + playerATT + " damage.  You are faced with a monster that has a "
+                + body + " and a " + head + ". Where will you attack?", body, body, head, head));
     }
 
     String random(List<String> pickFrom) {

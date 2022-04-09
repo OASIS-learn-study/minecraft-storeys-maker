@@ -24,9 +24,7 @@ import static java.lang.Math.min;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Splitter;
-
 import java.util.Iterator;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.world.Location;
@@ -72,17 +70,14 @@ public class LocatableInBoxCondition implements Condition {
         return Pair.of(cornerA, cornerB);
     }
 
-    @Override
-    public boolean isHot() {
+    @Override public boolean isHot() {
         for (Player player : this.world.getPlayers()) {
             final Location<World> location = player.getLocation();
             if (location.inExtent(world)) {
                 int x = location.getBlockX();
                 int y = location.getBlockY();
                 int z = location.getBlockZ();
-                boolean hit = x >= minX && x <= maxX
-                        && y >= minY && y <= maxY
-                        && z >= minZ && z <= maxZ;
+                boolean hit = x >= minX && x <= maxX && y >= minY && y <= maxY && z >= minZ && z <= maxZ;
                 if (hit) {
                     this.effectedPlayer = player;
                     return hit;
@@ -92,8 +87,7 @@ public class LocatableInBoxCondition implements Condition {
         return false;
     }
 
-    @Override
-    public Player getEffectedPlayer() {
+    @Override public Player getEffectedPlayer() {
         return effectedPlayer;
     }
 }

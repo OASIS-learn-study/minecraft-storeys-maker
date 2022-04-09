@@ -53,7 +53,7 @@ public class TextSplitter {
                 start = end + 1;
                 lastSpace = -1;
             }
-            if (end - start > maxLength) {
+            if ((end - start) > maxLength) {
                 if (lastSpace > start) {
                     add(segments, text.substring(start, lastSpace));
                     start = lastSpace + 1;

@@ -29,6 +29,16 @@ import ch.vorburger.minecraft.storeys.web.location.LocationPairSerializer;
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.reflect.TypeToken;
 import io.vertx.core.json.JsonObject;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
@@ -47,17 +57,6 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
-
 @Singleton
 public class LocationToolListener {
     private final Map<String, Pair<Location<World>, Location<World>>> playerBoxLocations = new ConcurrentHashMap<>();
@@ -66,9 +65,8 @@ public class LocationToolListener {
     private final ConditionService conditionService;
     private final ConfigurationLoader<CommentedConfigurationNode> configurationLoader;
 
-    @Inject
-    public LocationToolListener(PluginInstance plugin, EventManager eventManager, EventBusSender eventBusSender,
-                                ConditionService conditionService, ConfigurationLoader<CommentedConfigurationNode> loader) {
+    @Inject public LocationToolListener(PluginInstance plugin, EventManager eventManager, EventBusSender eventBusSender,
+            ConditionService conditionService, ConfigurationLoader<CommentedConfigurationNode> loader) {
         TypeSerializers.getDefaultSerializers().registerType(LocationPairSerializer.TYPE, new LocationPairSerializer());
         eventManager.registerListeners(plugin, this);
         this.eventBusSender = eventBusSender;
@@ -86,21 +84,17 @@ public class LocationToolListener {
         }
     }
 
-    @Listener
-    public void locationToolInteraction(InteractBlockEvent event) {
+    @Listener public void locationToolInteraction(InteractBlockEvent event) {
         final Optional<ItemStackSnapshot> snapshot = event.getCause().getContext().get(EventContextKeys.USED_ITEM);
         snapshot.ifPresent(itemStackSnapshot -> {
             if (itemStackSnapshot.createGameDictionaryEntry().matches(LocationToolAction.locationEventCreateTool())) {
                 Player player = (Player) event.getSource();
-                event.getInteractionPoint().ifPresent(
-                        handleLocationToolEvent(event, itemStackSnapshot, player)
-                );
+                event.getInteractionPoint().ifPresent(handleLocationToolEvent(event, itemStackSnapshot, player));
             }
         });
     }
 
-    @Listener
-    public void onGameStoppingServer(GameStoppingServerEvent event) throws Exception {
+    @Listener public void onGameStoppingServer(GameStoppingServerEvent event) throws Exception {
         for (Unregisterable value : conditionRegistrations.values()) {
             value.unregister();
         }
@@ -108,8 +102,8 @@ public class LocationToolListener {
 
     private Consumer<Vector3d> handleLocationToolEvent(InteractBlockEvent event, ItemStackSnapshot itemStackSnapshot, Player player) {
         return vector3d -> {
-            final String locationName = itemStackSnapshot.createStack().get(Keys.ITEM_LORE)
-                    .orElseThrow(IllegalArgumentException::new).get(0).toPlain();
+            final String locationName = itemStackSnapshot.createStack().get(Keys.ITEM_LORE).orElseThrow(IllegalArgumentException::new)
+                    .get(0).toPlain();
             final String playerBoxLocation = player.getUniqueId() + locationName;
 
             final Location<World> eventLocation = new Location<>(player.getWorld(), vector3d);
@@ -137,8 +131,8 @@ public class LocationToolListener {
         if (unregisterable != null) {
             unregisterable.unregister();
         }
-        ConditionService.ConditionServiceRegistration registration = conditionService.register(condition, (Player p) ->
-                eventBusSender.send(new JsonObject().put("event", name).put("playerUUID", p.getUniqueId().toString())));
+        ConditionService.ConditionServiceRegistration registration = conditionService.register(condition,
+                (Player p) -> eventBusSender.send(new JsonObject().put("event", name).put("playerUUID", p.getUniqueId().toString())));
         conditionRegistrations.put(name, registration);
     }
 
@@ -147,14 +141,16 @@ public class LocationToolListener {
             ConfigurationNode rootNode = configurationLoader.load();
             List<LocationHitBox> hitBoxList = new ArrayList<>(rootNode.getNode("locations").getList(LocationHitBox.TYPE));
             hitBoxList.add(new LocationHitBox(player.getUniqueId(), locationName, locationPair));
-            rootNode.getNode("locations").setValue(new TypeToken<List<LocationHitBox>>(){}, hitBoxList);
+            rootNode.getNode("locations").setValue(new TypeToken<List<LocationHitBox>>() {
+            }, hitBoxList);
             configurationLoader.save(rootNode);
         } catch (Exception e) {
             throw new RuntimeException("could not save into config...", e);
         }
     }
 
-    private Pair<Location<World>, Location<World>> updatePlayerBoxLocation(String key, Location<World> locationLeft, Location<World> locationRight) {
+    private Pair<Location<World>, Location<World>> updatePlayerBoxLocation(String key, Location<World> locationLeft,
+            Location<World> locationRight) {
         Pair<Location<World>, Location<World>> locationPair = playerBoxLocations.get(key);
         if (locationPair == null) {
             locationPair = Pair.of(locationLeft, locationRight);
