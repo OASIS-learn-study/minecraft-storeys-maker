@@ -84,7 +84,6 @@ public class EventService implements AutoCloseable {
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-                event.setCancelled(true);
             }
         });
     }
