@@ -22,11 +22,6 @@ allprojects  {
     group = 'ch.vorburger.minecraft.storeys'
     version = '1.0.0-SNAPSHOT'
     description = 'Make your own stories in, with and for Minecraft!'
-}
-
-subprojects {
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
 
     apply plugin: 'checkstyle'
     apply plugin: 'java-library'
@@ -39,6 +34,11 @@ subprojects {
       // TODO apply same error-prone configuration as I've done in OpenDaylight's infrautils.parent
       // options.compilerArgs += [ '-Xlint:deprecation', '-Xep:FallThrough:ERROR', '-Xep:MutableConstantField:ERROR', '-Xep:DefaultCharset:ERROR' ]
     }
+}
+
+subprojects {
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 
     repositories {
         jcenter()
