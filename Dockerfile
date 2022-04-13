@@ -3,6 +3,8 @@ FROM openjdk:11-jdk as build
 # https://github.com/nodesource/distributions/blob/master/README.md#installation-instructions
 RUN curl -fsSL https://deb.nodesource.com/setup_17.x | bash - && apt install -y nodejs && node --version
 
+RUN mkdir /mods/ && cd /mods/ && curl -sS -L -J -f -O https://github.com/OASIS-learn-study/swissarmyknife-minecraft-server-binaries/raw/master/LuckPerms-Sponge-5.3.98.jar
+
 COPY . /project
 WORKDIR /project
 RUN ./gradlew build -PexcludeTests="**/SeleniumTest*"
