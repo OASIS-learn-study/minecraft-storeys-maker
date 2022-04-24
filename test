@@ -2,20 +2,32 @@
 set -euox pipefail
 
 # https://github.com/OASIS-learn-study/minecraft-storeys-maker#build-it
+# NB --format=docker because the "oci" default looses the mc-health HEALTHCHECK of the parent image
 ./gradlew build
-podman build -f Dockerfile-local -t minecraft-storeys-maker .
-podman run -it --rm --name storeys \
-    -e OPS=73551f35-7acb-45c0-bc65-8083c53eec69,fb79c1a9-72bd-34dc-9775-c2ac868d7ccf \
+podman build -f Dockerfile-local --format=docker -t minecraft-storeys-maker .
+
+podman stop --time 7 storeys || true
+
+podman run --name storeys --detach --rm \
+    -e ONLINE_MODE=FALSE \
     -v $PWD/minecraft-server-test-data:/data:Z -e UID=0 -e GID=0 \
     -p 25565:25565 -p 8080:8080 -p 7070:7070 minecraft-storeys-maker
 
-# TODO for PR #348 with mineflayer: -e ONLINE_MODE=FALSE \
-# BUT this requires LuckPerms integration first (because OPS won't work anymore, nor Mineflayer)
+podman logs -f storeys &
 
-#run the tests
+RETRIES=30
+until podman healthcheck run storeys; do
+  RETRIES=$(($RETRIES - 1))
+    if [ $RETRIES -eq 0 ]; then
+        echo "Minecraft container failed to become healthy, giving up now"
+        exit 1
+    fi
+    sleep 1
+done
+
 ./gradlew test-mineflayer:npmTest
-# The `OPS` with your Minecraft ID is required because the command requires permission;
-# alternatively [use permissions](https://github.com/OASIS-learn-study/minecraft-storeys-maker/issues/276).
+
+podman stop storeys
 
 # Note that `-e UID=0 -e GID=0` makes `itzg/minecraft-server`'s processes run as `root`
 # (instead of its default UID/GID `1000` which is hard-coded in its `setup-user.sh`),
