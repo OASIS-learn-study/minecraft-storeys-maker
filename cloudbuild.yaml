@@ -1,5 +1,10 @@
+# https://cloud.google.com/build/docs/build-config-file-schema
+
 steps:
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '.']
+- name: 'openjdk:11-jdk'
+  entrypoint: './gradlew'
+  args: ['build']
+#- name: 'gcr.io/cloud-builders/docker'
+#  args: ['build', '.']
 
 # -t gcr.io/oasis-learn-study/github.com/oasis-learn-study/minecraft-storeys-maker:$COMMIT_SHA
