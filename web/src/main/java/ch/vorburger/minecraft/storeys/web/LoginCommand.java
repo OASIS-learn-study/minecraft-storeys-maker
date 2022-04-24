@@ -74,7 +74,7 @@ public class LoginCommand implements Command {
     }
 
     @Override public CommandCallable callable() {
-        return CommandSpec.builder().description(Text.of("Login into ScratchX web interface")).permission("storeys.command.make")
+        return CommandSpec.builder().description(Text.of("Login into ScratchX web interface")) // .permission("storeys.command.make")
                 .arguments(GenericArguments.flags().permissionFlag("storeys.command.make.beta", "b").buildWith(GenericArguments.none()))
                 .executor(this).build();
     }
