@@ -22,6 +22,7 @@ import static java.util.Objects.requireNonNull;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.japi.ActionContext;
+import java.util.StringJoiner;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +31,6 @@ import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.scheduler.Scheduler;
 
 public class CommandAction extends MainThreadAction<CommandResult> {
-
-    // TODO This should eventually just delegate to ch.vorburger.minecraft.storeys.japi.impl.MinecraftJvmImpl.cmd(String)
 
     private static final Logger LOG = LoggerFactory.getLogger(CommandAction.class);
 
@@ -53,14 +52,25 @@ public class CommandAction extends MainThreadAction<CommandResult> {
     }
 
     @Override public void setParameter(String param) {
-        commandLineWithoutSlash = param;
+        setCommand(param);
     }
 
     @Override protected CommandResult executeInMainThread(ActionContext context) throws ActionException {
         CommandResult result = Sponge.getCommandManager().process(context.getCommandSource(),
                 requireNonNull(commandLineWithoutSlash, "commandLineWithoutSlash"));
-        LOG.info("processed command /{} from source {} with result {}", commandLineWithoutSlash, context.getCommandSource(), result);
+        LOG.info("processed command \"/{}\" from source {} with result {}", commandLineWithoutSlash, context.getCommandSource(),
+                toString(result));
         return result;
+    }
+
+    private String toString(CommandResult result) {
+        StringJoiner sj = new StringJoiner(", ", "{", "}");
+        result.getAffectedBlocks().ifPresent(affectedBlocked -> sj.add("affectedBlocked: " + affectedBlocked));
+        result.getAffectedEntities().ifPresent(affectedEntities -> sj.add("affectedEntities: " + affectedEntities));
+        result.getAffectedItems().ifPresent(affectedItems -> sj.add("affectedItems: " + affectedItems));
+        result.getQueryResult().ifPresent(queryResult -> sj.add("queryResult: " + queryResult));
+        result.getSuccessCount().ifPresent(successCount -> sj.add("successCount: " + successCount));
+        return sj.toString();
     }
 
     @Override public String toString() {

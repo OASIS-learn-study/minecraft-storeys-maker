@@ -57,7 +57,7 @@ class EventsImpl implements Events, Unregisterable {
 
     @Override public void whenCommand(String name, Callback callback) {
         CommandSpec spec = CommandSpec.builder().executor((src, args) -> {
-            MinecraftJvmImpl m = new MinecraftJvmImpl(src, plugin);
+            MinecraftJvmImpl m = new MinecraftJvmImpl(plugin, src);
             CommandExceptions.doOrThrow("/" + name, () -> callback.invoke(m));
             player.play(new ActionContextImpl(m.player(), new ReadingSpeed()), m.getActionList());
             return CommandResult.success();
