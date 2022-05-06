@@ -27,8 +27,6 @@ import ch.vorburger.minecraft.storeys.japi.impl.actions.CommandAction;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.TitleAction;
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
@@ -43,15 +41,13 @@ import org.spongepowered.api.entity.living.player.Player;
  */
 class MinecraftJvmImpl implements Minecraft {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EventsImpl.class);
-
+    private final PluginInstance plugin;
     private final CommandSource source;
     private final ActionWaitHelper actionWaitHelper;
-    private final PluginInstance plugin;
 
     private final List<Action<?>> actionList = new ArrayList<>();
 
-    MinecraftJvmImpl(CommandSource source, PluginInstance plugin) {
+    MinecraftJvmImpl(PluginInstance plugin, CommandSource source) {
         this.source = source;
         this.plugin = plugin;
         this.actionWaitHelper = new ActionWaitHelper(plugin);

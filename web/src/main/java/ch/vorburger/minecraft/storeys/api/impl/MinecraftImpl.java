@@ -155,7 +155,7 @@ public class MinecraftImpl implements Minecraft {
         }
 
         @Override public synchronized boolean succeeded() {
-            return isHandled && cause == null;
+            return isHandled && (cause == null);
         }
 
         @Override public synchronized boolean failed() {

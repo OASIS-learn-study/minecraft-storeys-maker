@@ -72,5 +72,4 @@ public class CommandMapping {
             return actionProvider;
         }
     }
-
 }

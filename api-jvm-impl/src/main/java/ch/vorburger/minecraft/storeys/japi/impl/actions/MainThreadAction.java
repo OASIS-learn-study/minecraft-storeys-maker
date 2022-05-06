@@ -21,7 +21,6 @@ package ch.vorburger.minecraft.storeys.japi.impl.actions;
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.japi.Action;
 import ch.vorburger.minecraft.storeys.japi.ActionContext;
-import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionException;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -51,5 +50,4 @@ public abstract class MainThreadAction<T> implements Action<T> {
         ListenableFuture<T> future = guavaifiedMinecraftExecutor.submit(() -> executeInMainThread(context));
         return CompletableFuturesExtra.toCompletableFuture(future);
     }
-
 }
