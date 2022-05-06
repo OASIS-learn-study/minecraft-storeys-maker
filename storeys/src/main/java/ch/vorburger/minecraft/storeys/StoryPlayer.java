@@ -18,8 +18,8 @@
  */
 package ch.vorburger.minecraft.storeys;
 
-import ch.vorburger.minecraft.storeys.model.Action;
-import ch.vorburger.minecraft.storeys.model.ActionContext;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.Action;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContext;
 import ch.vorburger.minecraft.storeys.model.Story;
 import java.util.concurrent.CompletionStage;
 

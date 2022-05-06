@@ -18,6 +18,7 @@
  */
 package ch.vorburger.minecraft.storeys.japi.impl;
 
+import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.japi.Callback;
 import ch.vorburger.minecraft.storeys.japi.Events;
 import ch.vorburger.minecraft.storeys.japi.Script;
@@ -43,16 +44,16 @@ class EventsImpl implements Events, Unregisterable {
 
     private static final Logger LOG = LoggerFactory.getLogger(EventsImpl.class);
 
-    private final Object plugin;
+    private final PluginInstance plugin;
     private final Collection<Unregisterable> unregistrables = new ConcurrentLinkedQueue<>();
 
-    EventsImpl(Object plugin) {
+    EventsImpl(PluginInstance plugin) {
         this.plugin = plugin;
     }
 
     @Override public void whenCommand(String name, Callback callback) {
         CommandSpec spec = CommandSpec.builder().executor((src, args) -> {
-            CommandExceptions.doOrThrow("/" + name, () -> callback.invoke(new MinecraftJvmImpl(src)));
+            CommandExceptions.doOrThrow("/" + name, () -> callback.invoke(new MinecraftJvmImpl(src, plugin)));
             return CommandResult.success();
         }).build();
         Optional<CommandMapping> opt = Sponge.getCommandManager().register(plugin, spec, name);

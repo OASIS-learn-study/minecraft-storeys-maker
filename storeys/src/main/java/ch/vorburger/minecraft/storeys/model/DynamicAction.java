@@ -19,6 +19,8 @@
 package ch.vorburger.minecraft.storeys.model;
 
 import ch.vorburger.minecraft.storeys.StoryPlayer;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.Action;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContext;
 import ch.vorburger.minecraft.storeys.model.parser.StoryParser;
 import ch.vorburger.minecraft.storeys.model.parser.SyntaxErrorException;
 import java.util.concurrent.CompletableFuture;

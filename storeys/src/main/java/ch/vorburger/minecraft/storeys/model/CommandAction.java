@@ -21,6 +21,8 @@ package ch.vorburger.minecraft.storeys.model;
 import static java.util.Objects.requireNonNull;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContext;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionException;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -22,7 +22,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.iterableWithSize;
 
-import ch.vorburger.minecraft.storeys.TextSplitter;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.TextSplitter;
 import org.junit.Test;
 
 public class SplitterTest {

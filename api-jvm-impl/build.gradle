@@ -1,4 +1,6 @@
 
 dependencies {
     api project(':api-jvm')
+    implementation 'ch.vorburger.minecraft.osgi:api:1.0.0'
+    testImplementation 'junit:junit:4.13.2'
 }

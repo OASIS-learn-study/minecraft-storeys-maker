@@ -24,11 +24,9 @@ import org.spongepowered.api.entity.living.player.Player;
 // as well as https://github.com/OASIS-learn-study/minecraft-storeys-maker/blob/develop/api/src/main/typescript/observable-wrapper.ts
 public interface Minecraft {
 
-    // TODO should this only include things which are not possible with standard Minecraft Commands,
-    // so e.g. there won't be a showTitle() = /title (https://minecraft.fandom.com/wiki/Commands/title),
-    // or is it "convenient" to have title() and say() etc. methods here, matching standard commands?
+    // This should only include things which are not already easily possible with standard Minecraft Slash Commands.
 
-    // CommandSource is "implicit", not an explicit argument; it's hidden passed through from the Events registration.
+    // The CommandSource is an "implicit" not an explicit argument; it's hidden passed through from the Events registration.
 
     // These methods intentionally do not return e.g. a CompletionStage.
 
@@ -36,6 +34,8 @@ public interface Minecraft {
      * Run Minecraft commands, see https://minecraft.fandom.com/wiki/Commands.
      */
     void cmd(String command);
+
+    void title(String text);
 
     // TODO void wait(int seconds);
 

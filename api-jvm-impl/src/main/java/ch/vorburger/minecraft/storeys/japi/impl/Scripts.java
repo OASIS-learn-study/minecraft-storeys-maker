@@ -18,6 +18,7 @@
  */
 package ch.vorburger.minecraft.storeys.japi.impl;
 
+import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.japi.Script;
 import com.google.errorprone.annotations.CheckReturnValue;
 
@@ -25,7 +26,7 @@ public final class Scripts {
 
     // TODO Make Scripts @Inject-able...
 
-    @CheckReturnValue public static Unregisterable init(Object plugin, Script script) {
+    @CheckReturnValue public static Unregisterable init(PluginInstance plugin, Script script) {
         EventsImpl e = new EventsImpl(plugin);
         script.init(e);
         return e;

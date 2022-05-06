@@ -22,10 +22,10 @@ import static org.spongepowered.api.command.args.GenericArguments.onlyOne;
 import static org.spongepowered.api.command.args.GenericArguments.string;
 import static org.spongepowered.api.text.Text.of;
 
-import ch.vorburger.minecraft.storeys.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.StoryPlayer;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContext;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.japi.util.CommandExceptions;
-import ch.vorburger.minecraft.storeys.model.ActionContext;
 import ch.vorburger.minecraft.storeys.model.Story;
 import ch.vorburger.minecraft.storeys.model.parser.FileStoryRepository;
 import ch.vorburger.minecraft.storeys.model.parser.StoryParser;

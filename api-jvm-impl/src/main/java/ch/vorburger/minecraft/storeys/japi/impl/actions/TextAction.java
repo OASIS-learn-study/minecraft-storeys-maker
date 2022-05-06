@@ -16,24 +16,38 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys.tests;
+package ch.vorburger.minecraft.storeys.japi.impl.actions;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
+import static java.util.Objects.requireNonNull;
 
-import ch.vorburger.minecraft.storeys.japi.impl.actions.ReadingSpeed;
-import org.junit.Test;
+import org.spongepowered.api.text.Text;
 
-public class ReadingSpeedTest {
+public abstract class TextAction<T> implements Action<T> {
 
-    @Test public final void empty() {
-        assertThat(new ReadingSpeed().msToRead(""), is(0));
+    private Text text;
+
+    protected TextAction() {
     }
 
-    @Test public final void example() {
-        assertThat(new ReadingSpeed(200).msToRead(
-                "Lorem Ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."),
-                greaterThan(7100));
+    public Text getText() {
+        return requireNonNull(text, "text");
     }
+
+    public TextAction<T> setText(Text text) {
+        this.text = text;
+        return this;
+    }
+
+    @Override public void setParameter(String param) {
+        if (text == null) {
+            text = Text.of(param);
+        } else {
+            text = text.concat(Text.NEW_LINE).concat(Text.of(param));
+        }
+    }
+
+    @Override public String toString() {
+        return getClass().getSimpleName() + ": " + (text != null ? text.toString() : "null");
+    }
+
 }
