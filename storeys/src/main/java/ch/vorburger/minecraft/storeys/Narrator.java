@@ -23,6 +23,8 @@ import static org.spongepowered.api.data.key.Keys.CUSTOM_NAME_VISIBLE;
 import static org.spongepowered.api.data.key.Keys.DISPLAY_NAME;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.ReadingSpeed;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.TextSplitter;
 import ch.vorburger.minecraft.storeys.util.NamedObjects;
 import java.util.Iterator;
 import java.util.Optional;

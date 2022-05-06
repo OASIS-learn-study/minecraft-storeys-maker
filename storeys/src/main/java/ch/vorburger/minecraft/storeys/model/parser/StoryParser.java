@@ -18,7 +18,7 @@
  */
 package ch.vorburger.minecraft.storeys.model.parser;
 
-import ch.vorburger.minecraft.storeys.model.Action;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.Action;
 import ch.vorburger.minecraft.storeys.model.NopAction;
 import ch.vorburger.minecraft.storeys.model.Story;
 import java.util.ArrayList;

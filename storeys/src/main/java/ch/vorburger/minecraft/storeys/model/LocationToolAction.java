@@ -20,6 +20,8 @@ package ch.vorburger.minecraft.storeys.model;
 
 import static java.util.Collections.singletonList;
 
+import ch.vorburger.minecraft.storeys.japi.impl.actions.Action;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContext;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import org.spongepowered.api.command.CommandSource;

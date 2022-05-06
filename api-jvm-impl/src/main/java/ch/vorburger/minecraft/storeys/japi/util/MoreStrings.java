@@ -16,38 +16,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys.model;
+package ch.vorburger.minecraft.storeys.japi.util;
 
-import static java.util.Objects.requireNonNull;
+import java.util.regex.Pattern;
 
-import org.spongepowered.api.text.Text;
+public final class MoreStrings {
 
-public abstract class TextAction<T> implements Action<T> {
+    private final static Pattern PATTERN = Pattern.compile("(^[\\r\\n]+|[\\r\\n]+$)");
 
-    private Text text;
-
-    protected TextAction() {
+    private MoreStrings() {
     }
 
-    public Text getText() {
-        return requireNonNull(text, "text");
+    public static String normalizeCRLF(String text) {
+        return text.replace("\r\n", "\n");
     }
 
-    public TextAction<T> setText(Text text) {
-        this.text = text;
-        return this;
+    public static String trimCRLF(String text) {
+        return normalizeCRLF(PATTERN.matcher(text).replaceAll(""));
     }
-
-    @Override public void setParameter(String param) {
-        if (text == null) {
-            text = Text.of(param);
-        } else {
-            text = text.concat(Text.NEW_LINE).concat(Text.of(param));
-        }
-    }
-
-    @Override public String toString() {
-        return getClass().getSimpleName() + ": " + (text != null ? text.toString() : "null");
-    }
-
 }

@@ -23,7 +23,7 @@ import static org.spongepowered.api.command.args.GenericArguments.remainingJoine
 import static org.spongepowered.api.text.Text.of;
 
 import ch.vorburger.minecraft.storeys.Narrator;
-import ch.vorburger.minecraft.storeys.ReadingSpeed;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.util.Command;
 import com.google.common.collect.ImmutableList;
 import java.util.List;

@@ -20,16 +20,16 @@ package ch.vorburger.minecraft.storeys.api.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import ch.vorburger.minecraft.storeys.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.api.HandType;
 import ch.vorburger.minecraft.storeys.api.ItemType;
 import ch.vorburger.minecraft.storeys.api.Minecraft;
-import ch.vorburger.minecraft.storeys.model.Action;
-import ch.vorburger.minecraft.storeys.model.ActionContext;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.Action;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContext;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.ReadingSpeed;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.TitleAction;
 import ch.vorburger.minecraft.storeys.model.CommandAction;
 import ch.vorburger.minecraft.storeys.model.LocationToolAction;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
-import ch.vorburger.minecraft.storeys.model.TitleAction;
 import ch.vorburger.minecraft.storeys.simple.impl.NotLoggedInException;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;

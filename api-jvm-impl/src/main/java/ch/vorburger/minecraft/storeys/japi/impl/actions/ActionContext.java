@@ -16,9 +16,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys.model;
+package ch.vorburger.minecraft.storeys.japi.impl.actions;
 
-import ch.vorburger.minecraft.storeys.ReadingSpeed;
 import org.spongepowered.api.command.CommandSource;
 
 public final class ActionContext {
@@ -43,8 +42,8 @@ public final class ActionContext {
     @Override public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (commandSource == null ? 0 : commandSource.hashCode());
-        result = prime * result + (readingSpeed == null ? 0 : readingSpeed.hashCode());
+        result = (prime * result) + (commandSource == null ? 0 : commandSource.hashCode());
+        result = (prime * result) + (readingSpeed == null ? 0 : readingSpeed.hashCode());
         return result;
     }
 

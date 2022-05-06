@@ -16,9 +16,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys.model;
+package ch.vorburger.minecraft.storeys.japi.impl.actions;
 
-import static ch.vorburger.minecraft.storeys.util.MoreStrings.trimCRLF;
+import static ch.vorburger.minecraft.storeys.japi.util.MoreStrings.trimCRLF;
 
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;

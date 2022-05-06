@@ -16,9 +16,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys;
+package ch.vorburger.minecraft.storeys.japi.impl.actions;
 
-import ch.vorburger.minecraft.storeys.util.MoreStrings;
+import ch.vorburger.minecraft.storeys.japi.util.MoreStrings;
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Collections;
