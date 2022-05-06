@@ -9,6 +9,7 @@ podman build -f Dockerfile-local --format=docker -t minecraft-storeys-maker .
 podman stop --time 7 storeys || true
 
 podman run --name storeys --detach --rm \
+    -e OPS=73551f35-7acb-45c0-bc65-8083c53eec69,fb79c1a9-72bd-34dc-9775-c2ac868d7ccf \
     -e ONLINE_MODE=FALSE \
     -v $PWD/minecraft-server-test-data:/data:Z -e UID=0 -e GID=0 \
     -p 25565:25565 -p 8080:8080 -p 7070:7070 minecraft-storeys-maker
@@ -27,7 +28,7 @@ done
 
 ./gradlew test-mineflayer:npmTest
 
-podman stop storeys
+# podman stop storeys
 
 # Note that `-e UID=0 -e GID=0` makes `itzg/minecraft-server`'s processes run as `root`
 # (instead of its default UID/GID `1000` which is hard-coded in its `setup-user.sh`),
