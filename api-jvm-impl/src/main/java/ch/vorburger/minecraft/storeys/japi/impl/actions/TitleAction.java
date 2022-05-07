@@ -20,6 +20,8 @@ package ch.vorburger.minecraft.storeys.japi.impl.actions;
 
 import static ch.vorburger.minecraft.storeys.japi.util.MoreStrings.trimCRLF;
 
+import ch.vorburger.minecraft.storeys.japi.Action;
+import ch.vorburger.minecraft.storeys.japi.ActionContext;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.spongepowered.api.command.CommandSource;

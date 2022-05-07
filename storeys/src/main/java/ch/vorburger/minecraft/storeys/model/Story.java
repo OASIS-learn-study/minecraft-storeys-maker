@@ -18,7 +18,7 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
-import ch.vorburger.minecraft.storeys.japi.impl.actions.Action;
+import ch.vorburger.minecraft.storeys.japi.Action;
 import java.util.List;
 import java.util.stream.Collectors;
 

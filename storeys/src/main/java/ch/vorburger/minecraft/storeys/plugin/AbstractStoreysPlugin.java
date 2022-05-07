@@ -20,15 +20,16 @@ package ch.vorburger.minecraft.storeys.plugin;
 
 import ch.vorburger.minecraft.osgi.api.AbstractPlugin;
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
+import ch.vorburger.minecraft.storeys.ScriptsModule;
 import ch.vorburger.minecraft.storeys.commands.NarrateCommand;
 import ch.vorburger.minecraft.storeys.commands.StoryCommand;
-import ch.vorburger.minecraft.storeys.example.ExampleScript;
 import ch.vorburger.minecraft.storeys.guard.GuardGameModeJoinListener;
 import ch.vorburger.minecraft.storeys.japi.impl.Scripts;
 import ch.vorburger.minecraft.storeys.japi.impl.Unregisterable;
 import ch.vorburger.minecraft.storeys.util.Commands;
 import com.google.inject.Injector;
 import java.nio.file.Path;
+import java.util.Collection;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,8 +47,7 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractStoreysPlugin.class);
 
-    @Inject
-    @ConfigDir(sharedRoot = false) private Path configDir;
+    @Inject @ConfigDir(sharedRoot = false) private Path configDir;
 
     @Inject protected Injector pluginInjector;
 
@@ -58,7 +58,7 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
     private CommandMapping narrateCommandMapping;
     private CommandMapping storyCommandMapping;
 
-    private Unregisterable example;
+    private Collection<Unregisterable> allScripts;
 
     @Listener public void onGameStartingServer(GameStartingServerEvent event) throws Exception {
         LOG.info("See https://github.com/OASIS-learn-study/minecraft-storeys-maker for how to use /story and /narrate commands");
@@ -68,14 +68,15 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
     protected void start(PluginInstance plugin, Path configDir) throws Exception {
         eventManager.registerListener(plugin, Join.class, new GuardGameModeJoinListener());
 
-        pluginInjector.createChildInjector(binder -> {
+        pluginInjector.createChildInjector(new ScriptsModule(), binder -> {
             binder.bind(PluginInstance.class).toInstance(plugin);
             binder.bind(Path.class).toInstance(configDir);
+            binder.bind(Scripts.class);
         });
         storyCommandMapping = Commands.register(plugin, pluginInjector.getInstance(StoryCommand.class));
         narrateCommandMapping = Commands.register(plugin, pluginInjector.getInstance(NarrateCommand.class));
 
-        example = Scripts.init(plugin, new ExampleScript());
+        allScripts = pluginInjector.getInstance(Scripts.class).getUnregisterables();
     }
 
     @Listener public void onGameStoppingServer(GameStoppingServerEvent event) throws Exception {
@@ -83,7 +84,7 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
     }
 
     protected void stop() throws Exception {
-        example.unregister();
+        allScripts.forEach(Unregisterable::unregister);
 
         if (narrateCommandMapping != null) {
             commandManager.removeMapping(narrateCommandMapping);

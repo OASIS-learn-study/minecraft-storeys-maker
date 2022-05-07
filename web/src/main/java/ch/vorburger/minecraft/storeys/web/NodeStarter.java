@@ -24,23 +24,17 @@ import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.spongepowered.api.Sponge;
 
-class NodeStarter {
+@Singleton public class NodeStarter {
 
-    private final Path configDir;
-    private final PluginInstance plugin;
-
-    NodeStarter(Path configDir, PluginInstance plugin) {
-        this.configDir = configDir;
-        this.plugin = plugin;
-    }
-
-    void npm(String arg) throws ManagedProcessException {
+    void npm(Path configDir, String arg) throws ManagedProcessException {
         new ManagedProcessBuilder("npm").addArgument(arg).setWorkingDirectory(configDir.toFile()).build().start().waitForExit();
     }
 
-    void start() {
+    @Inject public void start(Path configDir, PluginInstance plugin) {
         Sponge.getScheduler().createAsyncExecutor(plugin).execute(() -> {
             try {
                 Path packageJson = configDir.resolve("package.json");
@@ -48,8 +42,8 @@ class NodeStarter {
                     Files.copy(getClass().getResourceAsStream("/package.json"), packageJson);
                 }
 
-                npm("install");
-                npm("start");
+                npm(configDir, "install");
+                npm(configDir, "start");
 
             } catch (IOException | ManagedProcessException e) {
                 throw new RuntimeException("could not install and run node", e);

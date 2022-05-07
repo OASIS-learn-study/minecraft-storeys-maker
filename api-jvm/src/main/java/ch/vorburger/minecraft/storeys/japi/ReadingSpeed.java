@@ -16,13 +16,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys.japi.impl.actions;
+package ch.vorburger.minecraft.storeys.japi;
 
 import org.spongepowered.api.text.Text;
 
 public class ReadingSpeed {
 
-    static final int AVG_WORD_LENGTH = 5;
+    public static final int AVG_WORD_LENGTH = 5;
     private static final int AVG_CHILD_WORDS_PER_MINUTE = 100;
 
     private final int wpm;
@@ -81,10 +81,7 @@ public class ReadingSpeed {
             return false;
         }
         ReadingSpeed other = (ReadingSpeed) obj;
-        if (wpm != other.wpm) {
-            return false;
-        }
-        return true;
+        return wpm == other.wpm;
     }
 
     @Override public String toString() {

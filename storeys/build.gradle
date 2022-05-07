@@ -4,8 +4,5 @@ dependencies {
     api 'ch.vorburger.minecraft.osgi:api:1.0.0'
 
     implementation project(':example')
-    implementation('com.spotify:futures-extra:4.0.0') {
-        exclude group: 'com.google.guava' 
-    }
     testImplementation project(':test-utils')
 }

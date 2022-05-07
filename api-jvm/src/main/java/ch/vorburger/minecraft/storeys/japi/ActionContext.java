@@ -16,29 +16,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys.japi.impl;
+package ch.vorburger.minecraft.storeys.japi;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
-import ch.vorburger.minecraft.storeys.japi.Script;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import org.spongepowered.api.command.CommandSource;
 
-@Singleton public class Scripts {
+public interface ActionContext {
 
-    private List<Unregisterable> unregisterables;
+    CommandSource getCommandSource();
 
-    @Inject public Scripts(PluginInstance plugin, Set<Script> scripts) {
-        unregisterables = scripts.stream().map(script -> {
-            EventsImpl e = new EventsImpl(plugin);
-            script.init(e);
-            return e;
-        }).collect(Collectors.toList());
-    }
-
-    public List<Unregisterable> getUnregisterables() {
-        return unregisterables;
-    }
+    ReadingSpeed getReadingSpeed();
 }

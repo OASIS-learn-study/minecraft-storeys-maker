@@ -18,10 +18,10 @@
  */
 package ch.vorburger.minecraft.storeys.model.parser;
 
-import ch.vorburger.minecraft.storeys.japi.impl.actions.Action;
+import ch.vorburger.minecraft.storeys.japi.Action;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.CommandAction;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.TitleAction;
 import ch.vorburger.minecraft.storeys.model.AwaitAction;
-import ch.vorburger.minecraft.storeys.model.CommandAction;
 import ch.vorburger.minecraft.storeys.model.DynamicAction;
 import ch.vorburger.minecraft.storeys.model.LocationAction;
 import ch.vorburger.minecraft.storeys.model.MessageAction;

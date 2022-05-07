@@ -31,18 +31,17 @@ import static org.mockito.Mockito.when;
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.StoryPlayer;
-import ch.vorburger.minecraft.storeys.japi.impl.actions.Action;
-import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContext;
+import ch.vorburger.minecraft.storeys.japi.Action;
+import ch.vorburger.minecraft.storeys.japi.ReadingSpeed;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContextImpl;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionWaitHelper;
-import ch.vorburger.minecraft.storeys.japi.impl.actions.ReadingSpeed;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.CommandAction;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.TitleAction;
 import ch.vorburger.minecraft.storeys.model.AwaitAction;
-import ch.vorburger.minecraft.storeys.model.CommandAction;
 import ch.vorburger.minecraft.storeys.model.DynamicAction;
 import ch.vorburger.minecraft.storeys.model.LocationAction;
 import ch.vorburger.minecraft.storeys.model.MessageAction;
 import ch.vorburger.minecraft.storeys.model.NarrateAction;
-import ch.vorburger.minecraft.storeys.model.NopAction;
 import ch.vorburger.minecraft.storeys.model.Story;
 import java.io.IOException;
 import java.util.List;
@@ -163,7 +162,7 @@ public class StoryParserTest {
 
         // when
         StoryPlayer storyPlayer = new StoryPlayer();
-        storyPlayer.play(new ActionContext(commandSource, new ReadingSpeed()), story);
+        storyPlayer.play(new ActionContextImpl(commandSource, new ReadingSpeed()), story);
 
         // then
         verify(commandSource).sendTitle(any(Title.class));

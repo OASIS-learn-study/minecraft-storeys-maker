@@ -18,14 +18,16 @@
  */
 package ch.vorburger.minecraft.storeys.japi.impl.actions;
 
+import ch.vorburger.minecraft.storeys.japi.ActionContext;
+import ch.vorburger.minecraft.storeys.japi.ReadingSpeed;
 import org.spongepowered.api.command.CommandSource;
 
-public final class ActionContext {
+public final class ActionContextImpl implements ActionContext {
 
     private final CommandSource commandSource;
     private final ReadingSpeed readingSpeed;
 
-    public ActionContext(CommandSource commandSource, ReadingSpeed readingSpeed) {
+    public ActionContextImpl(CommandSource commandSource, ReadingSpeed readingSpeed) {
         super();
         this.commandSource = commandSource;
         this.readingSpeed = readingSpeed;
@@ -57,7 +59,7 @@ public final class ActionContext {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        ActionContext other = (ActionContext) obj;
+        ActionContextImpl other = (ActionContextImpl) obj;
         if (commandSource == null) {
             if (other.commandSource != null) {
                 return false;
@@ -66,13 +68,9 @@ public final class ActionContext {
             return false;
         }
         if (readingSpeed == null) {
-            if (other.readingSpeed != null) {
-                return false;
-            }
-        } else if (!readingSpeed.equals(other.readingSpeed)) {
-            return false;
-        }
-        return true;
+            return other.readingSpeed == null;
+        } else
+            return readingSpeed.equals(other.readingSpeed);
     }
 
     @Override public String toString() {
