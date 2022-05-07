@@ -22,7 +22,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 
-import ch.vorburger.minecraft.storeys.japi.impl.actions.ReadingSpeed;
+import ch.vorburger.minecraft.storeys.japi.ReadingSpeed;
 import org.junit.Test;
 
 public class ReadingSpeedTest {

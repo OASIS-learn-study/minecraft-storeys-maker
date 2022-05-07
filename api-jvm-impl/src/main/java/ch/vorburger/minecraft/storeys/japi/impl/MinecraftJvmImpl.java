@@ -18,17 +18,15 @@
  */
 package ch.vorburger.minecraft.storeys.japi.impl;
 
-import static java.util.Objects.requireNonNull;
-
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
+import ch.vorburger.minecraft.storeys.japi.Action;
 import ch.vorburger.minecraft.storeys.japi.Events;
 import ch.vorburger.minecraft.storeys.japi.Minecraft;
-import ch.vorburger.minecraft.storeys.japi.impl.actions.Action;
-import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContext;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionWaitHelper;
-import ch.vorburger.minecraft.storeys.japi.impl.actions.ReadingSpeed;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.CommandAction;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.TitleAction;
-import java.util.concurrent.ExecutionException;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Sponge;
@@ -49,40 +47,34 @@ class MinecraftJvmImpl implements Minecraft {
 
     private final CommandSource source;
     private final ActionWaitHelper actionWaitHelper;
-    private final ReadingSpeed readingSpeed = new ReadingSpeed();
+    private final PluginInstance plugin;
+
+    private final List<Action<?>> actionList = new ArrayList<>();
 
     MinecraftJvmImpl(CommandSource source, PluginInstance plugin) {
         this.source = source;
+        this.plugin = plugin;
         this.actionWaitHelper = new ActionWaitHelper(plugin);
     }
 
-    private void exec(Action<Void> action) {
-        ActionContext ctx = new ActionContext(source, readingSpeed);
-        try {
-            action.execute(ctx).toCompletableFuture().get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Awaiting action execuition failed", e);
-        }
-    }
-
-    // TODO exec(new CommandAction()) instead
     @Override public void cmd(String command) {
-        String commandWithoutSlash = requireNonNull(command, "command").trim();
-        if (commandWithoutSlash.startsWith("/")) {
-            commandWithoutSlash = commandWithoutSlash.substring(1);
-        }
-        Sponge.getCommandManager().process(source, requireNonNull(commandWithoutSlash, "commandWithoutSlash"));
-        // returned CommandResult is ignored
+        CommandAction action = new CommandAction(plugin, Sponge.getScheduler());
+        action.setCommand(command);
+        actionList.add(action);
     }
 
     @Override public void title(String text) {
         TitleAction action = new TitleAction(actionWaitHelper);
         action.setParameter(text);
-        exec(action);
+        actionList.add(action);
     }
 
     @Override public Player player() {
         // TODO if (source instanceof Player), else... error handling TBD (not just log, but explain it to source)
         return (Player) source;
+    }
+
+    public List<Action<?>> getActionList() {
+        return actionList;
     }
 }

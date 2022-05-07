@@ -23,8 +23,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ch.vorburger.minecraft.storeys.StoryPlayer;
-import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContext;
-import ch.vorburger.minecraft.storeys.japi.impl.actions.ReadingSpeed;
+import ch.vorburger.minecraft.storeys.japi.ReadingSpeed;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContextImpl;
 import ch.vorburger.minecraft.storeys.model.parser.ClassLoaderResourceStoryRepository;
 import ch.vorburger.minecraft.storeys.model.parser.StoryParser;
 import ch.vorburger.minecraft.storeys.model.parser.StoryParserTest;
@@ -55,7 +55,7 @@ public class DynamicActionTest {
         when(inventory.contains(ItemTypes.FISHING_ROD)).thenReturn(true);
 
         // when
-        CompletionStage<Void> completionStage = dynamicAction.execute(new ActionContext(commandSource, new ReadingSpeed()));
+        CompletionStage<Void> completionStage = dynamicAction.execute(new ActionContextImpl(commandSource, new ReadingSpeed()));
 
         // then
         completionStage.thenAccept((aVoid) -> verify(inventory).contains(ItemTypes.FISHING_ROD));

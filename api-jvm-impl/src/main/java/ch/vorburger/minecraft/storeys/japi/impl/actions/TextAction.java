@@ -20,6 +20,7 @@ package ch.vorburger.minecraft.storeys.japi.impl.actions;
 
 import static java.util.Objects.requireNonNull;
 
+import ch.vorburger.minecraft.storeys.japi.Action;
 import org.spongepowered.api.text.Text;
 
 public abstract class TextAction<T> implements Action<T> {

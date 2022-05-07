@@ -16,11 +16,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys.model;
+package ch.vorburger.minecraft.storeys.japi.impl.actions;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
-import ch.vorburger.minecraft.storeys.japi.impl.actions.Action;
-import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContext;
+import ch.vorburger.minecraft.storeys.japi.Action;
+import ch.vorburger.minecraft.storeys.japi.ActionContext;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionException;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;

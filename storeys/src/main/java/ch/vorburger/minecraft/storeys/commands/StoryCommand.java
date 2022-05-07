@@ -23,8 +23,8 @@ import static org.spongepowered.api.command.args.GenericArguments.string;
 import static org.spongepowered.api.text.Text.of;
 
 import ch.vorburger.minecraft.storeys.StoryPlayer;
-import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContext;
-import ch.vorburger.minecraft.storeys.japi.impl.actions.ReadingSpeed;
+import ch.vorburger.minecraft.storeys.japi.ReadingSpeed;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContextImpl;
 import ch.vorburger.minecraft.storeys.japi.util.CommandExceptions;
 import ch.vorburger.minecraft.storeys.model.Story;
 import ch.vorburger.minecraft.storeys.model.parser.FileStoryRepository;
@@ -80,7 +80,7 @@ public class StoryCommand implements Command {
             String storyScript = storyRepository.getStoryScript(storyName);
             Story story = storyParser.parse(storyScript);
             /* CompletionStage<?> completionStage = storyPlayer.play(..) */ // TODO keep this, so that a user can /stop the story again..
-            storyPlayer.play(new ActionContext(commandSource, new ReadingSpeed()), story);
+            storyPlayer.play(new ActionContextImpl(commandSource, new ReadingSpeed()), story);
         });
 
         return CommandResult.success();

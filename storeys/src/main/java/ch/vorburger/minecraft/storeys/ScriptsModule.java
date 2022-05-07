@@ -16,29 +16,18 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys.japi.impl;
+package ch.vorburger.minecraft.storeys;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
+import ch.vorburger.minecraft.storeys.example.ExampleScript;
 import ch.vorburger.minecraft.storeys.japi.Script;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import com.google.inject.AbstractModule;
+import com.google.inject.multibindings.Multibinder;
 
-@Singleton public class Scripts {
+public class ScriptsModule extends AbstractModule {
 
-    private List<Unregisterable> unregisterables;
-
-    @Inject public Scripts(PluginInstance plugin, Set<Script> scripts) {
-        unregisterables = scripts.stream().map(script -> {
-            EventsImpl e = new EventsImpl(plugin);
-            script.init(e);
-            return e;
-        }).collect(Collectors.toList());
-    }
-
-    public List<Unregisterable> getUnregisterables() {
-        return unregisterables;
+    @Override protected void configure() {
+        final Multibinder<Script> scriptsBinder = Multibinder.newSetBinder(binder(), Script.class);
+        scriptsBinder.addBinding().to(ExampleScript.class);
     }
 }
+

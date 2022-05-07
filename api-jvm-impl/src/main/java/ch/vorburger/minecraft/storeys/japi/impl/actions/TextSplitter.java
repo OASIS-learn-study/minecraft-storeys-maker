@@ -18,6 +18,7 @@
  */
 package ch.vorburger.minecraft.storeys.japi.impl.actions;
 
+import ch.vorburger.minecraft.storeys.japi.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.japi.util.MoreStrings;
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;

@@ -21,8 +21,8 @@ package ch.vorburger.minecraft.storeys.model;
 import static java.util.Objects.requireNonNull;
 
 import ch.vorburger.minecraft.storeys.Narrator;
-import ch.vorburger.minecraft.storeys.japi.impl.actions.Action;
-import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContext;
+import ch.vorburger.minecraft.storeys.japi.Action;
+import ch.vorburger.minecraft.storeys.japi.ActionContext;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.TextAction;
 import java.util.concurrent.CompletionStage;
 import java.util.regex.Matcher;
