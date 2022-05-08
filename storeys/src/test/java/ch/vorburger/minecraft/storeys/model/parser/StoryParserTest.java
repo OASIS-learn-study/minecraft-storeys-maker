@@ -30,10 +30,10 @@ import static org.mockito.Mockito.when;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.Narrator;
-import ch.vorburger.minecraft.storeys.StoryPlayer;
 import ch.vorburger.minecraft.storeys.japi.Action;
 import ch.vorburger.minecraft.storeys.japi.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContextImpl;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionPlayer;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionWaitHelper;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.CommandAction;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.TitleAction;
@@ -161,8 +161,8 @@ public class StoryParserTest {
         Player commandSource = mock(Player.class);
 
         // when
-        StoryPlayer storyPlayer = new StoryPlayer();
-        storyPlayer.play(new ActionContextImpl(commandSource, new ReadingSpeed()), story);
+        ActionPlayer storyPlayer = new ActionPlayer();
+        storyPlayer.play(new ActionContextImpl(commandSource, new ReadingSpeed()), story.getActionsList());
 
         // then
         verify(commandSource).sendTitle(any(Title.class));

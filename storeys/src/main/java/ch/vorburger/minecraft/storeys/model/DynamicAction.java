@@ -18,10 +18,9 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
-import ch.vorburger.minecraft.storeys.StoryPlayer;
 import ch.vorburger.minecraft.storeys.japi.Action;
 import ch.vorburger.minecraft.storeys.japi.ActionContext;
-import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContextImpl;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionPlayer;
 import ch.vorburger.minecraft.storeys.model.parser.StoryParser;
 import ch.vorburger.minecraft.storeys.model.parser.SyntaxErrorException;
 import java.util.concurrent.CompletableFuture;
@@ -36,11 +35,11 @@ public class DynamicAction implements Action<Void> {
     private static final String POSTFIX = "})()";
 
     private final StoryParser storyParser;
-    private final StoryPlayer storyPlayer;
+    private final ActionPlayer storyPlayer;
 
     private String script = "";
 
-    @Inject public DynamicAction(StoryParser storyParser, StoryPlayer storyPlayer) {
+    @Inject public DynamicAction(StoryParser storyParser, ActionPlayer storyPlayer) {
         this.storyParser = storyParser;
         this.storyPlayer = storyPlayer;
     }
@@ -60,7 +59,7 @@ public class DynamicAction implements Action<Void> {
             String storyText = (String) engine.eval(PREFIX + script + POSTFIX);
             Story story = storyParser.parse(storyText);
 
-            storyPlayer.play(context, story).thenAccept(o -> future.complete(null));
+            storyPlayer.play(context, story.getActionsList()).thenAccept(o -> future.complete(null));
         } catch (ScriptException | SyntaxErrorException e) {
             future.completeExceptionally(e);
         }
