@@ -48,6 +48,7 @@ shadowJar {
     include(project(':api-jvm-impl'))
     include(project(':example'))
     include(dependency('ch.vorburger.minecraft.osgi:api'))
+    include(dependency('ch.vorburger:fswatch'))
     include(dependency('com.spotify:futures-extra'))
 
     include(dependency("io.vertx:vertx-core"))

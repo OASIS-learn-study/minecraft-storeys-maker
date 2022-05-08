@@ -68,7 +68,7 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
     protected void start(PluginInstance plugin, Path configDir) throws Exception {
         eventManager.registerListener(plugin, Join.class, new GuardGameModeJoinListener());
 
-        pluginInjector.createChildInjector(new ScriptsModule(), binder -> {
+        pluginInjector.createChildInjector(new ScriptsModule(configDir), binder -> {
             binder.bind(PluginInstance.class).toInstance(plugin);
             binder.bind(Path.class).toInstance(configDir);
             binder.bind(Scripts.class);
