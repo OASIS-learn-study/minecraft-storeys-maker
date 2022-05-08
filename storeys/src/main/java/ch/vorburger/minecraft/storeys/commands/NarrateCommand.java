@@ -22,8 +22,8 @@ import static org.spongepowered.api.command.args.GenericArguments.onlyOne;
 import static org.spongepowered.api.command.args.GenericArguments.remainingJoinedStrings;
 import static org.spongepowered.api.text.Text.of;
 
-import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.japi.ReadingSpeed;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.Narrator;
 import ch.vorburger.minecraft.storeys.util.Command;
 import com.google.common.collect.ImmutableList;
 import java.util.List;

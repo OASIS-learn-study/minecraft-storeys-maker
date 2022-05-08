@@ -20,12 +20,12 @@ package ch.vorburger.minecraft.storeys.model.parser;
 
 import ch.vorburger.minecraft.storeys.japi.Action;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.CommandAction;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.NarrateAction;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.TitleAction;
 import ch.vorburger.minecraft.storeys.model.AwaitAction;
 import ch.vorburger.minecraft.storeys.model.DynamicAction;
 import ch.vorburger.minecraft.storeys.model.LocationAction;
 import ch.vorburger.minecraft.storeys.model.MessageAction;
-import ch.vorburger.minecraft.storeys.model.NarrateAction;
 import ch.vorburger.minecraft.storeys.model.NopAction;
 import com.google.inject.Inject;
 import java.util.ArrayList;

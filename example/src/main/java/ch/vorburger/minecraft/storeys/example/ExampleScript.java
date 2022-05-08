@@ -35,7 +35,7 @@ public class ExampleScript implements Script {
             m.title("hello,");
             m.title("world");
             m.cmd("/tp 232 63 216 -180 25");
-            m.cmd("/narrate Piggy Hello! I'm Piggy. I have a lot to tell you about... do you want to hear it?");
+            m.narrate("Piggy", "Hello! I'm Piggy. I have a lot to tell you about... do you want to hear it?");
             m.cmd("/say Message in the Chat");
             m.title("The End");
         });

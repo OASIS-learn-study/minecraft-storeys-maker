@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys.util;
+package ch.vorburger.minecraft.storeys.japi.impl.actions;
 
 import static org.spongepowered.api.data.key.Keys.DISPLAY_NAME;
 

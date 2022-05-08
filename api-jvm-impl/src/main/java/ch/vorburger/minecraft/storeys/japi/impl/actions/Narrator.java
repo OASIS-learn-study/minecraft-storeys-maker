@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys;
+package ch.vorburger.minecraft.storeys.japi.impl.actions;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.spongepowered.api.data.key.Keys.CUSTOM_NAME_VISIBLE;
@@ -24,8 +24,6 @@ import static org.spongepowered.api.data.key.Keys.DISPLAY_NAME;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.japi.ReadingSpeed;
-import ch.vorburger.minecraft.storeys.japi.impl.actions.TextSplitter;
-import ch.vorburger.minecraft.storeys.util.NamedObjects;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;

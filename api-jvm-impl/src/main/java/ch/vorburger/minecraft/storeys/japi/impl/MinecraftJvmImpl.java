@@ -24,12 +24,15 @@ import ch.vorburger.minecraft.storeys.japi.Events;
 import ch.vorburger.minecraft.storeys.japi.Minecraft;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionWaitHelper;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.CommandAction;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.NarrateAction;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.Narrator;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.TitleAction;
 import java.util.ArrayList;
 import java.util.List;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.text.Text;
 
 /**
  * {@link Minecraft} implementation.
@@ -62,6 +65,14 @@ class MinecraftJvmImpl implements Minecraft {
     @Override public void title(String text) {
         TitleAction action = new TitleAction(actionWaitHelper);
         action.setParameter(text);
+        actionList.add(action);
+    }
+
+    @Override public void narrate(String entity, String text) {
+        Narrator narrator = new Narrator(plugin);
+        NarrateAction action = new NarrateAction(narrator);
+        action.setEntity(entity);
+        action.setText(Text.of(text));
         actionList.add(action);
     }
 
