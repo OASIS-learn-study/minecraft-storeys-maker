@@ -2,6 +2,7 @@
 dependencies {
     api project(':api-jvm-impl')
     api 'ch.vorburger.minecraft.osgi:api:1.0.0'
+    implementation 'ch.vorburger:fswatch:1.2.0'
 
     implementation project(':example')
     testImplementation project(':test-utils')
