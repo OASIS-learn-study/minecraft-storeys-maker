@@ -16,20 +16,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys;
+package ch.vorburger.minecraft.storeys.japi.impl.actions;
 
 import ch.vorburger.minecraft.storeys.japi.Action;
 import ch.vorburger.minecraft.storeys.japi.ActionContext;
-import ch.vorburger.minecraft.storeys.model.Story;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
-public class StoryPlayer {
+public class ActionPlayer {
 
-    public CompletionStage<?> play(ActionContext context, Story story) {
+    public CompletionStage<?> play(ActionContext context, List<Action<?>> actions) {
         // TODO This must most probably run in an async (!) Task, similar to Narrator - or does it not (because Actions are
         // already async) ?
         CompletionStage<?> previousCompletionStage = null;
-        for (Action<?> action : story.getActionsList()) {
+        for (Action<?> action : actions) {
             if (previousCompletionStage != null) {
                 previousCompletionStage = previousCompletionStage.thenCompose(lastResult -> action.execute(context));
             } else {
@@ -38,5 +38,4 @@ public class StoryPlayer {
         }
         return previousCompletionStage;
     }
-
 }

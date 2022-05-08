@@ -22,9 +22,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import ch.vorburger.minecraft.storeys.StoryPlayer;
 import ch.vorburger.minecraft.storeys.japi.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContextImpl;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionPlayer;
 import ch.vorburger.minecraft.storeys.model.parser.ClassLoaderResourceStoryRepository;
 import ch.vorburger.minecraft.storeys.model.parser.StoryParser;
 import ch.vorburger.minecraft.storeys.model.parser.StoryParserTest;
@@ -47,7 +47,7 @@ public class DynamicActionTest {
         // given
         StoryParser storyParser = StoryParserTest.getStoryParser();
         String storyText = new ClassLoaderResourceStoryRepository().getStoryScript("dynamic-test");
-        DynamicAction dynamicAction = new DynamicAction(storyParser, new StoryPlayer());
+        DynamicAction dynamicAction = new DynamicAction(storyParser, new ActionPlayer());
         dynamicAction.setParameter(storyText);
         Player commandSource = mock(Player.class);
         CarriedInventory inventory = mock(CarriedInventory.class);

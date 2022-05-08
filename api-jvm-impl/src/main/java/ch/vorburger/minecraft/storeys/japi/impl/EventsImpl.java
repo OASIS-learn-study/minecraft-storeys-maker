@@ -19,18 +19,15 @@
 package ch.vorburger.minecraft.storeys.japi.impl;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
-import ch.vorburger.minecraft.storeys.japi.Action;
-import ch.vorburger.minecraft.storeys.japi.ActionContext;
 import ch.vorburger.minecraft.storeys.japi.Callback;
 import ch.vorburger.minecraft.storeys.japi.Events;
 import ch.vorburger.minecraft.storeys.japi.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.japi.Script;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContextImpl;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionPlayer;
 import ch.vorburger.minecraft.storeys.japi.util.CommandExceptions;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +49,7 @@ class EventsImpl implements Events, Unregisterable {
 
     private final PluginInstance plugin;
     private final Collection<Unregisterable> unregistrables = new ConcurrentLinkedQueue<>();
+    private final ActionPlayer player = new ActionPlayer();
 
     EventsImpl(PluginInstance plugin) {
         this.plugin = plugin;
@@ -61,7 +59,7 @@ class EventsImpl implements Events, Unregisterable {
         CommandSpec spec = CommandSpec.builder().executor((src, args) -> {
             MinecraftJvmImpl m = new MinecraftJvmImpl(src, plugin);
             CommandExceptions.doOrThrow("/" + name, () -> callback.invoke(m));
-            play(new ActionContextImpl(m.player(), new ReadingSpeed()), m.getActionList());
+            player.play(new ActionContextImpl(m.player(), new ReadingSpeed()), m.getActionList());
             return CommandResult.success();
         }).build();
         Optional<CommandMapping> opt = Sponge.getCommandManager().register(plugin, spec, name);
@@ -70,19 +68,6 @@ class EventsImpl implements Events, Unregisterable {
             return;
         }
         unregistrables.add(() -> Sponge.getCommandManager().removeMapping(opt.get()));
-    }
-
-    /* Copied from StoryPlayer */
-    private CompletionStage<?> play(ActionContext context, List<Action<?>> actionList) {
-        CompletionStage<?> previousCompletionStage = null;
-        for (Action<?> action : actionList) {
-            if (previousCompletionStage != null) {
-                previousCompletionStage = previousCompletionStage.thenCompose(lastResult -> action.execute(context));
-            } else {
-                previousCompletionStage = action.execute(context);
-            }
-        }
-        return previousCompletionStage;
     }
 
     @Override public void unregister() {

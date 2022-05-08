@@ -22,9 +22,9 @@ import static org.spongepowered.api.command.args.GenericArguments.onlyOne;
 import static org.spongepowered.api.command.args.GenericArguments.string;
 import static org.spongepowered.api.text.Text.of;
 
-import ch.vorburger.minecraft.storeys.StoryPlayer;
 import ch.vorburger.minecraft.storeys.japi.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContextImpl;
+import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionPlayer;
 import ch.vorburger.minecraft.storeys.japi.util.CommandExceptions;
 import ch.vorburger.minecraft.storeys.model.Story;
 import ch.vorburger.minecraft.storeys.model.parser.FileStoryRepository;
@@ -50,9 +50,9 @@ public class StoryCommand implements Command {
 
     private final StoryRepository storyRepository;
     private final StoryParser storyParser;
-    private final StoryPlayer storyPlayer;
+    private final ActionPlayer storyPlayer;
 
-    @Inject public StoryCommand(Path configDir, StoryParser storyParser, StoryPlayer storyPlayer) {
+    @Inject public StoryCommand(Path configDir, StoryParser storyParser, ActionPlayer storyPlayer) {
         File storiesDir = new File(configDir.toFile(), "stories");
         if (!storiesDir.exists()) {
             storiesDir.mkdirs();
@@ -80,7 +80,7 @@ public class StoryCommand implements Command {
             String storyScript = storyRepository.getStoryScript(storyName);
             Story story = storyParser.parse(storyScript);
             /* CompletionStage<?> completionStage = storyPlayer.play(..) */ // TODO keep this, so that a user can /stop the story again..
-            storyPlayer.play(new ActionContextImpl(commandSource, new ReadingSpeed()), story);
+            storyPlayer.play(new ActionContextImpl(commandSource, new ReadingSpeed()), story.getActionsList());
         });
 
         return CommandResult.success();
