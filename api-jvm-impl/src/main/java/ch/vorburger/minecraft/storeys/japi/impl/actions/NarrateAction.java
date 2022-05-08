@@ -16,14 +16,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys.model;
+package ch.vorburger.minecraft.storeys.japi.impl.actions;
 
 import static java.util.Objects.requireNonNull;
 
-import ch.vorburger.minecraft.storeys.Narrator;
 import ch.vorburger.minecraft.storeys.japi.Action;
 import ch.vorburger.minecraft.storeys.japi.ActionContext;
-import ch.vorburger.minecraft.storeys.japi.impl.actions.TextAction;
 import java.util.concurrent.CompletionStage;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

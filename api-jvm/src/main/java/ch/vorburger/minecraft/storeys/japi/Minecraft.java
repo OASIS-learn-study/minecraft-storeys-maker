@@ -37,6 +37,8 @@ public interface Minecraft {
 
     void title(String text);
 
+    void narrate(String entity, String text);
+
     // TODO void wait(int seconds);
 
     // Following are things that are useful "context" for Scripts
