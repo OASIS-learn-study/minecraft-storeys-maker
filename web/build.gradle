@@ -4,6 +4,11 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
+repositories {
+    mavenCentral()
+    // mavenLocal() // un-comment temporarily for local dev (only)
+}
+
 dependencies {
     implementation project(':api')
     implementation(project(':storeys'))

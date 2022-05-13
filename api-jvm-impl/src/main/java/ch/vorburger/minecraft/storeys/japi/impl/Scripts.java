@@ -44,11 +44,13 @@ public class Scripts {
         script.init(e);
     }
 
-    public void unregister(Object key) {
+    public boolean unregister(Object key) {
         Unregisterable unregisterable = unregisterables.remove(key);
         if (unregisterable != null) {
             unregisterable.unregister();
+            return true;
         }
+        return false;
     }
 
     public Collection<Unregisterable> getUnregisterables() {
