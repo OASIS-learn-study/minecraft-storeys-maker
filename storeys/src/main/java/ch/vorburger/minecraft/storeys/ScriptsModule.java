@@ -18,20 +18,20 @@
  */
 package ch.vorburger.minecraft.storeys;
 
+import static com.google.common.base.Charsets.UTF_8;
 import static java.nio.file.Files.walk;
 
 import ch.vorburger.fswatch.DirectoryWatcher;
 import ch.vorburger.fswatch.DirectoryWatcherBuilder;
 import ch.vorburger.minecraft.storeys.example.ExampleScript;
 import ch.vorburger.minecraft.storeys.japi.Script;
+import com.google.common.io.MoreFiles;
+import com.google.common.io.Resources;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Scanner;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -48,8 +48,8 @@ public class ScriptsModule extends AbstractModule {
         final Multibinder<Script> scriptsBinder = Multibinder.newSetBinder(binder(), Script.class);
         scriptsBinder.addBinding().to(ExampleScript.class);
         try (DirectoryWatcher dw = new DirectoryWatcherBuilder().path(scriptsFolder).listener((path, changeKind) -> {
-            if (changeKind == DirectoryWatcher.ChangeKind.MODIFIED && !Files.isDirectory(path)) {
-                //TODO Unregister
+            if ((changeKind == DirectoryWatcher.ChangeKind.MODIFIED) && !Files.isDirectory(path)) {
+                // TODO Unregister
                 parse(path);
             }
         }).build()) {
@@ -66,8 +66,8 @@ public class ScriptsModule extends AbstractModule {
     }
 
     private void parse(Path file) throws IOException, ScriptException {
-        String template = fileToText(getClass().getResourceAsStream("/script-template.js"));
-        String scriptFile = fileToText(file);
+        String template = Resources.toString(Resources.getResource(ScriptsModule.class, "/script-template.js"), UTF_8);
+        String scriptFile = MoreFiles.asCharSource(file, UTF_8).read();
 
         final String result = template.replace("//SCRIPT", scriptFile);
 
@@ -77,19 +77,4 @@ public class ScriptsModule extends AbstractModule {
         final Script script = (Script) engine.eval(result);
         Multibinder.newSetBinder(binder(), Script.class).addBinding().toInstance(script);
     }
-
-    private String fileToText(Path file) throws IOException {
-        final InputStream inputStream = Files.newInputStream(file);
-
-        return fileToText(inputStream);
-    }
-
-    private String fileToText(InputStream inputStream) {
-        String text;
-        try (Scanner scanner = new Scanner(inputStream, StandardCharsets.UTF_8.name())) {
-            text = scanner.useDelimiter("\\A").next();
-        }
-        return text;
-    }
 }
-
