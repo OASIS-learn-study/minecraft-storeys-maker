@@ -29,6 +29,7 @@ import com.google.common.io.MoreFiles;
 import com.google.common.io.Resources;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -52,20 +53,28 @@ public class ScriptsLoader {
         if (!scriptsFolder.toFile().exists() && !scriptsFolder.toFile().mkdirs()) {
             throw new IOException("Failed to mkdirs: " + scriptsFolder);
         }
-        dw = new DirectoryWatcherBuilder().path(scriptsFolder).listener((path, changeKind) -> {
+        dw = new DirectoryWatcherBuilder().path(scriptsFolder).existingFiles(true).listener((path, changeKind) -> {
             // LOG.info("DirectoryWatcher listener: changeKind={}, path={}", changeKind, path);
             if (!Files.isDirectory(path)) {
                 switch (changeKind) {
                     case CREATED:
                     case MODIFIED:
                         scripts.unregister(path);
-                        scripts.register(path, load(path));
-                        LOG.info("(Re-)loaded {}", path);
+                        try {
+                            scripts.register(path, load(path));
+                            LOG.info("(Re-)loaded {}", path);
+                        } catch (NoSuchFileException e) {
+                            // Ignore (happens frequently for temporary files with Git)
+                        } catch (RuntimeException e) {
+                            LOG.warn("Failed to register {}", path, e);
+                        }
+                        // TODO catch (NashornException e) with getFileName(), getLineNumber(), getColumnNumber()
                         break;
 
                     case DELETED:
-                        scripts.unregister(path);
-                        LOG.info("Unregistered {}", path);
+                        if (scripts.unregister(path)) {
+                            LOG.info("Unregistered {}", path);
+                        }
                         break;
 
                     default:
