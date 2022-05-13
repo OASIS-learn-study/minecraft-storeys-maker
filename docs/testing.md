@@ -48,12 +48,10 @@ The following doesn't work yet, but should after bug #310 is resolved:
 
 ## JavaScript (v3, `new-scripts/*.js`)
 
+1. `touch minecraft-server-test-data/config/storeys-web/new-scripts/test.js` _(TODO this won't be required anymore in the future)_
 1. `/new`
 1. Verify [`test.js`](../minecraft-server-test-data/config/storeys-web/new-scripts/test.js) happened as expected
-
-_TODO This does not work, yet; but will soon be made to:_
-
-1. Change `m.title("Hello");` in `test.js` to `m.title("hello, world");`
+1. Edit `test.js` to change `m.title("Hello");` to `m.title("hello, world");`
 1. `/new`
 1. Verify title shown changed
 

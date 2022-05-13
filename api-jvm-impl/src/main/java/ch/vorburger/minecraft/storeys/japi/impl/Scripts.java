@@ -20,25 +20,38 @@ package ch.vorburger.minecraft.storeys.japi.impl;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.japi.Script;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-@Singleton public class Scripts {
+@Singleton
+public class Scripts {
 
-    private List<Unregisterable> unregisterables;
+    private final Map<Object, Unregisterable> unregisterables = new ConcurrentHashMap<>();
+    private final PluginInstance plugin;
 
-    @Inject public Scripts(PluginInstance plugin, Set<Script> scripts) {
-        unregisterables = scripts.stream().map(script -> {
-            EventsImpl e = new EventsImpl(plugin);
-            script.init(e);
-            return e;
-        }).collect(Collectors.toList());
+    @Inject public Scripts(PluginInstance plugin) {
+        this.plugin = plugin;
     }
 
-    public List<Unregisterable> getUnregisterables() {
-        return unregisterables;
+    public void register(Object key, Script script) {
+        EventsImpl e = new EventsImpl(plugin);
+        if (unregisterables.putIfAbsent(key, e) != null) {
+            throw new IllegalArgumentException("Key already registered, must unregister() it first: " + key);
+        }
+        script.init(e);
+    }
+
+    public void unregister(Object key) {
+        Unregisterable unregisterable = unregisterables.remove(key);
+        if (unregisterable != null) {
+            unregisterable.unregister();
+        }
+    }
+
+    public Collection<Unregisterable> getUnregisterables() {
+        return unregisterables.values();
     }
 }
