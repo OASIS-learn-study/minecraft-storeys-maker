@@ -10,22 +10,25 @@ import classes from "./blockly.module.css";
 
 type BlocklyComponentProps = {
   initialXml?: string;
+  onWorkspaceChange?: (workspace?: Blockly.WorkspaceSvg) => void
   children?: ReactNode;
 };
 
 export const BlocklyComponent = ({
   initialXml,
+  onWorkspaceChange,
   children,
   ...rest
 }: BlocklyComponentProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const toolbox = useRef();
-  const [workspace, setWorkspace] = useState<any>();
+  const [workspace, setWorkspace] = useState<Blockly.WorkspaceSvg>();
 
-  // window.generateCode = () => {
-  //   var code = generate(workspace)
-  //   console.log(code);
-  // }
+  const changeListener = () => {
+    if (workspace && onWorkspaceChange) {
+      onWorkspaceChange(workspace)
+    }
+  }
 
   useLayoutEffect(() => {
     Blockly.setLocale(locale);
@@ -43,6 +46,10 @@ export const BlocklyComponent = ({
     if (initialXml) {
       Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(initialXml), w);
     }
+    if (onWorkspaceChange)
+      w.addChangeListener(changeListener)
+    return () => workspace?.removeChangeListener(changeListener)
+
     setWorkspace(w);
   }, []);
 
