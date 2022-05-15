@@ -3,62 +3,50 @@
 import Blockly from "blockly/core";
 import BlocklyJS from "blockly/javascript";
 import "blockly/javascript";
-
-type BlockType = {
-  getField: (arg0: string) => {
-    (): any;
-    new (): any;
-    getValue: { (): string; new (): any };
-  };
-};
+import { Block } from "core/blockly";
 
 export default function initGenerator() {
-  Blockly.JavaScript["when_event"] = (block: BlockType) => {
+  Blockly.JavaScript["when_event"] = (block: Block) => {
     const whenStatements = Blockly.JavaScript.statementToCode(block, "THEN");
     return (
       'whenEvent("' +
-      block.getField("EVENT").getValue() +
+      block.getField("EVENT")?.getValue() +
       '", () => {\n' +
       whenStatements +
       "\n});\n"
     );
   };
 
-  Blockly.JavaScript["when_right_clicked"] = (block: BlockType) => {
+  Blockly.JavaScript["when_right_clicked"] = (block: Block) => {
     const whenStatements = Blockly.JavaScript.statementToCode(block, "THEN");
+    const entity = block.getField("ENTITY")?.getValue();
     return (
       'whenRightClicked("' +
-      block.getField("ENTITY").getValue() +
+      entity +
       '", () => {\n' +
       whenStatements +
       "\n});\n"
     );
   };
 
-  Blockly.JavaScript["when_command"] = (block: BlockType) => {
+  Blockly.JavaScript["when_command"] = (block: Block) => {
     const whenStatements = Blockly.JavaScript.statementToCode(block, "THEN");
+    const command = block.getField("COMMAND")?.getValue();
     return (
-      'whenCommand("' +
-      block.getField("COMMAND").getValue() +
-      '", () => {\n' +
-      whenStatements +
-      "\n});\n"
+      'whenCommand("' + command + '", () => {\n' + whenStatements + "\n});\n"
     );
   };
 
-  Blockly.JavaScript["when_inside"] = (block: BlockType) => {
+  Blockly.JavaScript["when_inside"] = (block: Block) => {
     const whenStatements = Blockly.JavaScript.statementToCode(block, "THEN");
+    const areaName = block.getField("AREA")?.getValue();
     return (
-      'whenInside("' +
-      block.getField("AREA").getValue() +
-      '", () => {\n' +
-      whenStatements +
-      "\n});\n"
+      'whenInside("' + areaName + '", () => {\n' + whenStatements + "\n});\n"
     );
   };
 
-  Blockly.JavaScript["narrate"] = (block: BlockType) => {
-    const name = block.getField("ENTITY").getValue();
+  Blockly.JavaScript["narrate"] = (block: Block) => {
+    const name = block.getField("ENTITY")?.getValue();
     const text = Blockly.JavaScript.valueToCode(
       block,
       "TEXT",
@@ -68,11 +56,16 @@ export default function initGenerator() {
     return 'minecraft.say("' + name + '", ' + text + ");\n";
   };
 
-  Blockly.JavaScript["minecraftCommand"] = (block: BlockType) => {
-    return 'minecraft.cmd("' + block.getField("COMMAND").getValue() + '");\n';
+  Blockly.JavaScript["minecraftCommand"] = (block: Block) => {
+    const command = Blockly.JavaScript.valueToCode(
+      block,
+      "COMMAND",
+      Blockly.JavaScript.ORDER_ATOMIC
+    );
+    return 'minecraft.cmd(' + command + ');\n';
   };
 
-  Blockly.JavaScript["addRemoveItem"] = (block: BlockType) => {
+  Blockly.JavaScript["addRemoveItem"] = (block: Block) => {
     const amount = Blockly.JavaScript.valueToCode(
       block,
       "AMOUNT",
@@ -86,7 +79,7 @@ export default function initGenerator() {
     return "minecraft.addRemoveItem(" + amount + ", " + item + ");\n";
   };
 
-  Blockly.JavaScript["showTitle"] = (block: BlockType) => {
+  Blockly.JavaScript["showTitle"] = (block: Block) => {
     const text = Blockly.JavaScript.valueToCode(
       block,
       "TEXT",
@@ -96,17 +89,17 @@ export default function initGenerator() {
     return "minecraft.showTitle(" + text + ");\n";
   };
 
-  Blockly.JavaScript["items"] = (block: BlockType) => [
-    block.getField("ITEM").getValue(),
+  Blockly.JavaScript["items"] = (block: Block) => [
+    block.getField("ITEM")?.getValue(),
     Blockly.JavaScript.ORDER_ATOMIC,
   ];
 
-  Blockly.JavaScript["itemHeld"] = (block: BlockType) => [
+  Blockly.JavaScript["itemHeld"] = (block: Block) => [
     "minecraft.player().getItemInHand()",
     Blockly.JavaScript.ORDER_ATOMIC,
   ];
 
-  Blockly.JavaScript["lastPlayerJoined"] = (block: BlockType) => [
+  Blockly.JavaScript["lastPlayerJoined"] = (block: Block) => [
     "Erik",
     Blockly.JavaScript.ORDER_ATOMIC,
   ];

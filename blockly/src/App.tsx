@@ -57,7 +57,13 @@ const App = () => {
               </Shadow>
             </Value>
           </Block>
-          <Block type="minecraftCommand" />
+          <Block type="minecraftCommand">
+            <Value name="COMMAND">
+              <Shadow type="text">
+                <Field name="TEXT">demo</Field>
+              </Shadow>
+            </Value>
+          </Block>
           <Block type="addRemoveItem">
             <Value name="AMOUNT">
               <Shadow type="math_number">

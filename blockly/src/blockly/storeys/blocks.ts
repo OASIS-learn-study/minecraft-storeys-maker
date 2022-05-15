@@ -106,9 +106,8 @@ const EVENT_BLOCK = [
     message0: "/%1",
     args0: [
       {
-        type: "field_input",
+        type: "input_value",
         name: "COMMAND",
-        text: "demo",
         check: "String",
       },
     ],
