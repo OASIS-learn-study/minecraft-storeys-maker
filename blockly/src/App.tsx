@@ -8,22 +8,19 @@ import { generate } from "./blockly/storeys/code";
 import classes from "./app.module.css";
 
 const App = () => {
-  const [messageShown, setMessageShown] = useState(false);
   const [workspace, setWorkspace] = useState<Blockly.WorkspaceSvg>();
-  const generateCode = () => console.log(generate(workspace));
   return (
     <div className={classes.page}>
       <header className={classes.header}>
         <button
           onClick={() => {
-            generateCode();
-            if (!messageShown) {
-              alert("open console to see the generated code");
-              setMessageShown(true);
-            }
+            const code = generate(workspace);
+            let formData = new FormData();
+            formData.append("file", new Blob([code]), "filename");
+            fetch("/code", { method: "POST", body: formData });
           }}
         >
-          Generate code
+          upload code
         </button>
       </header>
       <BlocklyComponent

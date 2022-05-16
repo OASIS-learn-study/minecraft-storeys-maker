@@ -21,6 +21,7 @@ package ch.vorburger.minecraft.storeys.web;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.FileUpload;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
@@ -47,8 +48,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michael Vorburger.ch
  */
-@Singleton
-public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
+@Singleton public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
 
     private static final Logger LOG = LoggerFactory.getLogger(StaticWebServerVerticle.class);
 
@@ -118,6 +118,20 @@ public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
             } else {
                 context.reroute("/project/init");
             }
+        });
+
+        router.route().handler(BodyHandler.create().setUploadsDirectory(configDir.resolve("new-scripts").toString()));
+        router.post("/code").handler(ctx -> {
+            ctx.response().putHeader("Content-Type", "text/plain");
+            ctx.response().setChunked(true);
+
+            for (FileUpload f : ctx.fileUploads()) {
+                ctx.response().write("Filename: " + f.fileName());
+                ctx.response().write("\n");
+                ctx.response().write("Size: " + f.size());
+            }
+
+            ctx.response().end();
         });
 
         // see https://github.com/vorburger/minecraft-storeys-maker/issues/97 re. setFilesReadOnly(false) &

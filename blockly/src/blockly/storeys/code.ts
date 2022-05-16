@@ -9,9 +9,9 @@ export default function initGenerator() {
   Blockly.JavaScript["when_event"] = (block: Block) => {
     const whenStatements = Blockly.JavaScript.statementToCode(block, "THEN");
     return (
-      'whenEvent("' +
+      'e.whenEvent("' +
       block.getField("EVENT")?.getValue() +
-      '", () => {\n' +
+      '", function(m) {\n' +
       whenStatements +
       "\n});\n"
     );
@@ -21,9 +21,9 @@ export default function initGenerator() {
     const whenStatements = Blockly.JavaScript.statementToCode(block, "THEN");
     const entity = block.getField("ENTITY")?.getValue();
     return (
-      'whenRightClicked("' +
+      'e.whenRightClicked("' +
       entity +
-      '", () => {\n' +
+      '", function(m) {\n' +
       whenStatements +
       "\n});\n"
     );
@@ -33,7 +33,7 @@ export default function initGenerator() {
     const whenStatements = Blockly.JavaScript.statementToCode(block, "THEN");
     const command = block.getField("COMMAND")?.getValue();
     return (
-      'whenCommand("' + command + '", () => {\n' + whenStatements + "\n});\n"
+      'e.whenCommand("' + command + '", function(m) {\n' + whenStatements + "\n});\n"
     );
   };
 
@@ -41,7 +41,7 @@ export default function initGenerator() {
     const whenStatements = Blockly.JavaScript.statementToCode(block, "THEN");
     const areaName = block.getField("AREA")?.getValue();
     return (
-      'whenInside("' + areaName + '", () => {\n' + whenStatements + "\n});\n"
+      'e.whenInside("' + areaName + '", function(m) {\n' + whenStatements + "\n});\n"
     );
   };
 
@@ -53,7 +53,7 @@ export default function initGenerator() {
       Blockly.JavaScript.ORDER_ATOMIC
     );
 
-    return 'minecraft.say("' + name + '", ' + text + ");\n";
+    return 'm.say("' + name + '", ' + text + ");\n";
   };
 
   Blockly.JavaScript["minecraftCommand"] = (block: Block) => {
@@ -62,7 +62,7 @@ export default function initGenerator() {
       "COMMAND",
       Blockly.JavaScript.ORDER_ATOMIC
     );
-    return 'minecraft.cmd(' + command + ');\n';
+    return 'm.cmd(' + command + ');\n';
   };
 
   Blockly.JavaScript["addRemoveItem"] = (block: Block) => {
@@ -76,7 +76,7 @@ export default function initGenerator() {
       "ITEM",
       Blockly.JavaScript.ORDER_ATOMIC
     );
-    return "minecraft.addRemoveItem(" + amount + ", " + item + ");\n";
+    return "m.addRemoveItem(" + amount + ", " + item + ");\n";
   };
 
   Blockly.JavaScript["showTitle"] = (block: Block) => {
@@ -86,7 +86,7 @@ export default function initGenerator() {
       Blockly.JavaScript.ORDER_ATOMIC
     );
 
-    return "minecraft.showTitle(" + text + ");\n";
+    return "m.title(" + text + ");\n";
   };
 
   Blockly.JavaScript["items"] = (block: Block) => [
@@ -95,7 +95,7 @@ export default function initGenerator() {
   ];
 
   Blockly.JavaScript["itemHeld"] = (block: Block) => [
-    "minecraft.player().getItemInHand()",
+    "m.player().getItemInHand()",
     Blockly.JavaScript.ORDER_ATOMIC,
   ];
 
