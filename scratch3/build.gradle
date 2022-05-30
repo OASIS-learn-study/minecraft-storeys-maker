@@ -8,9 +8,9 @@ dependencies {
 
 node {
     // https://github.com/srs/gradle-node-plugin/blob/master/docs/node.md#configuring-the-plugin
-    version = '17.0.1'
-    npmVersion = '8.1.0'
-    download = true
+    version = '16.15.0'
+    npmVersion = '8.5.5'
+    download = false
 }
 
 task npmInstallDep(type: NpmTask, dependsOn: 'npmSetup') {
