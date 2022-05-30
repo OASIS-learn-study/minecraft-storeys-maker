@@ -2,10 +2,12 @@ import { ReactNode, useLayoutEffect, useRef, useState } from "react";
 
 import "blockly/blocks";
 import Blockly from "blockly/core";
+// @ts-ignore
 import locale from "blockly/msg/en";
 
 import initBlocks from "./storeys/blocks";
-import initGenerator, { generate } from "./storeys/code";
+import initGenerator from "./storeys/code";
+// @ts-ignore
 import classes from "./blockly.module.css";
 
 type BlocklyComponentProps = {
@@ -67,7 +69,4 @@ export const BlocklyComponent = ({
     </>
   );
 };
-function generateCode(workspace: undefined) {
-  throw new Error("Function not implemented.");
-}
 

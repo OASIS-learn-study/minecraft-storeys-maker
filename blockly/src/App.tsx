@@ -5,6 +5,7 @@ import { Block, Category, Value, Shadow, Field } from "./blockly/Block";
 import { BlocklyComponent } from "./blockly/BlocklyComponent";
 import { generate } from "./blockly/storeys/code";
 
+// @ts-ignore
 import classes from "./app.module.css";
 
 const App = () => {
