@@ -56,7 +56,8 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
     private CommandMapping loginCommandMapping;
     private CommandMapping tokenCommandMapping;
 
-    @Inject @DefaultConfig(sharedRoot = true) private ConfigurationLoader<CommentedConfigurationNode> configurationLoader;
+    @Inject
+    @DefaultConfig(sharedRoot = true) private ConfigurationLoader<CommentedConfigurationNode> configurationLoader;
 
     @Override public void start(PluginInstance plugin, Path configDir) throws Exception {
         super.start(plugin, configDir);
@@ -73,7 +74,6 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
             binder.bind(new TypeLiteral<ConfigurationLoader<CommentedConfigurationNode>>() {
             }).toInstance(configurationLoader);
             binder.bind(LocationToolListener.class);
-            binder.bind(NodeStarter.class);
         });
         actionsConsumer = injector.getInstance(ActionsConsumer.class);
         MinecraftVerticle minecraftVerticle = injector.getInstance(MinecraftVerticle.class);

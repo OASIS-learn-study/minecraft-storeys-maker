@@ -12,11 +12,10 @@ repositories {
 dependencies {
     implementation project(':api')
     implementation(project(':storeys'))
-    implementation project(':scratch3')
+    implementation project(':blockly')
 
     implementation 'org.osgi:org.osgi.core:6.0.0'
     implementation 'commons-io:commons-io:2.11.0'
-    implementation 'ch.vorburger.exec:exec:3.1.3'
     implementation 'io.vertx:vertx-service-proxy:4.0.2'
 
     testImplementation 'org.seleniumhq.selenium:selenium-java:3.141.59'
@@ -47,7 +46,7 @@ shadowJar {
     // so instead of using exclude dependency we just do explicit include:
 
     include(project(':api'))
-    include(project(':scratch3'))
+    include(project(':blockly'))
     include(project(':storeys'))
     include(project(':api-jvm'))
     include(project(':api-jvm-impl'))
@@ -81,11 +80,6 @@ shadowJar {
     include(dependency("io.netty:netty-codec-http2"))
     include(dependency("com.fasterxml.jackson.core:jackson-core"))
     exclude 'module-info.class'
-
-    // vorburger's exec and all it's transitive dependencies
-    include(dependency("ch.vorburger.exec:exec"))
-    include(dependency("org.apache.commons:commons-exec"))
-    include(dependency("org.apache.commons:commons-collections4"))
   }
 }
 
