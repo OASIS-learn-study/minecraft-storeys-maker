@@ -2,9 +2,6 @@ buildscript {
   repositories {
     jcenter()
   }
-  dependencies {
-    classpath 'biz.aQute.bnd:biz.aQute.bnd.gradle:4.3.1'
-  }
 }
 
 plugins {
@@ -25,7 +22,6 @@ allprojects  {
 
     apply plugin: 'checkstyle'
     apply plugin: 'java-library'
-    apply plugin: 'biz.aQute.bnd.builder'
     apply plugin: 'com.github.hierynomus.license'
     // apply plugin: 'net.ltgt.errorprone'
 
