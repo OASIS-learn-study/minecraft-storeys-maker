@@ -3,25 +3,36 @@ set -euox pipefail
 
 ./make
 
-podman stop --time 7 storeys || true
+docker stop --time 7 storeys || true
 
-podman run --name storeys --detach --rm \
+docker run --name storeys --detach --rm \
     -e OPS=73551f35-7acb-45c0-bc65-8083c53eec69,fb79c1a9-72bd-34dc-9775-c2ac868d7ccf \
     -e ONLINE_MODE=FALSE \
     -v $PWD/minecraft-server-test-data:/data:Z -e UID=0 -e GID=0 \
     -p 25565:25565 -p 8080:8080 -p 7070:7070 minecraft-storeys-maker
 
-podman logs -f storeys &
+docker logs -f storeys &
 
-RETRIES=30
-until podman healthcheck run storeys; do
-  RETRIES=$(($RETRIES - 1))
-    if [ $RETRIES -eq 0 ]; then
-        echo "Minecraft container failed to become healthy, giving up now"
-        exit 1
-    fi
-    sleep 1
-done
+RETRIES=60
+if [ $(command -v podman) ]; then
+  until docker healthcheck run storeys; do
+    RETRIES=$(($RETRIES - 1))
+      if [ $RETRIES -eq 0 ]; then
+          echo "Minecraft container failed to become healthy, giving up now"
+          exit 1
+      fi
+      sleep 1
+  done
+else
+  until [[ $(docker inspect --format='{{json .State.Health.Status}}' storeys) =~ healthy ]]; do
+    RETRIES=$(($RETRIES - 1))
+      if [ $RETRIES -eq 0 ]; then
+          echo "Minecraft container failed to become healthy, giving up now"
+          exit 1
+      fi
+      sleep 1
+  done
+fi
 
 ./gradlew test-mineflayer:npmTest
 
