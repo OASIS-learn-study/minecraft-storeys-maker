@@ -16,7 +16,21 @@ task npmInstallDep(type: NpmTask, dependsOn: 'npmSetup') {
     npmCommand = ['install']
 }
 
-task npmTest(type: NpmTask, dependsOn: 'npmInstallDep') {
-    args = ['test']
+task npmBuildProd(type: NpmTask, dependsOn: 'npmInstallDep') {
+    inputs.files(fileTree('src'))
+    inputs.file('package.json')
+
+    outputs.dir('dist')
+
+    args = ['run', 'build']
 }
 
+jar.configure { dependsOn(npmBuildProd) }
+
+jar {
+    into 'static', {
+        from("./dist") {
+            include '**/*.*'
+        }
+    }
+}
