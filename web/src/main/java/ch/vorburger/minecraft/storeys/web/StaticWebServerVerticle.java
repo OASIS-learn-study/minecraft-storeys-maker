@@ -30,16 +30,15 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +47,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michael Vorburger.ch
  */
-@Singleton public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
+@Singleton
+public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
 
     private static final Logger LOG = LoggerFactory.getLogger(StaticWebServerVerticle.class);
 
@@ -57,8 +57,8 @@ import org.slf4j.LoggerFactory;
 
     @Inject public StaticWebServerVerticle(Path configDir, @Named("web-http-port") int httpPort) {
         super(httpPort);
-        webRoot = "static"; // = ../scratch3/node_modules/minecraft-storeys-scratch-gui/build/
-        this.configDir = configDir;
+        webRoot = "static"; // = ../blockly/dist/
+        this.configDir = Objects.requireNonNull(configDir, "configDir == null");
     }
 
     @Override protected void addRoutes(Router router) {
@@ -68,15 +68,6 @@ import org.slf4j.LoggerFactory;
             final String userId = context.pathParam("userId");
             new ProjectEditor(userId, configDir).moveProjectToBackend();
             context.response().send();
-        });
-        router.get("/project/init").handler(context -> {
-            final InputStream stream = getClass().getResourceAsStream("/scratch3-initial.json");
-            try {
-                context.response().send(IOUtils.toString(stream));
-            } catch (IOException e) {
-                throw new RuntimeException("Couldn't read initial project.json from jar file", e);
-            }
-            context.response().end();
         });
         router.put(projectPath).handler(BodyHandler.create().setMergeFormAttributes(true));
         router.put(projectPath).handler(context -> {
@@ -116,6 +107,7 @@ import org.slf4j.LoggerFactory;
                     throw new RuntimeException("Couldn't move / read file in working directory", e);
                 }
             } else {
+                // TODO vorburger for edewit: THis probably needs to be changed.. or entirely removed, together with the ProjectEditor?
                 context.reroute("/project/init");
             }
         });
@@ -126,6 +118,7 @@ import org.slf4j.LoggerFactory;
             ctx.response().setChunked(true);
 
             for (FileUpload f : ctx.fileUploads()) {
+                LOG.info("Uploaded file {} (size {})", f.fileName(), f.size());
                 ctx.response().write("Filename: " + f.fileName());
                 ctx.response().write("\n");
                 ctx.response().write("Size: " + f.size());

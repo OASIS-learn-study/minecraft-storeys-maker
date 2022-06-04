@@ -19,8 +19,6 @@
 package ch.vorburger.minecraft.storeys.web;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -32,10 +30,9 @@ import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.web.test.TestMinecraft;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import io.vertx.core.json.JsonObject;
-import java.text.MessageFormat;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import org.junit.AfterClass;
@@ -61,16 +58,14 @@ import org.spongepowered.api.entity.living.player.Player;
 
 /**
  * Integration test, based on WebDriver.
- * This does not test Minecraft itself nor the Scratch UI but the code in this project which sits between the two.
+ * This does not test Minecraft itself nor much of the Blockly UI but the code in this project which sits between.
  *
  * @author Michael Vorburger.ch
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING) // required because tests are not yet completely independent, see sleep()
 public class SeleniumTest {
 
-    // TODO use https://www.testcontainers.org
-
-    // TODO @Test public void testLoadInScratch() by openingURL like LoginCommand does
+    // TODO use https://www.testcontainers.org ?
 
     private static VertxStarter vertxStarter;
     private static TestMinecraft testMinecraft;
@@ -106,7 +101,8 @@ public class SeleniumTest {
             }
         });
         vertxStarter.deployVerticle(minecraftVerticle).toCompletableFuture().get();
-        vertxStarter.deployVerticle(new StaticWebServerVerticle(null, 9090)).toCompletableFuture().get();
+        vertxStarter.deployVerticle(new StaticWebServerVerticle(Paths.get("/tmp/storeys/SeleniumTest/config"), 9090)).toCompletableFuture()
+                .get();
     }
 
     private static void startWebDriver() {
@@ -131,19 +127,23 @@ public class SeleniumTest {
     }
 
     @AfterClass public static void tearDownClass() throws Exception {
-        webDriver.close();
-        vertxStarter.stop();
+        if (webDriver != null) {
+            webDriver.close();
+        }
+        if (vertxStarter != null) {
+            vertxStarter.stop();
+        }
     }
 
     @Test public void a_testPageTitle() {
-        assertThat(webDriver.getTitle(), is("Scratch 3.0 GUI"));
+        assertThat(webDriver.getTitle(), is("/make Storeys!"));
 
         // Let's just make sure that WD executeScript() works fine:
         long number = (Long) js.executeScript("return 1 + 2;");
         assertEquals(3, number);
     }
 
-    @Ignore // TODO replace scratch/ (ScratchX) with scratch3/ (or api/) equivalent
+    @Ignore // TODO replace something Blockly equivalent, to test it is correctly initialized and ready?
     @Test public void a_testBasicSetUp() {
         assertNoBrowserConsoleLogErrors();
 
@@ -153,56 +153,9 @@ public class SeleniumTest {
         awaitUntilJSReturnsValue("scratchMinecraftExtension not ready", "return ext.scratchMinecraftExtension !== undefined");
     }
 
-    @Ignore // TODO replace scratch/ (ScratchX) with scratch3/ (or api/) equivalent
-    @Test public void b_testSendTitle() {
-        final String message = "hello, world";
-        testEventBusCall("sendTitle", message);
-
-        assertThat(testMinecraft.results.get("lastTitle"), is(message));
-    }
-
-    @Ignore // TODO replace scratch/ (ScratchX) with scratch3/ (or api/) equivalent
-    @Test public void c_testNarrate() {
-        final String text = "Hi and welcome to Minecraft";
-        final String entity = "joe";
-        testEventBusCall("narrate", entity, text);
-        assertThat(testMinecraft.results.get("entity"), is(entity));
-        assertThat(testMinecraft.results.get("text"), is(text));
-    }
-
-    @Ignore // TODO replace scratch/ (ScratchX) with scratch3/ (or api/) equivalent
-    @Test public void e_testNegativeAPI() {
-        assertThat(runTesterJSAndGetFailures(), contains("getItemHeld expected Apple but actually got Nothing"));
-    }
-
-    @Ignore // TODO replace scratch/ (ScratchX) with scratch3/ (or api/) equivalent
-    @Test public void e_testPositiveAPI() {
-        testMinecraft.itemsHeld.put(HandType.MainHand, ItemType.Apple);
-        List<String> actual = runTesterJSAndGetFailures();
-        System.out.println("actual = " + actual);
-        assertThat(actual, empty());
-    }
-
     // TODO testWhenCommand
 
     // TODO testAllOtherBlocks...
-
-    @SuppressWarnings("unchecked") private List<String> runTesterJSAndGetFailures() {
-        js.executeScript("window.tester = new Tester(); tester.test()");
-        assertNoBrowserConsoleLogErrors();
-        awaitUntilJSReturnsValue("Client side test is not yet done", "return tester.isDone() === true");
-        return (List<String>) js.executeScript("return tester.failures");
-    }
-
-    private void testEventBusCall(String function, String... params) {
-        String script = "ext.scratchMinecraftExtension.%s(''{0}'', ext.callback(''%s''))";
-        script = MessageFormat.format(script, String.join("', '", params));
-        script = String.format(script, function, function);
-
-        js.executeScript(script);
-        assertNoBrowserConsoleLogErrors();
-        awaitUntilJSReturnsValue("callback not yet invoked", String.format("return ext.isCallbackCalled('%s')", function));
-    }
 
     private void awaitUntilJSReturnsValue(String message, String javaScript) {
         if (!javaScript.startsWith("return ")) {

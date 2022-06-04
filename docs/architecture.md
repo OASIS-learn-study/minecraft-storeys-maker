@@ -13,7 +13,8 @@
 
 ## JavaScript Code
 
-* `scratch3/` & `scratch3-server` are the Scratch 3.0 integrations, see [detailed doc in issue #290](https://github.com/OASIS-learn-study/minecraft-storeys-maker/issues/290)
+* `blockly/` is the Blockly UI. This generates JS code in the browser, and pushes that to the server via HTTP.
+  On the server, new and changed JS files are detected and re-loaded and executed in-process of the Minecraft server.
 
 ## Infrastructure
 
