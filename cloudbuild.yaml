@@ -1,5 +1,5 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
-  entrypoint: './make'
+  entrypoint: './test'
 
 # TODO docker build -t gcr.io/oasis-learn-study/github.com/oasis-learn-study/minecraft-storeys-maker:$COMMIT_SHA
