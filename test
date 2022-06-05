@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
 set -euox pipefail
 
-# https://github.com/OASIS-learn-study/minecraft-storeys-maker#build-it
-# NB --format=docker because the "oci" default looses the mc-health HEALTHCHECK of the parent image
-./gradlew build
-podman build -f Dockerfile-local --format=docker -t minecraft-storeys-maker .
+./make
 
 podman stop --time 7 storeys || true
 
