@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Blockly from "blockly/core";
 
 import { Block, Category, Value, Shadow, Field } from "./blockly/Block";
@@ -10,6 +10,19 @@ import classes from "./app.module.css";
 
 const App = () => {
   const [workspace, setWorkspace] = useState<Blockly.WorkspaceSvg>();
+  const [token, setToken] = useState("");
+
+  useEffect(() => {
+    async function login() {
+      const urlParams = new URL(window.location.href).searchParams;
+      const response = await fetch(
+        "/login/" + encodeURI(urlParams.get("code") || "")
+      );
+      setToken(await response.text());
+    }
+    login();
+  }, []);
+
   return (
     <div className={classes.page}>
       <header className={classes.header}>
@@ -17,8 +30,14 @@ const App = () => {
           onClick={() => {
             const code = generate(workspace);
             let formData = new FormData();
-            formData.append("file", new Blob([code]), "filename");
-            fetch("/code", { method: "POST", body: formData });
+            formData.append("file", new Blob([code]));
+            fetch("/code/upload", {
+              method: "POST",
+              body: formData,
+              headers: {
+                Authorization: `bearer ${token}`,
+              },
+            });
           }}
         >
           upload code

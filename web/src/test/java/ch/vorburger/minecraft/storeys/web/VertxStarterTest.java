@@ -43,7 +43,7 @@ public class VertxStarterTest {
     // under static/), but it does pass on the build
     public final void testStaticWebContent() throws Exception {
         VertxStarter vertxStarter = new VertxStarter();
-        vertxStarter.deployVerticle(new StaticWebServerVerticle(Paths.get("/tmp"), 3030)).toCompletableFuture().get();
+        vertxStarter.deployVerticle(new StaticWebServerVerticle(Paths.get("/tmp"), 3030, null)).toCompletableFuture().get();
         assertHTTP("http://localhost:3030/nok", 404);
         assertHTTP("http://localhost:3030/index.html", 200);
         vertxStarter.stop();
@@ -59,7 +59,7 @@ public class VertxStarterTest {
     public static void main(String[] args) throws Exception {
         VertxStarter vertxStarter = new VertxStarter();
 
-        vertxStarter.deployVerticle(new StaticWebServerVerticle(Paths.get("/tmp/config/storeys-web"), 7070)).toCompletableFuture().get();
+        vertxStarter.deployVerticle(new StaticWebServerVerticle(Paths.get("/tmp/config/storeys-web"), 7070, null)).toCompletableFuture().get();
 
         Mains.waitForEnter();
 
