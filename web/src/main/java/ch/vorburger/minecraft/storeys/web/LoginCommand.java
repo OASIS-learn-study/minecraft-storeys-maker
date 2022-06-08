@@ -22,10 +22,7 @@ import ch.vorburger.minecraft.storeys.japi.util.CommandExceptions;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.util.Command;
 import com.google.common.collect.ImmutableList;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.command.CommandException;
@@ -66,13 +63,13 @@ public class LoginCommand implements Command {
     }
 
     @Override public CommandCallable callable() {
-        return CommandSpec.builder().description(Text.of("Login into ScratchX web interface")) // .permission("storeys.command.make")
+        return CommandSpec.builder().description(Text.of("Login to web interface")) // .permission("storeys.command.make")
                 .arguments(GenericArguments.flags().permissionFlag("storeys.command.make.beta", "b").buildWith(GenericArguments.none()))
                 .executor(this).build();
     }
 
     @Override public List<String> aliases() {
-        return ImmutableList.of("make", "scratch");
+        return ImmutableList.of("make");
     }
 
     @Override public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
@@ -83,8 +80,8 @@ public class LoginCommand implements Command {
                 String code = tokenProvider.getCode(player);
                 String url = String.format("%s?code=%s", scratchGui, code);
 
-                src.sendMessage(Text.builder("Click here to open Scratch and MAKE actions").onClick(TextActions.openUrl(new URL(url)))
-                        .color(TextColors.GOLD).build());
+                src.sendMessage(Text.builder("Click here to open the web interface to MAKE stories!")
+                        .onClick(TextActions.openUrl(new URL(url))).color(TextColors.GOLD).build());
             });
         } else {
             src.sendMessage(Text.builder("Command source must be Player").color(TextColors.RED).build());

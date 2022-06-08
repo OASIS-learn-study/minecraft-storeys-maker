@@ -17,20 +17,21 @@ _TODO Replace this with a saved Blockly instead of Scratch project..._
 
 Now test that you can make a new project:
 
-1. Open http://localhost:7070/index.html
-   _TODO support command_ ~~`/make` and click the link in the Minecraft Chat to open the Blockly-based UI in the browser~~
+1. `/make` and click the link in the Minecraft Chat to open the Blockly-based UI in the browser
 1. Add
    * Events > When / `demo`
    * Actions > Title `Hello!`
    * _TODO Add support for `m.say("Piggy", 'Hello!');` API! ~~Actions > `Piggy` speaks `Hello!`~~_
 1. Click _upload code_ button _(TODO perhaps we could auto-save, later?)_
-1. `/demo` command in Minecraft should now make the entity _Piggy_ speak
+1. `/demo` command in Minecraft should now execute the blocks
+1. Change the Title from `Hello!` to `Hoi`
+1. Click _upload code_ button _(TODO perhaps we could auto-save, later?)_
+1. `/demo` command in Minecraft should reflect the changes made
 
-_TODO Update the following, after Blockly will be made to reload previous projects?_
+_TODO This doesn't work, yet:_
 
-1. ~~close Browser~~
-1. ~~_TODO `/demo` should still work, but currently doesn't anymore (because project JSON wasn't automagically moved from `/minecraft-server-test-data/config/storeys-web/working/` to `storeys-web/scratch/`)_~~
-1. ~~`/make` again~~
+1. close Browser
+1. `/make` again
 1. ~~Verify that previously created blocks still appear~~
 1. ~~_TODO bug #310 `/demo` should still work, but currently doesn't, because of `IllegalArgumentException: A plugin may not register multiple commands for the same alias ('demo')` in log; this needs more thoughts in general._~~
 
