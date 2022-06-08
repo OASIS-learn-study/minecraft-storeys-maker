@@ -53,7 +53,7 @@ export default function initGenerator() {
       Blockly.JavaScript.ORDER_ATOMIC
     );
 
-    return 'm.say("' + name + '", ' + text + ");\n";
+    return 'm.narrate("' + name + '", ' + text + ");\n";
   };
 
   Blockly.JavaScript["minecraftCommand"] = (block: Block) => {
