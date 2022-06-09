@@ -23,7 +23,7 @@ import ch.vorburger.minecraft.storeys.simple.impl.NotLoggedInException;
 import com.google.common.io.Files;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.JWTOptions;
-import io.vertx.ext.auth.KeyStoreOptions;
+import io.vertx.ext.auth.PubSecKeyOptions;
 import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.ext.auth.jwt.JWTAuthOptions;
 import io.vertx.ext.web.FileUpload;
@@ -72,8 +72,9 @@ public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
             throw new UncheckedIOException(e);
         }
 
-        JWTAuthOptions authConfig = new JWTAuthOptions().setKeyStore(
-                new KeyStoreOptions().setType("jceks").setPath("keystore.jceks").setPassword("_2y47[-53YLf}/frv.Q\""));
+        JWTAuthOptions authConfig = new JWTAuthOptions().addPubSecKey(new PubSecKeyOptions()
+                .setAlgorithm("HS256")
+                .setBuffer("keyboard cat"));
 
         JWTAuth authProvider = JWTAuth.create(vertx, authConfig);
 
