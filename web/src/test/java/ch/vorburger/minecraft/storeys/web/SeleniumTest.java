@@ -29,7 +29,6 @@ import ch.vorburger.minecraft.storeys.api.ItemType;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.web.test.TestMinecraft;
 import io.github.bonigarcia.wdm.WebDriverManager;
-import io.vertx.core.json.JsonObject;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Date;
@@ -82,7 +81,7 @@ public class SeleniumTest {
     private static void startVertx() throws Exception {
         testMinecraft = new TestMinecraft();
         vertxStarter = new VertxStarter();
-        MinecraftVerticle minecraftVerticle = new MinecraftVerticle(6060, testMinecraft, new TokenProvider() {
+        vertxStarter.deployVerticle(new StaticWebServerVerticle(Paths.get("/tmp/storeys/SeleniumTest/config"), 9090, new TokenProvider() {
 
             @Override public String getCode(Player player) {
                 return UUID.randomUUID().toString();
@@ -91,18 +90,7 @@ public class SeleniumTest {
             @Override public String login(String code) {
                 return UUID.randomUUID().toString();
             }
-        });
-        minecraftVerticle.setActionsConsumer(event -> {
-            JsonObject json = event.body();
-            if ("registerCondition".equals(json.getString("action"))) {
-                String condition = json.getString("condition");
-                event.reply(condition);
-                minecraftVerticle.send(new JsonObject().put("event", condition).put("playerUUID", "dummy"));
-            }
-        });
-        vertxStarter.deployVerticle(minecraftVerticle).toCompletableFuture().get();
-        vertxStarter.deployVerticle(new StaticWebServerVerticle(Paths.get("/tmp/storeys/SeleniumTest/config"), 9090)).toCompletableFuture()
-                .get();
+        })).toCompletableFuture().get();
     }
 
     private static void startWebDriver() {
@@ -178,8 +166,8 @@ public class SeleniumTest {
         for (LogEntry entry : logEntries) {
             System.out.println("BROWSER: " + new Date(entry.getTimestamp()) + " " + entry.getLevel() + " " + entry.getMessage());
             String messageInLowerCase = entry.getMessage().toLowerCase();
-            if ((entry.getLevel().equals(Level.SEVERE) || messageInLowerCase.contains("error") || messageInLowerCase.contains("uncaught "))
-                    && firstMessage == null) {
+            if ((entry.getLevel().equals(Level.SEVERE) || messageInLowerCase.contains("error") || messageInLowerCase.contains(
+                    "uncaught ")) && firstMessage == null) {
                 firstMessage = entry.getMessage();
             }
         }

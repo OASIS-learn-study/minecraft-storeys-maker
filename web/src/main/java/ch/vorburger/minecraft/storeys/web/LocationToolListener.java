@@ -28,7 +28,6 @@ import ch.vorburger.minecraft.storeys.web.location.LocationHitBox;
 import ch.vorburger.minecraft.storeys.web.location.LocationPairSerializer;
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.reflect.TypeToken;
-import io.vertx.core.json.JsonObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +44,8 @@ import ninja.leaping.configurate.loader.ConfigurationLoader;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.EventManager;
@@ -57,19 +58,17 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-@Singleton
-public class LocationToolListener {
+@Singleton public class LocationToolListener {
+    private static final Logger LOG = LoggerFactory.getLogger(LocationToolListener.class);
     private final Map<String, Pair<Location<World>, Location<World>>> playerBoxLocations = new ConcurrentHashMap<>();
     private final Map<String, Unregisterable> conditionRegistrations = new ConcurrentHashMap<>();
-    private final EventBusSender eventBusSender;
     private final ConditionService conditionService;
     private final ConfigurationLoader<CommentedConfigurationNode> configurationLoader;
 
-    @Inject public LocationToolListener(PluginInstance plugin, EventManager eventManager, EventBusSender eventBusSender,
-            ConditionService conditionService, ConfigurationLoader<CommentedConfigurationNode> loader) {
+    @Inject public LocationToolListener(PluginInstance plugin, EventManager eventManager, ConditionService conditionService,
+            ConfigurationLoader<CommentedConfigurationNode> loader) {
         TypeSerializers.getDefaultSerializers().registerType(LocationPairSerializer.TYPE, new LocationPairSerializer());
         eventManager.registerListeners(plugin, this);
-        this.eventBusSender = eventBusSender;
         this.conditionService = conditionService;
         this.configurationLoader = loader;
 
@@ -132,7 +131,8 @@ public class LocationToolListener {
             unregisterable.unregister();
         }
         ConditionService.ConditionServiceRegistration registration = conditionService.register(condition,
-                (Player p) -> eventBusSender.send(new JsonObject().put("event", name).put("playerUUID", p.getUniqueId().toString())));
+                // TODO properly implement full support for this old feature in the new api-jvm
+                (Player p) -> LOG.warn("TODO inform the player that someone was inside the region {}", p));
         conditionRegistrations.put(name, registration);
     }
 

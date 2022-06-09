@@ -29,9 +29,6 @@ import ch.vorburger.minecraft.storeys.util.Commands;
 import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
-import io.vertx.core.Handler;
-import io.vertx.core.eventbus.Message;
-import io.vertx.core.json.JsonObject;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
@@ -51,8 +48,6 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
     private static final Logger LOG = LoggerFactory.getLogger(StoreysWebPlugin.class);
 
     private VertxStarter vertxStarter;
-    private ActionsConsumer actionsConsumer;
-
     private CommandMapping loginCommandMapping;
     private CommandMapping tokenCommandMapping;
 
@@ -65,9 +60,6 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
         Injector injector = pluginInjector.createChildInjector(binder -> {
             binder.bind(TokenProvider.class).to(TokenProviderImpl.class);
             binder.bind(ch.vorburger.minecraft.storeys.api.Minecraft.class).to(MinecraftImpl.class);
-            binder.bind(EventBusSender.class).to(MinecraftVerticle.class);
-            binder.bind(new TypeLiteral<Handler<Message<JsonObject>>>() {
-            }).to(ActionsConsumer.class);
             // TODO read from some configuration
             binder.bind(Integer.class).annotatedWith(Names.named("http-port")).toInstance(8080);
             binder.bind(Integer.class).annotatedWith(Names.named("web-http-port")).toInstance(7070);
@@ -75,8 +67,6 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
             }).toInstance(configurationLoader);
             binder.bind(LocationToolListener.class);
         });
-        actionsConsumer = injector.getInstance(ActionsConsumer.class);
-        MinecraftVerticle minecraftVerticle = injector.getInstance(MinecraftVerticle.class);
         StaticWebServerVerticle staticWebServerVerticle = injector.getInstance(StaticWebServerVerticle.class);
 
         TokenProvider tokenProvider = injector.getInstance(TokenProvider.class);
@@ -86,8 +76,6 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
         try {
             try {
                 vertxStarter = new VertxStarter();
-
-                vertxStarter.deployVerticle(minecraftVerticle).toCompletableFuture().get();
                 vertxStarter.deployVerticle(staticWebServerVerticle).toCompletableFuture().get();
 
             } catch (ExecutionException | InterruptedException e) {
@@ -108,9 +96,6 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
         }
         if (tokenCommandMapping != null) {
             Sponge.getCommandManager().removeMapping(tokenCommandMapping);
-        }
-        if (actionsConsumer != null) {
-            actionsConsumer.stop();
         }
         if (vertxStarter != null) {
             vertxStarter.stop();

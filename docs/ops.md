@@ -1,9 +1,8 @@
 # Ops
 
-If you want to run on a diffenent host then localhost, you'll need to set the following environment variables:
+If you want to run on a different host then localhost, you'll need to set the following environment variables:
 
     storeys_gui = http://<EXTERNAL-IP>:7070/index.html
-    storeys_eventBusURL = http://<EXTERNAL-IP>:8080/
 
 Also https://www.learn.study/ops.html (pending #276).
 
