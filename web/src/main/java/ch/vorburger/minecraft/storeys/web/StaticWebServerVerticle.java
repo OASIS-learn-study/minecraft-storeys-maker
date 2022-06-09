@@ -69,7 +69,7 @@ public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
             uploadFolder = java.nio.file.Files.createTempDirectory("upload");
             router.route().handler(BodyHandler.create().setUploadsDirectory(uploadFolder.toString()).setMergeFormAttributes(true));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
 
         JWTAuthOptions authConfig = new JWTAuthOptions().setKeyStore(
