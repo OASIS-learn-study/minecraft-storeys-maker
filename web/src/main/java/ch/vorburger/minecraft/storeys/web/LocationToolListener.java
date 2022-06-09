@@ -131,7 +131,8 @@ import org.spongepowered.api.world.World;
             unregisterable.unregister();
         }
         ConditionService.ConditionServiceRegistration registration = conditionService.register(condition,
-                (Player p) -> LOG.debug("TODO inform the player that someone was inside the region {}", p));
+                // TODO properly implement full support for this old feature in the new api-jvm
+                (Player p) -> LOG.warn("TODO inform the player that someone was inside the region {}", p));
         conditionRegistrations.put(name, registration);
     }
 
