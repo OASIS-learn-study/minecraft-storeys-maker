@@ -96,6 +96,7 @@ public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
             for (FileUpload f : ctx.fileUploads()) {
                 LOG.info("Uploaded file {} (size {})", f.uploadedFileName(), f.size());
                 try {
+                    // NB: Use Guava Files, not JDK NIO Files, until https://github.com/vorburger/ch.vorburger.fswatch/issues/95 is fixed!
                     Files.move(uploadFolder.resolve(f.uploadedFileName()).toFile(),
                             configDir.resolve("new-scripts").resolve(playerUUID).toFile());
                 } catch (IOException e) {
