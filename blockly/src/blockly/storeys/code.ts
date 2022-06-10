@@ -105,5 +105,5 @@ export default function initGenerator() {
   ];
 }
 
-export const generate = (workspace: any) =>
+export const generate = (workspace: Blockly.WorkspaceSvg) =>
   BlocklyJS.workspaceToCode(workspace);
