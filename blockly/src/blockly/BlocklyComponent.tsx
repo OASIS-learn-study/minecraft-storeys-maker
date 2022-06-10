@@ -1,4 +1,4 @@
-import { ReactNode, useLayoutEffect, useRef, useState } from "react";
+import { ReactNode, useLayoutEffect, useRef } from "react";
 
 import "blockly/blocks";
 import Blockly from "blockly/core";
@@ -12,9 +12,15 @@ import classes from "./blockly.module.css";
 
 type BlocklyComponentProps = {
   initialXml?: string;
-  onWorkspaceChange?: (workspace?: Blockly.WorkspaceSvg) => void
+  onWorkspaceChange?: (workspace?: Blockly.WorkspaceSvg) => void;
   children?: ReactNode;
 };
+
+const TYPES = [
+  Blockly.Events.BLOCK_CREATE,
+  Blockly.Events.BLOCK_DELETE,
+  Blockly.Events.BLOCK_CHANGE,
+] as const;
 
 export const BlocklyComponent = ({
   initialXml,
@@ -24,35 +30,32 @@ export const BlocklyComponent = ({
 }: BlocklyComponentProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const toolbox = useRef();
-  const [workspace, setWorkspace] = useState<Blockly.WorkspaceSvg>();
 
-  const changeListener = () => {
-    if (workspace && onWorkspaceChange) {
-      onWorkspaceChange(workspace)
+  const changeListener = (event: any) => {
+    if (TYPES.includes(event.type) && onWorkspaceChange) {
+      onWorkspaceChange(Blockly.getMainWorkspace());
     }
-  }
+  };
 
   useLayoutEffect(() => {
     Blockly.setLocale(locale);
     initBlocks();
     initGenerator();
-    const w = Blockly.inject(ref.current, {
+    const workspace = Blockly.inject(ref.current, {
       toolbox: toolbox.current,
-      media:
-        "https://unpkg.com/blockly@^8.0.2/media/",
+      media: "https://unpkg.com/blockly@^8.0.2/media/",
       rendererOverrides: {
         ADD_START_HATS: true,
       },
       ...rest,
     });
     if (initialXml) {
-      Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(initialXml), w);
+      Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(initialXml), workspace);
     }
-    if (onWorkspaceChange)
-      w.addChangeListener(changeListener)
-    return () => workspace?.removeChangeListener(changeListener)
-
-    setWorkspace(w);
+    if (onWorkspaceChange) {
+      workspace.addChangeListener(changeListener);
+    }
+    return () => workspace.removeChangeListener(changeListener);
   }, []);
 
   return (
@@ -69,4 +72,3 @@ export const BlocklyComponent = ({
     </>
   );
 };
-

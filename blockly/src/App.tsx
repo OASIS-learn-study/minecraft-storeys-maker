@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Blockly from "blockly/core";
 
 import { Block, Category, Value, Shadow, Field } from "./blockly/Block";
 import { BlocklyComponent } from "./blockly/BlocklyComponent";
@@ -9,7 +8,6 @@ import { generate } from "./blockly/storeys/code";
 import classes from "./app.module.css";
 
 const App = () => {
-  const [workspace, setWorkspace] = useState<Blockly.WorkspaceSvg>();
   const [token, setToken] = useState("");
 
   useEffect(() => {
@@ -26,26 +24,21 @@ const App = () => {
   return (
     <div className={classes.page}>
       <header className={classes.header}>
-        <button
-          onClick={() => {
-            const code = generate(workspace);
-            let formData = new FormData();
-            formData.append("file", new Blob([code]));
-            fetch("/code/upload", {
-              method: "POST",
-              body: formData,
-              headers: {
-                Authorization: `bearer ${token}`,
-              },
-            });
-          }}
-        >
-          upload code
-        </button>
       </header>
-      <BlocklyComponent
+      {token && <BlocklyComponent
         initialXml={`<xml xmlns="http://www.w3.org/1999/xhtml"></xml>`}
-        onWorkspaceChange={(workspace) => setWorkspace(workspace)}
+        onWorkspaceChange={(workspace) => {
+          const code = generate(workspace);
+          let formData = new FormData();
+          formData.append("file", new Blob([code]));
+          fetch("/code/upload", {
+            method: "POST",
+            body: formData,
+            headers: {
+              Authorization: `bearer ${token}`,
+            },
+          });
+        }}
       >
         <Category name="Logic" categorystyle="logic_category">
           <Block type="controls_if" />
@@ -202,7 +195,7 @@ const App = () => {
           custom="PROCEDURE"
           categorystyle="procedure_category"
         ></Category>
-      </BlocklyComponent>
+      </BlocklyComponent>}
     </div>
   );
 };
