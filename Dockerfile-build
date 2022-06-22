@@ -4,3 +4,5 @@ FROM docker.io/library/openjdk:11-jdk as build
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && apt install -y nodejs && node --version
 
 WORKDIR /project
+
+RUN ./gradlew --version
