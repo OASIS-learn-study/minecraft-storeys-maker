@@ -27,6 +27,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+@SuppressWarnings("serial")
 public class LocationPairSerializer implements TypeSerializer<Pair<Location<World>, Location<World>>> {
     public static TypeToken<Pair<Location<World>, Location<World>>> TYPE = new TypeToken<Pair<Location<World>, Location<World>>>() {
     };

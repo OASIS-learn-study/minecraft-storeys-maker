@@ -9,13 +9,17 @@ repositories {
     // mavenLocal() // un-comment temporarily for local dev (only)
 }
 
+ext {
+  vertxVersion = '4.0.2'
+}
+
 dependencies {
-    implementation project(':api')
     implementation(project(':storeys'))
     implementation project(':blockly')
 
     implementation 'commons-io:commons-io:2.11.0'
-    implementation 'io.vertx:vertx-service-proxy:4.0.2'
+    implementation "io.vertx:vertx-web:$vertxVersion"
+    implementation "io.vertx:vertx-auth-jwt:$vertxVersion"
 
     testImplementation 'org.seleniumhq.selenium:selenium-java:3.141.59'
     testImplementation('io.github.bonigarcia:webdrivermanager:4.3.1') {
@@ -44,7 +48,6 @@ shadowJar {
     // NB "not being able to filter entire transitive dependency graphs"
     // so instead of using exclude dependency we just do explicit include:
 
-    include(project(':api'))
     include(project(':blockly'))
     include(project(':storeys'))
     include(project(':api-jvm'))

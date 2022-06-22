@@ -42,7 +42,7 @@ import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
-import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
+import ninja.leaping.configurate.objectmapping.serialize.TypeSerializerCollection;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +58,8 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-@Singleton public class LocationToolListener {
+@Singleton
+public class LocationToolListener {
     private static final Logger LOG = LoggerFactory.getLogger(LocationToolListener.class);
     private final Map<String, Pair<Location<World>, Location<World>>> playerBoxLocations = new ConcurrentHashMap<>();
     private final Map<String, Unregisterable> conditionRegistrations = new ConcurrentHashMap<>();
@@ -67,10 +68,10 @@ import org.spongepowered.api.world.World;
 
     @Inject public LocationToolListener(PluginInstance plugin, EventManager eventManager, ConditionService conditionService,
             ConfigurationLoader<CommentedConfigurationNode> loader) {
-        TypeSerializers.getDefaultSerializers().registerType(LocationPairSerializer.TYPE, new LocationPairSerializer());
+        TypeSerializerCollection.defaults().register(LocationPairSerializer.TYPE, new LocationPairSerializer());
         eventManager.registerListeners(plugin, this);
         this.conditionService = conditionService;
-        this.configurationLoader = loader;
+        configurationLoader = loader;
 
         try {
             ConfigurationNode rootNode = configurationLoader.load();
@@ -136,7 +137,8 @@ import org.spongepowered.api.world.World;
         conditionRegistrations.put(name, registration);
     }
 
-    private void saveLocation(Pair<Location<World>, Location<World>> locationPair, Player player, String locationName) {
+    @SuppressWarnings("serial") private void saveLocation(Pair<Location<World>, Location<World>> locationPair, Player player,
+            String locationName) {
         try {
             ConfigurationNode rootNode = configurationLoader.load();
             List<LocationHitBox> hitBoxList = new ArrayList<>(rootNode.getNode("locations").getList(LocationHitBox.TYPE));
