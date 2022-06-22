@@ -34,7 +34,7 @@ else
   done
 fi
 
-./gradlew test-mineflayer:npmTest
+docker run --network host --rm -v $PWD/test-mineflayer:/project:Z minecraft-storeys-maker-build bash -c "npm install && npm test"
 
 # podman stop storeys
 
