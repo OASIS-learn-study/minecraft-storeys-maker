@@ -24,10 +24,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 
-import ch.vorburger.minecraft.storeys.api.HandType;
-import ch.vorburger.minecraft.storeys.api.ItemType;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
-import ch.vorburger.minecraft.storeys.web.test.TestMinecraft;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -67,7 +64,6 @@ public class SeleniumTest {
     // TODO use https://www.testcontainers.org ?
 
     private static VertxStarter vertxStarter;
-    private static TestMinecraft testMinecraft;
 
     private static WebDriver webDriver;
     private static JavascriptExecutor js;
@@ -79,7 +75,6 @@ public class SeleniumTest {
     }
 
     private static void startVertx() throws Exception {
-        testMinecraft = new TestMinecraft();
         vertxStarter = new VertxStarter();
         vertxStarter.deployVerticle(new StaticWebServerVerticle(Paths.get("/tmp/storeys/SeleniumTest/config"), 9090, new TokenProvider() {
 
@@ -166,8 +161,8 @@ public class SeleniumTest {
         for (LogEntry entry : logEntries) {
             System.out.println("BROWSER: " + new Date(entry.getTimestamp()) + " " + entry.getLevel() + " " + entry.getMessage());
             String messageInLowerCase = entry.getMessage().toLowerCase();
-            if ((entry.getLevel().equals(Level.SEVERE) || messageInLowerCase.contains("error") || messageInLowerCase.contains(
-                    "uncaught ")) && firstMessage == null) {
+            if ((entry.getLevel().equals(Level.SEVERE) || messageInLowerCase.contains("error") || messageInLowerCase.contains("uncaught "))
+                    && firstMessage == null) {
                 firstMessage = entry.getMessage();
             }
         }
@@ -178,7 +173,6 @@ public class SeleniumTest {
 
     public static void main(String[] args) throws Exception {
         startVertx();
-        testMinecraft.itemsHeld.put(HandType.MainHand, ItemType.Apple);
         Mains.waitForEnter();
         vertxStarter.stop();
     }

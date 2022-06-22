@@ -20,7 +20,6 @@ package ch.vorburger.minecraft.storeys.web;
 
 import ch.vorburger.minecraft.osgi.api.Listeners;
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
-import ch.vorburger.minecraft.storeys.api.impl.MinecraftImpl;
 import ch.vorburger.minecraft.storeys.api.impl.TokenCommand;
 import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
@@ -34,8 +33,6 @@ import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.config.DefaultConfig;
@@ -44,8 +41,6 @@ import org.spongepowered.api.plugin.Plugin;
 @Plugin(id = "storeys-web", name = "Vorburger.ch's Storeys with Web API", version = "1.0", description = "Makes entities narrate story lines so you can make your own movie in Minecraft", url = "https://github.com/OASIS-learn-study/minecraft-storeys-maker", authors = "Michael Vorburger.ch")
 public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners {
     // do not extend StoreysPlugin, because we exclude that class in shadowJar
-
-    private static final Logger LOG = LoggerFactory.getLogger(StoreysWebPlugin.class);
 
     private VertxStarter vertxStarter;
     private CommandMapping loginCommandMapping;
@@ -59,7 +54,6 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
 
         Injector injector = pluginInjector.createChildInjector(binder -> {
             binder.bind(TokenProvider.class).to(TokenProviderImpl.class);
-            binder.bind(ch.vorburger.minecraft.storeys.api.Minecraft.class).to(MinecraftImpl.class);
             // TODO read from some configuration
             binder.bind(Integer.class).annotatedWith(Names.named("http-port")).toInstance(8080);
             binder.bind(Integer.class).annotatedWith(Names.named("web-http-port")).toInstance(7070);
