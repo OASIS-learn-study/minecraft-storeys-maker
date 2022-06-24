@@ -1,4 +1,11 @@
 .blockly {
-  height: 100vh;
-  flex-grow: 2;
+  height: 80vh;
+  flex: 2 auto;
+}
+
+@media all and (min-width: 800px) {
+  .blockly {
+    flex: 3 auto;
+    height: 100vh;
+  }
 }
