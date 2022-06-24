@@ -20,11 +20,12 @@ package ch.vorburger.minecraft.storeys.japi.impl.events;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.japi.impl.Unregisterable;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
@@ -43,8 +44,8 @@ public class EventService implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(EventService.class);
 
-    private final AtomicReference<Consumer<Join>> onPlayerJoinCallback = new AtomicReference<>();
-    private final Map<String, Callback> onInteractEntityEventCallbacks = new ConcurrentHashMap<>();
+    private final Collection<Callback> onPlayerJoinCallbacks = new ConcurrentLinkedQueue<>();
+    private final Map<String, Collection<Callback>> onInteractEntityEventCallbacks = new ConcurrentHashMap<>();
 
     private final EventManager eventManager;
 
@@ -61,26 +62,26 @@ public class EventService implements AutoCloseable {
     @Override public void close() throws Exception {
     }
 
-    // TODO This should also work if 2 separate scripts register! It needs to be a list, and return an Unregisterable.
-    public void registerPlayerJoin(Consumer<Join> callback) {
-        if (!onPlayerJoinCallback.compareAndSet(null, callback)) {
-            throw new IllegalStateException("Only 1 onPlayerJoin Callback supported");
+    @Listener public void onPlayerJoin(Join event) throws Exception {
+        for (Callback callback : onPlayerJoinCallbacks) {
+            callback.call(event.getTargetEntity());
         }
     }
 
-    @Listener public void onPlayerJoin(Join event) throws Exception {
-        Consumer<Join> callback = onPlayerJoinCallback.get();
-        if (callback != null) {
-            callback.accept(event);
-        }
+    public Unregisterable registerPlayerJoin(Callback callback) {
+        return add(onPlayerJoinCallbacks, callback);
     }
 
     public Unregisterable registerInteractEntity(String entityName, Callback callback) {
-        // TODO This should also work if 2 separate scripts register right-click!
-        if (onInteractEntityEventCallbacks.putIfAbsent(entityName, callback) != null) {
-            LOG.warn("registerInteractEntity() failed because there is already a callback for entity: {}", entityName);
+        Collection<Callback> callbacks = onInteractEntityEventCallbacks.computeIfAbsent(entityName, name -> new ConcurrentLinkedQueue<>());
+        return add(callbacks, callback);
+    }
+
+    private Unregisterable add(Collection<Callback> collection, Callback callback) {
+        if (!collection.add(callback)) {
+            LOG.warn("registerPlayerJoin: Not added Callback, already registered?!");
         }
-        return () -> onInteractEntityEventCallbacks.remove(entityName);
+        return () -> collection.remove(callback);
     }
 
     @Listener public void onInteractEntityEvent(InteractEntityEvent event) {
@@ -88,9 +89,8 @@ public class EventService implements AutoCloseable {
         Optional<Text> optEntityNameText = event.getTargetEntity().get(Keys.DISPLAY_NAME);
         LOG.debug("InteractEntityEvent: entityName={}; event={}", optEntityNameText, event);
         optEntityNameText.ifPresent(entityNameText -> {
-            Callback callback = onInteractEntityEventCallbacks.getOrDefault(entityNameText.toPlain(), (Player player) -> {
-            });
-            if (callback != null) {
+            Collection<Callback> callbacks = onInteractEntityEventCallbacks.getOrDefault(entityNameText.toPlain(), Collections.emptySet());
+            for (Callback callback : callbacks) {
                 try {
                     callback.call(event.getCause().last(Player.class).orElse(null));
                 } catch (Exception e) {

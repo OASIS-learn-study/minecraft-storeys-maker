@@ -37,7 +37,6 @@ public class GuardGameModeJoinListener implements EventListener<Join> {
     private static final Logger LOG = LoggerFactory.getLogger(GuardGameModeJoinListener.class);
 
     @Override public void handle(Join joinEvent) throws Exception {
-        LOG.info("handle: {}", joinEvent);
         GameMode newGameMode = null;
         Player player = joinEvent.getTargetEntity();
         // NB: Order and use of if and not else if - because higher permission overrides lower...

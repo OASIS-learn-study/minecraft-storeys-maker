@@ -52,8 +52,13 @@ public class ExampleScript implements Script {
             m.narrate("Piggy", "Oink!");
         });
 
+        // This is intentionally separate and not just an extra line above; it tests that two for the same entity work.
+        e.whenEntityRightClicked("Piggy", m -> {
+            m.title("Oink!");
+        });
+
         e.whenPlayerJoins(m -> {
-            m.title("Hej " + m.player().getName());
+            m.narrate("Piggy", "Hej " + m.player().getName());
         });
     }
 }
