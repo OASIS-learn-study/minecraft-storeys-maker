@@ -2,6 +2,7 @@ import { ReactNode, useLayoutEffect, useRef } from "react";
 
 import "blockly/blocks";
 import Blockly from "blockly/core";
+
 // @ts-ignore
 import locale from "blockly/msg/en";
 
@@ -16,10 +17,34 @@ type BlocklyComponentProps = {
   children?: ReactNode;
 };
 
+function resize() {
+  const blocklyArea = document.getElementById("blocklyArea")!;
+  const blocklyDiv = document.getElementById("blocklyDiv")!;
+  var onresize = function () {
+    // Compute the absolute coordinates and dimensions of blocklyArea.
+    let element: any = blocklyArea;
+    let x = 0;
+    var y = 0;
+    do {
+      x += element.offsetLeft;
+      y += element.offsetTop;
+      element = element.offsetParent!;
+    } while (element);
+    // Position blocklyDiv over blocklyArea.
+    blocklyDiv.style.left = x + "px";
+    blocklyDiv.style.top = y + "px";
+    blocklyDiv.style.width = blocklyArea.offsetWidth + "px";
+    blocklyDiv.style.height = blocklyArea.offsetHeight + "px";
+  };
+  window.addEventListener("resize", onresize, false);
+  onresize();
+}
+
 const TYPES = [
   Blockly.Events.BLOCK_CREATE,
   Blockly.Events.BLOCK_DELETE,
   Blockly.Events.BLOCK_CHANGE,
+  Blockly.Events.BLOCK_MOVE,
 ] as const;
 
 export const BlocklyComponent = ({
@@ -41,7 +66,7 @@ export const BlocklyComponent = ({
     Blockly.setLocale(locale);
     initBlocks();
     initGenerator();
-    const workspace = Blockly.inject(ref.current, {
+    const blocklyWorkspace = Blockly.inject(ref.current, {
       toolbox: toolbox.current,
       media: "https://unpkg.com/blockly@^8.0.2/media/",
       rendererOverrides: {
@@ -50,17 +75,24 @@ export const BlocklyComponent = ({
       ...rest,
     });
     if (initialXml) {
-      Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(initialXml), workspace);
+      Blockly.Xml.domToWorkspace(
+        Blockly.Xml.textToDom(initialXml),
+        blocklyWorkspace
+      );
     }
+
     if (onWorkspaceChange) {
-      workspace.addChangeListener(changeListener);
+      blocklyWorkspace.addChangeListener(changeListener);
     }
-    return () => workspace.removeChangeListener(changeListener);
+    resize();
+    Blockly.svgResize(blocklyWorkspace);
+    return () => blocklyWorkspace.removeChangeListener(changeListener);
   }, []);
 
   return (
     <>
-      <div ref={ref} className={classes.blockly} />
+      <div id="blocklyArea" className={classes.blockly}>No blockly?</div>
+      <div ref={ref} id="blocklyDiv" style={{ position: "absolute" }}></div>
       <xml
         xmlns="https://developers.google.com/blockly/xml"
         is="blockly"
