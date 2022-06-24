@@ -77,14 +77,13 @@ class EventsImpl implements Events, Unregisterable {
     }
 
     @Override public void whenPlayerJoins(Callback callback) {
-        eventService.registerPlayerJoin(join -> {
+        unregistrables.add(eventService.registerPlayerJoin(player -> {
             try {
-                invokeCallback(join.getTargetEntity(), callback);
+                invokeCallback(player, callback);
             } catch (Exception e) {
                 LOG.error("whenPlayerJoins() callback failure", e);
             }
-        });
-        // TODO unregistrables.add(^^^)
+        }));
     }
 
     @Override public void whenEntityRightClicked(String entityName, Callback callback) {
