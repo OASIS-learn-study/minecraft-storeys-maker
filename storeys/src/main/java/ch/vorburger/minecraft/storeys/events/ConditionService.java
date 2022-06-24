@@ -22,6 +22,7 @@ import static java.util.Objects.requireNonNull;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.japi.impl.Unregisterable;
+import ch.vorburger.minecraft.storeys.japi.impl.events.Callback;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;

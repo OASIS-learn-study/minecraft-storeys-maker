@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys.events;
+package ch.vorburger.minecraft.storeys.japi.impl.events;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.japi.impl.Unregisterable;
@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.data.key.Keys;
@@ -37,6 +38,7 @@ import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
 import org.spongepowered.api.text.Text;
 
+@Singleton
 public class EventService implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(EventService.class);
@@ -44,16 +46,22 @@ public class EventService implements AutoCloseable {
     private final AtomicReference<Consumer<Join>> onPlayerJoinCallback = new AtomicReference<>();
     private final Map<String, Callback> onInteractEntityEventCallbacks = new ConcurrentHashMap<>();
 
-    @Inject public EventService(PluginInstance plugin, EventManager eventManager) {
-        // TODO Other Event registrations should later go up into AbstractStoreysPlugin so that Script can have Event triggers
-        // as well, but for now:
+    private final EventManager eventManager;
+
+    @Inject public EventService(EventManager eventManager) {
+        this.eventManager = eventManager;
+    }
+
+    // @Inject PluginInstance cannot work, so we use explicit "setter injection"
+    public void setPluginInstance(PluginInstance plugin) {
         eventManager.registerListeners(plugin, this);
-        // InteractItemEvent ?
+        // TODO InteractItemEvent ?
     }
 
     @Override public void close() throws Exception {
     }
 
+    // TODO This should also work if 2 separate scripts register! It needs to be a list, and return an Unregisterable.
     public void registerPlayerJoin(Consumer<Join> callback) {
         if (!onPlayerJoinCallback.compareAndSet(null, callback)) {
             throw new IllegalStateException("Only 1 onPlayerJoin Callback supported");
@@ -68,7 +76,10 @@ public class EventService implements AutoCloseable {
     }
 
     public Unregisterable registerInteractEntity(String entityName, Callback callback) {
-        onInteractEntityEventCallbacks.putIfAbsent(entityName, callback);
+        // TODO This should also work if 2 separate scripts register right-click!
+        if (onInteractEntityEventCallbacks.putIfAbsent(entityName, callback) != null) {
+            LOG.warn("registerInteractEntity() failed because there is already a callback for entity: {}", entityName);
+        }
         return () -> onInteractEntityEventCallbacks.remove(entityName);
     }
 
@@ -103,5 +114,4 @@ public class EventService implements AutoCloseable {
          * player.getItemInHand(HandTypes.MAIN_HAND).get().getItem().getType().getName());
          * }); */
     }
-
 }

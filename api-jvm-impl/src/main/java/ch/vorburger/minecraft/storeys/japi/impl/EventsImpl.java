@@ -25,6 +25,7 @@ import ch.vorburger.minecraft.storeys.japi.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.japi.Script;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContextImpl;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionPlayer;
+import ch.vorburger.minecraft.storeys.japi.impl.events.EventService;
 import ch.vorburger.minecraft.storeys.japi.util.CommandExceptions;
 import java.util.Collection;
 import java.util.Optional;
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandMapping;
 import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.spec.CommandSpec;
 
 /**
@@ -48,18 +50,22 @@ class EventsImpl implements Events, Unregisterable {
     private static final Logger LOG = LoggerFactory.getLogger(EventsImpl.class);
 
     private final PluginInstance plugin;
+    private final EventService eventService;
+
+    // when made modifiable, then this should be per Player
+    private final ReadingSpeed readingSpeed = new ReadingSpeed();
+
     private final Collection<Unregisterable> unregistrables = new ConcurrentLinkedQueue<>();
     private final ActionPlayer player = new ActionPlayer();
 
-    EventsImpl(PluginInstance plugin) {
+    EventsImpl(PluginInstance plugin, EventService eventService) {
         this.plugin = plugin;
+        this.eventService = eventService;
     }
 
     @Override public void whenCommand(String name, Callback callback) {
         CommandSpec spec = CommandSpec.builder().executor((src, args) -> {
-            MinecraftJvmImpl m = new MinecraftJvmImpl(plugin, src);
-            CommandExceptions.doOrThrow("/" + name, () -> callback.invoke(m));
-            player.play(new ActionContextImpl(m.player(), new ReadingSpeed()), m.getActionList());
+            CommandExceptions.doOrThrow("/" + name, () -> invokeCallback(src, callback));
             return CommandResult.success();
         }).build();
         Optional<CommandMapping> opt = Sponge.getCommandManager().register(plugin, spec, name);
@@ -70,9 +76,33 @@ class EventsImpl implements Events, Unregisterable {
         unregistrables.add(() -> Sponge.getCommandManager().removeMapping(opt.get()));
     }
 
+    @Override public void whenPlayerJoins(Callback callback) {
+        eventService.registerPlayerJoin(join -> {
+            try {
+                invokeCallback(join.getTargetEntity(), callback);
+            } catch (Exception e) {
+                LOG.error("whenPlayerJoins() callback failure", e);
+            }
+        });
+        // TODO unregistrables.add(^^^)
+    }
+
+    @Override public void whenEntityRightClicked(String entityName, Callback callback) {
+        ch.vorburger.minecraft.storeys.japi.impl.events.Callback otherCallback = invoker -> {
+            invokeCallback(invoker, callback);
+        };
+        unregistrables.add(eventService.registerInteractEntity(entityName, otherCallback));
+    }
+
     @Override public void unregister() {
         for (Unregisterable unregisterable : unregistrables) {
             unregisterable.unregister();
         }
+    }
+
+    private void invokeCallback(CommandSource source, Callback callback) throws Exception {
+        MinecraftJvmImpl m = new MinecraftJvmImpl(plugin, source);
+        callback.invoke(m);
+        player.play(new ActionContextImpl(m.player(), readingSpeed), m.getActionList());
     }
 }
