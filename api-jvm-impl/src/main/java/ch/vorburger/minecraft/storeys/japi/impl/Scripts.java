@@ -20,6 +20,7 @@ package ch.vorburger.minecraft.storeys.japi.impl;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.japi.Script;
+import ch.vorburger.minecraft.storeys.japi.impl.events.EventService;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,13 +32,15 @@ public class Scripts {
 
     private final Map<Object, Unregisterable> unregisterables = new ConcurrentHashMap<>();
     private final PluginInstance plugin;
+    private final EventService eventService;
 
-    @Inject public Scripts(PluginInstance plugin) {
+    @Inject public Scripts(PluginInstance plugin, EventService eventService) {
         this.plugin = plugin;
+        this.eventService = eventService;
     }
 
     public void register(Object key, Script script) {
-        EventsImpl e = new EventsImpl(plugin);
+        EventsImpl e = new EventsImpl(plugin, eventService);
         if (unregisterables.putIfAbsent(key, e) != null) {
             throw new IllegalArgumentException("Key already registered, must unregister() it first: " + key);
         }

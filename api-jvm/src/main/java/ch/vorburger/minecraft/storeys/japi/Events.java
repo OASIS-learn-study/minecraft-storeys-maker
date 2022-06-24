@@ -23,6 +23,10 @@ public interface Events {
     // This is intentionally NOT returning CommandResult, to keep it simple, for scripting.
     void whenCommand(String name, Callback callback);
 
+    void whenEntityRightClicked(String entityName, Callback callback);
+
+    void whenPlayerJoins(Callback callback);
+
     // TODO add more "event handlers" here; see
     // https://github.com/OASIS-learn-study/minecraft-storeys-maker/blob/develop/api/src/main/typescript/observable-wrapper.ts
 }

@@ -26,6 +26,7 @@ import ch.vorburger.minecraft.storeys.commands.StoryCommand;
 import ch.vorburger.minecraft.storeys.guard.GuardGameModeJoinListener;
 import ch.vorburger.minecraft.storeys.japi.impl.Scripts;
 import ch.vorburger.minecraft.storeys.japi.impl.Unregisterable;
+import ch.vorburger.minecraft.storeys.japi.impl.events.EventService;
 import ch.vorburger.minecraft.storeys.util.Commands;
 import com.google.inject.Injector;
 import java.nio.file.Path;
@@ -54,6 +55,8 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
 
     @Inject private EventManager eventManager;
 
+    @Inject private EventService eventService;
+
     @Inject private CommandManager commandManager;
 
     private CommandMapping narrateCommandMapping;
@@ -66,6 +69,7 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
 
     protected void start(PluginInstance plugin, Path configDir) throws Exception {
         eventManager.registerListener(plugin, Join.class, new GuardGameModeJoinListener());
+        eventService.setPluginInstance(plugin);
 
         // TODO(vorburger) child injector might not actually be required, could possibly just use only pluginInjector?
         childInjector = pluginInjector.createChildInjector(binder -> {

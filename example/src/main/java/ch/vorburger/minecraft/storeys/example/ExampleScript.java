@@ -47,5 +47,13 @@ public class ExampleScript implements Script {
                 m.cmd("/say Go fishing with the rod in your inventory..");
             }
         });
+
+        e.whenEntityRightClicked("Piggy", m -> {
+            m.narrate("Piggy", "Oink!");
+        });
+
+        e.whenPlayerJoins(m -> {
+            m.title("Hej " + m.player().getName());
+        });
     }
 }

@@ -53,6 +53,7 @@ _TODO Update the following, after Blockly will be made to reload previous projec
 1. Verify [`ExampleScript.java`](../example/src/main/java/ch/vorburger/minecraft/storeys/example/ExampleScript.java)  happened as expected
 1. `/another`
 1. ditto
+1. Right click _Piggy_ and verify it says (narrates) _"Oink!"_
 
 We do not support "hot reloading" these Java plugins (yet, but [we could](https://github.com/vorburger/HoTea/)).
 
