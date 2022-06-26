@@ -12,6 +12,8 @@
     "mineflayer": "^4.2.0"
   },
   "devDependencies": {
+    "@4tw/cypress-drag-drop": "^2.2.0",
+    "cypress": "^10.2.0",
     "chai": "^4.3.6",
     "mocha": "^10.0.0"
   }
