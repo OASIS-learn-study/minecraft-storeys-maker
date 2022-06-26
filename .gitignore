@@ -24,3 +24,6 @@ web/.vertx/file-cache-*
 .vscode/
 .history/
 .vertx/
+
+/test-mineflayer/cypress/videos/
+/test-mineflayer/cypress/screenshots/

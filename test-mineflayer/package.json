@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest --runInBand"
   },
   "author": "",
   "license": "ISC",
@@ -12,6 +12,8 @@
     "mineflayer": "^4.2.0"
   },
   "devDependencies": {
+    "@4tw/cypress-drag-drop": "^2.2.0",
+    "cypress": "^10.2.0",
     "jest": "^27.5.1"
   }
 }
