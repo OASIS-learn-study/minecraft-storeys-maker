@@ -3,27 +3,30 @@ const { spawn } = require('node:child_process');
 
 const expect = require('chai').expect
 
-describe("Storeys plugin test", () => {
-  let bot;
+const executeCommandOnLogin = (command) => {
 
   before((done) => {
     bot = mineflayer.createBot({
-      host: "localhost",
-      port: 25565
-    });
     bot.on("login", done);
   })
 
   after(() => bot.end());
+let bot;
 
-  let bot;
 
 
-  afterAll(() => bot.quit());
+  beforeEach(() => {
+    bot = mineflayer.createBot({
+      host: "localhost",
+      port: 25565
+    });
+  })
+
+  afterEach(() => bot.quit());
 
   test("1 should connect to minecraft server and execute /make", (done) => {
     // given
-    bot.chat("/make");
+    executeCommandOnLogin("/make");
 
     // then
     bot.on('messagestr', (msg, _, json) => {
@@ -44,7 +47,7 @@ describe("Storeys plugin test", () => {
 
   test("3 should execute /demo", (done) => {
     // given
-    bot = createBot("/demo");
+    executeCommandOnLogin("/demo");
 
     // then
     bot.on('title', (msg) => {
