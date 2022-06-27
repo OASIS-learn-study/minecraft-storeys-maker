@@ -39,7 +39,7 @@ let bot;
 
   it("should execute /new", (done) => {
   test("2 should create new command /demo", (done) => {
-    const child = spawn('npx', ['cypress', 'run', '--browser', 'chrome'], { env: { ...process.env, CYPRESS_URL: loginURL } });
+    const child = spawn('npx', ['cypress', 'run', '--browser', 'electron'], { env: { ...process.env, CYPRESS_URL: loginURL } });
     child.stdout.pipe(process.stdout);
     child.stderr.pipe(process.stderr);
     child.on('close', done);
