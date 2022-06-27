@@ -3,15 +3,10 @@ const { spawn } = require('node:child_process');
 
 const TIMEOUT = 10 * 1000;
 
-const createBot = (command) => {
-  const bot = mineflayer.createBot({
-    host: "localhost",
-    port: 25565
-  });
+const executeCommandOnLogin = (command) => {
   bot.on("login", () => {
     bot.chat(command);
   });
-  return bot;
 }
 
 const handleError = (bot, done) => {
@@ -26,15 +21,22 @@ describe("Storeys plugin test", () => {
     jest.useFakeTimers('legacy');
     console.log = () => { };
   });
+let bot;
 
-  let bot;
 
 
-  afterAll(() => bot.quit());
+  beforeEach(() => {
+    bot = mineflayer.createBot({
+      host: "localhost",
+      port: 25565
+    });
+  })
+
+  afterEach(() => bot.quit());
 
   test("1 should connect to minecraft server and execute /make", (done) => {
     // given
-    const bot = createBot("/make");
+    executeCommandOnLogin("/make");
 
     // then
     bot.on('messagestr', (msg, _, json) => {
@@ -58,7 +60,7 @@ describe("Storeys plugin test", () => {
 
   test("3 should execute /demo", (done) => {
     // given
-    bot = createBot("/demo");
+    executeCommandOnLogin("/demo");
 
     // then
     bot.on('title', (msg) => {
