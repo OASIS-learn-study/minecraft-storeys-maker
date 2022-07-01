@@ -21,7 +21,7 @@ export default function initGenerator() {
     const whenStatements = Blockly.JavaScript.statementToCode(block, "THEN");
     const entity = block.getField("ENTITY")?.getValue();
     return (
-      'e.whenRightClicked("' +
+      'e.whenEntityRightClicked("' +
       entity +
       '", function(m) {\n' +
       whenStatements +
