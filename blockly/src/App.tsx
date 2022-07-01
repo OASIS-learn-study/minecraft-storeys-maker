@@ -25,6 +25,10 @@ const App = () => {
     login();
   }, []);
 
+  if (!token) {
+    return <></>;
+  }
+
   return (
     <div className={classes.page}>
       <header className={classes.header}>
