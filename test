@@ -13,7 +13,7 @@ docker run --name storeys --detach --rm \
 
 docker logs -f storeys &
 
-RETRIES=60
+RETRIES=90
 if [ $(command -v podman) ]; then
   until docker healthcheck run storeys; do
     RETRIES=$(($RETRIES - 1))
