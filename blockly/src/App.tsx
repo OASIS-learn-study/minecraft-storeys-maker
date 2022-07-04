@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import Editor from "@monaco-editor/react";
 
 import { BlocklyWorkspace } from "./blockly/Workspace";
 import { generate } from "./blockly/storeys/code";
+import { CodeEditor } from "./monaco/CodeEditor";
 
 // @ts-ignore
 import classes from "./app.module.css";
@@ -59,11 +59,7 @@ const App = () => {
         </>
       )}
       {tab === 2 && (
-        <Editor
-          height="90vh"
-          defaultLanguage="typescript"
-          defaultValue={generate(workspace)}
-        />
+        <CodeEditor workspace={workspace}/>
       )}
     </div>
   );
