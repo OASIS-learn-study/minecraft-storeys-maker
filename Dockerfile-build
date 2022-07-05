@@ -1,7 +1,7 @@
 FROM docker.io/library/openjdk:11-jdk as build
 
 # https://github.com/nodesource/distributions/blob/master/README.md#installation-instructions
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && apt install -y nodejs && node --version
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && apt install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb nodejs && node --version
 
 WORKDIR /project
 
