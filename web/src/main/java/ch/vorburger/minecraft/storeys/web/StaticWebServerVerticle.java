@@ -18,6 +18,7 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
+import ch.vorburger.minecraft.storeys.model.LocationToolAction;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.simple.impl.NotLoggedInException;
 import com.google.common.io.Files;
@@ -35,19 +36,21 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.living.player.Player;
 
 /**
  * Vert.x Verticle serving static content.
  *
  * @author Michael Vorburger.ch
  */
-@Singleton
-public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
+@Singleton public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
 
     private static final Logger LOG = LoggerFactory.getLogger(StaticWebServerVerticle.class);
 
@@ -73,9 +76,8 @@ public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
             throw new UncheckedIOException(e);
         }
 
-        JWTAuthOptions authConfig = new JWTAuthOptions().addPubSecKey(new PubSecKeyOptions()
-                .setAlgorithm("HS256")
-                .setBuffer("keyboard cat"));
+        JWTAuthOptions authConfig = new JWTAuthOptions().addPubSecKey(
+                new PubSecKeyOptions().setAlgorithm("HS256").setBuffer("keyboard cat"));
 
         JWTAuth authProvider = JWTAuth.create(vertx, authConfig);
 
@@ -89,6 +91,15 @@ public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
         });
 
         router.route("/code/*").handler(JWTAuthHandler.create(authProvider));
+
+        router.route("/code/when_inside/:name").handler(ctx -> {
+            final String name = ctx.request().getParam("name");
+            final String playerUUID = ctx.user().get("playerUUID");
+            final Player player = Sponge.getServer().getPlayer(UUID.fromString(playerUUID))
+                    .orElseThrow(() -> new IllegalArgumentException("No player logged in with uuid: " + playerUUID));
+            new LocationToolAction(name).createTool(player);
+            ctx.response().end();
+        });
 
         router.post("/code/upload").handler(ctx -> {
             final String playerUUID = ctx.user().get("playerUUID");

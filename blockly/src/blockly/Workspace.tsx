@@ -12,7 +12,7 @@ import { ToolBarText } from "./storeys/text";
 
 type BlocklyWorkspaceProps = {
   workspace?: Blockly.WorkspaceSvg;
-  onWorkspaceChange?: (workspace?: Blockly.WorkspaceSvg) => void;
+  onWorkspaceChange?: (event: any, workspace?: Blockly.WorkspaceSvg) => void;
 };
 
 export const BlocklyWorkspace = ({
