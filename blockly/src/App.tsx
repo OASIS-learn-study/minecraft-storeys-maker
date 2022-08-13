@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+import Blockly from "blockly/core";
 import { BlocklyWorkspace } from "./blockly/Workspace";
 import { generate } from "./blockly/storeys/code";
 import { CodeEditor } from "./monaco/CodeEditor";
@@ -38,7 +39,18 @@ const App = () => {
         <>
           <BlocklyWorkspace
             workspace={workspace}
-            onWorkspaceChange={(workspace) => {
+            onWorkspaceChange={(event, workspace) => {
+              if (
+                event.type === Blockly.Events.BLOCK_CHANGE &&
+                workspace.getBlockById(event.blockId).type ===
+                  "when_inside"
+              ) {
+                fetch("/code/when_inside/" + event.newValue, {
+                  headers: {
+                    Authorization: `bearer ${token}`,
+                  }
+                });
+              }
               const generatedCode = generate(workspace);
               setCode(generatedCode);
               setWorkspace(workspace);

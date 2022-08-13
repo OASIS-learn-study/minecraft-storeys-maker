@@ -44,15 +44,18 @@ public class LocationToolAction implements Action<Void> {
     @Override public CompletionStage<Void> execute(ActionContext context) {
         final CommandSource source = context.getCommandSource();
         if (source instanceof Player) {
-            Player player = (Player) source;
-            final ItemStack itemInHand = locationEventCreateTool();
-            itemInHand.offer(Keys.ITEM_LORE, singletonList(Text.of(name)));
-            player.setItemInHand(HandTypes.MAIN_HAND, itemInHand);
-            // TODO translation?
-            player.sendMessage(Text.of(TextColors.YELLOW, "use this axe to draw the the points where the player should enter"));
+            createTool((Player) source);
         }
 
         return new CompletableFuture<>();
+    }
+
+    public void createTool(Player player) {
+        final ItemStack itemInHand = locationEventCreateTool();
+        itemInHand.offer(Keys.ITEM_LORE, singletonList(Text.of(name)));
+        player.setItemInHand(HandTypes.MAIN_HAND, itemInHand);
+        // TODO translation?
+        player.sendMessage(Text.of(TextColors.YELLOW, "use this axe to draw the the points where the player should enter"));
     }
 
     @Override public void setParameter(String param) {
