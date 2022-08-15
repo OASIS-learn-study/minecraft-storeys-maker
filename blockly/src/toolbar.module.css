@@ -1,0 +1,47 @@
+nav {
+  --main-color: #4dd0e1;
+  --text-color: #fcfcfc;
+  --accent-color: #c9842f;
+  --highlight-color: #e0a815;
+}
+
+.tab {
+  flex: 1 100%;
+  background: var(--main-color);
+  text-align: center;
+}
+
+.tab img {
+  float: left;
+  width: 35px;
+  margin: 5px;
+}
+
+.tab button {
+  color:  var(--text-color);
+  border: 1px solid var(--highlight-color);
+  border-radius: 0.2rem;
+  outline: none;
+  cursor: pointer;
+  padding: 14px;
+  width: 140px;
+  transition: 0.3s;
+  margin: 3px;
+  background-color: transparent;
+}
+
+.tab button.active {
+  background: var(--text-color);
+  color: var(--highlight-color);
+}
+.tab button.active:hover {
+  background: var(--text-color);
+}
+
+.tab button:hover {
+  background: var(--accent-color);
+}
+
+.tab button i {
+  margin-right: 3px;
+}
