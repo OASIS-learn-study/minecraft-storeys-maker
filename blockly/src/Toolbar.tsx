@@ -1,9 +1,8 @@
-import { useState } from "react";
+import { HTMLAttributes, useState } from "react";
 // @ts-ignore
 import classes from "./toolbar.module.css";
 
-type ToolbarProps = {
-  className: string;
+type ToolbarProps = HTMLAttributes<HTMLElement> & {
   onTabSwitch: (activeTab: number) => void;
 };
 
@@ -13,18 +12,30 @@ export const Toolbar = ({ onTabSwitch, ...rest }: ToolbarProps) => {
   const switchTab = (tab: number) => {
     setTab(tab);
     onTabSwitch(tab);
-  }
+  };
 
   return (
     <nav {...rest}>
+      <img
+        className={classes.logo}
+        src="https://raw.githubusercontent.com/teneresa/minecraft-storeys-maker/master/logo%20design/Logo%20OASIS%20small.png"
+      />
       <div className={classes.tab}>
-        <img src="https://raw.githubusercontent.com/teneresa/minecraft-storeys-maker/master/logo%20design/Logo%20OASIS%20small.png" />
-        <button className={tab === 1 ? classes.active : ""} onClick={() => switchTab(1)}>
+        <div
+          id={classes.bl}
+          className={tab === 1 ? classes.active : ""}
+          onClick={() => switchTab(1)}
+        >
           <i className="fa-solid fa-puzzle-piece"></i>Blocks
-        </button>
-        <button className={tab === 2 ? classes.active : ""} onClick={() => switchTab(2)}>
+        </div>
+        <div
+          id={classes.js}
+          className={tab === 2 ? classes.active : ""}
+          onClick={() => switchTab(2)}
+        >
           <i className="fa-brands fa-js"></i>Javascript
-        </button>
+        </div>
+        <span className={classes.glider}></span>
       </div>
     </nav>
   );
