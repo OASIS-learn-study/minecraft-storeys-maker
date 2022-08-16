@@ -1,0 +1,69 @@
+:root {
+  --main-color: #4dd0e1;
+  --text-color: #fcfcfc;
+  --accent-color: #c9842f;
+  --highlight-color: #e0a815;
+}
+
+nav {
+  box-sizing: border-box;
+  position: relative;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--main-color);
+}
+
+.tab {
+  display: flex;
+  position: relative;
+  border: 1px solid var(--highlight-color);
+}
+
+.logo {
+  position: absolute;
+  left: 1.5em;
+  width: 35px;
+}
+
+.tab div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--text-color);
+  border-radius: 0.2rem;
+  cursor: pointer;
+  width: 140px;
+  height: 40px;
+  transition: color 0.15s ease-in;
+  z-index: 2;
+}
+
+.tab div.active {
+  color: var(--highlight-color);
+}
+
+.tab div i {
+  margin-right: 3px;
+}
+
+#bl.active~.glider {
+  transform: translateX(0);
+}
+
+#js.active~.glider {
+  transform: translateX(100%);
+}
+
+.glider {
+  position: absolute;
+  display: flex;
+  height: 40px;
+  width: 140px;
+  background-color: var(--text-color);
+  z-index: 1;
+  border-radius: 0.2rem;
+  transition: 0.25s ease-out;
+}

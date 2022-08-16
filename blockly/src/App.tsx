@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { BlocklyWorkspace } from "./blockly/Workspace";
 import { generate } from "./blockly/storeys/code";
 import { CodeEditor } from "./monaco/CodeEditor";
+import { Toolbar } from "./Toolbar";
 
 // @ts-ignore
 import classes from "./app.module.css";
@@ -31,10 +32,7 @@ const App = () => {
 
   return (
     <div className={classes.page}>
-      <header className={classes.header}>
-        <button onClick={() => setTab(1)}>blockly</button>
-        <button onClick={() => setTab(2)}>code</button>
-      </header>
+      <Toolbar className={classes.header} onTabSwitch={(tab) => setTab(tab)} />
 
       {tab === 1 && (
         <>
