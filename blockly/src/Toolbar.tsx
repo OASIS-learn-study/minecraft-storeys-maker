@@ -18,7 +18,7 @@ export const Toolbar = ({ onTabSwitch, ...rest }: ToolbarProps) => {
     <nav {...rest}>
       <img
         className={classes.logo}
-        src="https://raw.githubusercontent.com/teneresa/minecraft-storeys-maker/master/logo%20design/Logo%20OASIS%20small.png"
+        src="logo.png"
       />
       <div className={classes.tab}>
         <div
