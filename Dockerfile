@@ -1,4 +1,4 @@
-FROM itzg/minecraft-server:java8-multiarch
+FROM docker.io/itzg/minecraft-server:java8-multiarch
 
 # RUN mkdir /mods/ && cd /mods/ && curl -sS -L -J -f -O https://github.com/OASIS-learn-study/swissarmyknife-minecraft-server-binaries/raw/master/LuckPerms-Sponge-5.3.98.jar
 
