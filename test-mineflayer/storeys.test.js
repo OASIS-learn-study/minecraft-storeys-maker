@@ -13,46 +13,42 @@ const createBot = (command) => {
   return bot;
 }
 
-const handleError = (bot, done) => {
-  bot.on("error", (e) => {
-    done(e);
-  });
-}
-
 describe("Storeys plugin test", () => {
-  beforeAll(() => {
-    // Prevent jest from complaining about an import after the test is done (You are trying to `import` a file after the Jest environment has been torn down.)
-    jest.useFakeTimers('legacy');
-    console.log = () => { };
-  });
+  let bot;
+
+  const handleError = (done) => {
+    bot.on("error", (e) => {
+      done(e);
+    });
+  }
+  
+  afterAll(() => bot.quit());
 
   test("should connect to minecraft server and execute /make", (done) => {
     // given
-    const bot = createBot("/make");
+    bot = createBot("/make");
 
     // then
     bot.on('messagestr', (msg) => {
       if (msg !== "Player joined the game") {
         expect(msg).toEqual("Click here to open Scratch and MAKE actions");
         done();
-        bot.quit();
       }
     });
 
-    handleError(bot, done);
+    handleError(done);
   }, TIMEOUT);
 
   test("should execute /new", (done) => {
     // given
-    const bot = createBot("/new");
+    bot = createBot("/new");
 
     // then
     bot.on('title', (msg) => {
       expect(msg).toEqual("{\"text\":\"Hello\"}");
       done();
-      bot.quit();
     });
 
-    handleError(bot, done);
+    handleError(done);
   }, TIMEOUT);
 });
