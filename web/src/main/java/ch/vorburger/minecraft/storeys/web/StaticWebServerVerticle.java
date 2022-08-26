@@ -32,10 +32,12 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.JWTAuthHandler;
 import io.vertx.ext.web.handler.StaticHandler;
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -106,18 +108,42 @@ import org.spongepowered.api.entity.living.player.Player;
             ctx.response().putHeader("Content-Type", "text/plain");
             ctx.response().setChunked(true);
 
-            for (FileUpload f : ctx.fileUploads()) {
-                LOG.info("Uploaded file {} (size {})", f.uploadedFileName(), f.size());
-                try {
-                    // NB: Use Guava Files, not JDK NIO Files, until https://github.com/vorburger/ch.vorburger.fswatch/issues/95 is fixed!
-                    Files.move(uploadFolder.resolve(f.uploadedFileName()).toFile(),
-                            configDir.resolve("new-scripts").resolve(playerUUID).toFile());
-                } catch (IOException e) {
-                    ctx.fail(e);
-                }
+            try {
+                fileUpload(uploadFolder, ctx.fileUploads(), configDir.resolve("new-scripts").resolve(playerUUID).toFile());
+            } catch (IOException e) {
+                ctx.fail(e);
             }
 
             ctx.response().end();
+        });
+
+        final Path workspace = configDir.resolve("workspace");
+        router.post("/code/workspace/upload").handler(ctx -> {
+            final String playerUUID = ctx.user().get("playerUUID");
+            ctx.response().putHeader("Content-Type", "text/plain");
+            ctx.response().setChunked(true);
+
+            if (!java.nio.file.Files.exists(workspace)) {
+                workspace.toFile().mkdirs();
+            }
+
+            try {
+                fileUpload(uploadFolder, ctx.fileUploads(), workspace.resolve(playerUUID).toFile());
+            } catch (IOException e) {
+                ctx.fail(e);
+            }
+
+            ctx.response().end();
+        });
+
+        router.get("/code/workspace").handler(ctx -> {
+            final String playerUUID = ctx.user().get("playerUUID");
+            final Path workspaceFile = workspace.resolve(playerUUID);
+            if (java.nio.file.Files.exists(workspaceFile)) {
+                ctx.response().sendFile(workspace.toString());
+            } else {
+                ctx.fail(404);
+            }
         });
 
         // see https://github.com/vorburger/minecraft-storeys-maker/issues/97 re. setFilesReadOnly(false) &
@@ -127,4 +153,11 @@ import org.spongepowered.api.entity.living.player.Player;
         LOG.info("Going to serve static web content from {} on port {}", webRoot, httpPort);
     }
 
+    private void fileUpload(Path uploadFolder, Set<FileUpload> fileUploads, File dest) throws IOException {
+        for (FileUpload f : fileUploads) {
+            LOG.info("Uploaded file {} (size {})", f.uploadedFileName(), f.size());
+            // NB: Use Guava Files, not JDK NIO Files, until https://github.com/vorburger/ch.vorburger.fswatch/issues/95 is fixed!
+            Files.move(uploadFolder.resolve(f.uploadedFileName()).toFile(), dest);
+        }
+    }
 }

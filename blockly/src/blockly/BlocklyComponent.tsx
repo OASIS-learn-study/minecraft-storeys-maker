@@ -13,7 +13,7 @@ import classes from "./blockly.module.css";
 import { debounce } from "./debounce";
 
 type BlocklyComponentProps = {
-  initialXml?: string;
+  workspace?: Blockly.WorkspaceSvg;
   onWorkspaceChange?: (event: any, workspace?: Blockly.WorkspaceSvg) => void;
   children?: ReactNode;
 };
@@ -49,7 +49,7 @@ const TYPES = [
 ] as const;
 
 export const BlocklyComponent = ({
-  initialXml,
+  workspace,
   onWorkspaceChange,
   children,
   ...rest
@@ -80,11 +80,8 @@ export const BlocklyComponent = ({
       },
       ...rest,
     });
-    if (initialXml) {
-      Blockly.Xml.domToWorkspace(
-        Blockly.Xml.textToDom(initialXml),
-        blocklyWorkspace
-      );
+    if (workspace) {
+      Blockly.Xml.domToWorkspace(workspace, blocklyWorkspace);
     }
 
     if (onWorkspaceChange) {
