@@ -52,8 +52,7 @@ import org.spongepowered.api.entity.living.player.Player;
  *
  * @author Michael Vorburger.ch
  */
-@Singleton
-public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
+@Singleton public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
 
     private static final Logger LOG = LoggerFactory.getLogger(StaticWebServerVerticle.class);
 
