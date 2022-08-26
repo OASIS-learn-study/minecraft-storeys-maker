@@ -39,8 +39,7 @@ import javax.script.ScriptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Singleton
-public class ScriptsLoader {
+@Singleton public class ScriptsLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(ScriptsLoader.class);
 
@@ -65,8 +64,10 @@ public class ScriptsLoader {
                             LOG.info("(Re-)loaded {}", path);
                         } catch (NoSuchFileException e) {
                             // Ignore (happens frequently for temporary files with Git)
+                        } catch (jdk.nashorn.api.scripting.NashornException n) {
+                            LOG.warn("Invalid JS: {}:{}:{} {}", path, n.getLineNumber(), n.getColumnNumber(), n.getMessage());
                         } catch (RuntimeException e) {
-                            LOG.warn("Failed to register {}", path, e);
+                            LOG.error("Failed to register due to an unknown cause {}", path, e);
                         }
                         // TODO catch (NashornException e) with getFileName(), getLineNumber(), getColumnNumber()
                         break;
