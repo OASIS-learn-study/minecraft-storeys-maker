@@ -52,7 +52,8 @@ import org.spongepowered.api.entity.living.player.Player;
  *
  * @author Michael Vorburger.ch
  */
-@Singleton public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
+@Singleton
+public class StaticWebServerVerticle extends AbstractHttpServerVerticle {
 
     private static final Logger LOG = LoggerFactory.getLogger(StaticWebServerVerticle.class);
 
@@ -78,8 +79,8 @@ import org.spongepowered.api.entity.living.player.Player;
             throw new UncheckedIOException(e);
         }
 
-        JWTAuthOptions authConfig = new JWTAuthOptions().addPubSecKey(
-                new PubSecKeyOptions().setAlgorithm("HS256").setBuffer("keyboard cat"));
+        JWTAuthOptions authConfig = new JWTAuthOptions()
+                .addPubSecKey(new PubSecKeyOptions().setAlgorithm("HS256").setBuffer("keyboard cat"));
 
         JWTAuth authProvider = JWTAuth.create(vertx, authConfig);
 
@@ -140,7 +141,8 @@ import org.spongepowered.api.entity.living.player.Player;
             final String playerUUID = ctx.user().get("playerUUID");
             final Path workspaceFile = workspace.resolve(playerUUID);
             if (java.nio.file.Files.exists(workspaceFile)) {
-                ctx.response().sendFile(workspace.toString());
+                final String fileName = workspaceFile.toString();
+                ctx.response().sendFile(fileName).onFailure(t -> LOG.error("sendFile('{}') failed", fileName, t));
             } else {
                 ctx.fail(404);
             }
