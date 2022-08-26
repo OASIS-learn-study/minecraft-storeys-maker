@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "blockly"
+		},
+		{
+			"path": "test-mineflayer"
 		}
 	],
 	"settings": {}
