@@ -22,7 +22,7 @@ describe("Storeys plugin test", () => {
     });
   }
   
-  afterAll(() => bot.quit());
+  afterEach(() => bot.quit());
 
   test("should connect to minecraft server and execute /make", (done) => {
     // given
