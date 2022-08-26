@@ -20,11 +20,7 @@ export const BlocklyWorkspace = ({
   onWorkspaceChange,
 }: BlocklyWorkspaceProps) => (
   <BlocklyComponent
-    initialXml={
-      !workspace
-        ? '<xml xmlns="http://www.w3.org/1999/xhtml"></xml>'
-        : Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace))
-    }
+    workspace={workspace}
     onWorkspaceChange={onWorkspaceChange}
   >
     <ToolBoxLogic />
