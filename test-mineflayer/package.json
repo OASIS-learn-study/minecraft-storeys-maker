@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha storeys.test.js --timeout 50000 --browser chrome"
+    "test": "mocha storeys.test.js --timeout 20000"
   },
   "author": "",
   "license": "ISC",
@@ -13,8 +13,8 @@
   },
   "devDependencies": {
     "@4tw/cypress-drag-drop": "^2.2.0",
-    "cypress": "^10.2.0",
     "chai": "^4.3.6",
+    "cypress": "^10.2.0",
     "mocha": "^10.0.0"
   }
 }

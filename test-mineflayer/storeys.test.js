@@ -3,55 +3,48 @@ const { spawn } = require('node:child_process');
 
 const expect = require('chai').expect
 
-const executeCommandOnLogin = (command) => {
+describe("Storeys plugin test", () => {
+  let bot;
+  let loginURL;
 
   before((done) => {
-    bot = mineflayer.createBot({
-    bot.on("login", done);
-  })
-
-  after(() => bot.end());
-let bot;
-
-
-
-  beforeEach(() => {
     bot = mineflayer.createBot({
       host: "localhost",
       port: 25565
     });
+    bot.on("login", done);
   })
 
-  afterEach(() => bot.quit());
+  after(() => bot.end());
 
-  test("1 should connect to minecraft server and execute /make", (done) => {
+  it("1 should connect to minecraft server and execute /make", (done) => {
     // given
-    executeCommandOnLogin("/make");
+    bot.chat("/make");
 
     // then
     bot.on('messagestr', (msg, _, json) => {
       if (msg !== "Player joined the game") {
         loginURL = json.extra[0].extra[0].extra[0].extra[0].clickEvent.value;
+        expect(msg).to.equal("Click here to open Scratch and MAKE actions");
         done();
       }
     });
   });
 
-  it("should execute /new", (done) => {
-  test("2 should create new command /demo", (done) => {
-    const child = spawn('npx', ['cypress', 'run', '--browser', 'electron'], { env: { ...process.env, CYPRESS_URL: loginURL } });
+  it("2 should create new command /demo", (done) => {
+    const child = spawn('npx', ['cypress', 'run'], { env: { ...process.env, CYPRESS_URL: loginURL } });
     child.stdout.pipe(process.stdout);
     child.stderr.pipe(process.stderr);
-    child.on('close', done);
-  }, 2 * TIMEOUT);
+    child.on('exit', done);
+  });
 
-  test("3 should execute /demo", (done) => {
+  it("3 should execute /demo", (done) => {
     // given
-    executeCommandOnLogin("/demo");
+    bot.chat("/demo");
 
     // then
     bot.on('title', (msg) => {
-      expect(msg).toEqual("{\"text\":\"automated test!\"}");
+      expect(msg).to.equal("{\"text\":\"automated test!\"}");
       done();
     });
   });
