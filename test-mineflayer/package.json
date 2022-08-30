@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha storeys.test.js --timeout 50000"
+    "test": "mocha storeys.test.js --timeout 50000 --browser chrome"
   },
   "author": "",
   "license": "ISC",
