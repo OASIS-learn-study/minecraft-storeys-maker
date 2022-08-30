@@ -19,10 +19,7 @@ type MinecraftCallback = (m: Minecraft) => void;
 declare class Events {
   whenCommand(command: string, callback: MinecraftCallback): void;
 
-  whenEntityRightClicked(
-    entity: string,
-    callback: (m: Minecraft) => void
-  ): void;
+  whenEntityRightClicked(entity: string, callback: MinecraftCallback): void;
 
   whenPlayerJoins(callback: MinecraftCallback): void;
 
