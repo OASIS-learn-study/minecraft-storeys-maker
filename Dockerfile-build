@@ -5,4 +5,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && apt install -y 
 
 WORKDIR /project
 
+# This will cache the Gradle distribution in the image
+COPY gradle /project/gradle
+COPY gradlew /project/
 RUN ./gradlew --version
