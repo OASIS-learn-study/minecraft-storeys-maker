@@ -63,7 +63,7 @@ public class LoginCommand implements Command {
     }
 
     @Override public CommandCallable callable() {
-        return CommandSpec.builder().description(Text.of("Login into ScratchX web interface")) // .permission("storeys.command.make")
+        return CommandSpec.builder().description(Text.of("Open the browser and start your story")) // .permission("storeys.command.make")
                 .arguments(GenericArguments.flags().permissionFlag("storeys.command.make.beta", "b").buildWith(GenericArguments.none()))
                 .executor(this).build();
     }
@@ -80,7 +80,7 @@ public class LoginCommand implements Command {
                 String code = tokenProvider.getCode(player);
                 String url = String.format("%s?code=%s", scratchGui, code);
 
-                src.sendMessage(Text.builder("Click here to open Scratch and MAKE actions").onClick(TextActions.openUrl(new URL(url)))
+                src.sendMessage(Text.builder("Click here to open a browser and start MAKE actions").onClick(TextActions.openUrl(new URL(url)))
                         .color(TextColors.GOLD).build());
             });
         } else {

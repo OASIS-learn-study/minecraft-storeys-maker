@@ -22,8 +22,7 @@ Now test that you can make a new project:
 1. Add
    * Events > When / `demo`
    * Actions > Title `Hello!`
-   * Actions > `Piggy` speaks `Hello!`
-1. Click _upload code_ button _(TODO perhaps we could auto-save, later?)_
+   * Actions > `Piggy` speaks `Hello!` 
 1. `/demo` command in Minecraft should now make the entity _Piggy_ speak
 
 _TODO Update the following, after Blockly will be made to reload previous projects?_

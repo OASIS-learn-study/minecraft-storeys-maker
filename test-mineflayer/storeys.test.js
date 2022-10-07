@@ -22,7 +22,7 @@ describe("Storeys plugin test", () => {
     // then
     bot.on('messagestr', (msg, _, json) => {
       if (msg !== "Player joined the game") {
-        expect(msg).to.equal("Click here to open Scratch and MAKE actions");
+        expect(msg).to.equal("Click here to open a browser and start MAKE actions");
         done();
       }
     });
