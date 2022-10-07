@@ -58,7 +58,12 @@ public class ExampleScript implements Script {
         });
 
         e.whenPlayerJoins(m -> {
-            m.narrate("Piggy", "Hej " + m.player().getName());
+            // Do NOT use whenPlayerJoins() with narrate() as that can lead to race conditions in tests; see
+            // https://github.com/OASIS-learn-study/minecraft-storeys-maker/issues/401
+
+            // TODO Re-enable this AFTER sorting out /say permission with LuckPerms
+            // m.cmd("/say Hej " + m.player().getName());
         });
+
     }
 }
