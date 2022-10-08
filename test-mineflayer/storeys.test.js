@@ -1,11 +1,9 @@
 const mineflayer = require('mineflayer');
-const { spawn } = require('node:child_process');
 
 const expect = require('chai').expect
 
 describe("Storeys plugin test", () => {
   let bot;
-  let loginURL;
 
   before((done) => {
     bot = mineflayer.createBot({
@@ -17,34 +15,26 @@ describe("Storeys plugin test", () => {
 
   after(() => bot.end());
 
-  it("1 should connect to minecraft server and execute /make", (done) => {
+  it("should connect to minecraft server and execute /make", (done) => {
     // given
     bot.chat("/make");
 
     // then
     bot.on('messagestr', (msg, _, json) => {
       if (msg !== "Player joined the game") {
-        loginURL = json.extra[0].extra[0].extra[0].extra[0].clickEvent.value;
         expect(msg).to.equal("Click here to open Scratch and MAKE actions");
         done();
       }
     });
   });
 
-  it("2 should create new command /demo", (done) => {
-    const child = spawn('npx', ['cypress', 'run'], { env: { ...process.env, CYPRESS_URL: loginURL } });
-    child.stdout.pipe(process.stdout);
-    child.stderr.pipe(process.stderr);
-    child.on('exit', done);
-  });
-
-  it("3 should execute /demo", (done) => {
+  it("should execute /new", (done) => {
     // given
-    bot.chat("/demo");
+    bot.chat("/new");
 
     // then
     bot.on('title', (msg) => {
-      expect(msg).to.equal("{\"text\":\"automated test!\"}");
+      expect(msg).to.equal("{\"text\":\"Hello\"}");
       done();
     });
   });
