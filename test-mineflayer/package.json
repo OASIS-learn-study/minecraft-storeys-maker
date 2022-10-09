@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "mocha storeys.test.js --timeout 50000 --browser chrome"
   },
   "author": "",
   "license": "ISC",
@@ -12,6 +12,7 @@
     "mineflayer": "^4.2.0"
   },
   "devDependencies": {
-    "jest": "^27.5.1"
+    "chai": "^4.3.6",
+    "mocha": "^10.0.0"
   }
 }

@@ -1,58 +1,41 @@
 const mineflayer = require('mineflayer');
 
-const TIMEOUT = 10 * 1000;
-
-const createBot = (command) => {
-  const bot = mineflayer.createBot({
-    host: "localhost",
-    port: 25565
-  });
-  bot.on("login", () => {
-    bot.chat(command);
-  });
-  return bot;
-}
-
-const handleError = (bot, done) => {
-  bot.on("error", (e) => {
-    done(e);
-  });
-}
+const expect = require('chai').expect
 
 describe("Storeys plugin test", () => {
-  beforeAll(() => {
-    // Prevent jest from complaining about an import after the test is done (You are trying to `import` a file after the Jest environment has been torn down.)
-    jest.useFakeTimers('legacy');
-    console.log = () => { };
-  });
+  let bot;
 
-  test("should connect to minecraft server and execute /make", (done) => {
+  before((done) => {
+    bot = mineflayer.createBot({
+      host: "localhost",
+      port: 25565
+    });
+    bot.on("login", done);
+  })
+
+  after(() => bot.end());
+
+  it("should connect to minecraft server and execute /make", (done) => {
     // given
-    const bot = createBot("/make");
+    bot.chat("/make");
 
     // then
-    bot.on('messagestr', (msg) => {
+    bot.on('messagestr', (msg, _, json) => {
       if (msg !== "Player joined the game") {
-        expect(msg).toEqual("Click here to open Scratch and MAKE actions");
+        expect(msg).to.equal("Click here to open Scratch and MAKE actions");
         done();
-        bot.quit();
       }
     });
+  });
 
-    handleError(bot, done);
-  }, TIMEOUT);
-
-  test("should execute /new", (done) => {
+  it("should execute /new", (done) => {
     // given
-    const bot = createBot("/new");
+    bot.chat("/new");
 
     // then
     bot.on('title', (msg) => {
-      expect(msg).toEqual("{\"text\":\"Hello\"}");
+      expect(msg).to.equal("{\"text\":\"Hello\"}");
       done();
-      bot.quit();
     });
-
-    handleError(bot, done);
-  }, TIMEOUT);
+  });
 });
