@@ -24,6 +24,7 @@ Now test that you can make a new project:
    * Actions > Title `Hello!`
    * Actions > `Piggy` speaks `Hello!` 
 1. `/demo` command in Minecraft should now make the entity _Piggy_ speak
+1. _TODO explain how to create a when aside area, and how to name it; or link to a YouTube video about it_
 
 _TODO Update the following, after Blockly will be made to reload previous projects?_
 
@@ -42,6 +43,7 @@ _TODO Update the following, after Blockly will be made to reload previous projec
 
 1. `/new`
 1. Verify [`test.js`](../minecraft-server-test-data/config/storeys-web/new-scripts/test.js) happened as expected
+1. _TODO Walk (where?) and make sure a "you jumped!" is shown as title
 1. Edit `test.js` to change `m.title("Hello");` to `m.title("hello, world");`
 1. `/new`
 1. Verify title shown changed
