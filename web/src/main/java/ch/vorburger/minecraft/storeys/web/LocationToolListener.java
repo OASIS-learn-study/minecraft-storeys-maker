@@ -70,7 +70,7 @@ import org.spongepowered.api.world.World;
 
     private final EventContext eventContext;
     private EventManager eventManager;
-    private PluginInstance plugin;
+    private final PluginInstance plugin;
 
     @Inject public LocationToolListener(PluginInstance plugin, EventManager eventManager, ConditionService conditionService,
             ConfigurationLoader<CommentedConfigurationNode> loader) {
