@@ -71,11 +71,14 @@ import org.spongepowered.api.text.Text;
     }
 
     @Listener public void onInsideLocation(PlayerInsideEvent event) throws Exception {
-        Collection<Callback> callbacks = onPlayerInsideCallbacks.get(event.getLocationName());
+        final String locationName = event.getLocationName();
+        Collection<Callback> callbacks = onPlayerInsideCallbacks.get(locationName);
         if (callbacks != null) {
             for (Callback callback : callbacks) {
                 callback.call(event.getEffectedPlayer());
             }
+        } else {
+            LOG.warn("Unknown Location: {}", locationName);
         }
     }
 
