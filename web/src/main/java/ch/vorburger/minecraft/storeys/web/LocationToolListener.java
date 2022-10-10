@@ -68,7 +68,7 @@ import org.spongepowered.api.world.World;
     private final ConditionService conditionService;
     private final ConfigurationLoader<CommentedConfigurationNode> configurationLoader;
 
-    private EventContext eventContext;
+    private final EventContext eventContext;
     private EventManager eventManager;
     private PluginInstance plugin;
 
