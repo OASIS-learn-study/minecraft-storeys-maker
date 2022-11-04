@@ -27,4 +27,5 @@ public interface Events {
 
     void whenPlayerJoins(Callback callback);
 
+    void whenInside(String locationName, Callback callback);
 }
