@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euox pipefail
 
-./make
+docker rm -f -t=1 storeys || true
 
-docker stop --time 7 storeys || true
+./make
 
 docker run --name storeys --detach --rm \
     -e OPS=73551f35-7acb-45c0-bc65-8083c53eec69,fb79c1a9-72bd-34dc-9775-c2ac868d7ccf \
