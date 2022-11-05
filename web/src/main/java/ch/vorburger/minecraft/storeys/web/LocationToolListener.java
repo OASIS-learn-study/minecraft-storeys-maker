@@ -22,6 +22,7 @@ import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.events.Condition;
 import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.events.LocatableInBoxCondition;
+import ch.vorburger.minecraft.storeys.japi.PlayerInsideEvent;
 import ch.vorburger.minecraft.storeys.japi.impl.Unregisterable;
 import ch.vorburger.minecraft.storeys.model.LocationToolAction;
 import ch.vorburger.minecraft.storeys.web.location.LocationHitBox;
@@ -51,6 +52,8 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
@@ -58,18 +61,24 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-@Singleton
-public class LocationToolListener {
+@Singleton public class LocationToolListener {
     private static final Logger LOG = LoggerFactory.getLogger(LocationToolListener.class);
     private final Map<String, Pair<Location<World>, Location<World>>> playerBoxLocations = new ConcurrentHashMap<>();
     private final Map<String, Unregisterable> conditionRegistrations = new ConcurrentHashMap<>();
     private final ConditionService conditionService;
     private final ConfigurationLoader<CommentedConfigurationNode> configurationLoader;
 
+    private final EventContext eventContext;
+    private EventManager eventManager;
+    private final PluginInstance plugin;
+
     @Inject public LocationToolListener(PluginInstance plugin, EventManager eventManager, ConditionService conditionService,
             ConfigurationLoader<CommentedConfigurationNode> loader) {
         TypeSerializerCollection.defaults().register(LocationPairSerializer.TYPE, new LocationPairSerializer());
         eventManager.registerListeners(plugin, this);
+        this.eventManager = eventManager;
+        this.plugin = plugin;
+        this.eventContext = EventContext.builder().add(EventContextKeys.PLUGIN, plugin.getPluginContainer()).build();
         this.conditionService = conditionService;
         configurationLoader = loader;
 
@@ -131,9 +140,9 @@ public class LocationToolListener {
         if (unregisterable != null) {
             unregisterable.unregister();
         }
-        ConditionService.ConditionServiceRegistration registration = conditionService.register(condition,
-                // TODO properly implement full support for this old feature in the new api-jvm
-                (Player p) -> LOG.warn("TODO inform the player that someone was inside the region {}", p));
+        ConditionService.ConditionServiceRegistration registration = conditionService.register(condition, (p) -> {
+            eventManager.post(new PlayerInsideEvent(p, locationName, Cause.of(eventContext, plugin)));
+        });
         conditionRegistrations.put(name, registration);
     }
 

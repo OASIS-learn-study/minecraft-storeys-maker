@@ -86,6 +86,16 @@ class EventsImpl implements Events, Unregisterable {
         }));
     }
 
+    @Override public void whenInside(String locationName, Callback callback) {
+        unregistrables.add(eventService.registerInsideLocation(locationName, player -> {
+            try {
+                invokeCallback(player, callback);
+            } catch (Exception e) {
+                LOG.error("whenInside() callback failure", e);
+            }
+        }));
+    }
+
     @Override public void whenEntityRightClicked(String entityName, Callback callback) {
         ch.vorburger.minecraft.storeys.japi.impl.events.Callback otherCallback = invoker -> {
             invokeCallback(invoker, callback);

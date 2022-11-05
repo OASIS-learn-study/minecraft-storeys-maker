@@ -19,6 +19,7 @@
 package ch.vorburger.minecraft.storeys.japi.impl.events;
 
 import ch.vorburger.minecraft.osgi.api.PluginInstance;
+import ch.vorburger.minecraft.storeys.japi.PlayerInsideEvent;
 import ch.vorburger.minecraft.storeys.japi.impl.Unregisterable;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,12 +40,13 @@ import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
 import org.spongepowered.api.text.Text;
 
-@Singleton
-public class EventService implements AutoCloseable {
+@Singleton public class EventService implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(EventService.class);
 
     private final Collection<Callback> onPlayerJoinCallbacks = new ConcurrentLinkedQueue<>();
+
+    private final Map<String, Collection<Callback>> onPlayerInsideCallbacks = new ConcurrentHashMap<>();
     private final Map<String, Collection<Callback>> onInteractEntityEventCallbacks = new ConcurrentHashMap<>();
 
     private final EventManager eventManager;
@@ -68,8 +70,26 @@ public class EventService implements AutoCloseable {
         }
     }
 
+    @Listener public void onInsideLocation(PlayerInsideEvent event) throws Exception {
+        final String locationName = event.getLocationName();
+        Collection<Callback> callbacks = onPlayerInsideCallbacks.get(locationName);
+        if (callbacks != null) {
+            for (Callback callback : callbacks) {
+                callback.call(event.getEffectedPlayer());
+            }
+        } else {
+            LOG.warn("Unknown Location: {}", locationName);
+        }
+    }
+
     public Unregisterable registerPlayerJoin(Callback callback) {
         return add(onPlayerJoinCallbacks, callback);
+    }
+
+    public Unregisterable registerInsideLocation(String locationName, Callback callback) {
+        Collection<Callback> callbacks = onPlayerInsideCallbacks.computeIfAbsent(locationName,
+                name -> new ConcurrentLinkedQueue<>());
+        return add(callbacks, callback);
     }
 
     public Unregisterable registerInteractEntity(String entityName, Callback callback) {

@@ -25,7 +25,7 @@ describe("Storeys plugin test", () => {
     bot.on('messagestr', (msg, _, json) => {
       if (msg !== "Player joined the game") {
         loginURL = json.extra[0].extra[0].extra[0].extra[0].clickEvent.value;
-        expect(msg).to.equal("Click here to open Scratch and MAKE actions");
+        expect(msg).to.equal("Click here to open a browser and start MAKE actions");
         done();
       }
     });

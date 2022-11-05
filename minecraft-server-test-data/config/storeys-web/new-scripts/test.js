@@ -6,3 +6,8 @@ e.whenCommand("new", function callback(m) {
       m.cmd("/say Go fishing with the rod in your inventory..");
    }
 });
+
+// box is the location on top of the bushes
+e.whenInside("box", function(m) {
+  m.title('you jumped!');
+});
