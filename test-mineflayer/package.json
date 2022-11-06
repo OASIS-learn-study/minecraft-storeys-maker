@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha storeys.test.js --timeout 50000 --browser chrome"
+    "test": "mocha storeys.test.js --timeout 50000 --browser chrome",
+    "playwright": "npx playwright install && npx playwright test"
   },
   "author": "",
   "license": "ISC",
@@ -12,6 +13,7 @@
     "mineflayer": "^4.2.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.27.1",
     "chai": "^4.3.6",
     "mocha": "^10.0.0"
   }
