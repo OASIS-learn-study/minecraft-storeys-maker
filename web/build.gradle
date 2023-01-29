@@ -81,6 +81,8 @@ shadowJar {
     include(dependency("io.netty:netty-codec-http"))
     include(dependency("io.netty:netty-codec-http2"))
     include(dependency("com.fasterxml.jackson.core:jackson-core"))
+    include(dependency("org.graalvm.js:js-scriptengine"))
+    include(dependency("org.graalvm.js:js"))
     exclude 'module-info.class'
   }
 }

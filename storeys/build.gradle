@@ -8,7 +8,8 @@ dependencies {
     api project(':api-jvm-impl')
     api 'ch.vorburger.minecraft.osgi:api:1.0.0'
     implementation 'ch.vorburger:fswatch:1.3.0'
-
+    implementation 'org.graalvm.js:js-scriptengine:21.2.0'
+    runtimeOnly 'org.graalvm.js:js:21.2.0'
     implementation project(':example')
     testImplementation project(':test-utils')
 }
