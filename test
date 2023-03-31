@@ -5,8 +5,13 @@ docker rm -f -t=1 storeys || true
 
 ./make
 
+# Delete the stuff which the previous run of the tests created
+rm -f minecraft-server-test-data/config/storeys-web/workspace/a01e3843-e521-3998-958a-f459800e4d11
+rm -f minecraft-server-test-data/config/storeys-web/new-scripts/a01e3843-e521-3998-958a-f459800e4d11
+
 docker run --name storeys --detach --rm \
-    -e OPS=73551f35-7acb-45c0-bc65-8083c53eec69,fb79c1a9-72bd-34dc-9775-c2ac868d7ccf \
+    -e WORLD=/data/world-init \
+    -e OPS=5153e34b-c326-3040-ab45-048f8f35eb13,73551f35-7acb-45c0-bc65-8083c53eec69,fb79c1a9-72bd-34dc-9775-c2ac868d7ccf \
     -e ONLINE_MODE=FALSE \
     -v $PWD/minecraft-server-test-data:/data:Z -e UID=0 -e GID=0 \
     -p 25565:25565 -p 8080:8080 -p 7070:7070 minecraft-storeys-maker

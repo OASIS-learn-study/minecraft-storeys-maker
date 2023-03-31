@@ -5,17 +5,8 @@
 !.gitignore
 
 # https://minecraft.fandom.com/el/wiki/Level_format
-!world
+# world/* is completely ignored, because docker run -e WORLD=/data/world-init copies world-init/ to world/ on start!
 world/*
-!world/level*.dat
-
-# !world/data
-# world/data/*
-# !world/data/villages.dat
-
-!world/region
-world/region/*
-!world/region/*.mca
 
 !config
 config/*
