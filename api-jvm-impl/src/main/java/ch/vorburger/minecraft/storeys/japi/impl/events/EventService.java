@@ -18,7 +18,6 @@
  */
 package ch.vorburger.minecraft.storeys.japi.impl.events;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.japi.PlayerInsideEvent;
 import ch.vorburger.minecraft.storeys.japi.impl.Unregisterable;
 import java.util.Collection;
@@ -39,6 +38,7 @@ import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.plugin.PluginContainer;
 
 @Singleton public class EventService implements AutoCloseable {
 
@@ -56,8 +56,8 @@ import org.spongepowered.api.text.Text;
     }
 
     // @Inject PluginInstance cannot work, so we use explicit "setter injection"
-    public void setPluginInstance(PluginInstance plugin) {
-        eventManager.registerListeners(plugin, this);
+    public void setPluginContainer(PluginContainer pluginContainer) {
+        eventManager.registerListeners(pluginContainer, this);
         // TODO InteractItemEvent ?
     }
 

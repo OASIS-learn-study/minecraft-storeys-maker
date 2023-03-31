@@ -18,10 +18,9 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
-import ch.vorburger.minecraft.osgi.api.Listeners;
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.api.impl.TokenCommand;
 import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
+import ch.vorburger.minecraft.storeys.plugin.PluginInstance;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.simple.impl.TokenProviderImpl;
 import ch.vorburger.minecraft.storeys.util.Commands;
@@ -29,25 +28,41 @@ import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
-import ninja.leaping.configurate.commented.CommentedConfigurationNode;
-import ninja.leaping.configurate.loader.ConfigurationLoader;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.loader.ConfigurationLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandMapping;
+import org.spongepowered.api.command.CommandCallable;
+import org.spongepowered.api.command.CommandException;
+import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.args.GenericArguments;
+import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.config.DefaultConfig;
-import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.plugin.builtin.jvm.Plugin;
+import org.spongepowered.api.text.LiteralText;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.action.TextActions;
+import org.spongepowered.api.text.format.TextColors;
 
-@Plugin(id = "storeys-web", name = "Vorburger.ch's Storeys with Web API", version = "1.0", description = "Makes entities narrate story lines so you can make your own movie in Minecraft", url = "https://github.com/OASIS-learn-study/minecraft-storeys-maker", authors = "Michael Vorburger.ch")
-public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners {
+@Plugin("storeys") public class StoreysWebPlugin extends AbstractStoreysPlugin {
     // do not extend StoreysPlugin, because we exclude that class in shadowJar
 
+    private static final Logger LOG = LoggerFactory.getLogger(StoreysWebPlugin.class);
     private VertxStarter vertxStarter;
-    private CommandMapping loginCommandMapping;
-    private CommandMapping tokenCommandMapping;
+    private LoginCommand loginCommand;
+    private TokenCommand tokenCommand;
 
-    @Inject
-    @DefaultConfig(sharedRoot = true) private ConfigurationLoader<CommentedConfigurationNode> configurationLoader;
+    @Inject @DefaultConfig(sharedRoot = true) private ConfigurationLoader<CommentedConfigurationNode> configurationLoader;
 
     @Override public void start(PluginInstance plugin, Path configDir) throws Exception {
         super.start(plugin, configDir);
@@ -64,8 +79,8 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
         StaticWebServerVerticle staticWebServerVerticle = injector.getInstance(StaticWebServerVerticle.class);
 
         TokenProvider tokenProvider = injector.getInstance(TokenProvider.class);
-        loginCommandMapping = Commands.register(plugin, new LoginCommand(tokenProvider));
-        tokenCommandMapping = Commands.register(plugin, new TokenCommand(tokenProvider));
+        loginCommand = new LoginCommand(tokenProvider);
+        tokenCommand = new TokenCommand(tokenProvider);
 
         try {
             try {
@@ -84,13 +99,12 @@ public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners
         }
     }
 
+    @Listener public void register(RegisterCommandEvent<Command.Raw> event) {
+        event.register(this.getPluginContainer(),
+                (Command.Raw) loginCommand.callable(), loginCommand.aliases().get(0), loginCommand.aliases().toArray(new String[0]));
+    }
+
     @Override public void stop() throws Exception {
-        if (loginCommandMapping != null) {
-            Sponge.getCommandManager().removeMapping(loginCommandMapping);
-        }
-        if (tokenCommandMapping != null) {
-            Sponge.getCommandManager().removeMapping(tokenCommandMapping);
-        }
         if (vertxStarter != null) {
             vertxStarter.stop();
         }

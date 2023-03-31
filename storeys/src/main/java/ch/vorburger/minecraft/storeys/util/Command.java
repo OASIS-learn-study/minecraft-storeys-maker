@@ -18,8 +18,12 @@
  */
 package ch.vorburger.minecraft.storeys.util;
 
-import ch.vorburger.minecraft.osgi.api.CommandRegistration;
-import org.spongepowered.api.command.spec.CommandExecutor;
+import java.util.List;
+import org.spongepowered.api.command.CommandExecutor;
 
-public interface Command extends CommandRegistration, CommandExecutor {
+public interface Command extends CommandExecutor {
+
+    org.spongepowered.api.command.Command callable();
+
+    List<String> aliases();
 }

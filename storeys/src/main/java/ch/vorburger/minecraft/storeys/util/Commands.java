@@ -20,6 +20,10 @@ package ch.vorburger.minecraft.storeys.util;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandMapping;
+import org.spongepowered.api.command.manager.CommandManager;
+import org.spongepowered.api.command.registrar.CommandRegistrar;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
 
 public final class Commands {
 
@@ -29,6 +33,11 @@ public final class Commands {
     public static CommandMapping register(Object plugin, Command command) throws IllegalStateException {
         return Sponge.getCommandManager().register(plugin, command.callable(), command.aliases())
                 .orElseThrow(() -> new IllegalStateException("Failed to register command: " + command.aliases()));
+    }
+
+    @Listener
+    public void register(RegisterCommandEvent event) {
+        event.register(plugin, comm)
     }
 
 }

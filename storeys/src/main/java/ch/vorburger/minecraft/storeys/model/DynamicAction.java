@@ -53,7 +53,7 @@ public class DynamicAction implements Action<Void> {
 
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine engine = manager.getEngineByName("JavaScript");
-        engine.put("player", context.getCommandSource());
+        engine.put("player", context.getCommandCause());
 
         try {
             String storyText = (String) engine.eval(PREFIX + script + POSTFIX);

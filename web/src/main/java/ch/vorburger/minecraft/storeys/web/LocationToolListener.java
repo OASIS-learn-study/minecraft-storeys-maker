@@ -60,6 +60,9 @@ import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+import ch.vorburger.minecraft.storeys.plugin.PluginInstance;
+import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.loader.ConfigurationLoader;
 
 @Singleton public class LocationToolListener {
     private static final Logger LOG = LoggerFactory.getLogger(LocationToolListener.class);

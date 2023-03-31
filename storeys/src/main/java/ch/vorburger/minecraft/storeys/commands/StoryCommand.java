@@ -41,6 +41,8 @@ import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.exception.CommandException;
+import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.text.Text;
 
@@ -73,7 +75,7 @@ public class StoryCommand implements Command {
                 ).executor(this).build();
     }
 
-    @Override public CommandResult execute(CommandSource commandSource, CommandContext commandContext) throws CommandException {
+    @Override public CommandResult execute(CommandContext commandContext) throws CommandException {
         String storyName = commandContext.<String>getOne(ARG_STORY).get();
 
         CommandExceptions.doOrThrow("Failed to load & play '" + storyName + "' story, due to: ", () -> {

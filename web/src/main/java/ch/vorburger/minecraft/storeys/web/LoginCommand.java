@@ -24,17 +24,14 @@ import ch.vorburger.minecraft.storeys.util.Command;
 import com.google.common.collect.ImmutableList;
 import java.net.URL;
 import java.util.List;
-import org.spongepowered.api.command.CommandCallable;
-import org.spongepowered.api.command.CommandException;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.spongepowered.api.command.Command.Parameterized;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.args.CommandContext;
-import org.spongepowered.api.command.args.GenericArguments;
-import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.command.exception.CommandException;
+import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.action.TextActions;
-import org.spongepowered.api.text.format.TextColors;
 
 /**
  * Minecraft console command to login to Scratch.
@@ -62,9 +59,8 @@ public class LoginCommand implements Command {
         return defaultValue;
     }
 
-    @Override public CommandCallable callable() {
-        return CommandSpec.builder().description(Text.of("Open the browser and start your story")) // .permission("storeys.command.make")
-                .arguments(GenericArguments.flags().permissionFlag("storeys.command.make.beta", "b").buildWith(GenericArguments.none()))
+    @Override public org.spongepowered.api.command.Command callable() {
+        return org.spongepowered.api.command.Command.builder().shortDescription(Component.text("Open the browser and start your story"))
                 .executor(this).build();
     }
 
@@ -72,7 +68,8 @@ public class LoginCommand implements Command {
         return ImmutableList.of("make", "scratch");
     }
 
-    @Override public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+    @Override public CommandResult execute(CommandContext args) throws CommandException {
+        Object src = args.associatedObject().orElseGet(null);
         if (src instanceof Player) {
             CommandExceptions.doOrThrow("loginURL", () -> {
                 Player player = (Player) src;
@@ -80,13 +77,12 @@ public class LoginCommand implements Command {
                 String code = tokenProvider.getCode(player);
                 String url = String.format("%s?code=%s", scratchGui, code);
 
-                src.sendMessage(Text.builder("Click here to open a browser and start MAKE actions").onClick(TextActions.openUrl(new URL(url)))
-                        .color(TextColors.GOLD).build());
+                player.sendMessage(
+                        Component.text("Click here to open a browser and start MAKE actions").clickEvent(ClickEvent.openUrl(new URL(url)))
+                                .color(NamedTextColor.GOLD));
             });
-        } else {
-            src.sendMessage(Text.builder("Command source must be Player").color(TextColors.RED).build());
         }
-        return CommandResult.empty();
+        return CommandResult.error(Component.text("Command source must be Player").color(NamedTextColor.RED));
     }
 
 }

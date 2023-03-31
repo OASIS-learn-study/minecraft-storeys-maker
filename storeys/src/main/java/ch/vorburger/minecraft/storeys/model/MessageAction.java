@@ -19,7 +19,6 @@
 package ch.vorburger.minecraft.storeys.model;
 
 import ch.vorburger.minecraft.storeys.japi.ActionContext;
-import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContextImpl;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionWaitHelper;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.TextAction;
 import java.util.concurrent.CompletionStage;
@@ -36,7 +35,7 @@ public class MessageAction extends TextAction<Void> {
 
     @Override public CompletionStage<Void> execute(ActionContext context) {
         return actionWaitHelper.executeAndWait(context.getReadingSpeed().msToRead(getText()), () -> {
-            context.getCommandSource().sendMessage(getText());
+            context.getCommandCause().sendMessage(getText());
             return null;
         });
     }

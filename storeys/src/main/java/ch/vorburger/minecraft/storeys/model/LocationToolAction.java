@@ -42,7 +42,7 @@ public class LocationToolAction implements Action<Void> {
     }
 
     @Override public CompletionStage<Void> execute(ActionContext context) {
-        final CommandSource source = context.getCommandSource();
+        final CommandSource source = context.getCommandCause();
         if (source instanceof Player) {
             createTool((Player) source);
         }

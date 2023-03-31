@@ -61,7 +61,7 @@ public class TitleAction extends TextAction<Void> {
         int msToRead = context.getReadingSpeed().msToRead(bothTexts) + FADE_IN_MS + FADE_OUT_MS;
 
         return actionWaitHelper.executeAndWait(msToRead, () -> {
-            CommandSource commandSource = context.getCommandSource();
+            CommandSource commandSource = context.getCommandCause();
             if (commandSource instanceof Viewer) {
                 Viewer srcAsViewer = (Viewer) commandSource;
 

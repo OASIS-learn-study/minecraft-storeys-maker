@@ -20,20 +20,20 @@ package ch.vorburger.minecraft.storeys.japi.impl.actions;
 
 import ch.vorburger.minecraft.storeys.japi.ActionContext;
 import ch.vorburger.minecraft.storeys.japi.ReadingSpeed;
-import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.CommandCause;
 
 public final class ActionContextImpl implements ActionContext {
 
-    private final CommandSource commandSource;
+    private final CommandCause commandSource;
     private final ReadingSpeed readingSpeed;
 
-    public ActionContextImpl(CommandSource commandSource, ReadingSpeed readingSpeed) {
+    public ActionContextImpl(CommandCause commandSource, ReadingSpeed readingSpeed) {
         super();
         this.commandSource = commandSource;
         this.readingSpeed = readingSpeed;
     }
 
-    public CommandSource getCommandSource() {
+    public CommandCause getCommandCause() {
         return commandSource;
     }
 

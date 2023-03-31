@@ -1,7 +1,7 @@
-/*
- * ch.vorburger.minecraft.storeys
+/**
+ * ch.vorburger.minecraft.osgi
  *
- * Copyright (C) 2016 - 2018 Michael Vorburger.ch <mike@vorburger.ch>
+ * Copyright (C) 2016 - 2017 Michael Vorburger.ch <mike@vorburger.ch>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -16,13 +16,24 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys.japi;
+package ch.vorburger.minecraft.storeys.plugin;
 
-import org.spongepowered.api.command.CommandCause;
+import com.google.inject.Inject;
+import org.spongepowered.plugin.PluginContainer;
+import org.spongepowered.plugin.builtin.jvm.Plugin;
 
-public interface ActionContext {
+/**
+ * Convenience base class for your own {@link Plugin} annotated class.
+ * <p>
+ * You do not have to use this, it's just for convenience.
+ *
+ * @author Michael Vorburger.ch
+ */
+public abstract class AbstractPlugin implements PluginInstance {
 
-    CommandCause getCommandCause();
+    @Inject protected PluginContainer pluginContainer;
 
-    ReadingSpeed getReadingSpeed();
+    public final PluginContainer getPluginContainer() {
+        return pluginContainer;
+    }
 }

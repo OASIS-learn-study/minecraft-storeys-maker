@@ -23,12 +23,13 @@ import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
 import org.apache.commons.lang3.tuple.Pair;
+import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 @SuppressWarnings("serial")
-public class LocationPairSerializer implements TypeSerializer<Pair<Location<World>, Location<World>>> {
+public class LocationPairSerializer implements TypeSerializer<Pair<Location, Location>> {
     public static TypeToken<Pair<Location<World>, Location<World>>> TYPE = new TypeToken<Pair<Location<World>, Location<World>>>() {
     };
 

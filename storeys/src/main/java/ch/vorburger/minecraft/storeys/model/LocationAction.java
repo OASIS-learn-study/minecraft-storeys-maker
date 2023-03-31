@@ -47,7 +47,7 @@ public class LocationAction implements Action<Void> {
     @Override public CompletionStage<Void> execute(ActionContext context) {
         CompletableFuture<Void> future = new CompletableFuture<>();
         try {
-            Locatable locatable = (Locatable) context.getCommandSource();
+            Locatable locatable = (Locatable) context.getCommandCause();
             LocatableInBoxCondition condition = new LocatableInBoxCondition(locatable.getWorld(), coordinates);
 
             conditionService.register(condition, (Player p) -> future.complete(null));

@@ -20,28 +20,29 @@ package ch.vorburger.minecraft.storeys.guard;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.player.gamemode.GameMode;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
-import org.spongepowered.api.event.EventListener;
-import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.network.ServerSideConnectionEvent.Join;
+import org.spongepowered.api.registry.DefaultedRegistryReference;
 
 /**
  * Listener which sets player game mode based on permission (if any) on join.
  *
  * @author Michael Vorburger.ch
  */
-public class GuardGameModeJoinListener implements EventListener<Join> {
+public class GuardGameModeJoinListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(GuardGameModeJoinListener.class);
 
-    @Override public void handle(Join joinEvent) throws Exception {
-        GameMode newGameMode = null;
-        Player player = joinEvent.getTargetEntity();
+    @Listener public void handle(Join joinEvent) throws Exception {
+        DefaultedRegistryReference<GameMode> newGameMode = null;
+        ServerPlayer player = joinEvent.player();
         // NB: Order and use of if and not else if - because higher permission overrides lower...
         // But beware that OPS on servers without permissions plugin (such as LuckPerms) have all permissions;
-        // therefore the last permission must be the one which we wants an OPS to have!
+        // therefore the last permission must be the one which we want an OPS to have!
         if (player.hasPermission("storeys.guard.adventure")) {
             newGameMode = GameModes.ADVENTURE;
         }
@@ -49,8 +50,8 @@ public class GuardGameModeJoinListener implements EventListener<Join> {
             newGameMode = GameModes.CREATIVE;
         }
         if (newGameMode != null) {
-            player.offer(Keys.GAME_MODE, newGameMode);
-            LOG.info("Setting Player {} game mode to {} due to their storeys.guard.* permissions", player.getName(), newGameMode);
+            player.offer(Keys.GAME_MODE, newGameMode.get());
+            LOG.info("Setting Player {} game mode to {} due to their storeys.guard.* permissions", player.user().name(), newGameMode);
         }
     }
 

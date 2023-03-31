@@ -55,7 +55,7 @@ public class NarrateAction extends TextAction<Void> {
     }
 
     @Override public CompletionStage<Void> execute(ActionContext context) {
-        Locatable locatable = (Locatable) context.getCommandSource();
+        Locatable locatable = (Locatable) context.getCommandCause();
         World world = locatable.getWorld();
 
         return narrator.narrate(world, requireNonNull(entityName, "entityName"), getText().toPlain(), context.getReadingSpeed());

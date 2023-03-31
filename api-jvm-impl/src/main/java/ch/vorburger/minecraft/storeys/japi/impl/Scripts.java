@@ -18,7 +18,6 @@
  */
 package ch.vorburger.minecraft.storeys.japi.impl;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.japi.Script;
 import ch.vorburger.minecraft.storeys.japi.impl.events.EventService;
 import java.util.Collection;

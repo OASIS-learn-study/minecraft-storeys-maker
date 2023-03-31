@@ -56,9 +56,9 @@ public class CommandAction extends MainThreadAction<CommandResult> {
     }
 
     @Override protected CommandResult executeInMainThread(ActionContext context) throws ActionException {
-        CommandResult result = Sponge.getCommandManager().process(context.getCommandSource(),
+        CommandResult result = Sponge.getCommandManager().process(context.getCommandCause(),
                 requireNonNull(commandLineWithoutSlash, "commandLineWithoutSlash"));
-        LOG.info("processed command \"/{}\" from source {} with result {}", commandLineWithoutSlash, context.getCommandSource(),
+        LOG.info("processed command \"/{}\" from source {} with result {}", commandLineWithoutSlash, context.getCommandCause(),
                 toString(result));
         return result;
     }
