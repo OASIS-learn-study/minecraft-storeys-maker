@@ -64,8 +64,6 @@ import org.slf4j.LoggerFactory;
                             LOG.info("(Re-)loaded {}", path);
                         } catch (NoSuchFileException e) {
                             // Ignore (happens frequently for temporary files with Git)
-                        } catch (jdk.nashorn.api.scripting.NashornException n) {
-                            LOG.warn("Invalid JS: {}:{}:{} {}", path, n.getLineNumber(), n.getColumnNumber(), n.getMessage());
                         } catch (RuntimeException e) {
                             LOG.error("Failed to register due to an unknown cause {}", path, e);
                         }
@@ -93,7 +91,7 @@ import org.slf4j.LoggerFactory;
         final String result = template.replace("//SCRIPT", scriptFile);
 
         ScriptEngineManager manager = new ScriptEngineManager();
-        ScriptEngine engine = manager.getEngineByName("JavaScript");
+        ScriptEngine engine = manager.getEngineByName("graal.js");
 
         return (Script) engine.eval(result);
     }

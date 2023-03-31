@@ -52,7 +52,7 @@ public class DynamicAction implements Action<Void> {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
         ScriptEngineManager manager = new ScriptEngineManager();
-        ScriptEngine engine = manager.getEngineByName("JavaScript");
+        ScriptEngine engine = manager.getEngineByName("graal.js");
         engine.put("player", context.getCommandSource());
 
         try {
