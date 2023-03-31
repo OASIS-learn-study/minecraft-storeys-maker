@@ -25,5 +25,8 @@ web/.vertx/file-cache-*
 .history/
 .vertx/
 
-/test-mineflayer/cypress/videos/
-/test-mineflayer/cypress/screenshots/
+test-mineflayer/cypress/videos/
+test-mineflayer/cypress/screenshots/
+test-mineflayer/test-results/
+test-mineflayer/playwright-report/
+test-mineflayer/playwright/.cache/
