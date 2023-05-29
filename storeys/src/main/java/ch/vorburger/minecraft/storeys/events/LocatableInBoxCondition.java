@@ -18,7 +18,7 @@
  */
 package ch.vorburger.minecraft.storeys.events;
 
-import static java.lang.Integer.parseInt;
+import static java.lang.Double.parseDouble;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.util.Objects.requireNonNull;
@@ -27,8 +27,8 @@ import com.google.common.base.Splitter;
 import java.util.Iterator;
 import org.apache.commons.lang3.tuple.Pair;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.server.ServerLocation;
+import org.spongepowered.api.world.server.ServerWorld;
 
 public class LocatableInBoxCondition implements Condition {
 
@@ -36,52 +36,52 @@ public class LocatableInBoxCondition implements Condition {
 
     private Player effectedPlayer;
 
-    private final World world;
-    private final int minX, maxX, minY, maxY, minZ, maxZ;
+    private final ServerWorld world;
+    private final double minX, maxX, minY, maxY, minZ, maxZ;
 
-    public LocatableInBoxCondition(World world, Location<World> boxCorner1, Location<World> boxCorner2) {
+    public LocatableInBoxCondition(ServerWorld world, ServerLocation boxCorner1, ServerLocation boxCorner2) {
         this.world = requireNonNull(world, "world");
-        if (!boxCorner1.inExtent(boxCorner2.getExtent())) {
+        if (!boxCorner1.inWorld(boxCorner2.world())) {
             throw new IllegalArgumentException("boxCorner1 & boxCorner2 are not in the same World Extent");
         }
-        if (!boxCorner1.inExtent(this.world)) {
+        if (!boxCorner1.inWorld(this.world)) {
             throw new IllegalArgumentException("boxCorner is not in the same World Extent as Locatable (Player)");
         }
-        minX = min(boxCorner1.getBlockX(), boxCorner2.getBlockX());
-        maxX = max(boxCorner1.getBlockX(), boxCorner2.getBlockX());
-        minY = min(boxCorner1.getBlockY(), boxCorner2.getBlockY());
-        maxY = max(boxCorner1.getBlockY(), boxCorner2.getBlockY());
-        minZ = min(boxCorner1.getBlockZ(), boxCorner2.getBlockZ());
-        maxZ = max(boxCorner1.getBlockZ(), boxCorner2.getBlockZ());
+        minX = min(boxCorner1.x(), boxCorner2.x());
+        maxX = max(boxCorner1.x(), boxCorner2.x());
+        minY = min(boxCorner1.y(), boxCorner2.y());
+        maxY = max(boxCorner1.y(), boxCorner2.y());
+        minZ = min(boxCorner1.z(), boxCorner2.z());
+        maxZ = max(boxCorner1.z(), boxCorner2.z());
     }
 
-    public LocatableInBoxCondition(World world, String coordinates) {
+    public LocatableInBoxCondition(ServerWorld world, String coordinates) {
         this(getCornerLocations(world, coordinates));
     }
 
-    public LocatableInBoxCondition(Pair<Location<World>, Location<World>> corners) {
-        this(corners.getLeft().getExtent(), corners.getLeft(), corners.getRight());
+    public LocatableInBoxCondition(Pair<ServerLocation, ServerLocation> corners) {
+        this(corners.getLeft().world(), corners.getLeft(), corners.getRight());
     }
 
-    private static Pair<Location<World>, Location<World>> getCornerLocations(World world, String coordinates) {
+    private static Pair<ServerLocation, ServerLocation> getCornerLocations(ServerWorld world, String coordinates) {
         Iterator<String> ints = SLASH_SPLITTER.split(coordinates).iterator();
-        Location<World> cornerA = new Location<>(world, parseInt(ints.next()), parseInt(ints.next()), parseInt(ints.next()));
-        Location<World> cornerB = new Location<>(world, parseInt(ints.next()), parseInt(ints.next()), parseInt(ints.next()));
+        ServerLocation cornerA = ServerLocation.of(world, parseDouble(ints.next()), parseDouble(ints.next()), parseDouble(ints.next()));
+        ServerLocation cornerB = ServerLocation.of(world, parseDouble(ints.next()), parseDouble(ints.next()), parseDouble(ints.next()));
         return Pair.of(cornerA, cornerB);
     }
 
     @Override public boolean isHot() {
-        for (Player player : this.world.getPlayers()) {
-            final Location<World> location = player.getLocation();
-            if (location.inExtent(world)) {
-                int x = location.getBlockX();
-                int y = location.getBlockY();
-                int z = location.getBlockZ();
+        for (Player player : this.world.players()) {
+            final ServerLocation location = player.serverLocation();
+            if (location.inWorld(world)) {
+                double x = location.x();
+                double y = location.y();
+                double z = location.z();
                 boolean hit = x >= minX && x <= maxX && y >= minY && y <= maxY && z >= minZ && z <= maxZ;
                 if (hit) {
                     this.effectedPlayer = player;
-                    return hit;
                 }
+                return hit;
             }
         }
         return false;

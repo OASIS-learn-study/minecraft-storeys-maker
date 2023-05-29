@@ -97,7 +97,7 @@ import org.spongepowered.api.entity.living.player.Player;
         router.route("/code/when_inside/:name").handler(ctx -> {
             final String name = ctx.request().getParam("name");
             final String playerUUID = ctx.user().get("playerUUID");
-            final Player player = Sponge.getServer().getPlayer(UUID.fromString(playerUUID))
+            final Player player = Sponge.server().player(UUID.fromString(playerUUID))
                     .orElseThrow(() -> new IllegalArgumentException("No player logged in with uuid: " + playerUUID));
             new LocationToolAction(name).createTool(player);
             ctx.response().end();

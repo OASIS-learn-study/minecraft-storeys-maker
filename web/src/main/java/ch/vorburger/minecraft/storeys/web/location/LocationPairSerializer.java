@@ -18,46 +18,52 @@
  */
 package ch.vorburger.minecraft.storeys.web.location;
 
-import com.google.common.reflect.TypeToken;
-import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.objectmapping.ObjectMappingException;
-import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
+import io.leangen.geantyref.TypeToken;
+import java.lang.reflect.Type;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
-import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.server.ServerLocation;
+import org.spongepowered.api.world.server.ServerWorld;
+import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.serialize.SerializationException;
+import org.spongepowered.configurate.serialize.TypeSerializer;
 
 @SuppressWarnings("serial")
-public class LocationPairSerializer implements TypeSerializer<Pair<Location, Location>> {
-    public static TypeToken<Pair<Location<World>, Location<World>>> TYPE = new TypeToken<Pair<Location<World>, Location<World>>>() {
-    };
+public class LocationPairSerializer implements TypeSerializer<Pair<ServerLocation, ServerLocation>> {
+    public static TypeToken<Pair<ServerLocation, ServerLocation>> TYPE = new TypeToken<Pair<ServerLocation, ServerLocation>>(){};
 
-    @Override public Pair<Location<World>, Location<World>> deserialize(TypeToken<?> type, ConfigurationNode value)
-            throws ObjectMappingException {
-        final String worldName = value.getNode("worldName").getString();
-        final int x1 = value.getNode("x1").getInt();
-        final int y1 = value.getNode("y1").getInt();
-        final int z1 = value.getNode("z1").getInt();
+    @Override public Pair<ServerLocation, ServerLocation> deserialize(Type type, ConfigurationNode value)
+            throws SerializationException {
+        final String worldName = value.node("worldName").getString();
+        final double x1 = value.node("x1").getDouble();
+        final double y1 = value.node("y1").getDouble();
+        final double z1 = value.node("z1").getDouble();
 
-        final int x2 = value.getNode("x2").getInt();
-        final int y2 = value.getNode("y2").getInt();
-        final int z2 = value.getNode("z2").getInt();
+        final double x2 = value.node("x2").getDouble();
+        final double y2 = value.node("y2").getDouble();
+        final double z2 = value.node("z2").getDouble();
 
-        World world = Sponge.getServer().getWorld(worldName).orElseThrow(() -> new RuntimeException("world not initialized?"));
-        final Location<World> point1 = new Location<>(world, x1, y1, z1);
-        final Location<World> point2 = new Location<>(world, x2, y2, z2);
+        final List<ServerWorld> worlds = Sponge.server().worldManager().worlds().stream()
+                .filter(serverWorld -> serverWorld.world().key().value().equals(worldName)).collect(Collectors.toList());
+        ServerWorld world = worlds.get(0);
+        if (world == null) {
+            throw new RuntimeException("world not initialized?");
+        }
+        final ServerLocation point1 = ServerLocation.of(world, x1, y1, z1);
+        final ServerLocation point2 = ServerLocation.of(world, x2, y2, z2);
         return Pair.of(point1, point2);
     }
 
-    @Override public void serialize(TypeToken<?> type, Pair<Location<World>, Location<World>> obj, ConfigurationNode value)
-            throws ObjectMappingException {
-        value.getNode("x1").setValue(obj.getLeft().getBlockX());
-        value.getNode("y1").setValue(obj.getLeft().getBlockY());
-        value.getNode("z1").setValue(obj.getLeft().getBlockZ());
-        value.getNode("x2").setValue(obj.getRight().getBlockX());
-        value.getNode("y2").setValue(obj.getRight().getBlockY());
-        value.getNode("z2").setValue(obj.getRight().getBlockZ());
-        value.getNode("worldName").setValue(obj.getLeft().getExtent().getName());
+    @Override public void serialize(Type type, Pair<ServerLocation, ServerLocation> obj, ConfigurationNode value)
+            throws SerializationException {
+        value.node("x1").set(obj.getLeft().x());
+        value.node("y1").set(obj.getLeft().y());
+        value.node("z1").set(obj.getLeft().z());
+        value.node("x2").set(obj.getRight().x());
+        value.node("y2").set(obj.getRight().y());
+        value.node("z2").set(obj.getRight().z());
+        value.node("worldName").set(obj.getLeft().worldKey().value());
     }
 }

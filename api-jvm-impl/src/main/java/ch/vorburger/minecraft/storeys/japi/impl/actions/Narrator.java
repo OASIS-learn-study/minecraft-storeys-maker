@@ -19,21 +19,20 @@
 package ch.vorburger.minecraft.storeys.japi.impl.actions;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.spongepowered.api.data.key.Keys.CUSTOM_NAME_VISIBLE;
-import static org.spongepowered.api.data.key.Keys.DISPLAY_NAME;
+import static org.spongepowered.api.data.Keys.DISPLAY_NAME;
+import static org.spongepowered.api.data.Keys.IS_CUSTOM_NAME_VISIBLE;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.japi.ReadingSpeed;
 import java.util.Iterator;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.function.Consumer;
 import javax.inject.Inject;
+import net.kyori.adventure.text.Component;
+import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.world.extent.EntityUniverse;
+import org.spongepowered.api.world.volume.entity.EntityVolume;
+import org.spongepowered.plugin.PluginContainer;
 
 public class Narrator {
 
@@ -41,17 +40,17 @@ public class Narrator {
 
     private final NamedObjects namedObjects = new NamedObjects();
 
-    private final PluginInstance plugin;
+    private final PluginContainer plugin;
     private final TextSplitter splitter = new TextSplitter();
 
     private final int maxLength = 20;
 
-    @Inject public Narrator(PluginInstance plugin) {
+    @Inject public Narrator(PluginContainer plugin) {
         super();
         this.plugin = plugin;
     }
 
-    public CompletionStage<Void> narrate(EntityUniverse entityUniverse, String entityName, String text, ReadingSpeed readingSpeed) {
+    public CompletionStage<Void> narrate(EntityVolume.Modifiable entityUniverse, String entityName, String text, ReadingSpeed readingSpeed) {
         Entity entity = namedObjects.getEntity(entityUniverse, entityName)
                 .orElseThrow(() -> new IllegalArgumentException("No entity named: " + entityName));
         return narrate(entity, text, readingSpeed);
@@ -61,17 +60,17 @@ public class Narrator {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
         Task.builder().execute(new NarratorTask(entity, splitter.split(maxLength, text), future))
-                .interval(readingSpeed.msToRead(maxLength), MILLISECONDS).submit(plugin);
+                .interval(readingSpeed.msToRead(maxLength), MILLISECONDS).plugin(plugin);
 
         return future;
     }
 
-    private static class NarratorTask implements Consumer<Task> {
+    private static class NarratorTask implements Runnable {
 
         private final Entity entity;
         private final Iterator<String> splitText;
         private final CompletableFuture<Void> future;
-        private final Optional<Text> originalDisplayName;
+        private final Value.Mutable<Component> originalDisplayName;
 
         public NarratorTask(Entity entity, Iterable<String> splitText, CompletableFuture<Void> future) {
             this.entity = entity;
@@ -79,20 +78,20 @@ public class Narrator {
             this.future = future;
 
             // Make sure name can always be seen, even if we are not closely look at entity
-            entity.offer(CUSTOM_NAME_VISIBLE, true);
+            entity.offer(IS_CUSTOM_NAME_VISIBLE, true);
 
-            originalDisplayName = entity.get(DISPLAY_NAME);
+            originalDisplayName = entity.displayName();
         }
 
-        @Override public void accept(Task task) {
+        @Override public void run() {
             if (splitText.hasNext()) {
-                entity.offer(DISPLAY_NAME, Text.of(splitText.next()));
+                entity.offer(DISPLAY_NAME, Component.text(splitText.next()));
             } else {
-                entity.offer(CUSTOM_NAME_VISIBLE, false);
+                entity.offer(IS_CUSTOM_NAME_VISIBLE, false);
                 // Must reset name, so that NamedObjects can find Entity again next time (after restart)
-                entity.offer(DISPLAY_NAME, originalDisplayName.orElse(Text.EMPTY));
+                entity.offer(DISPLAY_NAME, originalDisplayName.get());
                 future.complete(null);
-                task.cancel();
+                // task.cancel();
             }
         }
     }

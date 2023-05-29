@@ -21,7 +21,7 @@ package ch.vorburger.minecraft.storeys.japi.util;
 import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongepowered.api.command.CommandException;
+import org.spongepowered.api.command.exception.CommandException;
 
 /**
  * Utilities for {@link CommandException}.

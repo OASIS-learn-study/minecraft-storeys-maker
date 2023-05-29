@@ -18,17 +18,16 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.events.Condition;
 import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.events.LocatableInBoxCondition;
 import ch.vorburger.minecraft.storeys.japi.PlayerInsideEvent;
 import ch.vorburger.minecraft.storeys.japi.impl.Unregisterable;
 import ch.vorburger.minecraft.storeys.model.LocationToolAction;
+import ch.vorburger.minecraft.storeys.plugin.PluginInstance;
 import ch.vorburger.minecraft.storeys.web.location.LocationHitBox;
 import ch.vorburger.minecraft.storeys.web.location.LocationPairSerializer;
-import com.flowpowered.math.vector.Vector3d;
-import com.google.common.reflect.TypeToken;
+import io.leangen.geantyref.TypeToken;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,34 +38,32 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.commented.CommentedConfigurationNode;
-import ninja.leaping.configurate.loader.ConfigurationLoader;
-import ninja.leaping.configurate.objectmapping.ObjectMappingException;
-import ninja.leaping.configurate.objectmapping.serialize.TypeSerializerCollection;
+import net.kyori.adventure.text.Component;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.Keys;
+import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Cause;
+import org.spongepowered.api.event.EventContext;
+import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.EventContext;
-import org.spongepowered.api.event.cause.EventContextKeys;
-import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+import org.spongepowered.api.event.lifecycle.StoppedGameEvent;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
-import ch.vorburger.minecraft.storeys.plugin.PluginInstance;
+import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.loader.ConfigurationLoader;
+import org.spongepowered.configurate.serialize.TypeSerializerCollection;
+import org.spongepowered.math.vector.Vector3i;
 
 @Singleton public class LocationToolListener {
     private static final Logger LOG = LoggerFactory.getLogger(LocationToolListener.class);
-    private final Map<String, Pair<Location<World>, Location<World>>> playerBoxLocations = new ConcurrentHashMap<>();
+    private final Map<String, Pair<ServerLocation, ServerLocation>> playerBoxLocations = new ConcurrentHashMap<>();
     private final Map<String, Unregisterable> conditionRegistrations = new ConcurrentHashMap<>();
     private final ConditionService conditionService;
     private final ConfigurationLoader<CommentedConfigurationNode> configurationLoader;
@@ -77,8 +74,8 @@ import org.spongepowered.configurate.loader.ConfigurationLoader;
 
     @Inject public LocationToolListener(PluginInstance plugin, EventManager eventManager, ConditionService conditionService,
             ConfigurationLoader<CommentedConfigurationNode> loader) {
-        TypeSerializerCollection.defaults().register(LocationPairSerializer.TYPE, new LocationPairSerializer());
-        eventManager.registerListeners(plugin, this);
+        TypeSerializerCollection.builder().register(LocationPairSerializer.TYPE, new LocationPairSerializer());
+        eventManager.registerListeners(plugin.getPluginContainer(), this);
         this.eventManager = eventManager;
         this.plugin = plugin;
         this.eventContext = EventContext.builder().add(EventContextKeys.PLUGIN, plugin.getPluginContainer()).build();
@@ -87,56 +84,56 @@ import org.spongepowered.configurate.loader.ConfigurationLoader;
 
         try {
             ConfigurationNode rootNode = configurationLoader.load();
-            List<LocationHitBox> hitBoxList = new ArrayList<>(rootNode.getNode("locations").getList(LocationHitBox.TYPE));
+            List<LocationHitBox> hitBoxList = new ArrayList<>(rootNode.node("locations").getList(LocationHitBox.TYPE));
             for (LocationHitBox hitBox : hitBoxList) {
                 registerCondition(hitBox.getPlayerUUID(), hitBox.getName(), hitBox.getBox());
             }
-        } catch (IOException | ObjectMappingException e) {
+        } catch (IOException e) {
             throw new RuntimeException("could not load locations from config", e);
         }
     }
 
-    @Listener public void locationToolInteraction(InteractBlockEvent event) {
-        final Optional<ItemStackSnapshot> snapshot = event.getCause().getContext().get(EventContextKeys.USED_ITEM);
+    @Listener public void locationToolInteraction(InteractBlockEvent event, Player player) {
+        final Optional<ItemStackSnapshot> snapshot = event.context().get(EventContextKeys.USED_ITEM);
         snapshot.ifPresent(itemStackSnapshot -> {
-            if (itemStackSnapshot.createGameDictionaryEntry().matches(LocationToolAction.locationEventCreateTool())) {
-                Player player = (Player) event.getSource();
-                event.getInteractionPoint().ifPresent(handleLocationToolEvent(event, itemStackSnapshot, player));
+            final ItemStack itemStack = player.itemInHand(HandTypes.MAIN_HAND);
+            if (itemStack.equals(LocationToolAction.locationEventCreateTool())) {
+                handleLocationToolEvent(event, itemStackSnapshot, player);
             }
         });
     }
 
-    @Listener public void onGameStoppingServer(GameStoppingServerEvent event) throws Exception {
+    @Listener public void onGameStoppingServer(StoppedGameEvent event) throws Exception {
         for (Unregisterable value : conditionRegistrations.values()) {
             value.unregister();
         }
     }
 
-    private Consumer<Vector3d> handleLocationToolEvent(InteractBlockEvent event, ItemStackSnapshot itemStackSnapshot, Player player) {
+    private Consumer<Vector3i> handleLocationToolEvent(InteractBlockEvent event, ItemStackSnapshot itemStackSnapshot, Player player) {
         return vector3d -> {
-            final String locationName = itemStackSnapshot.createStack().get(Keys.ITEM_LORE).orElseThrow(IllegalArgumentException::new)
-                    .get(0).toPlain();
-            final String playerBoxLocation = player.getUniqueId() + locationName;
+            final String locationName = itemStackSnapshot.createStack().get(Keys.LORE).orElseThrow(IllegalArgumentException::new)
+                    .get(0).examinableName();
+            final String playerBoxLocation = player.identity().uuid() + locationName;
 
-            final Location<World> eventLocation = new Location<>(player.getWorld(), vector3d);
-            final Pair<Location<World>, Location<World>> locationPair;
+            final ServerLocation eventLocation = ServerLocation.of(player.serverLocation().world(), vector3d);
+            final Pair<ServerLocation, ServerLocation> locationPair;
 
             if (event instanceof InteractBlockEvent.Secondary) {
                 locationPair = updatePlayerBoxLocation(playerBoxLocation, null, eventLocation);
-                player.sendMessage(Text.of("second point set"));
+                player.sendMessage(Component.text("second point set"));
             } else {
                 locationPair = updatePlayerBoxLocation(playerBoxLocation, eventLocation, null);
-                player.sendMessage(Text.of("first point set"));
+                player.sendMessage(Component.text("first point set"));
             }
 
             if (locationPair.getLeft() != null && locationPair.getRight() != null) {
                 saveLocation(locationPair, player, locationName);
-                registerCondition(player.getUniqueId(), locationName, locationPair);
+                registerCondition(player.identity().uuid(), locationName, locationPair);
             }
         };
     }
 
-    private void registerCondition(UUID player, String locationName, Pair<Location<World>, Location<World>> locationPair) {
+    private void registerCondition(UUID player, String locationName, Pair<ServerLocation, ServerLocation> locationPair) {
         final Condition condition = new LocatableInBoxCondition(locationPair);
         final String name = "player_inside_" + locationName + player.toString();
         final Unregisterable unregisterable = conditionRegistrations.get(name);
@@ -149,23 +146,22 @@ import org.spongepowered.configurate.loader.ConfigurationLoader;
         conditionRegistrations.put(name, registration);
     }
 
-    @SuppressWarnings("serial") private void saveLocation(Pair<Location<World>, Location<World>> locationPair, Player player,
+    @SuppressWarnings("serial") private void saveLocation(Pair<ServerLocation, ServerLocation> locationPair, Player player,
             String locationName) {
         try {
             ConfigurationNode rootNode = configurationLoader.load();
-            List<LocationHitBox> hitBoxList = new ArrayList<>(rootNode.getNode("locations").getList(LocationHitBox.TYPE));
-            hitBoxList.add(new LocationHitBox(player.getUniqueId(), locationName, locationPair));
-            rootNode.getNode("locations").setValue(new TypeToken<List<LocationHitBox>>() {
-            }, hitBoxList);
+            List<LocationHitBox> hitBoxList = new ArrayList<>(rootNode.node("locations").getList(LocationHitBox.TYPE));
+            hitBoxList.add(new LocationHitBox(player.identity().uuid(), locationName, locationPair));
+            rootNode.node("locations").set(TypeToken.get(List.class), hitBoxList);
             configurationLoader.save(rootNode);
         } catch (Exception e) {
             throw new RuntimeException("could not save into config...", e);
         }
     }
 
-    private Pair<Location<World>, Location<World>> updatePlayerBoxLocation(String key, Location<World> locationLeft,
-            Location<World> locationRight) {
-        Pair<Location<World>, Location<World>> locationPair = playerBoxLocations.get(key);
+    private Pair<ServerLocation, ServerLocation> updatePlayerBoxLocation(String key, ServerLocation locationLeft,
+            ServerLocation locationRight) {
+        Pair<ServerLocation, ServerLocation> locationPair = playerBoxLocations.get(key);
         if (locationPair == null) {
             locationPair = Pair.of(locationLeft, locationRight);
         } else {

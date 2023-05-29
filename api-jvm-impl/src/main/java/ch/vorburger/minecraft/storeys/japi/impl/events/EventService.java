@@ -28,16 +28,19 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.Key;
+import org.spongepowered.api.data.Keys;
+import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
-import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
-import org.spongepowered.api.text.Text;
+import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 import org.spongepowered.plugin.PluginContainer;
 
 @Singleton public class EventService implements AutoCloseable {
@@ -64,9 +67,9 @@ import org.spongepowered.plugin.PluginContainer;
     @Override public void close() throws Exception {
     }
 
-    @Listener public void onPlayerJoin(Join event) throws Exception {
+    @Listener public void onPlayerJoin(ServerSideConnectionEvent.Join event) throws Exception {
         for (Callback callback : onPlayerJoinCallbacks) {
-            callback.call(event.getTargetEntity());
+            callback.call(event.player());
         }
     }
 
@@ -87,8 +90,7 @@ import org.spongepowered.plugin.PluginContainer;
     }
 
     public Unregisterable registerInsideLocation(String locationName, Callback callback) {
-        Collection<Callback> callbacks = onPlayerInsideCallbacks.computeIfAbsent(locationName,
-                name -> new ConcurrentLinkedQueue<>());
+        Collection<Callback> callbacks = onPlayerInsideCallbacks.computeIfAbsent(locationName, name -> new ConcurrentLinkedQueue<>());
         return add(callbacks, callback);
     }
 
@@ -106,13 +108,14 @@ import org.spongepowered.plugin.PluginContainer;
 
     @Listener public void onInteractEntityEvent(InteractEntityEvent event) {
         // TODO This is bad, it means that entities are only recognized by name if they are not narrating..
-        Optional<Text> optEntityNameText = event.getTargetEntity().get(Keys.DISPLAY_NAME);
+        Optional<Component> optEntityNameText = event.entity().get(Keys.DISPLAY_NAME);
         LOG.debug("InteractEntityEvent: entityName={}; event={}", optEntityNameText, event);
         optEntityNameText.ifPresent(entityNameText -> {
-            Collection<Callback> callbacks = onInteractEntityEventCallbacks.getOrDefault(entityNameText.toPlain(), Collections.emptySet());
+            Collection<Callback> callbacks = onInteractEntityEventCallbacks.getOrDefault(((TextComponent) entityNameText).content(),
+                    Collections.emptySet());
             for (Callback callback : callbacks) {
                 try {
-                    callback.call(event.getCause().last(Player.class).orElse(null));
+                    callback.call(event.cause().last(Player.class).orElse(null));
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }

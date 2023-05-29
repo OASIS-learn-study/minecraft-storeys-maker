@@ -18,31 +18,23 @@
  */
 package ch.vorburger.minecraft.storeys.commands;
 
-import static org.spongepowered.api.command.args.GenericArguments.onlyOne;
-import static org.spongepowered.api.command.args.GenericArguments.remainingJoinedStrings;
-import static org.spongepowered.api.text.Text.of;
-
 import ch.vorburger.minecraft.storeys.japi.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.Narrator;
 import ch.vorburger.minecraft.storeys.util.Command;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import javax.inject.Inject;
-import org.spongepowered.api.command.CommandCallable;
-import org.spongepowered.api.command.CommandException;
+import net.kyori.adventure.text.Component;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.args.CommandContext;
-import org.spongepowered.api.command.args.GenericArguments;
-import org.spongepowered.api.command.spec.CommandSpec;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.world.Locatable;
-import org.spongepowered.api.world.extent.EntityUniverse;
+import org.spongepowered.api.command.exception.CommandException;
+import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.parameter.Parameter;
+import org.spongepowered.api.world.server.ServerWorld;
 
 public class NarrateCommand implements Command {
 
-    private static final Text ARG_ENTITY = of("entity");
-    private static final Text ARG_TEXT = of("text");
+    private static final Parameter.Value<String> ARG_ENTITY = Parameter.string().key("storyName").build();
+    private static final Parameter.Value<String> ARG_TEXT = Parameter.string().key("text").build();
 
     private final Narrator narrator;
 
@@ -54,28 +46,27 @@ public class NarrateCommand implements Command {
         return ImmutableList.of("narrate");
     }
 
-    @Override public CommandCallable callable() {
-        return CommandSpec.builder().description(Text.of("Make an entity character narrate story lines"))
+    @Override public org.spongepowered.api.command.Command callable() {
+        // TODO when Sponge uses entity names instead of UUIDs:
+        // TODO requiringPermission()
+        return org.spongepowered.api.command.Command.builder().shortDescription(Component.text(("Make an entity character narrate story lines")))
                 // .permission("storeys.commands.narrate") ?
-                .arguments(
-                        // TODO when Sponge uses entity names instead of UUIDs:
-                        // onlyOne(entity(ARG_ENTITY)), // TODO requiringPermission()
-                        onlyOne(GenericArguments.string(ARG_ENTITY)), // TODO requiringPermission()
-                        remainingJoinedStrings(ARG_TEXT) // remainingRawJoinedStrings ?
-                ).executor(this).build();
+                        .addParameter(ARG_ENTITY).addParameter(ARG_TEXT).executor(this).build();
+
     }
 
-    @Override public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        String text = args.<String>getOne(ARG_TEXT).get();
+    @Override public CommandResult execute(CommandContext args) throws CommandException {
+        String text = args.one(ARG_TEXT).get();
 
         // TODO when Sponge uses entity names instead of UUIDs:
         // Entity entity = args.<Entity>getOne(ARG_ENTITY).get();
         // narrator.narrate(entity, text, new ReadingSpeed());
 
-        String entityName = args.<String>getOne(ARG_ENTITY).get();
-        EntityUniverse world = ((Locatable) src).getWorld();
+        String entityName = args.one(ARG_ENTITY).get();
+        final ServerWorld world = args.cause().location().get().world();
         narrator.narrate(world, entityName, text, new ReadingSpeed());
 
         return CommandResult.success();
     }
+
 }

@@ -18,16 +18,17 @@
  */
 package ch.vorburger.minecraft.storeys.model;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.events.ConditionService;
 import ch.vorburger.minecraft.storeys.events.LocatableInBoxCondition;
 import ch.vorburger.minecraft.storeys.japi.Action;
 import ch.vorburger.minecraft.storeys.japi.ActionContext;
+import ch.vorburger.minecraft.storeys.plugin.PluginInstance;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.world.Locatable;
+import org.spongepowered.api.scheduler.Scheduler;
+import org.spongepowered.api.world.server.ServerLocation;
 
 public class LocationAction implements Action<Void> {
     private ConditionService conditionService;
@@ -36,8 +37,8 @@ public class LocationAction implements Action<Void> {
     public LocationAction() {
     }
 
-    @Inject public LocationAction(PluginInstance plugin) {
-        conditionService = new ConditionService(plugin);
+    @Inject public LocationAction(Scheduler scheduler) {
+        conditionService = new ConditionService(scheduler);
     }
 
     @Override public void setParameter(String param) {
@@ -47,8 +48,8 @@ public class LocationAction implements Action<Void> {
     @Override public CompletionStage<Void> execute(ActionContext context) {
         CompletableFuture<Void> future = new CompletableFuture<>();
         try {
-            Locatable locatable = (Locatable) context.getCommandCause();
-            LocatableInBoxCondition condition = new LocatableInBoxCondition(locatable.getWorld(), coordinates);
+            ServerLocation locatable = (ServerLocation) context.getCommandCause();
+            LocatableInBoxCondition condition = new LocatableInBoxCondition(locatable.world(), coordinates);
 
             conditionService.register(condition, (Player p) -> future.complete(null));
         } catch (Throwable t) {

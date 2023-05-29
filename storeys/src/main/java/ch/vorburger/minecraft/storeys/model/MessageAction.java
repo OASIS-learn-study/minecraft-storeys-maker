@@ -23,6 +23,7 @@ import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionWaitHelper;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.TextAction;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import net.kyori.adventure.identity.Identity;
 
 public class MessageAction extends TextAction<Void> {
 
@@ -35,7 +36,7 @@ public class MessageAction extends TextAction<Void> {
 
     @Override public CompletionStage<Void> execute(ActionContext context) {
         return actionWaitHelper.executeAndWait(context.getReadingSpeed().msToRead(getText()), () -> {
-            context.getCommandCause().sendMessage(getText());
+            context.getCommandCause().sendMessage(Identity.nil(), getText());
             return null;
         });
     }

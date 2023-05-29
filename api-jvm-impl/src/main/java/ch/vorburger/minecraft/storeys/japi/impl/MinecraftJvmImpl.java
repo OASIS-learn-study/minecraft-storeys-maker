@@ -18,7 +18,6 @@
  */
 package ch.vorburger.minecraft.storeys.japi.impl;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.japi.Action;
 import ch.vorburger.minecraft.storeys.japi.Events;
 import ch.vorburger.minecraft.storeys.japi.Minecraft;
@@ -29,10 +28,12 @@ import ch.vorburger.minecraft.storeys.japi.impl.actions.Narrator;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.TitleAction;
 import java.util.ArrayList;
 import java.util.List;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.Text;
+import org.spongepowered.plugin.PluginContainer;
 
 /**
  * {@link Minecraft} implementation.
@@ -40,24 +41,24 @@ import org.spongepowered.api.text.Text;
  *
  * <p>The "lifecycle" of this is NOT a Singleton,
  * but one for each instance (not just kind of) of an event registered on {@link Events},
- * such as custom command, when right clicked, when player joined, when inside, etc.
+ * such as custom command, when right-clicked, when player joined, when inside, etc.
  */
 class MinecraftJvmImpl implements Minecraft {
 
-    private final PluginInstance plugin;
-    private final CommandSource source;
+    private final PluginContainer plugin;
+    private final Audience source;
     private final ActionWaitHelper actionWaitHelper;
 
     private final List<Action<?>> actionList = new ArrayList<>();
 
-    MinecraftJvmImpl(PluginInstance plugin, CommandSource source) {
+    MinecraftJvmImpl(PluginContainer plugin, Audience source) {
         this.source = source;
         this.plugin = plugin;
         this.actionWaitHelper = new ActionWaitHelper(plugin);
     }
 
     @Override public void cmd(String command) {
-        CommandAction action = new CommandAction(plugin, Sponge.getScheduler());
+        CommandAction action = new CommandAction(plugin, Sponge.asyncScheduler());
         action.setCommand(command);
         actionList.add(action);
     }
@@ -72,7 +73,7 @@ class MinecraftJvmImpl implements Minecraft {
         Narrator narrator = new Narrator(plugin);
         NarrateAction action = new NarrateAction(narrator);
         action.setEntity(entity);
-        action.setText(Text.of(text));
+        action.setText(Component.text(text));
         actionList.add(action);
     }
 

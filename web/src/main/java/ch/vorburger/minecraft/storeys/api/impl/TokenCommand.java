@@ -23,16 +23,13 @@ import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.util.Command;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import org.spongepowered.api.command.CommandCallable;
-import org.spongepowered.api.command.CommandException;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.args.CommandContext;
-import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.command.exception.CommandException;
+import org.spongepowered.api.command.parameter.CommandContext;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.action.TextActions;
-import org.spongepowered.api.text.format.TextColors;
 
 /**
  * Minecraft console command to login to ScratchX.
@@ -45,27 +42,26 @@ public class TokenCommand implements Command {
         this.tokenProvider = newTokenProvider;
     }
 
-    @Override public CommandCallable callable() {
-        return CommandSpec.builder().permission("storeys.token.new").description(Text.of("Obtain API token for player")).executor(this)
-                .build();
+    @Override public org.spongepowered.api.command.Command callable() {
+        return org.spongepowered.api.command.Command.builder().permission("storeys.token.new")
+                .shortDescription(Component.text("Obtain API token for player")).executor(this).build();
     }
 
     @Override public List<String> aliases() {
         return ImmutableList.of("token");
     }
 
-    @Override public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        if (src instanceof Player) {
+    @Override public CommandResult execute(CommandContext args) throws CommandException {
+        if (args.cause().audience() instanceof Player) {
             CommandExceptions.doOrThrow("loginURL", () -> {
-                Player player = (Player) src;
+                Player player = (Player) args.cause().audience();
 
                 String token = tokenProvider.getCode(player);
 
-                src.sendMessage(Text.builder("Shift click here to insert your API Token to copy clipboard")
-                        .onShiftClick(TextActions.insertText(token)).color(TextColors.GREEN).build());
+                player.sendMessage(Component.text("Shift click here to insert your API Token to copy clipboard").color(NamedTextColor.GREEN)
+                        .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, token)));
             });
-        }
-        return CommandResult.empty();
+        } return CommandResult.success();
     }
 
 }

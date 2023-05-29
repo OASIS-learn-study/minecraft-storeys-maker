@@ -22,13 +22,15 @@ import static ch.vorburger.minecraft.storeys.japi.util.MoreStrings.trimCRLF;
 
 import ch.vorburger.minecraft.storeys.japi.Action;
 import ch.vorburger.minecraft.storeys.japi.ActionContext;
+import java.time.Duration;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import org.spongepowered.api.command.CommandSource;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.title.Title;
+import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.effect.Viewer;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.title.Title;
-import org.spongepowered.api.text.title.Title.Builder;
 
 public class TitleAction extends TextAction<Void> {
 
@@ -40,7 +42,7 @@ public class TitleAction extends TextAction<Void> {
 
     private final ActionWaitHelper actionWaitHelper;
 
-    private Text subtitleText;
+    private TextComponent subtitleText;
 
     @Inject public TitleAction(ActionWaitHelper helper) {
         this.actionWaitHelper = helper;
@@ -52,30 +54,28 @@ public class TitleAction extends TextAction<Void> {
             super.setParameter(trimCRLF(param));
         } else {
             super.setParameter(trimCRLF(parts[0]));
-            subtitleText = Text.of(trimCRLF(parts[1].trim()));
+            subtitleText = Component.text(trimCRLF(parts[1].trim()));
         }
     }
 
     @Override public CompletionStage<Void> execute(ActionContext context) {
-        Text bothTexts = getText().concat(subtitleText != null ? subtitleText : Text.EMPTY);
+        TextComponent bothTexts = getText().append(subtitleText != null ? subtitleText : Component.empty());
         int msToRead = context.getReadingSpeed().msToRead(bothTexts) + FADE_IN_MS + FADE_OUT_MS;
 
         return actionWaitHelper.executeAndWait(msToRead, () -> {
-            CommandSource commandSource = context.getCommandCause();
-            if (commandSource instanceof Viewer) {
-                Viewer srcAsViewer = (Viewer) commandSource;
+            final Audience commandCause = context.getCommandCause();
+            if (commandCause instanceof Viewer) {
+                Viewer srcAsViewer = (Viewer) commandCause;
 
-                Builder titleBuilder = Title.builder().fadeIn(FADE_IN_TICKS).stay((int) (msToRead * 0.02)).fadeOut(FADE_OUT_TICKS);
-                titleBuilder.title(getText());
-                if (subtitleText != null) {
-                    titleBuilder.subtitle(subtitleText);
-                }
+                final Title.Times times = Title.Times.of(Duration.ofMillis(FADE_IN_TICKS), Duration.ofMillis((int) (msToRead * 0.02)),
+                        Duration.ofMillis(FADE_OUT_TICKS));
+                Title titleBuilder = Title.title(getText(), subtitleText != null ? subtitleText : Component.empty(), times);
 
                 // TODO srcAsViewer.clearTitle(); ?
-                srcAsViewer.sendTitle(titleBuilder.build());
+                srcAsViewer.showTitle(titleBuilder);
                 return null;
             } else {
-                throw new ActionException("CommandSource is not a Viewer: " + commandSource.toString());
+                throw new ActionException("CommandSource is not a Viewer: " + commandCause.toString());
             }
         });
     }

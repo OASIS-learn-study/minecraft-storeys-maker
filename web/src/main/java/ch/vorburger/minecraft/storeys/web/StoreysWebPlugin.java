@@ -23,36 +23,21 @@ import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
 import ch.vorburger.minecraft.storeys.plugin.PluginInstance;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.simple.impl.TokenProviderImpl;
-import ch.vorburger.minecraft.storeys.util.Commands;
 import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spongepowered.api.command.Command;
+import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.loader.ConfigurationLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandCallable;
-import org.spongepowered.api.command.CommandException;
-import org.spongepowered.api.command.Command;
-import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.CommandCause;
-import org.spongepowered.api.command.args.CommandContext;
-import org.spongepowered.api.command.args.GenericArguments;
-import org.spongepowered.api.command.spec.CommandSpec;
-import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
-import org.spongepowered.api.text.LiteralText;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.action.TextActions;
-import org.spongepowered.api.text.format.TextColors;
 
 @Plugin("storeys") public class StoreysWebPlugin extends AbstractStoreysPlugin {
     // do not extend StoreysPlugin, because we exclude that class in shadowJar
@@ -94,7 +79,6 @@ import org.spongepowered.api.text.format.TextColors;
             // If something went wrong during the Vert.x set up, we must unregister the commands registered in super.start()
             // so that, under OSGi, we'll manage to cleanly restart when whatever problem caused the start up to fail is fixed
             // again.
-            super.stop();
             throw e;
         }
     }
@@ -103,12 +87,4 @@ import org.spongepowered.api.text.format.TextColors;
         event.register(this.getPluginContainer(),
                 (Command.Raw) loginCommand.callable(), loginCommand.aliases().get(0), loginCommand.aliases().toArray(new String[0]));
     }
-
-    @Override public void stop() throws Exception {
-        if (vertxStarter != null) {
-            vertxStarter.stop();
-        }
-        super.stop();
-    }
-
 }

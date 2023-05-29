@@ -20,14 +20,15 @@ package ch.vorburger.minecraft.storeys.events;
 
 import static java.util.Objects.requireNonNull;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.japi.impl.Unregisterable;
 import ch.vorburger.minecraft.storeys.japi.impl.events.Callback;
 import com.google.common.annotations.VisibleForTesting;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -35,11 +36,11 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.ScheduledTask;
+import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.api.scheduler.Task;
 
-@ThreadSafe
-@Singleton
-public class ConditionService implements AutoCloseable {
+@ThreadSafe @Singleton public class ConditionService implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConditionService.class);
 
@@ -86,21 +87,23 @@ public class ConditionService implements AutoCloseable {
     }
 
     private final Set<Triple<Condition, AtomicBoolean, Callback>> checks = new CopyOnWriteArraySet<>();
-    private final @Nullable Task task;
+    private final Scheduler scheduler;
+    private final UUID taskId;
 
-    @Inject public ConditionService(PluginInstance plugin) {
-        task = Task.builder().execute(this::run).intervalTicks(10).name(getClass().getSimpleName())
-                .submit(requireNonNull(plugin, "plugin"));
+    @Inject public ConditionService(Scheduler scheduler) {
+        Task task = Task.builder().execute(this::run).interval(10, TimeUnit.SECONDS).build();
+        this.scheduler = scheduler;
+        taskId = scheduler.submit(task).uniqueId();
     }
 
     @VisibleForTesting ConditionService() {
-        task = null;
+        scheduler = null;
+        taskId = UUID.randomUUID();
     }
 
     @Override public void close() {
-        if (task != null) {
-            task.cancel();
-        }
+        final Optional<ScheduledTask> scheduledTask = scheduler.findTask(taskId);
+        scheduledTask.ifPresent(ScheduledTask::cancel);
     }
 
     public ConditionServiceRegistration register(Condition condition, Callback callback) {

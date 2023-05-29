@@ -1,0 +1,37 @@
+{
+  "loader": {
+    "name": "java_plain",
+    "version": "1.0"
+  },
+  "license": "MIT",
+  "global": {
+    "version": "8.0.0",
+    "links": {
+      "homepage": "https://learn.study",
+      "source": "https://github.com/OASIS-learn-study/minecraft-storeys-maker",
+      "issues": "https://github.com/OASIS-learn-study/minecraft-storeys-maker/issues"
+    },
+    "contributors": [
+      {
+        "name": "Micheal Vorburger"
+      },
+      {
+        "name": "Erik Jan de Wit"
+      }
+    ],
+    "dependencies": [
+      {
+        "id": "spongeapi",
+        "version": "8.0.0"
+      }
+    ]
+  },
+  "plugins": [
+    {
+      "id": "storeys",
+      "name": "Vorburger.ch's Storeys with Web API",
+      "entrypoint": "ch.vorburger.minecraft.storeys.web.StoreysWebPlugin",
+      "description": "Makes entities narrate story lines so you can make your own movie in Minecraft"
+    }
+  ]
+}

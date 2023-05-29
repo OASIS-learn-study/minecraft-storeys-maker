@@ -18,11 +18,12 @@
  */
 package ch.vorburger.minecraft.storeys.japi.util;
 
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.format.TextColors;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 /**
- * Utilities for {@link Text}.
+ * Utilities for {@link TextComponent}.
  *
  * @author Michael Vorburger.ch
  */
@@ -33,14 +34,14 @@ public final class Texts {
     private Texts() {
     }
 
-    public static Text fromThrowable(String prefix, Throwable throwable) {
+    public static TextComponent fromThrowable(String prefix, Throwable throwable) {
         // TODO have a Player isDeveloper flag (or Permission, probably..)
         // developers get to see the cause stack trace? ;) Noob do not.
-        return Text.builder().color(TextColors.RED).append(Text.of(prefix + throwable.getMessage())).build();
+        return Component.text().color(NamedTextColor.RED).content(prefix + throwable.getMessage()).build();
         // TODO add StackTrace here - with links being able to click on to jump into sources!!!
     }
 
-    public static Text inRed(String content) {
-        return Text.builder().color(TextColors.RED).append(Text.of(content)).build();
+    public static TextComponent inRed(String content) {
+        return Component.text().color(NamedTextColor.RED).content(content).build();
     }
 }

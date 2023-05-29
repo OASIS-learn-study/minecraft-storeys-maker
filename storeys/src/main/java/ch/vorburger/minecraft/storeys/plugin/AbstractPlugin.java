@@ -1,7 +1,7 @@
-/**
- * ch.vorburger.minecraft.osgi
+/*
+ * ch.vorburger.minecraft.storeys
  *
- * Copyright (C) 2016 - 2017 Michael Vorburger.ch <mike@vorburger.ch>
+ * Copyright (C) 2016 - 2018 Michael Vorburger.ch <mike@vorburger.ch>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -24,8 +24,8 @@ import org.spongepowered.plugin.builtin.jvm.Plugin;
 
 /**
  * Convenience base class for your own {@link Plugin} annotated class.
- * <p>
- * You do not have to use this, it's just for convenience.
+ *
+ * <p>You do not have to use this, it's just for convenience.
  *
  * @author Michael Vorburger.ch
  */

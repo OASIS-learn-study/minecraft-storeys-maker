@@ -69,7 +69,7 @@ public class TokenProviderImpl implements TokenProvider {
 
     @Override public String getCode(Player player) {
         String code = UUID.randomUUID().toString();
-        validLogins.put(code, new Token(player.getIdentifier(), tokenValidTime));
+        validLogins.put(code, new Token(player.identity().uuid().toString(), tokenValidTime));
         return code;
     }
 
