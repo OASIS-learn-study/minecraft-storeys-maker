@@ -21,8 +21,6 @@ package ch.vorburger.minecraft.storeys.api.impl;
 import ch.vorburger.minecraft.storeys.japi.util.CommandExceptions;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.util.Command;
-import com.google.common.collect.ImmutableList;
-import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -42,13 +40,13 @@ public class TokenCommand implements Command {
         this.tokenProvider = newTokenProvider;
     }
 
-    @Override public org.spongepowered.api.command.Command callable() {
+    @Override public org.spongepowered.api.command.Command.Parameterized createCommand() {
         return org.spongepowered.api.command.Command.builder().permission("storeys.token.new")
                 .shortDescription(Component.text("Obtain API token for player")).executor(this).build();
     }
 
-    @Override public List<String> aliases() {
-        return ImmutableList.of("token");
+    @Override public String getName() {
+        return "token";
     }
 
     @Override public CommandResult execute(CommandContext args) throws CommandException {

@@ -30,11 +30,11 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
-import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.registrar.CommandRegistrar;
 import org.spongepowered.plugin.PluginContainer;
@@ -75,6 +75,7 @@ class EventsImpl implements Events, Unregisterable {
             return;
         }
         registrar.get().register(plugin, spec, name);
+        //TODO Sponge.server().commandManager().updateCommandTreeForPlayer();
         unregistrables.add(() -> {
 
         });
@@ -104,7 +105,7 @@ class EventsImpl implements Events, Unregisterable {
         ch.vorburger.minecraft.storeys.japi.impl.events.Callback otherCallback = invoker -> {
             invokeCallback(invoker, callback);
         };
-        unregistrables.add(eventService.registerInteractEntity(entityName, otherCallback));
+        unregistrables.add(eventService.registerInteractEntity(Component.text(entityName), otherCallback));
     }
 
     @Override public void unregister() {

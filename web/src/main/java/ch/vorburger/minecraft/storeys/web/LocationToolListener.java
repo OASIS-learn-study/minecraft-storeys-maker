@@ -45,12 +45,14 @@ import org.slf4j.LoggerFactory;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Cause;
 import org.spongepowered.api.event.EventContext;
 import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.lifecycle.StoppedGameEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
@@ -93,7 +95,7 @@ import org.spongepowered.math.vector.Vector3i;
         }
     }
 
-    @Listener public void locationToolInteraction(InteractBlockEvent event, Player player) {
+    @Listener public void locationToolInteraction(InteractBlockEvent.Primary event, @First ServerPlayer player) {
         final Optional<ItemStackSnapshot> snapshot = event.context().get(EventContextKeys.USED_ITEM);
         snapshot.ifPresent(itemStackSnapshot -> {
             final ItemStack itemStack = player.itemInHand(HandTypes.MAIN_HAND);

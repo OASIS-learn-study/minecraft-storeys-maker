@@ -27,10 +27,8 @@ import ch.vorburger.minecraft.storeys.model.parser.FileStoryRepository;
 import ch.vorburger.minecraft.storeys.model.parser.StoryParser;
 import ch.vorburger.minecraft.storeys.model.parser.StoryRepository;
 import ch.vorburger.minecraft.storeys.util.Command;
-import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.nio.file.Path;
-import java.util.List;
 import javax.inject.Inject;
 import net.kyori.adventure.text.Component;
 import org.spongepowered.api.command.CommandResult;
@@ -56,11 +54,11 @@ public class StoryCommand implements Command {
         this.storyPlayer = storyPlayer;
     }
 
-    @Override public List<String> aliases() {
-        return ImmutableList.of("story");
+    @Override public String getName() {
+        return "story";
     }
 
-    @Override public org.spongepowered.api.command.Command callable() {
+    @Override public org.spongepowered.api.command.Command.Parameterized createCommand() {
         return org.spongepowered.api.command.Command.builder().shortDescription(Component.text("Tell a story"))
                 // .permission("storeys.commands.story") ?
                 .addParameter(STORY_NAME) // TODO requiringPermission()

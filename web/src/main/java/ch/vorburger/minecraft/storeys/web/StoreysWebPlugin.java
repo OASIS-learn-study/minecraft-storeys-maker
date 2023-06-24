@@ -27,14 +27,20 @@ import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongepowered.api.Server;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
+import org.spongepowered.api.command.registrar.CommandRegistrar;
+import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
+import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.loader.ConfigurationLoader;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
@@ -43,13 +49,17 @@ import org.spongepowered.plugin.builtin.jvm.Plugin;
     // do not extend StoreysPlugin, because we exclude that class in shadowJar
 
     private static final Logger LOG = LoggerFactory.getLogger(StoreysWebPlugin.class);
-    private VertxStarter vertxStarter;
-    private LoginCommand loginCommand;
-    private TokenCommand tokenCommand;
 
+    @Inject @ConfigDir(sharedRoot = false) private Path configDir;
     @Inject @DefaultConfig(sharedRoot = true) private ConfigurationLoader<CommentedConfigurationNode> configurationLoader;
 
-    @Override public void start(PluginInstance plugin, Path configDir) throws Exception {
+    @Listener public final void onGameStartingServer(StartingEngineEvent<Server> event) throws Exception {
+        LOG.info("See https://github.com/OASIS-learn-study/minecraft-storeys-maker for how to use /story and /narrate commands");
+        start(this, configDir);
+    }
+
+    @Override public void start(PluginInstance plugin, Path configDir) {
+        LOG.info("See https://github.com/OASIS-learn-study/minecraft-storeys-maker for how to use /story and /narrate commands");
         super.start(plugin, configDir);
 
         Injector injector = pluginInjector.createChildInjector(binder -> {
@@ -60,16 +70,21 @@ import org.spongepowered.plugin.builtin.jvm.Plugin;
             binder.bind(new TypeLiteral<ConfigurationLoader<CommentedConfigurationNode>>() {
             }).toInstance(configurationLoader);
             binder.bind(LocationToolListener.class);
+            binder.bind(Scheduler.class).toInstance(Sponge.asyncScheduler());
         });
         StaticWebServerVerticle staticWebServerVerticle = injector.getInstance(StaticWebServerVerticle.class);
 
         TokenProvider tokenProvider = injector.getInstance(TokenProvider.class);
-        loginCommand = new LoginCommand(tokenProvider);
-        tokenCommand = new TokenCommand(tokenProvider);
+        LoginCommand loginCommand = new LoginCommand(tokenProvider);
+        TokenCommand tokenCommand = new TokenCommand(tokenProvider);
 
+        final Optional<CommandRegistrar<Command.Parameterized>> registrar = Sponge.server().commandManager().registrar(Command.Parameterized.class);
+        final CommandRegistrar<Command.Parameterized> commandRegistrar = registrar.get();
+        commandRegistrar.register(plugin.getPluginContainer(), loginCommand.createCommand(), loginCommand.getName(), loginCommand.aliases());
+        commandRegistrar.register(plugin.getPluginContainer(), tokenCommand.createCommand(), tokenCommand.getName(), tokenCommand.aliases());
         try {
             try {
-                vertxStarter = new VertxStarter();
+                VertxStarter vertxStarter = new VertxStarter();
                 vertxStarter.deployVerticle(staticWebServerVerticle).toCompletableFuture().get();
 
             } catch (ExecutionException | InterruptedException e) {
@@ -81,10 +96,5 @@ import org.spongepowered.plugin.builtin.jvm.Plugin;
             // again.
             throw e;
         }
-    }
-
-    @Listener public void register(RegisterCommandEvent<Command.Raw> event) {
-        event.register(this.getPluginContainer(),
-                (Command.Raw) loginCommand.callable(), loginCommand.aliases().get(0), loginCommand.aliases().toArray(new String[0]));
     }
 }

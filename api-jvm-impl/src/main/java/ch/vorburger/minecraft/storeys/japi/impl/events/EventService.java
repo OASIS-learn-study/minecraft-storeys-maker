@@ -29,12 +29,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongepowered.api.data.Key;
 import org.spongepowered.api.data.Keys;
-import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.Listener;
@@ -50,7 +47,7 @@ import org.spongepowered.plugin.PluginContainer;
     private final Collection<Callback> onPlayerJoinCallbacks = new ConcurrentLinkedQueue<>();
 
     private final Map<String, Collection<Callback>> onPlayerInsideCallbacks = new ConcurrentHashMap<>();
-    private final Map<String, Collection<Callback>> onInteractEntityEventCallbacks = new ConcurrentHashMap<>();
+    private final Map<Component, Collection<Callback>> onInteractEntityEventCallbacks = new ConcurrentHashMap<>();
 
     private final EventManager eventManager;
 
@@ -94,7 +91,7 @@ import org.spongepowered.plugin.PluginContainer;
         return add(callbacks, callback);
     }
 
-    public Unregisterable registerInteractEntity(String entityName, Callback callback) {
+    public Unregisterable registerInteractEntity(Component entityName, Callback callback) {
         Collection<Callback> callbacks = onInteractEntityEventCallbacks.computeIfAbsent(entityName, name -> new ConcurrentLinkedQueue<>());
         return add(callbacks, callback);
     }
@@ -111,7 +108,7 @@ import org.spongepowered.plugin.PluginContainer;
         Optional<Component> optEntityNameText = event.entity().get(Keys.DISPLAY_NAME);
         LOG.debug("InteractEntityEvent: entityName={}; event={}", optEntityNameText, event);
         optEntityNameText.ifPresent(entityNameText -> {
-            Collection<Callback> callbacks = onInteractEntityEventCallbacks.getOrDefault(((TextComponent) entityNameText).content(),
+            Collection<Callback> callbacks = onInteractEntityEventCallbacks.getOrDefault(entityNameText,
                     Collections.emptySet());
             for (Callback callback : callbacks) {
                 try {

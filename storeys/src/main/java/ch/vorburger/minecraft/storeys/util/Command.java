@@ -23,7 +23,11 @@ import org.spongepowered.api.command.CommandExecutor;
 
 public interface Command extends CommandExecutor {
 
-    org.spongepowered.api.command.Command callable();
+    org.spongepowered.api.command.Command.Parameterized createCommand();
 
-    List<String> aliases();
+    String getName();
+
+    default String[] aliases() {
+        return new String[0];
+    }
 }

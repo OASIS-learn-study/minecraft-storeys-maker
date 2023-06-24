@@ -27,41 +27,28 @@ import ch.vorburger.minecraft.storeys.japi.impl.events.EventService;
 import com.google.inject.Injector;
 import java.nio.file.Path;
 import javax.inject.Inject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.EventManager;
-import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
-import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
 
 // Do *NOT* annotate this class with @Plugin
 public abstract class AbstractStoreysPlugin extends AbstractPlugin {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractStoreysPlugin.class);
 
     @Inject @ConfigDir(sharedRoot = false) private Path configDir;
 
     @Inject protected Injector pluginInjector;
 
-    private Injector childInjector;
-
     @Inject private EventManager eventManager;
 
     @Inject private EventService eventService;
 
-    @Listener public final void onGameStartingServer(StartingEngineEvent event) throws Exception {
-        LOG.info("See https://github.com/OASIS-learn-study/minecraft-storeys-maker for how to use /story and /narrate commands");
-        start(this, configDir);
-    }
-
-    protected void start(PluginInstance plugin, Path configDir) throws Exception {
+    protected void start(PluginInstance plugin, Path configDir) {
         eventManager.registerListeners(plugin.getPluginContainer(), new GuardGameModeJoinListener());
         eventService.setPluginContainer(plugin.getPluginContainer());
 
         // TODO(vorburger) child injector might not actually be required, could possibly just use only pluginInjector?
-        childInjector = pluginInjector.createChildInjector(binder -> {
+        Injector childInjector = pluginInjector.createChildInjector(binder -> {
             binder.bind(PluginInstance.class).toInstance(plugin);
             binder.bind(Path.class).toInstance(configDir);
             binder.bind(Scripts.class);
@@ -69,13 +56,11 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
         });
     }
 
-    @Listener public void register(RegisterCommandEvent<Command.Raw> event) {
+    public void register(RegisterCommandEvent<Command.Parameterized> event) {
         final StoryCommand storyCommand = pluginInjector.getInstance(StoryCommand.class);
         final NarrateCommand narrateCommand = pluginInjector.getInstance(NarrateCommand.class);
 
-        event.register(this.getPluginContainer(), (Command.Raw) narrateCommand.callable(), narrateCommand.aliases().get(0),
-                narrateCommand.aliases().toArray(new String[0]));
-        event.register(this.getPluginContainer(), (Command.Raw) storyCommand.callable(), storyCommand.aliases().get(0),
-                storyCommand.aliases().toArray(new String[0]));
+        event.register(this.getPluginContainer(), narrateCommand.createCommand(), narrateCommand.getName(), narrateCommand.aliases());
+        event.register(this.getPluginContainer(), storyCommand.createCommand(), storyCommand.getName(), storyCommand.aliases());
     }
 }

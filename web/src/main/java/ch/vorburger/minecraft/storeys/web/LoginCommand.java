@@ -21,13 +21,10 @@ package ch.vorburger.minecraft.storeys.web;
 import ch.vorburger.minecraft.storeys.japi.util.CommandExceptions;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.util.Command;
-import com.google.common.collect.ImmutableList;
 import java.net.URL;
-import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.spongepowered.api.command.Command.Parameterized;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.command.parameter.CommandContext;
@@ -59,13 +56,17 @@ public class LoginCommand implements Command {
         return defaultValue;
     }
 
-    @Override public org.spongepowered.api.command.Command callable() {
+    @Override public org.spongepowered.api.command.Command.Parameterized createCommand() {
         return org.spongepowered.api.command.Command.builder().shortDescription(Component.text("Open the browser and start your story"))
                 .executor(this).build();
     }
 
-    @Override public List<String> aliases() {
-        return ImmutableList.of("make", "scratch");
+    @Override public String getName() {
+        return "make";
+    }
+
+    @Override public String[] aliases() {
+        return new String[] { "scratch" };
     }
 
     @Override public CommandResult execute(CommandContext args) throws CommandException {
@@ -81,6 +82,7 @@ public class LoginCommand implements Command {
                         Component.text("Click here to open a browser and start MAKE actions").clickEvent(ClickEvent.openUrl(new URL(url)))
                                 .color(NamedTextColor.GOLD));
             });
+            return CommandResult.success();
         }
         return CommandResult.error(Component.text("Command source must be Player").color(NamedTextColor.RED));
     }

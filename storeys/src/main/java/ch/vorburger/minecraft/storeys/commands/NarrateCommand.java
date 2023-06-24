@@ -21,8 +21,6 @@ package ch.vorburger.minecraft.storeys.commands;
 import ch.vorburger.minecraft.storeys.japi.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.Narrator;
 import ch.vorburger.minecraft.storeys.util.Command;
-import com.google.common.collect.ImmutableList;
-import java.util.List;
 import javax.inject.Inject;
 import net.kyori.adventure.text.Component;
 import org.spongepowered.api.command.CommandResult;
@@ -42,11 +40,11 @@ public class NarrateCommand implements Command {
         this.narrator = narrator;
     }
 
-    @Override public List<String> aliases() {
-        return ImmutableList.of("narrate");
+    @Override public String getName() {
+        return "narrate";
     }
 
-    @Override public org.spongepowered.api.command.Command callable() {
+    @Override public org.spongepowered.api.command.Command.Parameterized createCommand() {
         // TODO when Sponge uses entity names instead of UUIDs:
         // TODO requiringPermission()
         return org.spongepowered.api.command.Command.builder().shortDescription(Component.text(("Make an entity character narrate story lines")))

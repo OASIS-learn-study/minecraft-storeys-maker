@@ -37,8 +37,8 @@ public class LocationAction implements Action<Void> {
     public LocationAction() {
     }
 
-    @Inject public LocationAction(Scheduler scheduler) {
-        conditionService = new ConditionService(scheduler);
+    @Inject public LocationAction(ConditionService conditionService) {
+        this.conditionService = conditionService;
     }
 
     @Override public void setParameter(String param) {

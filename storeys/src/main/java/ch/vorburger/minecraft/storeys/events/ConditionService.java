@@ -39,6 +39,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.ScheduledTask;
 import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.plugin.PluginContainer;
 
 @ThreadSafe @Singleton public class ConditionService implements AutoCloseable {
 
@@ -90,8 +91,8 @@ import org.spongepowered.api.scheduler.Task;
     private final Scheduler scheduler;
     private final UUID taskId;
 
-    @Inject public ConditionService(Scheduler scheduler) {
-        Task task = Task.builder().execute(this::run).interval(10, TimeUnit.SECONDS).build();
+    @Inject public ConditionService(PluginContainer plugin, Scheduler scheduler) {
+        Task task = Task.builder().execute(this::run).interval(10, TimeUnit.SECONDS).plugin(plugin).build();
         this.scheduler = scheduler;
         taskId = scheduler.submit(task).uniqueId();
     }
