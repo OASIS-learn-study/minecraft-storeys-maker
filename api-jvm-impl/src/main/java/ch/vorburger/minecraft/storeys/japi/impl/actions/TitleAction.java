@@ -29,16 +29,12 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.title.Title;
-import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.effect.Viewer;
 
 public class TitleAction extends TextAction<Void> {
 
     private static final int FADE_IN_MS = 50;
-    private static final int FADE_IN_TICKS = (int) (FADE_IN_MS * 0.02);
-
     private static final int FADE_OUT_MS = 100;
-    private static final int FADE_OUT_TICKS = (int) (FADE_OUT_MS * 0.02);
 
     private final ActionWaitHelper actionWaitHelper;
 
@@ -67,8 +63,8 @@ public class TitleAction extends TextAction<Void> {
             if (commandCause instanceof Viewer) {
                 Viewer srcAsViewer = (Viewer) commandCause;
 
-                final Title.Times times = Title.Times.of(Duration.ofMillis(FADE_IN_TICKS), Duration.ofMillis((int) (msToRead * 0.02)),
-                        Duration.ofMillis(FADE_OUT_TICKS));
+                final Title.Times times = Title.Times.times(Duration.ofMillis(FADE_IN_MS), Duration.ofMillis(msToRead),
+                        Duration.ofMillis(FADE_OUT_MS));
                 Title titleBuilder = Title.title(getText(), subtitleText != null ? subtitleText : Component.empty(), times);
 
                 // TODO srcAsViewer.clearTitle(); ?
