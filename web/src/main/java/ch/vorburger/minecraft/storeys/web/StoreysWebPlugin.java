@@ -59,7 +59,6 @@ import org.spongepowered.plugin.builtin.jvm.Plugin;
     }
 
     @Override public void start(PluginInstance plugin, Path configDir) {
-        LOG.info("See https://github.com/OASIS-learn-study/minecraft-storeys-maker for how to use /story and /narrate commands");
         super.start(plugin, configDir);
 
         Injector injector = pluginInjector.createChildInjector(binder -> {

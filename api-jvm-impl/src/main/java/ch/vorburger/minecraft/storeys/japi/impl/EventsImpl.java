@@ -75,7 +75,9 @@ class EventsImpl implements Events, Unregisterable {
             return;
         }
         registrar.get().register(plugin, spec, name);
-        //TODO Sponge.server().commandManager().updateCommandTreeForPlayer();
+        Sponge.server().onlinePlayers().forEach(p -> Sponge.server().commandManager().updateCommandTreeForPlayer(p));
+
+        //TODO unregister commands so that we can update them
         unregistrables.add(() -> {
 
         });

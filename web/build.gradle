@@ -42,6 +42,7 @@ shadowJar {
   // Relocate shaded Netty dependency, because Minecraft Server uses (a very OLD version of!) Netty itself
   // causing java.lang.NoSuchMethodError: io.netty.util.NetUtil.isIpV4StackPreferred()Z at io.netty.resolver.dns.DnsNameResolver.<clinit>(DnsNameResolver.java:103)
   relocate 'io.netty', 'ch.vorburger.relocated.io.netty'
+  mergeServiceFiles()
 
   dependencies {
     // https://imperceptiblethoughts.com/shadow/configuration/filtering/
@@ -80,6 +81,12 @@ shadowJar {
     include(dependency("io.netty:netty-codec-http"))
     include(dependency("io.netty:netty-codec-http2"))
     include(dependency("com.fasterxml.jackson.core:jackson-core"))
+    include(dependency("org.graalvm.js:js-scriptengine"))
+    include(dependency("org.graalvm.js:js"))
+    include(dependency("org.graalvm.truffle:truffle-api"))
+    include(dependency("org.graalvm.sdk:graal-sdk"))
+    include(dependency("org.graalvm.regex:regex"))
+    include(dependency("com.ibm.icu:icu4j"))
     exclude 'module-info.class'
   }
 }
