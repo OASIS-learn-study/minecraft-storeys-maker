@@ -16,18 +16,24 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys.util;
+package ch.vorburger.minecraft.storeys.tests;
 
 import java.util.List;
-import org.spongepowered.api.command.CommandExecutor;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineFactory;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import org.junit.Test;
 
-public interface Command extends CommandExecutor {
+public class GraalTest {
 
-    org.spongepowered.api.command.Command.Parameterized createCommand();
+    @Test public void testJsEngine() throws ScriptException {
+        List<ScriptEngineFactory> engines = (new ScriptEngineManager()).getEngineFactories();
+        for (ScriptEngineFactory f : engines) {
+            System.out.println(f.getLanguageName() + " " + f.getEngineName() + " " + f.getNames().toString());
+        }
 
-    String getName();
-
-    default String[] aliases() {
-        return new String[0];
+        final ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("graal.js");
+        System.out.println(scriptEngine.eval("1+1"));
     }
 }

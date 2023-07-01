@@ -20,7 +20,7 @@ package ch.vorburger.minecraft.storeys.japi;
 
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Cancellable;
-import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.Cause;
 import org.spongepowered.api.event.impl.AbstractEvent;
 
 public class PlayerInsideEvent extends AbstractEvent implements Cancellable {
@@ -35,7 +35,7 @@ public class PlayerInsideEvent extends AbstractEvent implements Cancellable {
         this.cause = cause;
     }
 
-    @Override public Cause getCause() {
+    @Override public Cause cause() {
         return cause;
     }
 

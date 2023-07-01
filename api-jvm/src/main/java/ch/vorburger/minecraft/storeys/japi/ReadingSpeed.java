@@ -18,7 +18,7 @@
  */
 package ch.vorburger.minecraft.storeys.japi;
 
-import org.spongepowered.api.text.Text;
+import net.kyori.adventure.text.TextComponent;
 
 public class ReadingSpeed {
 
@@ -43,11 +43,11 @@ public class ReadingSpeed {
         return new ReadingSpeed((int) (wpm * factor));
     }
 
-    public int msToRead(Text text) {
+    public int msToRead(TextComponent text) {
         // This could be optimized, e.g. to skip long URLs,
         // which one does not typically fully read, like real text;
         // but at least for, we can just do this:
-        return msToRead(text.toPlain());
+        return msToRead(text.content());
     }
 
     public int msToRead(String text) {

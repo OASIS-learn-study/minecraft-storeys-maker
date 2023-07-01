@@ -18,7 +18,6 @@
  */
 package ch.vorburger.minecraft.storeys.japi.impl;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.japi.Script;
 import ch.vorburger.minecraft.storeys.japi.impl.events.EventService;
 import java.util.Collection;
@@ -26,15 +25,16 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.spongepowered.plugin.PluginContainer;
 
 @Singleton
 public class Scripts {
 
     private final Map<Object, Unregisterable> unregisterables = new ConcurrentHashMap<>();
-    private final PluginInstance plugin;
+    private final PluginContainer plugin;
     private final EventService eventService;
 
-    @Inject public Scripts(PluginInstance plugin, EventService eventService) {
+    @Inject public Scripts(PluginContainer plugin, EventService eventService) {
         this.plugin = plugin;
         this.eventService = eventService;
     }

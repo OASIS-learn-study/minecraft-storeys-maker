@@ -18,11 +18,11 @@
  */
 package ch.vorburger.minecraft.storeys.japi;
 
-import org.spongepowered.api.command.CommandSource;
+import net.kyori.adventure.audience.Audience;
 
 public interface ActionContext {
 
-    CommandSource getCommandSource();
+    Audience getCommandCause();
 
     ReadingSpeed getReadingSpeed();
 }

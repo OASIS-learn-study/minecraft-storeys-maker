@@ -16,19 +16,24 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys.util;
+package ch.vorburger.minecraft.storeys.plugin;
 
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandMapping;
+import com.google.inject.Inject;
+import org.spongepowered.plugin.PluginContainer;
+import org.spongepowered.plugin.builtin.jvm.Plugin;
 
-public final class Commands {
+/**
+ * Convenience base class for your own {@link Plugin} annotated class.
+ *
+ * <p>You do not have to use this, it's just for convenience.
+ *
+ * @author Michael Vorburger.ch
+ */
+public abstract class AbstractPlugin implements PluginInstance {
 
-    private Commands() {
+    @Inject protected PluginContainer pluginContainer;
+
+    public final PluginContainer getPluginContainer() {
+        return pluginContainer;
     }
-
-    public static CommandMapping register(Object plugin, Command command) throws IllegalStateException {
-        return Sponge.getCommandManager().register(plugin, command.callable(), command.aliases())
-                .orElseThrow(() -> new IllegalStateException("Failed to register command: " + command.aliases()));
-    }
-
 }

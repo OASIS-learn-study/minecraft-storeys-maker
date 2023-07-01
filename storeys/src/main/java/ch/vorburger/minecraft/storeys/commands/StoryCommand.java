@@ -18,10 +18,6 @@
  */
 package ch.vorburger.minecraft.storeys.commands;
 
-import static org.spongepowered.api.command.args.GenericArguments.onlyOne;
-import static org.spongepowered.api.command.args.GenericArguments.string;
-import static org.spongepowered.api.text.Text.of;
-
 import ch.vorburger.minecraft.storeys.japi.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContextImpl;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionPlayer;
@@ -31,22 +27,18 @@ import ch.vorburger.minecraft.storeys.model.parser.FileStoryRepository;
 import ch.vorburger.minecraft.storeys.model.parser.StoryParser;
 import ch.vorburger.minecraft.storeys.model.parser.StoryRepository;
 import ch.vorburger.minecraft.storeys.util.Command;
-import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.nio.file.Path;
-import java.util.List;
 import javax.inject.Inject;
-import org.spongepowered.api.command.CommandCallable;
-import org.spongepowered.api.command.CommandException;
+import net.kyori.adventure.text.Component;
 import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.args.CommandContext;
-import org.spongepowered.api.command.spec.CommandSpec;
-import org.spongepowered.api.text.Text;
+import org.spongepowered.api.command.exception.CommandException;
+import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.parameter.Parameter;
 
 public class StoryCommand implements Command {
 
-    private static final Text ARG_STORY = of("storyName");
+    private static final Parameter.Value<String> STORY_NAME = Parameter.string().key("storyName").build();
 
     private final StoryRepository storyRepository;
     private final StoryParser storyParser;
@@ -62,25 +54,25 @@ public class StoryCommand implements Command {
         this.storyPlayer = storyPlayer;
     }
 
-    @Override public List<String> aliases() {
-        return ImmutableList.of("story");
+    @Override public String getName() {
+        return "story";
     }
 
-    @Override public CommandCallable callable() {
-        return CommandSpec.builder().description(of("Tell a story"))
+    @Override public org.spongepowered.api.command.Command.Parameterized createCommand() {
+        return org.spongepowered.api.command.Command.builder().shortDescription(Component.text("Tell a story"))
                 // .permission("storeys.commands.story") ?
-                .arguments(onlyOne(string(ARG_STORY)) // TODO requiringPermission()
-                ).executor(this).build();
+                .addParameter(STORY_NAME) // TODO requiringPermission()
+                .executor(this).build();
     }
 
-    @Override public CommandResult execute(CommandSource commandSource, CommandContext commandContext) throws CommandException {
-        String storyName = commandContext.<String>getOne(ARG_STORY).get();
+    @Override public CommandResult execute(CommandContext commandContext) throws CommandException {
+        String storyName = commandContext.requireOne(STORY_NAME);
 
         CommandExceptions.doOrThrow("Failed to load & play '" + storyName + "' story, due to: ", () -> {
             String storyScript = storyRepository.getStoryScript(storyName);
             Story story = storyParser.parse(storyScript);
             /* CompletionStage<?> completionStage = storyPlayer.play(..) */ // TODO keep this, so that a user can /stop the story again..
-            storyPlayer.play(new ActionContextImpl(commandSource, new ReadingSpeed()), story.getActionsList());
+            storyPlayer.play(new ActionContextImpl(commandContext.cause().audience(), new ReadingSpeed()), story.getActionsList());
         });
 
         return CommandResult.success();

@@ -31,8 +31,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.util.function.Predicate;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.script.Bindings;
+import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -64,8 +67,6 @@ import org.slf4j.LoggerFactory;
                             LOG.info("(Re-)loaded {}", path);
                         } catch (NoSuchFileException e) {
                             // Ignore (happens frequently for temporary files with Git)
-                        } catch (jdk.nashorn.api.scripting.NashornException n) {
-                            LOG.warn("Invalid JS: {}:{}:{} {}", path, n.getLineNumber(), n.getColumnNumber(), n.getMessage());
                         } catch (RuntimeException e) {
                             LOG.error("Failed to register due to an unknown cause {}", path, e);
                         }
@@ -93,7 +94,10 @@ import org.slf4j.LoggerFactory;
         final String result = template.replace("//SCRIPT", scriptFile);
 
         ScriptEngineManager manager = new ScriptEngineManager();
-        ScriptEngine engine = manager.getEngineByName("JavaScript");
+        ScriptEngine engine = manager.getEngineByName("graal.js");
+        Bindings bindings = engine.getBindings(ScriptContext.ENGINE_SCOPE);
+        bindings.put("polyglot.js.allowHostAccess", true);
+        bindings.put("polyglot.js.allowHostClassLookup", (Predicate<String>) s -> true);
 
         return (Script) engine.eval(result);
     }

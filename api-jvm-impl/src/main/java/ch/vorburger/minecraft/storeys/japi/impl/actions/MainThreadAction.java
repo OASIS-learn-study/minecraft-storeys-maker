@@ -18,7 +18,6 @@
  */
 package ch.vorburger.minecraft.storeys.japi.impl.actions;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.japi.Action;
 import ch.vorburger.minecraft.storeys.japi.ActionContext;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -27,7 +26,8 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.spotify.futures.CompletableFuturesExtra;
 import java.util.concurrent.CompletionStage;
 import org.spongepowered.api.scheduler.Scheduler;
-import org.spongepowered.api.scheduler.SpongeExecutorService;
+import org.spongepowered.api.scheduler.TaskExecutorService;
+import org.spongepowered.plugin.PluginContainer;
 
 /**
  * Action which must run on the Game's main thread. Any actions that interact
@@ -39,8 +39,8 @@ public abstract class MainThreadAction<T> implements Action<T> {
 
     private final ListeningScheduledExecutorService guavaifiedMinecraftExecutor;
 
-    protected MainThreadAction(PluginInstance plugin, Scheduler scheduler) {
-        SpongeExecutorService minecraftExecutor = scheduler.createSyncExecutor(plugin);
+    protected MainThreadAction(PluginContainer plugin, Scheduler scheduler) {
+        TaskExecutorService minecraftExecutor = scheduler.executor(plugin);
         guavaifiedMinecraftExecutor = MoreExecutors.listeningDecorator(minecraftExecutor);
     }
 

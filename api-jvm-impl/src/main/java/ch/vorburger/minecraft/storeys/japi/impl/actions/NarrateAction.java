@@ -26,7 +26,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
-import org.spongepowered.api.text.Text;
+import net.kyori.adventure.text.Component;
 import org.spongepowered.api.world.Locatable;
 import org.spongepowered.api.world.World;
 
@@ -55,15 +55,15 @@ public class NarrateAction extends TextAction<Void> {
     }
 
     @Override public CompletionStage<Void> execute(ActionContext context) {
-        Locatable locatable = (Locatable) context.getCommandSource();
-        World world = locatable.getWorld();
+        Locatable locatable = (Locatable) context.getCommandCause();
+        final World<?, ?> world = locatable.world();
 
-        return narrator.narrate(world, requireNonNull(entityName, "entityName"), getText().toPlain(), context.getReadingSpeed());
+        return narrator.narrate(world, requireNonNull(entityName, "entityName"), getText().content(), context.getReadingSpeed());
     }
 
     @Override public boolean add(Action<?> action) {
         if (action instanceof TextAction) {
-            this.setText(getText().concat(Text.NEW_LINE).concat(((TextAction<?>) action).getText()));
+            this.setText(getText().append(Component.newline()).append(((TextAction<?>) action).getText()));
             return true;
         }
         return false;
