@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 var ItemTypes = Java.type('org.spongepowered.api.item.ItemTypes');
+var HandTypes = Java.type('org.spongepowered.api.data.type.HandTypes');
+
 var Script = Java.type('ch.vorburger.minecraft.storeys.japi.Script');
 var TheScript = Java.extend(Script, {
    init: function (e) {
