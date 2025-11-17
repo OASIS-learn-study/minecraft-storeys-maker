@@ -95,7 +95,7 @@ export default function initGenerator() {
   ];
 
   Blockly.JavaScript["itemHeld"] = (block: Block) => [
-    "m.player().getItemInHand()",
+    "m.player().getItemInHand(HandTypes.MAIN_HAN)",
     Blockly.JavaScript.ORDER_ATOMIC,
   ];
 
