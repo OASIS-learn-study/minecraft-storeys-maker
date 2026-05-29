@@ -37,6 +37,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.mockito.Mockito;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
@@ -51,6 +52,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.plugin.PluginContainer;
 
 /**
  * Integration test, based on WebDriver.
@@ -76,16 +78,17 @@ public class SeleniumTest {
 
     private static void startVertx() throws Exception {
         vertxStarter = new VertxStarter();
-        vertxStarter.deployVerticle(new StaticWebServerVerticle(Paths.get("/tmp/storeys/SeleniumTest/config"), 9090, new TokenProvider() {
+        vertxStarter.deployVerticle(new StaticWebServerVerticle(Paths.get("/tmp/storeys/SeleniumTest/config"), 9090,
+                new TokenProvider() {
 
-            @Override public String getCode(Player player) {
-                return UUID.randomUUID().toString();
-            }
+                    @Override public String getCode(Player player) {
+                        return UUID.randomUUID().toString();
+                    }
 
-            @Override public String login(String code) {
-                return UUID.randomUUID().toString();
-            }
-        })).toCompletableFuture().get();
+                    @Override public String login(String code) {
+                        return UUID.randomUUID().toString();
+                    }
+                }, Mockito.mock(PluginContainer.class))).toCompletableFuture().get();
     }
 
     private static void startWebDriver() {

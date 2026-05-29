@@ -58,7 +58,7 @@ class MinecraftJvmImpl implements Minecraft {
     }
 
     @Override public void cmd(String command) {
-        CommandAction action = new CommandAction(plugin, Sponge.asyncScheduler());
+        CommandAction action = new CommandAction(plugin, Sponge.server().scheduler());
         action.setCommand(command);
         actionList.add(action);
     }

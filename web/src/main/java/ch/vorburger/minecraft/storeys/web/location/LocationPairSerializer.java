@@ -20,9 +20,9 @@ package ch.vorburger.minecraft.storeys.web.location;
 
 import io.leangen.geantyref.TypeToken;
 import java.lang.reflect.Type;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 import org.apache.commons.lang3.tuple.Pair;
+import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.api.world.server.ServerWorld;
@@ -45,15 +45,35 @@ public class LocationPairSerializer implements TypeSerializer<Pair<ServerLocatio
         final double y2 = value.node("y2").getDouble();
         final double z2 = value.node("z2").getDouble();
 
-        final List<ServerWorld> worlds = Sponge.server().worldManager().worlds().stream()
-                .filter(serverWorld -> serverWorld.world().key().value().equals(worldName)).collect(Collectors.toList());
-        ServerWorld world = worlds.get(0);
-        if (world == null) {
-            throw new RuntimeException("world not initialized?");
-        }
+        final ServerWorld world = resolveWorld(worldName)
+                .orElseThrow(() -> new SerializationException("World not loaded or unknown: " + worldName));
         final ServerLocation point1 = ServerLocation.of(world, x1, y1, z1);
         final ServerLocation point2 = ServerLocation.of(world, x2, y2, z2);
         return Pair.of(point1, point2);
+    }
+
+    private static Optional<ServerWorld> resolveWorld(String worldName) {
+        if (worldName == null || worldName.isEmpty()) {
+            return Optional.empty();
+        }
+        for (ServerWorld world : Sponge.server().worldManager().worlds()) {
+            if (worldNameMatches(world, worldName)) {
+                return Optional.of(world);
+            }
+        }
+        return Optional.empty();
+    }
+
+    private static boolean worldNameMatches(ServerWorld world, String worldName) {
+        final ResourceKey key = world.key();
+        if (key.value().equals(worldName)) {
+            return true;
+        }
+        if ((key.namespace() + ":" + key.value()).equals(worldName)) {
+            return true;
+        }
+        // Legacy folder name from older saves / vanilla default overworld
+        return "world".equals(worldName) && "overworld".equals(key.value());
     }
 
     @Override public void serialize(Type type, Pair<ServerLocation, ServerLocation> obj, ConfigurationNode value)

@@ -20,6 +20,7 @@ package ch.vorburger.minecraft.storeys.japi.impl.events;
 
 import ch.vorburger.minecraft.storeys.japi.PlayerInsideEvent;
 import ch.vorburger.minecraft.storeys.japi.impl.Unregisterable;
+import ch.vorburger.minecraft.storeys.japi.util.ComponentTexts;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -47,7 +48,7 @@ import org.spongepowered.plugin.PluginContainer;
     private final Collection<Callback> onPlayerJoinCallbacks = new ConcurrentLinkedQueue<>();
 
     private final Map<String, Collection<Callback>> onPlayerInsideCallbacks = new ConcurrentHashMap<>();
-    private final Map<Component, Collection<Callback>> onInteractEntityEventCallbacks = new ConcurrentHashMap<>();
+    private final Map<String, Collection<Callback>> onInteractEntityEventCallbacks = new ConcurrentHashMap<>();
 
     private final EventManager eventManager;
 
@@ -91,7 +92,7 @@ import org.spongepowered.plugin.PluginContainer;
         return add(callbacks, callback);
     }
 
-    public Unregisterable registerInteractEntity(Component entityName, Callback callback) {
+    public Unregisterable registerInteractEntity(String entityName, Callback callback) {
         Collection<Callback> callbacks = onInteractEntityEventCallbacks.computeIfAbsent(entityName, name -> new ConcurrentLinkedQueue<>());
         return add(callbacks, callback);
     }
@@ -108,13 +109,18 @@ import org.spongepowered.plugin.PluginContainer;
         Optional<Component> optEntityNameText = event.entity().get(Keys.DISPLAY_NAME);
         LOG.debug("InteractEntityEvent: entityName={}; event={}", optEntityNameText, event);
         optEntityNameText.ifPresent(entityNameText -> {
-            Collection<Callback> callbacks = onInteractEntityEventCallbacks.getOrDefault(entityNameText,
-                    Collections.emptySet());
+            String entityName = ComponentTexts.plainText(entityNameText);
+            Collection<Callback> callbacks = onInteractEntityEventCallbacks.getOrDefault(entityName, Collections.emptySet());
+            Optional<Player> player = event.cause().first(Player.class);
+            if (!player.isPresent()) {
+                LOG.debug("InteractEntityEvent without player cause: entityName={}; event={}", entityName, event);
+                return;
+            }
             for (Callback callback : callbacks) {
                 try {
-                    callback.call(event.cause().last(Player.class).orElse(null));
+                    callback.call(player.get());
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    LOG.error("InteractEntity callback failure for entity {}", entityName, e);
                 }
             }
         });

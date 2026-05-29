@@ -21,8 +21,10 @@ package ch.vorburger.minecraft.storeys.commands;
 import ch.vorburger.minecraft.storeys.japi.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.Narrator;
 import ch.vorburger.minecraft.storeys.util.Command;
+import java.util.Optional;
 import javax.inject.Inject;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.command.parameter.CommandContext;
@@ -54,15 +56,21 @@ public class NarrateCommand implements Command {
     }
 
     @Override public CommandResult execute(CommandContext args) throws CommandException {
-        String text = args.one(ARG_TEXT).get();
+        Optional<String> text = args.one(ARG_TEXT);
+        Optional<String> entityName = args.one(ARG_ENTITY);
+        if (!text.isPresent() || !entityName.isPresent()) {
+            return CommandResult.error(Component.text("Usage: /narrate <entity> <text>").color(NamedTextColor.RED));
+        }
+        if (!args.cause().location().isPresent()) {
+            return CommandResult.error(Component.text("Command source must have a world location").color(NamedTextColor.RED));
+        }
 
         // TODO when Sponge uses entity names instead of UUIDs:
         // Entity entity = args.<Entity>getOne(ARG_ENTITY).get();
         // narrator.narrate(entity, text, new ReadingSpeed());
 
-        String entityName = args.one(ARG_ENTITY).get();
         final ServerWorld world = args.cause().location().get().world();
-        narrator.narrate(world, entityName, text, new ReadingSpeed());
+        narrator.narrate(world, entityName.get(), text.get(), new ReadingSpeed());
 
         return CommandResult.success();
     }

@@ -25,18 +25,11 @@ import ch.vorburger.minecraft.storeys.japi.Script;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContextImpl;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionPlayer;
 import ch.vorburger.minecraft.storeys.japi.impl.events.EventService;
-import ch.vorburger.minecraft.storeys.japi.util.CommandExceptions;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.text.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.Command;
-import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.registrar.CommandRegistrar;
 import org.spongepowered.plugin.PluginContainer;
 
 /**
@@ -52,6 +45,8 @@ class EventsImpl implements Events, Unregisterable {
 
     private final PluginContainer plugin;
     private final EventService eventService;
+    private final ScriptCommandRegistry commandRegistry;
+    private final Object scriptOwner;
 
     // when made modifiable, then this should be per Player
     private final ReadingSpeed readingSpeed = new ReadingSpeed();
@@ -59,28 +54,17 @@ class EventsImpl implements Events, Unregisterable {
     private final Collection<Unregisterable> unregistrables = new ConcurrentLinkedQueue<>();
     private final ActionPlayer player = new ActionPlayer();
 
-    EventsImpl(PluginContainer plugin, EventService eventService) {
+    EventsImpl(PluginContainer plugin, EventService eventService,
+            ScriptCommandRegistry commandRegistry, Object scriptOwner) {
         this.plugin = plugin;
         this.eventService = eventService;
+        this.commandRegistry = commandRegistry;
+        this.scriptOwner = scriptOwner;
     }
 
     @Override public void whenCommand(String name, Callback callback) {
-        final Command.Parameterized spec = Command.builder().executor((src) -> {
-            CommandExceptions.doOrThrow("/" + name, () -> invokeCallback(src.cause().audience(), callback));
-            return CommandResult.success();
-        }).build();
-        final Optional<CommandRegistrar<Command.Parameterized>> registrar = Sponge.server().commandManager().registrar(Command.Parameterized.class);
-        if (!registrar.isPresent()) {
-            LOG.error("Could not register new command, because it's already present: /" + name);
-            return;
-        }
-        registrar.get().register(plugin, spec, name);
-        Sponge.server().onlinePlayers().forEach(p -> Sponge.server().commandManager().updateCommandTreeForPlayer(p));
-
-        //TODO unregister commands so that we can update them
-        unregistrables.add(() -> {
-
-        });
+        unregistrables.add(commandRegistry.register(scriptOwner, name,
+                audience -> invokeCallback(audience, callback)));
     }
 
     @Override public void whenPlayerJoins(Callback callback) {
@@ -107,7 +91,7 @@ class EventsImpl implements Events, Unregisterable {
         ch.vorburger.minecraft.storeys.japi.impl.events.Callback otherCallback = invoker -> {
             invokeCallback(invoker, callback);
         };
-        unregistrables.add(eventService.registerInteractEntity(Component.text(entityName), otherCallback));
+        unregistrables.add(eventService.registerInteractEntity(entityName, otherCallback));
     }
 
     @Override public void unregister() {

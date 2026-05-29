@@ -27,10 +27,12 @@ import ch.vorburger.minecraft.storeys.japi.impl.events.EventService;
 import com.google.inject.Injector;
 import java.nio.file.Path;
 import javax.inject.Inject;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+import org.spongepowered.api.scheduler.Scheduler;
 
 // Do *NOT* annotate this class with @Plugin
 public abstract class AbstractStoreysPlugin extends AbstractPlugin {
@@ -43,22 +45,54 @@ public abstract class AbstractStoreysPlugin extends AbstractPlugin {
 
     @Inject private EventService eventService;
 
+    private Injector commandsInjector;
+    private ScriptsLoader scriptsLoader;
+
+    /**
+     * Child injector for commands only. Must not load {@link ScriptsLoader} here:
+     * {@link RegisterCommandEvent} fires before the dedicated server exists.
+     */
+    protected Injector ensureCommandsInjector(PluginInstance plugin) {
+        if (commandsInjector == null) {
+            commandsInjector = pluginInjector.createChildInjector(binder -> {
+                binder.bind(PluginInstance.class).toInstance(plugin);
+                binder.bind(Path.class).toInstance(configDir);
+                binder.bind(Scheduler.class).toInstance(Sponge.asyncScheduler());
+            });
+        }
+        return commandsInjector;
+    }
+
     protected void start(PluginInstance plugin, Path configDir) {
+        Injector commands = ensureCommandsInjector(plugin);
         eventManager.registerListeners(plugin.getPluginContainer(), new GuardGameModeJoinListener());
         eventService.setPluginContainer(plugin.getPluginContainer());
 
-        // TODO(vorburger) child injector might not actually be required, could possibly just use only pluginInjector?
-        Injector childInjector = pluginInjector.createChildInjector(binder -> {
-            binder.bind(PluginInstance.class).toInstance(plugin);
-            binder.bind(Path.class).toInstance(configDir);
-            binder.bind(Scripts.class);
-            binder.bind(ScriptsLoader.class);
-        });
+        if (scriptsLoader == null) {
+            Injector scriptsInjector = commands.createChildInjector(binder -> {
+                binder.bind(Scripts.class);
+                binder.bind(ScriptsLoader.class);
+            });
+            try {
+                scriptsLoader = scriptsInjector.getInstance(ScriptsLoader.class);
+            } catch (Exception e) {
+                throw new IllegalStateException("Failed to start script loader", e);
+            }
+        }
+    }
+
+    protected void stopScripts() {
+        if (scriptsLoader != null) {
+            scriptsLoader.close();
+            scriptsLoader = null;
+        }
+        commandsInjector = null;
     }
 
     public void register(RegisterCommandEvent<Command.Parameterized> event) {
-        final StoryCommand storyCommand = pluginInjector.getInstance(StoryCommand.class);
-        final NarrateCommand narrateCommand = pluginInjector.getInstance(NarrateCommand.class);
+        Injector injector = ensureCommandsInjector((PluginInstance) this);
+        final StoryCommand storyCommand = injector.getInstance(StoryCommand.class);
+        final NarrateCommand narrateCommand = injector.getInstance(NarrateCommand.class);
 
         event.register(this.getPluginContainer(), narrateCommand.createCommand(), narrateCommand.getName(), narrateCommand.aliases());
         event.register(this.getPluginContainer(), storyCommand.createCommand(), storyCommand.getName(), storyCommand.aliases());

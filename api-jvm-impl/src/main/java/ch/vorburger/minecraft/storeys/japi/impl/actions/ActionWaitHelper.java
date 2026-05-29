@@ -24,6 +24,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.plugin.PluginContainer;
 
@@ -39,8 +40,9 @@ public class ActionWaitHelper {
         CompletableFuture<T> future = new CompletableFuture<>();
         try {
             T returnValue = callable.call();
-            Task.builder().execute(() -> future.complete(returnValue)).delay(msToWaitAfterRunning, MILLISECONDS).plugin(plugin);
-
+            Task task = Task.builder().execute(() -> future.complete(returnValue)).delay(msToWaitAfterRunning, MILLISECONDS)
+                    .plugin(plugin).build();
+            Sponge.asyncScheduler().submit(task);
         } catch (Throwable throwable) {
             future.completeExceptionally(throwable);
         }

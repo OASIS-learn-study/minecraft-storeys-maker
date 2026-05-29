@@ -35,6 +35,7 @@ import javax.inject.Singleton;
 import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.ScheduledTask;
 import org.spongepowered.api.scheduler.Scheduler;
@@ -91,9 +92,10 @@ import org.spongepowered.plugin.PluginContainer;
     private final Scheduler scheduler;
     private final UUID taskId;
 
-    @Inject public ConditionService(PluginContainer plugin, Scheduler scheduler) {
-        Task task = Task.builder().execute(this::run).interval(10, TimeUnit.SECONDS).plugin(plugin).build();
-        this.scheduler = scheduler;
+    @Inject public ConditionService(PluginContainer plugin) {
+        // Must run on the server (sync) scheduler: isHot() reads world/players and callbacks post game events.
+        Task task = Task.builder().execute(this::run).interval(500, TimeUnit.MILLISECONDS).plugin(plugin).build();
+        this.scheduler = Sponge.server().scheduler();
         taskId = scheduler.submit(task).uniqueId();
     }
 

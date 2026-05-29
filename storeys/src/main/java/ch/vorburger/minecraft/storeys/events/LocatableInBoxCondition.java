@@ -71,20 +71,22 @@ public class LocatableInBoxCondition implements Condition {
     }
 
     @Override public boolean isHot() {
+        Player playerInBox = null;
         for (Player player : this.world.players()) {
             final ServerLocation location = player.serverLocation();
-            if (location.inWorld(world)) {
-                double x = location.x();
-                double y = location.y();
-                double z = location.z();
-                boolean hit = x >= minX && x <= maxX && y >= minY && y <= maxY && z >= minZ && z <= maxZ;
-                if (hit) {
-                    this.effectedPlayer = player;
-                }
-                return hit;
+            if (!location.inWorld(world)) {
+                continue;
+            }
+            final double x = location.x();
+            final double y = location.y();
+            final double z = location.z();
+            if (x >= minX && x <= maxX && y >= minY && y <= maxY && z >= minZ && z <= maxZ) {
+                playerInBox = player;
+                break;
             }
         }
-        return false;
+        this.effectedPlayer = playerInBox;
+        return playerInBox != null;
     }
 
     @Override public Player getEffectedPlayer() {

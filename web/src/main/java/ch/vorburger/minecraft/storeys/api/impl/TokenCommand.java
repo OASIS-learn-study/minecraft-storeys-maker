@@ -21,6 +21,7 @@ package ch.vorburger.minecraft.storeys.api.impl;
 import ch.vorburger.minecraft.storeys.japi.util.CommandExceptions;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.util.Command;
+import java.util.Optional;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -50,16 +51,17 @@ public class TokenCommand implements Command {
     }
 
     @Override public CommandResult execute(CommandContext args) throws CommandException {
-        if (args.cause().audience() instanceof Player) {
-            CommandExceptions.doOrThrow("loginURL", () -> {
-                Player player = (Player) args.cause().audience();
+        Optional<Player> player = args.cause().first(Player.class);
+        if (!player.isPresent()) {
+            return CommandResult.error(Component.text("Command source must be Player").color(NamedTextColor.RED));
+        }
+        CommandExceptions.doOrThrow("loginURL", () -> {
+            String token = tokenProvider.getCode(player.get());
 
-                String token = tokenProvider.getCode(player);
-
-                player.sendMessage(Component.text("Shift click here to insert your API Token to copy clipboard").color(NamedTextColor.GREEN)
-                        .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, token)));
-            });
-        } return CommandResult.success();
+            player.get().sendMessage(Component.text("Shift click here to insert your API Token to copy clipboard").color(NamedTextColor.GREEN)
+                    .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, token)));
+        });
+        return CommandResult.success();
     }
 
 }

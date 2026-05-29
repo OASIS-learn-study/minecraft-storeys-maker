@@ -26,10 +26,13 @@ import ch.vorburger.minecraft.storeys.japi.ReadingSpeed;
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.inject.Inject;
 import net.kyori.adventure.text.Component;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.scheduler.ScheduledTask;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.world.volume.entity.EntityVolume;
 import org.spongepowered.plugin.PluginContainer;
@@ -58,9 +61,11 @@ public class Narrator {
 
     public CompletionStage<Void> narrate(Entity entity, String text, ReadingSpeed readingSpeed) {
         CompletableFuture<Void> future = new CompletableFuture<>();
+        AtomicReference<ScheduledTask> scheduledTaskRef = new AtomicReference<>();
 
-        Task.builder().execute(new NarratorTask(entity, splitter.split(maxLength, text), future))
-                .interval(readingSpeed.msToRead(maxLength), MILLISECONDS).plugin(plugin);
+        NarratorTask narratorTask = new NarratorTask(entity, splitter.split(maxLength, text), future, scheduledTaskRef);
+        Task task = Task.builder().execute(narratorTask).interval(readingSpeed.msToRead(maxLength), MILLISECONDS).plugin(plugin).build();
+        scheduledTaskRef.set(Sponge.server().scheduler().submit(task));
 
         return future;
     }
@@ -71,11 +76,14 @@ public class Narrator {
         private final Iterator<String> splitText;
         private final CompletableFuture<Void> future;
         private final Value.Mutable<Component> originalDisplayName;
+        private final AtomicReference<ScheduledTask> scheduledTaskRef;
 
-        public NarratorTask(Entity entity, Iterable<String> splitText, CompletableFuture<Void> future) {
+        public NarratorTask(Entity entity, Iterable<String> splitText, CompletableFuture<Void> future,
+                AtomicReference<ScheduledTask> scheduledTaskRef) {
             this.entity = entity;
             this.splitText = splitText.iterator();
             this.future = future;
+            this.scheduledTaskRef = scheduledTaskRef;
 
             // Make sure name can always be seen, even if we are not closely look at entity
             entity.offer(IS_CUSTOM_NAME_VISIBLE, true);
@@ -91,7 +99,10 @@ public class Narrator {
                 // Must reset name, so that NamedObjects can find Entity again next time (after restart)
                 entity.offer(DISPLAY_NAME, originalDisplayName.get());
                 future.complete(null);
-                // task.cancel();
+                ScheduledTask scheduledTask = scheduledTaskRef.get();
+                if (scheduledTask != null) {
+                    scheduledTask.cancel();
+                }
             }
         }
     }

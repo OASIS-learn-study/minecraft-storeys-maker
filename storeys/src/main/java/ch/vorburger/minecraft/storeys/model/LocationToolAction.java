@@ -51,9 +51,7 @@ public class LocationToolAction implements Action<Void> {
     }
 
     public void createTool(Player player) {
-        final ItemStack itemInHand = locationEventCreateTool();
-        itemInHand.offer(Keys.LORE, singletonList(Component.text(name)));
-        player.setItemInHand(HandTypes.MAIN_HAND, itemInHand);
+        player.setItemInHand(HandTypes.MAIN_HAND, locationToolStack(name));
         // TODO translation?
         player.sendMessage(Component.text("use this axe to draw the the points where the player should enter")
                 .color(NamedTextColor.YELLOW));
@@ -63,8 +61,25 @@ public class LocationToolAction implements Action<Void> {
     }
 
     public static ItemStack locationEventCreateTool() {
-        final ItemStack item = ItemStack.builder().itemType(ItemTypes.IRON_AXE).build();
-        item.offer(Keys.DISPLAY_NAME, Component.text("Location tool").color(NamedTextColor.BLUE));
-        return item;
+        return locationToolStack("");
+    }
+
+    public static boolean isLocationToolStack(ItemStack itemStack) {
+        return !itemStack.isEmpty()
+                && ItemTypes.IRON_AXE.get().equals(itemStack.type())
+                && itemStack.get(Keys.LORE).map(lore -> !lore.isEmpty()).orElse(false);
+    }
+
+    public static ItemStack locationToolStack(String locationName) {
+        final Component toolName = Component.text("Location tool").color(NamedTextColor.BLUE);
+        ItemStack.Builder builder = ItemStack.builder()
+                .itemType(ItemTypes.IRON_AXE)
+                .add(Keys.CUSTOM_NAME, toolName)
+                .add(Keys.DISPLAY_NAME, toolName)
+                .add(Keys.IS_CUSTOM_NAME_VISIBLE, true);
+        if (locationName != null && !locationName.isEmpty()) {
+            builder.add(Keys.LORE, singletonList(Component.text(locationName)));
+        }
+        return builder.build();
     }
 }

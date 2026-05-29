@@ -22,6 +22,7 @@ import ch.vorburger.minecraft.storeys.japi.util.CommandExceptions;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.util.Command;
 import java.net.URL;
+import java.util.Optional;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -70,21 +71,19 @@ public class LoginCommand implements Command {
     }
 
     @Override public CommandResult execute(CommandContext args) throws CommandException {
-        Object src = args.associatedObject().orElseGet(null);
-        if (src instanceof Player) {
-            CommandExceptions.doOrThrow("loginURL", () -> {
-                Player player = (Player) src;
-
-                String code = tokenProvider.getCode(player);
-                String url = String.format("%s?code=%s", scratchGui, code);
-
-                player.sendMessage(
-                        Component.text("Click here to open a browser and start MAKE actions").clickEvent(ClickEvent.openUrl(new URL(url)))
-                                .color(NamedTextColor.GOLD));
-            });
-            return CommandResult.success();
+        Optional<Player> player = args.cause().first(Player.class);
+        if (!player.isPresent()) {
+            return CommandResult.error(Component.text("Command source must be Player").color(NamedTextColor.RED));
         }
-        return CommandResult.error(Component.text("Command source must be Player").color(NamedTextColor.RED));
+        CommandExceptions.doOrThrow("loginURL", () -> {
+            String code = tokenProvider.getCode(player.get());
+            String url = String.format("%s?code=%s", scratchGui, code);
+
+            player.get().sendMessage(
+                    Component.text("Click here to open a browser and start MAKE actions").clickEvent(ClickEvent.openUrl(new URL(url)))
+                            .color(NamedTextColor.GOLD));
+        });
+        return CommandResult.success();
     }
 
 }

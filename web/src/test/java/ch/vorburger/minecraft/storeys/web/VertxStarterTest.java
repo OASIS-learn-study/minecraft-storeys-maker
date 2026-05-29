@@ -25,6 +25,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Paths;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.spongepowered.plugin.PluginContainer;
 
 /**
  * Test the {@link VertxStarter}.
@@ -43,7 +45,8 @@ public class VertxStarterTest {
     // under static/), but it does pass on the build
     public final void testStaticWebContent() throws Exception {
         VertxStarter vertxStarter = new VertxStarter();
-        vertxStarter.deployVerticle(new StaticWebServerVerticle(Paths.get("/tmp"), 3030, null)).toCompletableFuture().get();
+        vertxStarter.deployVerticle(new StaticWebServerVerticle(Paths.get("/tmp"), 3030, null,
+                Mockito.mock(PluginContainer.class))).toCompletableFuture().get();
         assertHTTP("http://localhost:3030/nok", 404);
         assertHTTP("http://localhost:3030/index.html", 200);
         vertxStarter.stop();
@@ -59,7 +62,8 @@ public class VertxStarterTest {
     public static void main(String[] args) throws Exception {
         VertxStarter vertxStarter = new VertxStarter();
 
-        vertxStarter.deployVerticle(new StaticWebServerVerticle(Paths.get("/tmp/config/storeys-web"), 7070, null)).toCompletableFuture().get();
+        vertxStarter.deployVerticle(new StaticWebServerVerticle(Paths.get("/tmp/config/storeys-web"), 7070, null,
+                Mockito.mock(PluginContainer.class))).toCompletableFuture().get();
 
         Mains.waitForEnter();
 

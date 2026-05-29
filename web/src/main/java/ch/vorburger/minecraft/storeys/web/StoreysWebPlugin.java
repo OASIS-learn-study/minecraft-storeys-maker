@@ -27,20 +27,18 @@ import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Server;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.Command;
-import org.spongepowered.api.command.registrar.CommandRegistrar;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
 import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
-import org.spongepowered.api.scheduler.Scheduler;
+import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.loader.ConfigurationLoader;
 import org.spongepowered.plugin.builtin.jvm.Plugin;
@@ -53,47 +51,74 @@ import org.spongepowered.plugin.builtin.jvm.Plugin;
     @Inject @ConfigDir(sharedRoot = false) private Path configDir;
     @Inject @DefaultConfig(sharedRoot = true) private ConfigurationLoader<CommentedConfigurationNode> configurationLoader;
 
+    private VertxStarter vertxStarter;
+    private Injector webInjector;
+    private final TokenProvider tokenProvider = new TokenProviderImpl();
+
     @Listener public final void onGameStartingServer(StartingEngineEvent<Server> event) throws Exception {
         LOG.info("See https://github.com/OASIS-learn-study/minecraft-storeys-maker for how to use /story and /narrate commands");
         start(this, configDir);
     }
 
+    @Listener public final void onGameStoppingServer(StoppingEngineEvent<Server> event) throws Exception {
+        stopWeb();
+        stopScripts();
+        webInjector = null;
+    }
+
+    @Override @Listener public void register(RegisterCommandEvent<Command.Parameterized> event) {
+        super.register(event);
+        registerWebCommands(event);
+    }
+
     @Override public void start(PluginInstance plugin, Path configDir) {
         super.start(plugin, configDir);
 
-        Injector injector = pluginInjector.createChildInjector(binder -> {
-            binder.bind(TokenProvider.class).to(TokenProviderImpl.class);
-            // TODO read from some configuration
-            binder.bind(Integer.class).annotatedWith(Names.named("http-port")).toInstance(8080);
-            binder.bind(Integer.class).annotatedWith(Names.named("web-http-port")).toInstance(7070);
-            binder.bind(new TypeLiteral<ConfigurationLoader<CommentedConfigurationNode>>() {
-            }).toInstance(configurationLoader);
-            binder.bind(LocationToolListener.class);
-            binder.bind(Scheduler.class).toInstance(Sponge.asyncScheduler());
-        });
+        Injector injector = ensureWebInjector(plugin);
+        // Eagerly instantiate listener so it registers block interaction handlers and loads saved locations.
+        injector.getInstance(LocationToolListener.class);
         StaticWebServerVerticle staticWebServerVerticle = injector.getInstance(StaticWebServerVerticle.class);
 
-        TokenProvider tokenProvider = injector.getInstance(TokenProvider.class);
+        try {
+            vertxStarter = new VertxStarter();
+            vertxStarter.deployVerticle(staticWebServerVerticle).toCompletableFuture().get();
+        } catch (ExecutionException | InterruptedException e) {
+            try {
+                stopWeb();
+            } catch (Exception stopFailure) {
+                e.addSuppressed(stopFailure);
+            }
+            throw new IllegalStateException("Vert.x start-up failed", e);
+        }
+    }
+
+    private Injector ensureWebInjector(PluginInstance plugin) {
+        if (webInjector == null) {
+            webInjector = ensureCommandsInjector(plugin).createChildInjector(binder -> {
+                binder.bind(TokenProvider.class).toInstance(tokenProvider);
+                // PluginContainer is already bound by Sponge's PluginModule
+                // TODO read from some configuration
+                binder.bind(Integer.class).annotatedWith(Names.named("http-port")).toInstance(8080);
+                binder.bind(Integer.class).annotatedWith(Names.named("web-http-port")).toInstance(7070);
+                binder.bind(new TypeLiteral<ConfigurationLoader<CommentedConfigurationNode>>() {
+                }).toInstance(configurationLoader);
+                binder.bind(LocationToolListener.class);
+            });
+        }
+        return webInjector;
+    }
+
+    private void registerWebCommands(RegisterCommandEvent<Command.Parameterized> event) {
         LoginCommand loginCommand = new LoginCommand(tokenProvider);
         TokenCommand tokenCommand = new TokenCommand(tokenProvider);
+        event.register(getPluginContainer(), loginCommand.createCommand(), loginCommand.getName(), loginCommand.aliases());
+        event.register(getPluginContainer(), tokenCommand.createCommand(), tokenCommand.getName(), tokenCommand.aliases());
+    }
 
-        final Optional<CommandRegistrar<Command.Parameterized>> registrar = Sponge.server().commandManager().registrar(Command.Parameterized.class);
-        final CommandRegistrar<Command.Parameterized> commandRegistrar = registrar.get();
-        commandRegistrar.register(plugin.getPluginContainer(), loginCommand.createCommand(), loginCommand.getName(), loginCommand.aliases());
-        commandRegistrar.register(plugin.getPluginContainer(), tokenCommand.createCommand(), tokenCommand.getName(), tokenCommand.aliases());
-        try {
-            try {
-                VertxStarter vertxStarter = new VertxStarter();
-                vertxStarter.deployVerticle(staticWebServerVerticle).toCompletableFuture().get();
-
-            } catch (ExecutionException | InterruptedException e) {
-                throw new IllegalStateException("Vert.x start-up failed", e);
-            }
-        } catch (RuntimeException e) {
-            // If something went wrong during the Vert.x set up, we must unregister the commands registered in super.start()
-            // so that, under OSGi, we'll manage to cleanly restart when whatever problem caused the start up to fail is fixed
-            // again.
-            throw e;
+    private void stopWeb() throws Exception {
+        if (vertxStarter != null) {
+            vertxStarter.stop();
+            vertxStarter = null;
         }
     }
 }
