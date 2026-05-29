@@ -18,14 +18,15 @@
  */
 package ch.vorburger.minecraft.storeys.japi.impl.actions;
 
-import static org.spongepowered.api.data.key.Keys.DISPLAY_NAME;
-
+import ch.vorburger.minecraft.storeys.japi.util.ComponentTexts;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.Entity;
-import org.spongepowered.api.world.extent.EntityUniverse;
+import org.spongepowered.api.world.volume.entity.EntityVolume;
 
 public class NamedObjects {
 
@@ -40,9 +41,10 @@ public class NamedObjects {
 
     private static final Logger LOG = LoggerFactory.getLogger(NamedObjects.class);
 
-    public Optional<Entity> getEntity(EntityUniverse entityUniverse, String entityName) {
-        Collection<Entity> entities = entityUniverse
-                .getEntities(entity -> entity.get(DISPLAY_NAME).filter(name -> entityName.equals(name.toPlain())).isPresent());
+    public Optional<Entity> getEntity(EntityVolume.Modifiable entityUniverse, String entityName) {
+        Collection<Entity> entities = entityUniverse.entities().stream()
+                .filter(entity -> entity.get(Keys.DISPLAY_NAME).map(name -> ComponentTexts.plainEquals(name, entityName)).orElse(false))
+                .collect(Collectors.toList());
         // entities.removeIf(entity -> entity instanceof Player);
         if (entities.isEmpty()) {
             return Optional.empty();

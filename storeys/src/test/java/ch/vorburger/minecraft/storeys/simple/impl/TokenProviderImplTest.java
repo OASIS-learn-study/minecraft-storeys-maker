@@ -27,6 +27,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.profile.GameProfile;
 
 public class TokenProviderImplTest {
 
@@ -39,14 +40,15 @@ public class TokenProviderImplTest {
     @Test public void getCode() {
         // given
         final Player player = mock(Player.class);
-        final String uuid = UUID.randomUUID().toString();
+        final UUID uuid = UUID.randomUUID();
 
         // when
-        when(player.getIdentifier()).thenReturn(uuid);
+        when(player.identity()).thenReturn(mock(GameProfile.class));
+        when(player.identity().uuid()).thenReturn(uuid);
         final String code = tokenProvider.getCode(player);
 
         // then
-        assertEquals(uuid, tokenProvider.login(code));
+        assertEquals(uuid.toString(), tokenProvider.login(code));
     }
 
     @Test(expected = NotLoggedInException.class) public void shouldThrowWhenNotValidLogin() {
@@ -58,14 +60,16 @@ public class TokenProviderImplTest {
         // given
         tokenProvider = new TokenProviderImpl(100, TimeUnit.MILLISECONDS, TimeUnit.SECONDS.toMillis(1));
         Player player = mock(Player.class);
-        final String uuid = UUID.randomUUID().toString();
+        final UUID uuid = UUID.randomUUID();
 
         // when
-        when(player.getIdentifier()).thenReturn(uuid);
+        when(player.identity()).thenReturn(mock(GameProfile.class));
+        when(player.identity().uuid()).thenReturn(uuid);
         final String code = tokenProvider.getCode(player);
         Thread.sleep(1100);
+        final String token = tokenProvider.login(code);
 
         // then
-        tokenProvider.login(code);
+        assertEquals(uuid, tokenProvider.login(code));
     }
 }

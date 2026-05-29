@@ -21,29 +21,30 @@ package ch.vorburger.minecraft.storeys.japi.impl.actions;
 import static java.util.Objects.requireNonNull;
 
 import ch.vorburger.minecraft.storeys.japi.Action;
-import org.spongepowered.api.text.Text;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 
 public abstract class TextAction<T> implements Action<T> {
 
-    private Text text;
+    private TextComponent text;
 
     protected TextAction() {
     }
 
-    public Text getText() {
+    public TextComponent getText() {
         return requireNonNull(text, "text");
     }
 
-    public TextAction<T> setText(Text text) {
+    public TextAction<T> setText(TextComponent text) {
         this.text = text;
         return this;
     }
 
     @Override public void setParameter(String param) {
         if (text == null) {
-            text = Text.of(param);
+            text = Component.text().content(param).build();
         } else {
-            text = text.concat(Text.NEW_LINE).concat(Text.of(param));
+            text = text.append(Component.newline().content(param));
         }
     }
 

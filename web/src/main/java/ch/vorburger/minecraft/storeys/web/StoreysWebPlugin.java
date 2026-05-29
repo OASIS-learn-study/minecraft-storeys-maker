@@ -18,83 +18,107 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
-import ch.vorburger.minecraft.osgi.api.Listeners;
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.api.impl.TokenCommand;
 import ch.vorburger.minecraft.storeys.plugin.AbstractStoreysPlugin;
+import ch.vorburger.minecraft.storeys.plugin.PluginInstance;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.simple.impl.TokenProviderImpl;
-import ch.vorburger.minecraft.storeys.util.Commands;
 import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
-import ninja.leaping.configurate.commented.CommentedConfigurationNode;
-import ninja.leaping.configurate.loader.ConfigurationLoader;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandMapping;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spongepowered.api.Server;
+import org.spongepowered.api.command.Command;
+import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
-import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
+import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
+import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.loader.ConfigurationLoader;
+import org.spongepowered.plugin.builtin.jvm.Plugin;
 
-@Plugin(id = "storeys-web", name = "Vorburger.ch's Storeys with Web API", version = "1.0", description = "Makes entities narrate story lines so you can make your own movie in Minecraft", url = "https://github.com/OASIS-learn-study/minecraft-storeys-maker", authors = "Michael Vorburger.ch")
-public class StoreysWebPlugin extends AbstractStoreysPlugin implements Listeners {
+@Plugin("storeys") public class StoreysWebPlugin extends AbstractStoreysPlugin {
     // do not extend StoreysPlugin, because we exclude that class in shadowJar
 
+    private static final Logger LOG = LoggerFactory.getLogger(StoreysWebPlugin.class);
+
+    @Inject @ConfigDir(sharedRoot = false) private Path configDir;
+    @Inject @DefaultConfig(sharedRoot = true) private ConfigurationLoader<CommentedConfigurationNode> configurationLoader;
+
     private VertxStarter vertxStarter;
-    private CommandMapping loginCommandMapping;
-    private CommandMapping tokenCommandMapping;
+    private Injector webInjector;
+    private final TokenProvider tokenProvider = new TokenProviderImpl();
 
-    @Inject
-    @DefaultConfig(sharedRoot = true) private ConfigurationLoader<CommentedConfigurationNode> configurationLoader;
+    @Listener public final void onGameStartingServer(StartingEngineEvent<Server> event) throws Exception {
+        LOG.info("See https://github.com/OASIS-learn-study/minecraft-storeys-maker for how to use /story and /narrate commands");
+        start(this, configDir);
+    }
 
-    @Override public void start(PluginInstance plugin, Path configDir) throws Exception {
+    @Listener public final void onGameStoppingServer(StoppingEngineEvent<Server> event) throws Exception {
+        stopWeb();
+        stopScripts();
+        webInjector = null;
+    }
+
+    @Override @Listener public void register(RegisterCommandEvent<Command.Parameterized> event) {
+        super.register(event);
+        registerWebCommands(event);
+    }
+
+    @Override public void start(PluginInstance plugin, Path configDir) {
         super.start(plugin, configDir);
 
-        Injector injector = pluginInjector.createChildInjector(binder -> {
-            binder.bind(TokenProvider.class).to(TokenProviderImpl.class);
-            // TODO read from some configuration
-            binder.bind(Integer.class).annotatedWith(Names.named("http-port")).toInstance(8080);
-            binder.bind(Integer.class).annotatedWith(Names.named("web-http-port")).toInstance(7070);
-            binder.bind(new TypeLiteral<ConfigurationLoader<CommentedConfigurationNode>>() {
-            }).toInstance(configurationLoader);
-            binder.bind(LocationToolListener.class);
-        });
+        Injector injector = ensureWebInjector(plugin);
+        // Eagerly instantiate listener so it registers block interaction handlers and loads saved locations.
+        injector.getInstance(LocationToolListener.class);
         StaticWebServerVerticle staticWebServerVerticle = injector.getInstance(StaticWebServerVerticle.class);
 
-        TokenProvider tokenProvider = injector.getInstance(TokenProvider.class);
-        loginCommandMapping = Commands.register(plugin, new LoginCommand(tokenProvider));
-        tokenCommandMapping = Commands.register(plugin, new TokenCommand(tokenProvider));
-
         try {
+            vertxStarter = new VertxStarter();
+            vertxStarter.deployVerticle(staticWebServerVerticle).toCompletableFuture().get();
+        } catch (ExecutionException | InterruptedException e) {
             try {
-                vertxStarter = new VertxStarter();
-                vertxStarter.deployVerticle(staticWebServerVerticle).toCompletableFuture().get();
-
-            } catch (ExecutionException | InterruptedException e) {
-                throw new IllegalStateException("Vert.x start-up failed", e);
+                stopWeb();
+            } catch (Exception stopFailure) {
+                e.addSuppressed(stopFailure);
             }
-        } catch (RuntimeException e) {
-            // If something went wrong during the Vert.x set up, we must unregister the commands registered in super.start()
-            // so that, under OSGi, we'll manage to cleanly restart when whatever problem caused the start up to fail is fixed
-            // again.
-            super.stop();
-            throw e;
+            throw new IllegalStateException("Vert.x start-up failed", e);
         }
     }
 
-    @Override public void stop() throws Exception {
-        if (loginCommandMapping != null) {
-            Sponge.getCommandManager().removeMapping(loginCommandMapping);
+    private Injector ensureWebInjector(PluginInstance plugin) {
+        if (webInjector == null) {
+            webInjector = ensureCommandsInjector(plugin).createChildInjector(binder -> {
+                binder.bind(TokenProvider.class).toInstance(tokenProvider);
+                // PluginContainer is already bound by Sponge's PluginModule
+                // TODO read from some configuration
+                binder.bind(Integer.class).annotatedWith(Names.named("http-port")).toInstance(8080);
+                binder.bind(Integer.class).annotatedWith(Names.named("web-http-port")).toInstance(7070);
+                binder.bind(new TypeLiteral<ConfigurationLoader<CommentedConfigurationNode>>() {
+                }).toInstance(configurationLoader);
+                binder.bind(LocationToolListener.class);
+            });
         }
-        if (tokenCommandMapping != null) {
-            Sponge.getCommandManager().removeMapping(tokenCommandMapping);
-        }
+        return webInjector;
+    }
+
+    private void registerWebCommands(RegisterCommandEvent<Command.Parameterized> event) {
+        LoginCommand loginCommand = new LoginCommand(tokenProvider);
+        TokenCommand tokenCommand = new TokenCommand(tokenProvider);
+        event.register(getPluginContainer(), loginCommand.createCommand(), loginCommand.getName(), loginCommand.aliases());
+        event.register(getPluginContainer(), tokenCommand.createCommand(), tokenCommand.getName(), tokenCommand.aliases());
+    }
+
+    private void stopWeb() throws Exception {
         if (vertxStarter != null) {
             vertxStarter.stop();
+            vertxStarter = null;
         }
-        super.stop();
     }
-
 }

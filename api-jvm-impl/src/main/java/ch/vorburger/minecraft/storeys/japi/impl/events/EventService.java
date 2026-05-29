@@ -18,9 +18,9 @@
  */
 package ch.vorburger.minecraft.storeys.japi.impl.events;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.japi.PlayerInsideEvent;
 import ch.vorburger.minecraft.storeys.japi.impl.Unregisterable;
+import ch.vorburger.minecraft.storeys.japi.util.ComponentTexts;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -29,16 +29,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import net.kyori.adventure.text.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
-import org.spongepowered.api.event.network.ClientConnectionEvent.Join;
-import org.spongepowered.api.text.Text;
+import org.spongepowered.api.event.network.ServerSideConnectionEvent;
+import org.spongepowered.plugin.PluginContainer;
 
 @Singleton public class EventService implements AutoCloseable {
 
@@ -56,17 +57,17 @@ import org.spongepowered.api.text.Text;
     }
 
     // @Inject PluginInstance cannot work, so we use explicit "setter injection"
-    public void setPluginInstance(PluginInstance plugin) {
-        eventManager.registerListeners(plugin, this);
+    public void setPluginContainer(PluginContainer pluginContainer) {
+        eventManager.registerListeners(pluginContainer, this);
         // TODO InteractItemEvent ?
     }
 
     @Override public void close() throws Exception {
     }
 
-    @Listener public void onPlayerJoin(Join event) throws Exception {
+    @Listener public void onPlayerJoin(ServerSideConnectionEvent.Join event) throws Exception {
         for (Callback callback : onPlayerJoinCallbacks) {
-            callback.call(event.getTargetEntity());
+            callback.call(event.player());
         }
     }
 
@@ -87,8 +88,7 @@ import org.spongepowered.api.text.Text;
     }
 
     public Unregisterable registerInsideLocation(String locationName, Callback callback) {
-        Collection<Callback> callbacks = onPlayerInsideCallbacks.computeIfAbsent(locationName,
-                name -> new ConcurrentLinkedQueue<>());
+        Collection<Callback> callbacks = onPlayerInsideCallbacks.computeIfAbsent(locationName, name -> new ConcurrentLinkedQueue<>());
         return add(callbacks, callback);
     }
 
@@ -106,15 +106,21 @@ import org.spongepowered.api.text.Text;
 
     @Listener public void onInteractEntityEvent(InteractEntityEvent event) {
         // TODO This is bad, it means that entities are only recognized by name if they are not narrating..
-        Optional<Text> optEntityNameText = event.getTargetEntity().get(Keys.DISPLAY_NAME);
+        Optional<Component> optEntityNameText = event.entity().get(Keys.DISPLAY_NAME);
         LOG.debug("InteractEntityEvent: entityName={}; event={}", optEntityNameText, event);
         optEntityNameText.ifPresent(entityNameText -> {
-            Collection<Callback> callbacks = onInteractEntityEventCallbacks.getOrDefault(entityNameText.toPlain(), Collections.emptySet());
+            String entityName = ComponentTexts.plainText(entityNameText);
+            Collection<Callback> callbacks = onInteractEntityEventCallbacks.getOrDefault(entityName, Collections.emptySet());
+            Optional<Player> player = event.cause().first(Player.class);
+            if (!player.isPresent()) {
+                LOG.debug("InteractEntityEvent without player cause: entityName={}; event={}", entityName, event);
+                return;
+            }
             for (Callback callback : callbacks) {
                 try {
-                    callback.call(event.getCause().last(Player.class).orElse(null));
+                    callback.call(player.get());
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    LOG.error("InteractEntity callback failure for entity {}", entityName, e);
                 }
             }
         });

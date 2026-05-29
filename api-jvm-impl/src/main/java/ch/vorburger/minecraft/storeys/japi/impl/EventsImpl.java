@@ -18,7 +18,6 @@
  */
 package ch.vorburger.minecraft.storeys.japi.impl;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.japi.Callback;
 import ch.vorburger.minecraft.storeys.japi.Events;
 import ch.vorburger.minecraft.storeys.japi.ReadingSpeed;
@@ -26,17 +25,12 @@ import ch.vorburger.minecraft.storeys.japi.Script;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContextImpl;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionPlayer;
 import ch.vorburger.minecraft.storeys.japi.impl.events.EventService;
-import ch.vorburger.minecraft.storeys.japi.util.CommandExceptions;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import net.kyori.adventure.audience.Audience;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandMapping;
-import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.plugin.PluginContainer;
 
 /**
  * {@link Events} implementation.
@@ -49,8 +43,10 @@ class EventsImpl implements Events, Unregisterable {
 
     private static final Logger LOG = LoggerFactory.getLogger(EventsImpl.class);
 
-    private final PluginInstance plugin;
+    private final PluginContainer plugin;
     private final EventService eventService;
+    private final ScriptCommandRegistry commandRegistry;
+    private final Object scriptOwner;
 
     // when made modifiable, then this should be per Player
     private final ReadingSpeed readingSpeed = new ReadingSpeed();
@@ -58,22 +54,17 @@ class EventsImpl implements Events, Unregisterable {
     private final Collection<Unregisterable> unregistrables = new ConcurrentLinkedQueue<>();
     private final ActionPlayer player = new ActionPlayer();
 
-    EventsImpl(PluginInstance plugin, EventService eventService) {
+    EventsImpl(PluginContainer plugin, EventService eventService,
+            ScriptCommandRegistry commandRegistry, Object scriptOwner) {
         this.plugin = plugin;
         this.eventService = eventService;
+        this.commandRegistry = commandRegistry;
+        this.scriptOwner = scriptOwner;
     }
 
     @Override public void whenCommand(String name, Callback callback) {
-        CommandSpec spec = CommandSpec.builder().executor((src, args) -> {
-            CommandExceptions.doOrThrow("/" + name, () -> invokeCallback(src, callback));
-            return CommandResult.success();
-        }).build();
-        Optional<CommandMapping> opt = Sponge.getCommandManager().register(plugin, spec, name);
-        if (!opt.isPresent()) {
-            LOG.error("Could not register new command, because it's already present: /" + name);
-            return;
-        }
-        unregistrables.add(() -> Sponge.getCommandManager().removeMapping(opt.get()));
+        unregistrables.add(commandRegistry.register(scriptOwner, name,
+                audience -> invokeCallback(audience, callback)));
     }
 
     @Override public void whenPlayerJoins(Callback callback) {
@@ -109,9 +100,9 @@ class EventsImpl implements Events, Unregisterable {
         }
     }
 
-    private void invokeCallback(CommandSource source, Callback callback) throws Exception {
+    private void invokeCallback(Audience source, Callback callback) throws Exception {
         MinecraftJvmImpl m = new MinecraftJvmImpl(plugin, source);
         callback.invoke(m);
-        player.play(new ActionContextImpl(m.player(), readingSpeed), m.getActionList());
+        player.play(new ActionContextImpl(source, readingSpeed), m.getActionList());
     }
 }

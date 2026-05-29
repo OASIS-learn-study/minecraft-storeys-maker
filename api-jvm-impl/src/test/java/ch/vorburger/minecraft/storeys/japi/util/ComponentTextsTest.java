@@ -18,30 +18,22 @@
  */
 package ch.vorburger.minecraft.storeys.japi.util;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.junit.Test;
 
-/**
- * Utilities for {@link TextComponent}.
- *
- * @author Michael Vorburger.ch
- */
-public final class Texts {
+public class ComponentTextsTest {
 
-    // Copy/pasted from https://github.com/vorburger/ch.vorburger.minecraft.osgi/blob/master/ch.vorburger.minecraft.osgi.api/src/main/java/ch/vorburger/minecraft/utils/Texts.java 
-
-    private Texts() {
+    @Test public void plainTextStripsFormatting() {
+        Component styled = Component.text("Piggy").color(NamedTextColor.GOLD);
+        assertTrue(ComponentTexts.plainEquals(styled, "Piggy"));
+        assertFalse(ComponentTexts.plainEquals(styled, "piggy"));
     }
 
-    public static TextComponent fromThrowable(String prefix, Throwable throwable) {
-        // TODO have a Player isDeveloper flag (or Permission, probably..)
-        // developers get to see the cause stack trace? ;) Noob do not.
-        return Component.text().color(NamedTextColor.RED).content(prefix + throwable.getMessage()).build();
-        // TODO add StackTrace here - with links being able to click on to jump into sources!!!
-    }
-
-    public static TextComponent inRed(String content) {
-        return Component.text().color(NamedTextColor.RED).content(content).build();
+    @Test public void plainEqualsMatchesUnstyledText() {
+        assertTrue(ComponentTexts.plainEquals(Component.text("Alice"), "Alice"));
     }
 }

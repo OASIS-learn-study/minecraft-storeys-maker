@@ -18,28 +18,39 @@
  */
 package ch.vorburger.minecraft.storeys.japi.impl.actions;
 
-import ch.vorburger.minecraft.storeys.japi.util.Texts;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.util.TextMessageException;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 
-public class ActionException extends TextMessageException {
+public class ActionException extends Exception {
 
     private static final long serialVersionUID = 6261204063265579413L;
+    private final TextComponent message;
 
-    public ActionException(Text message) {
-        super(message);
+    public ActionException(TextComponent message) {
+        this.message = (message);
     }
 
-    public ActionException(Text message, Throwable throwable) {
-        super(message, throwable);
+    public ActionException(TextComponent message, Throwable throwable) {
+        super(throwable);
+        this.message = message;
     }
 
     public ActionException(String message) {
-        this(Texts.inRed(message));
+        this(Component.text(message).color(NamedTextColor.RED));
     }
 
     public ActionException(String message, Throwable throwable) {
-        this(Texts.inRed(message), throwable);
+        this(Component.text(message).color(NamedTextColor.RED), throwable);
+    }
+
+    public String getMessage() {
+        TextComponent message = getText();
+        return message == null ? null : message.content();
+    }
+
+    public TextComponent getText() {
+        return this.message;
     }
 
 }

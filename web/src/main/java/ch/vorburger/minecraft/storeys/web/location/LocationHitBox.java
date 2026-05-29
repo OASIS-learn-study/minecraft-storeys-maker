@@ -18,34 +18,33 @@
  */
 package ch.vorburger.minecraft.storeys.web.location;
 
-import com.google.common.reflect.TypeToken;
+import io.leangen.geantyref.TypeToken;
 import java.util.UUID;
-import ninja.leaping.configurate.objectmapping.Setting;
-import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 import org.apache.commons.lang3.tuple.Pair;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.server.ServerLocation;
+import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.Setting;
 
 @ConfigSerializable
 public class LocationHitBox {
-    public static TypeToken<LocationHitBox> TYPE = TypeToken.of(LocationHitBox.class);
+    public static TypeToken<LocationHitBox> TYPE = new TypeToken<LocationHitBox>(){};
 
     @Setting(value = "player") private UUID playerUUID;
 
     @Setting(value = "name") private String name;
 
-    @Setting(value = "hitbox") private Pair<Location<World>, Location<World>> box;
+    @Setting(value = "hitbox") private Pair<ServerLocation, ServerLocation> box;
 
     public LocationHitBox() {
     }
 
-    public LocationHitBox(UUID playerUUID, String name, Pair<Location<World>, Location<World>> box) {
+    public LocationHitBox(UUID playerUUID, String name, Pair<ServerLocation, ServerLocation> box) {
         this.playerUUID = playerUUID;
         this.name = name;
         this.box = box;
     }
 
-    public Pair<Location<World>, Location<World>> getBox() {
+    public Pair<ServerLocation, ServerLocation> getBox() {
         return box;
     }
 

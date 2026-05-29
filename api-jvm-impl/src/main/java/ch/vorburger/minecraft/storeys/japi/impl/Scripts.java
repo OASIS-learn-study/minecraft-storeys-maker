@@ -18,7 +18,6 @@
  */
 package ch.vorburger.minecraft.storeys.japi.impl;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.japi.Script;
 import ch.vorburger.minecraft.storeys.japi.impl.events.EventService;
 import java.util.Collection;
@@ -26,21 +25,25 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.spongepowered.plugin.PluginContainer;
 
 @Singleton
 public class Scripts {
 
     private final Map<Object, Unregisterable> unregisterables = new ConcurrentHashMap<>();
-    private final PluginInstance plugin;
+    private final PluginContainer plugin;
     private final EventService eventService;
+    private final ScriptCommandRegistry commandRegistry;
 
-    @Inject public Scripts(PluginInstance plugin, EventService eventService) {
+    @Inject public Scripts(PluginContainer plugin, EventService eventService,
+            ScriptCommandRegistry commandRegistry) {
         this.plugin = plugin;
         this.eventService = eventService;
+        this.commandRegistry = commandRegistry;
     }
 
     public void register(Object key, Script script) {
-        EventsImpl e = new EventsImpl(plugin, eventService);
+        EventsImpl e = new EventsImpl(plugin, eventService, commandRegistry, key);
         if (unregisterables.putIfAbsent(key, e) != null) {
             throw new IllegalArgumentException("Key already registered, must unregister() it first: " + key);
         }

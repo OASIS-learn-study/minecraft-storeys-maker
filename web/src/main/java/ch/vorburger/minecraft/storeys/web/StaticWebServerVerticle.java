@@ -22,9 +22,11 @@ import ch.vorburger.minecraft.storeys.model.LocationToolAction;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.simple.impl.NotLoggedInException;
 import com.google.common.io.Files;
+import io.vertx.core.Context;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.JWTOptions;
 import io.vertx.ext.auth.PubSecKeyOptions;
+import io.vertx.ext.auth.User;
 import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.ext.auth.jwt.JWTAuthOptions;
 import io.vertx.ext.web.FileUpload;
@@ -45,7 +47,8 @@ import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.plugin.PluginContainer;
 
 /**
  * Vert.x Verticle serving static content.
@@ -60,11 +63,14 @@ import org.spongepowered.api.entity.living.player.Player;
     private final Path configDir;
 
     private final TokenProvider tokenProvider;
+    private final PluginContainer pluginContainer;
 
-    @Inject public StaticWebServerVerticle(Path configDir, @Named("web-http-port") int httpPort, TokenProvider tokenProvider) {
+    @Inject public StaticWebServerVerticle(Path configDir, @Named("web-http-port") int httpPort, TokenProvider tokenProvider,
+            PluginContainer pluginContainer) {
         super(httpPort);
         webRoot = "static"; // = ../blockly/dist/
         this.tokenProvider = tokenProvider;
+        this.pluginContainer = pluginContainer;
         this.configDir = Objects.requireNonNull(configDir, "configDir == null");
     }
 
@@ -94,13 +100,46 @@ import org.spongepowered.api.entity.living.player.Player;
 
         router.route("/code/*").handler(JWTAuthHandler.create(authProvider));
 
+        router.route().failureHandler(ctx -> {
+            final Throwable failure = ctx.failure();
+            if (failure != null) {
+                LOG.error("HTTP {} {} failed with status {}", ctx.request().method(), ctx.request().path(),
+                        ctx.statusCode(), failure);
+            }
+        });
+
         router.route("/code/when_inside/:name").handler(ctx -> {
             final String name = ctx.request().getParam("name");
-            final String playerUUID = ctx.user().get("playerUUID");
-            final Player player = Sponge.getServer().getPlayer(UUID.fromString(playerUUID))
-                    .orElseThrow(() -> new IllegalArgumentException("No player logged in with uuid: " + playerUUID));
-            new LocationToolAction(name).createTool(player);
-            ctx.response().end();
+            final Context vertxContext = ctx.vertx().getOrCreateContext();
+            final String playerUuid = playerUuidFrom(ctx.user());
+            if (playerUuid == null || playerUuid.isEmpty()) {
+                LOG.warn("when_inside '{}': JWT has no playerUUID (re-login with /make in-game)", name);
+                ctx.fail(401);
+                return;
+            }
+            final UUID uuid;
+            try {
+                uuid = UUID.fromString(playerUuid);
+            } catch (IllegalArgumentException e) {
+                LOG.warn("when_inside '{}': invalid playerUUID '{}'", name, playerUuid, e);
+                ctx.fail(400);
+                return;
+            }
+            Sponge.server().scheduler().executor(pluginContainer).execute(() -> {
+                try {
+                    final ServerPlayer player = Sponge.server().player(uuid).orElse(null);
+                    if (player == null) {
+                        LOG.warn("when_inside '{}': player {} is not online", name, uuid);
+                        vertxContext.runOnContext(v -> ctx.fail(404));
+                        return;
+                    }
+                    new LocationToolAction(name).createTool(player);
+                    vertxContext.runOnContext(v -> ctx.response().end());
+                } catch (Exception e) {
+                    LOG.error("when_inside '{}': failed to give location tool to {}", name, uuid, e);
+                    vertxContext.runOnContext(v -> ctx.fail(e));
+                }
+            });
         });
 
         router.post("/code/upload").handler(ctx -> {
@@ -152,6 +191,17 @@ import org.spongepowered.api.entity.living.player.Player;
         router.route("/*").handler(
                 StaticHandler.create().setDirectoryListing(true).setWebRoot(webRoot).setCachingEnabled(false).setFilesReadOnly(false));
         LOG.info("Going to serve static web content from {} on port {}", webRoot, httpPort);
+    }
+
+    private static String playerUuidFrom(User user) {
+        if (user == null) {
+            return null;
+        }
+        final Object claim = user.get("playerUUID");
+        if (claim != null) {
+            return claim.toString();
+        }
+        return user.principal().getString("playerUUID");
     }
 
     private void fileUpload(Path uploadFolder, Set<FileUpload> fileUploads, File dest) throws IOException {

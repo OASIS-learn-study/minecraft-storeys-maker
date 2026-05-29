@@ -20,21 +20,22 @@ package ch.vorburger.minecraft.storeys.japi.impl.actions;
 
 import ch.vorburger.minecraft.storeys.japi.ActionContext;
 import ch.vorburger.minecraft.storeys.japi.ReadingSpeed;
-import org.spongepowered.api.command.CommandSource;
+import net.kyori.adventure.audience.Audience;
+import org.spongepowered.api.command.CommandCause;
 
 public final class ActionContextImpl implements ActionContext {
 
-    private final CommandSource commandSource;
+    private final Audience commandCause;
     private final ReadingSpeed readingSpeed;
 
-    public ActionContextImpl(CommandSource commandSource, ReadingSpeed readingSpeed) {
+    public ActionContextImpl(Audience commandCause, ReadingSpeed readingSpeed) {
         super();
-        this.commandSource = commandSource;
+        this.commandCause = commandCause;
         this.readingSpeed = readingSpeed;
     }
 
-    public CommandSource getCommandSource() {
-        return commandSource;
+    public Audience getCommandCause() {
+        return commandCause;
     }
 
     public ReadingSpeed getReadingSpeed() {
@@ -44,7 +45,7 @@ public final class ActionContextImpl implements ActionContext {
     @Override public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = (prime * result) + (commandSource == null ? 0 : commandSource.hashCode());
+        result = (prime * result) + (commandCause == null ? 0 : commandCause.hashCode());
         result = (prime * result) + (readingSpeed == null ? 0 : readingSpeed.hashCode());
         return result;
     }
@@ -60,11 +61,11 @@ public final class ActionContextImpl implements ActionContext {
             return false;
         }
         ActionContextImpl other = (ActionContextImpl) obj;
-        if (commandSource == null) {
-            if (other.commandSource != null) {
+        if (commandCause == null) {
+            if (other.commandCause != null) {
                 return false;
             }
-        } else if (!commandSource.equals(other.commandSource)) {
+        } else if (!commandCause.equals(other.commandCause)) {
             return false;
         }
         if (readingSpeed == null) {
@@ -74,7 +75,7 @@ public final class ActionContextImpl implements ActionContext {
     }
 
     @Override public String toString() {
-        return "ActionContext[commandSource=" + commandSource + ", readingSpeed=" + readingSpeed + "]";
+        return "ActionContext[commandSource=" + commandCause + ", readingSpeed=" + readingSpeed + "]";
     }
 
 }

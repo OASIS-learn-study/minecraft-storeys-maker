@@ -21,6 +21,7 @@ package ch.vorburger.minecraft.storeys.example;
 import ch.vorburger.minecraft.storeys.japi.Events;
 import ch.vorburger.minecraft.storeys.japi.Script;
 import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 /**
  * Example Script.
@@ -41,7 +42,7 @@ public class ExampleScript implements Script {
         });
         e.whenCommand("another", m -> {
             m.title("Namaste. Curry pour tous!");
-            if (!m.player().getInventory().contains(ItemTypes.FISHING_ROD)) {
+            if (!m.player().inventory().contains(ItemStack.of(ItemTypes.FISHING_ROD))) {
                 m.cmd("/say There may be a fishing rod hidden somewhere… look for it, and then catch a fish!");
             } else {
                 m.cmd("/say Go fishing with the rod in your inventory..");

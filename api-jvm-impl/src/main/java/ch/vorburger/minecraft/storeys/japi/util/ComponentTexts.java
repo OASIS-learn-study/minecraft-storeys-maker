@@ -16,18 +16,29 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ch.vorburger.minecraft.storeys.util;
+package ch.vorburger.minecraft.storeys.japi.util;
 
-import java.util.List;
-import org.spongepowered.api.command.CommandExecutor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
-public interface Command extends CommandExecutor {
+/**
+ * Adventure component helpers for stable string comparisons.
+ */
+public final class ComponentTexts {
 
-    org.spongepowered.api.command.Command.Parameterized createCommand();
+    private static final PlainTextComponentSerializer PLAIN = PlainTextComponentSerializer.plainText();
 
-    String getName();
+    private ComponentTexts() {
+    }
 
-    default String[] aliases() {
-        return new String[0];
+    public static String plainText(Component component) {
+        if (component == null) {
+            return "";
+        }
+        return PLAIN.serialize(component);
+    }
+
+    public static boolean plainEquals(Component left, String right) {
+        return plainText(left).equals(right);
     }
 }

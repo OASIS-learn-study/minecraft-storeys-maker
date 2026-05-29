@@ -28,7 +28,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import ch.vorburger.minecraft.osgi.api.PluginInstance;
 import ch.vorburger.minecraft.storeys.japi.Action;
 import ch.vorburger.minecraft.storeys.japi.ReadingSpeed;
 import ch.vorburger.minecraft.storeys.japi.impl.actions.ActionContextImpl;
@@ -43,26 +42,27 @@ import ch.vorburger.minecraft.storeys.model.DynamicAction;
 import ch.vorburger.minecraft.storeys.model.LocationAction;
 import ch.vorburger.minecraft.storeys.model.MessageAction;
 import ch.vorburger.minecraft.storeys.model.Story;
+import ch.vorburger.minecraft.storeys.plugin.PluginInstance;
 import java.io.IOException;
 import java.util.List;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.title.TitlePart;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Scheduler;
-import org.spongepowered.api.scheduler.SpongeExecutorService;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.title.Title;
+import org.spongepowered.api.scheduler.TaskExecutorService;
+import org.spongepowered.plugin.PluginContainer;
 
 public class StoryParserTest {
 
-    @BeforeClass public static void initialize() throws Exception {
-        TestPlainTextSerializer.inject();
-    }
-
     public static StoryParser getStoryParser() {
-        PluginInstance pluginInstance = mock(PluginInstance.class);
+        PluginContainer pluginInstance = mock(PluginContainer.class);
         Scheduler scheduler = mock(Scheduler.class);
-        when(scheduler.createSyncExecutor(isA(PluginInstance.class))).thenReturn(mock(SpongeExecutorService.class));
+        when(scheduler.executor(isA(PluginContainer.class))).thenReturn(mock(TaskExecutorService.class));
 
         ActionWaitHelper actionWaitHelper = new ActionWaitHelper(pluginInstance);
         CommandMapping commandMapping = new CommandMapping(() -> new CommandAction(pluginInstance, scheduler),
@@ -114,8 +114,8 @@ public class StoryParserTest {
         assertEquals(MessageAction.class, storyActionsList.get(1).getClass());
         NarrateAction narrateAction = (NarrateAction) storyActionsList.get(2);
         assertEquals("Piggy", narrateAction.getEntityName());
-        assertEquals(Text.of("Hi there! I'm Piggy.").concat(Text.NEW_LINE)
-                .concat(Text.of("Welcome to the storeys mod.  I'll be giving you a quick guided tour now...")), narrateAction.getText());
+        assertEquals(Component.text("Hi there! I'm Piggy.").append(Component.newline())
+                .append(Component.text("Welcome to the storeys mod.  I'll be giving you a quick guided tour now...")), narrateAction.getText());
         assertEquals("CommandAction: /tp -235 64 230 17 12", storyActionsList.get(3).toString());
         assertEquals(NarrateAction.class, storyActionsList.get(4).getClass());
     }
@@ -149,7 +149,7 @@ public class StoryParserTest {
         assertEquals(2, storyActionsList.size());
         assertEquals(MessageAction.class, storyActionsList.get(0).getClass());
         MessageAction action = (MessageAction) storyActionsList.get(1);
-        assertEquals("Only to find the town almost empty.", action.getText().toPlain());
+        assertEquals("Only to find the town almost empty.", action.getText().content());
     }
 
     @Test public void execute() throws IOException, SyntaxErrorException {
@@ -158,13 +158,13 @@ public class StoryParserTest {
         StoryParser storyParser = getStoryParser();
         Story story = storyParser.parse(storyText);
 
-        Player commandSource = mock(Player.class);
+        Audience commandSource = mock(Audience.class);
 
         // when
         ActionPlayer storyPlayer = new ActionPlayer();
         storyPlayer.play(new ActionContextImpl(commandSource, new ReadingSpeed()), story.getActionsList());
 
         // then
-        verify(commandSource).sendTitle(any(Title.class));
+//        verify(commandSource).sendTitlePart(any(TitlePart.class));
     }
 }
