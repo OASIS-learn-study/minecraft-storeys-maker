@@ -30,6 +30,7 @@ jobs:
       run: ./gradlew build -x test
 
   dependency-submission:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       contents: write
