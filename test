@@ -1,45 +1,68 @@
 #!/usr/bin/env bash
 set -euox pipefail
 
-docker rm -f -t=1 storeys || true
+if command -v podman >/dev/null 2>&1; then
+  CONTAINER=podman
+  VOL_SUFFIX=:Z
+else
+  CONTAINER=docker
+  VOL_SUFFIX=
+fi
+
+cleanup() {
+  if [ -n "${LOGS_PID:-}" ]; then
+    kill "$LOGS_PID" 2>/dev/null || true
+  fi
+  if [ "$CONTAINER" = podman ]; then
+    $CONTAINER rm -f -t=1 storeys 2>/dev/null || true
+  else
+    $CONTAINER rm -f storeys 2>/dev/null || true
+  fi
+}
+trap cleanup EXIT
+
+if [ "$CONTAINER" = podman ]; then
+  $CONTAINER rm -f -t=1 storeys || true
+else
+  $CONTAINER rm -f storeys || true
+fi
 
 ./make
 
 # Delete the stuff which the previous run of the tests created
-rm -f minecraft-server-test-data/config/storeys-web/workspace/a01e3843-e521-3998-958a-f459800e4d11
-rm -f minecraft-server-test-data/config/storeys-web/new-scripts/a01e3843-e521-3998-958a-f459800e4d11
+rm -f minecraft-server-test-data/config/storeys/workspace/a01e3843-e521-3998-958a-f459800e4d11
+rm -f minecraft-server-test-data/config/storeys/new-scripts/a01e3843-e521-3998-958a-f459800e4d11
 
-docker run --name storeys --detach --rm \
-    -e WORLD=/data/world-init \
-    -e OPS=5153e34b-c326-3040-ab45-048f8f35eb13,73551f35-7acb-45c0-bc65-8083c53eec69,fb79c1a9-72bd-34dc-9775-c2ac868d7ccf \
-    -e ONLINE_MODE=FALSE \
-    -v $PWD/minecraft-server-test-data:/data:Z -e UID=0 -e GID=0 \
-    -p 25565:25565 -p 8080:8080 -p 7070:7070 minecraft-storeys-maker
-
-docker logs -f storeys &
-
-RETRIES=90
-if [ $(command -v podman) ]; then
-  until docker healthcheck run storeys; do
-    RETRIES=$(($RETRIES - 1))
-      if [ $RETRIES -eq 0 ]; then
-          echo "Minecraft container failed to become healthy, giving up now"
-          exit 1
-      fi
-      sleep 1
-  done
-else
-  until [[ $(docker inspect --format='{{json .State.Health.Status}}' storeys) =~ healthy ]]; do
-    RETRIES=$(($RETRIES - 1))
-      if [ $RETRIES -eq 0 ]; then
-          echo "Minecraft container failed to become healthy, giving up now"
-          exit 1
-      fi
-      sleep 1
-  done
+# Sponge's download endpoint used by itzg/minecraft-server is broken; fetch the jar directly.
+SPONGE_JAR=minecraft-server-test-data/spongevanilla-1.16.5-8.2.0.jar
+if ! file "$SPONGE_JAR" 2>/dev/null | grep -qE 'Java archive|Zip archive'; then
+  rm -f minecraft-server-test-data/spongevanilla*.jar
+  curl -fsSL \
+    "https://repo.spongepowered.org/repository/maven-releases/org/spongepowered/spongevanilla/1.16.5-8.2.0/spongevanilla-1.16.5-8.2.0-universal.jar" \
+    -o "$SPONGE_JAR"
 fi
 
-docker run --network host --rm -v $PWD/test-mineflayer:/project:Z minecraft-storeys-maker-build bash -c "npm install && npm test"
+$CONTAINER run --name storeys --detach --rm \
+    -e WORLD=/data/world-init \
+    -e SPONGEVERSION=1.16.5-8.2.0 \
+    -e ONLINE_MODE=FALSE \
+    -v $PWD/minecraft-server-test-data:/data$VOL_SUFFIX -e UID=0 -e GID=0 \
+    -p 25565:25565 -p 8080:8080 -p 7070:7070 minecraft-storeys-maker
+
+$CONTAINER logs -f storeys &
+LOGS_PID=$!
+
+RETRIES=90
+until [ "$($CONTAINER inspect --format='{{.State.Health.Status}}' storeys 2>/dev/null)" = healthy ]; do
+  RETRIES=$(($RETRIES - 1))
+  if [ $RETRIES -eq 0 ]; then
+    echo "Minecraft container failed to become healthy, giving up now"
+    exit 1
+  fi
+  sleep 1
+done
+
+$CONTAINER run --network host --rm -v $PWD/test-mineflayer:/project$VOL_SUFFIX minecraft-storeys-maker-build bash -c "npm install && npx playwright install-deps chromium && npx playwright install chromium && npm test"
 
 # podman stop storeys
 

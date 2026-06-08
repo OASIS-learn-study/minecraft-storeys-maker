@@ -18,6 +18,8 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
+import static com.google.common.base.Charsets.UTF_8;
+
 import ch.vorburger.minecraft.storeys.model.LocationToolAction;
 import ch.vorburger.minecraft.storeys.simple.TokenProvider;
 import ch.vorburger.minecraft.storeys.simple.impl.NotLoggedInException;
@@ -178,11 +180,15 @@ import org.spongepowered.plugin.PluginContainer;
         router.get("/code/workspace").handler(ctx -> {
             final String playerUUID = ctx.user().get("playerUUID");
             final Path workspaceFile = workspace.resolve(playerUUID);
+            ctx.response().putHeader("Content-Type", "application/xml");
             if (java.nio.file.Files.exists(workspaceFile)) {
-                final String fileName = workspaceFile.toString();
-                ctx.response().sendFile(fileName).onFailure(t -> LOG.error("sendFile('{}') failed", fileName, t));
+                try {
+                    ctx.response().end(Files.asCharSource(workspaceFile.toFile(), UTF_8).read());
+                } catch (IOException e) {
+                    ctx.fail(e);
+                }
             } else {
-                ctx.fail(404);
+                ctx.response().end("<xml xmlns=\"http://www.w3.org/1999/xhtml\"></xml>");
             }
         });
 
