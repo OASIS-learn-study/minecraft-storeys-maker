@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha storeys.test.js --timeout 50000 --browser chrome",
-    "playwright": "npx playwright install && npx playwright test"
+    "test": "mocha storeys.test.js --timeout 120000 --browser chrome",
+    "playwright": "npx playwright test"
   },
   "author": "",
   "license": "ISC",

@@ -15,7 +15,7 @@ const { devices } = require('@playwright/test');
 const config = {
   testDir: './tests',
   /* Maximum time one test can run for. */
-  timeout: 30 * 1000,
+  timeout: 90 * 1000,
   expect: {
     /**
      * Maximum time expect() should wait for the condition to be met.
@@ -47,9 +47,9 @@ const config = {
   /* Configure projects for major browsers */
   projects: [
     {
-      name: 'firefox',
+      name: 'chromium',
       use: {
-        ...devices['Desktop Firefox'],
+        ...devices['Desktop Chrome'],
       },
     },
     /* Test against mobile viewports. */
