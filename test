@@ -3,9 +3,23 @@ set -euox pipefail
 
 if command -v podman >/dev/null 2>&1; then
   CONTAINER=podman
+  VOL_SUFFIX=:Z
 else
   CONTAINER=docker
+  VOL_SUFFIX=
 fi
+
+cleanup() {
+  if [ -n "${LOGS_PID:-}" ]; then
+    kill "$LOGS_PID" 2>/dev/null || true
+  fi
+  if [ "$CONTAINER" = podman ]; then
+    $CONTAINER rm -f -t=1 storeys 2>/dev/null || true
+  else
+    $CONTAINER rm -f storeys 2>/dev/null || true
+  fi
+}
+trap cleanup EXIT
 
 if [ "$CONTAINER" = podman ]; then
   $CONTAINER rm -f -t=1 storeys || true
@@ -32,10 +46,11 @@ $CONTAINER run --name storeys --detach --rm \
     -e WORLD=/data/world-init \
     -e SPONGEVERSION=1.16.5-8.2.0 \
     -e ONLINE_MODE=FALSE \
-    -v $PWD/minecraft-server-test-data:/data:Z -e UID=0 -e GID=0 \
+    -v $PWD/minecraft-server-test-data:/data$VOL_SUFFIX -e UID=0 -e GID=0 \
     -p 25565:25565 -p 8080:8080 -p 7070:7070 minecraft-storeys-maker
 
 $CONTAINER logs -f storeys &
+LOGS_PID=$!
 
 RETRIES=90
 until [ "$($CONTAINER inspect --format='{{.State.Health.Status}}' storeys 2>/dev/null)" = healthy ]; do
@@ -47,7 +62,7 @@ until [ "$($CONTAINER inspect --format='{{.State.Health.Status}}' storeys 2>/dev
   sleep 1
 done
 
-$CONTAINER run --network host --rm -v $PWD/test-mineflayer:/project:Z minecraft-storeys-maker-build bash -c "npm install && npx playwright install-deps chromium && npx playwright install chromium && npm test"
+$CONTAINER run --network host --rm -v $PWD/test-mineflayer:/project$VOL_SUFFIX minecraft-storeys-maker-build bash -c "npm install && npx playwright install-deps chromium && npx playwright install chromium && npm test"
 
 # podman stop storeys
 

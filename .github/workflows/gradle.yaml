@@ -29,6 +29,17 @@ jobs:
     - name: Build with Gradle Wrapper
       run: ./gradlew build -x test
 
+  integration-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Run integration test
+      run: ./test
+
   dependency-submission:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
