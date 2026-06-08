@@ -10,11 +10,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "mineflayer": "^4.2.0"
+    "mineflayer": "^4.37.1"
   },
   "devDependencies": {
-    "@playwright/test": "^1.27.1",
-    "chai": "^4.3.6",
-    "mocha": "^10.0.0"
+    "@playwright/test": "^1.49.0",
+    "chai": "^4.5.0",
+    "mocha": "^10.8.2"
   }
 }
