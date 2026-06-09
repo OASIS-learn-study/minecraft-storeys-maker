@@ -58,6 +58,7 @@ shadowJar {
     include(dependency('com.spotify:futures-extra'))
 
     include(dependency("io.vertx:vertx-core"))
+    include(dependency("io.vertx:vertx-core-logging"))
     include(dependency("io.vertx:vertx-web"))
     include(dependency("io.vertx:vertx-web-common"))
     include(dependency("io.vertx:vertx-auth-common"))
