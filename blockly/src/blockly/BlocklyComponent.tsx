@@ -1,4 +1,4 @@
-import { ReactNode, useMemo, useLayoutEffect, useRef } from "react";
+import { ReactNode, useLayoutEffect, useRef } from "react";
 
 import "blockly/blocks";
 import * as Blockly from "blockly/core";
@@ -8,7 +8,6 @@ import initBlocks from "./storeys/blocks";
 import initGenerator from "./storeys/code";
 // @ts-ignore
 import classes from "./blockly.module.css";
-import { debounce } from "./debounce";
 
 type BlocklyComponentProps = {
   workspace?: Element;
@@ -54,20 +53,8 @@ export const BlocklyComponent = ({
 }: BlocklyComponentProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const toolbox = useRef();
-
-  const changeListener = (event: any) => {
-    if (TYPES.includes(event.type) && onWorkspaceChange) {
-      onWorkspaceChange(
-        event,
-        Blockly.getMainWorkspace() as Blockly.WorkspaceSvg
-      );
-    }
-  };
-
-  const debouncedChangeHandler = useMemo(
-    () => debounce(changeListener, 600),
-    []
-  );
+  const onWorkspaceChangeRef = useRef(onWorkspaceChange);
+  onWorkspaceChangeRef.current = onWorkspaceChange;
 
   useLayoutEffect(() => {
     Blockly.setLocale(locale);
@@ -88,12 +75,18 @@ export const BlocklyComponent = ({
       Blockly.Xml.domToWorkspace(workspace, blocklyWorkspace);
     }
 
-    if (onWorkspaceChange) {
-      blocklyWorkspace.addChangeListener(debouncedChangeHandler);
+    const changeHandler = (event: any) => {
+      if (TYPES.includes(event.type) && onWorkspaceChangeRef.current) {
+        onWorkspaceChangeRef.current(event, blocklyWorkspace);
+      }
+    };
+
+    if (onWorkspaceChangeRef.current) {
+      blocklyWorkspace.addChangeListener(changeHandler);
     }
     resize();
     Blockly.svgResize(blocklyWorkspace);
-    return () => blocklyWorkspace.removeChangeListener(debouncedChangeHandler);
+    return () => blocklyWorkspace.removeChangeListener(changeHandler);
   }, []);
 
   return (
