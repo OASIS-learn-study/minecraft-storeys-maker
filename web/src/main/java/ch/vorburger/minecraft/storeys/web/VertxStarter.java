@@ -18,9 +18,7 @@
  */
 package ch.vorburger.minecraft.storeys.web;
 
-import io.vertx.core.AsyncResult;
 import io.vertx.core.DeploymentOptions;
-import io.vertx.core.Handler;
 import io.vertx.core.Verticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
@@ -51,7 +49,7 @@ public class VertxStarter {
 
     public CompletionStage<Void> deployVerticle(Verticle newVerticle) {
         CompletableFuture<Void> future = new CompletableFuture<>();
-        vertx.deployVerticle(newVerticle, new DeploymentOptions(), (Handler<AsyncResult<String>>) result -> {
+        vertx.deployVerticle(newVerticle, new DeploymentOptions()).onComplete(result -> {
             if (result.succeeded()) {
                 future.complete(null);
             } else {

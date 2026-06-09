@@ -40,8 +40,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -195,7 +195,7 @@ import org.spongepowered.plugin.PluginContainer;
         // see https://github.com/vorburger/minecraft-storeys-maker/issues/97 re. setFilesReadOnly(false) &
         // setCachingEnabled(false)
         router.route("/*").handler(
-                StaticHandler.create().setDirectoryListing(true).setWebRoot(webRoot).setCachingEnabled(false).setFilesReadOnly(false));
+                StaticHandler.create(webRoot).setDirectoryListing(true).setCachingEnabled(false).setFilesReadOnly(false));
         LOG.info("Going to serve static web content from {} on port {}", webRoot, httpPort);
     }
 
@@ -210,7 +210,7 @@ import org.spongepowered.plugin.PluginContainer;
         return user.principal().getString("playerUUID");
     }
 
-    private void fileUpload(Path uploadFolder, Set<FileUpload> fileUploads, File dest) throws IOException {
+    private void fileUpload(Path uploadFolder, List<FileUpload> fileUploads, File dest) throws IOException {
         for (FileUpload f : fileUploads) {
             LOG.info("Uploaded file {} (size {})", f.uploadedFileName(), f.size());
             // NB: Use Guava Files, not JDK NIO Files, until https://github.com/vorburger/ch.vorburger.fswatch/issues/95 is fixed!
