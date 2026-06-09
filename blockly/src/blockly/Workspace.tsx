@@ -1,4 +1,4 @@
-import Blockly from "blockly/core";
+import * as Blockly from "blockly/core";
 
 import { Category } from "./Block";
 import { BlocklyComponent } from "./BlocklyComponent";
@@ -11,7 +11,7 @@ import {
 import { ToolBarText } from "./storeys/text";
 
 type BlocklyWorkspaceProps = {
-  workspace?: Blockly.WorkspaceSvg;
+  workspace?: Element;
   onWorkspaceChange?: (event: any, workspace?: Blockly.WorkspaceSvg) => void;
 };
 

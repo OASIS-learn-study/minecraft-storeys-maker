@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import Blockly from "blockly/core";
+import * as Blockly from "blockly/core";
 
 import { BlocklyWorkspace } from "./blockly/Workspace";
 import { Toolbar } from "./Toolbar";
@@ -14,8 +14,9 @@ import classes from "./app.module.css";
 const App = () => {
   const [tab, setTab] = useState(1);
   const [token, setToken] = useState("");
-  // @ts-ignore
-  const [workspace, setWorkspace] = useState<Blockly.WorkspaceSvg>();
+  const [workspaceXml, setWorkspaceXml] = useState<Element>();
+  const [blocklyWorkspace, setBlocklyWorkspace] =
+    useState<Blockly.WorkspaceSvg>();
   const [code, setCode] = useState("");
 
   useEffect(() => {
@@ -36,10 +37,10 @@ const App = () => {
           },
         });
         const xml = await response.text();
-        setWorkspace(Blockly.Xml.textToDom(xml));
+        setWorkspaceXml(Blockly.utils.xml.textToDom(xml));
       } catch (error) {
-        setWorkspace(
-          Blockly.Xml.textToDom(
+        setWorkspaceXml(
+          Blockly.utils.xml.textToDom(
             '<xml xmlns="http://www.w3.org/1999/xhtml"></xml>'
           )
         );
@@ -49,7 +50,7 @@ const App = () => {
     login().then(() => workspace());
   }, []);
 
-  if (!workspace) {
+  if (!workspaceXml) {
     return <>Loading...</>;
   }
 
@@ -60,11 +61,14 @@ const App = () => {
       {tab === 1 && (
         <>
           <BlocklyWorkspace
-            workspace={workspace}
+            workspace={workspaceXml}
             onWorkspaceChange={(event, workspace) => {
+              if (!workspace) {
+                return;
+              }
               if (
                 event.type === Blockly.Events.BLOCK_CHANGE &&
-                workspace.getBlockById(event.blockId).type === "when_inside"
+                workspace.getBlockById(event.blockId)?.type === "when_inside"
               ) {
                 fetch("/code/when_inside/" + event.newValue, {
                   headers: {
@@ -74,7 +78,7 @@ const App = () => {
               }
               const generatedCode = generate(workspace);
               setCode(generatedCode);
-              setWorkspace(workspace);
+              setBlocklyWorkspace(workspace);
               upload(generatedCode, "/code/upload", token);
               upload(
                 Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace)),
@@ -89,7 +93,9 @@ const App = () => {
           <textarea value={code} className={classes.aside} readOnly />
         </>
       )}
-      {tab === 2 && <CodeEditor workspace={workspace} />}
+      {tab === 2 && blocklyWorkspace && (
+        <CodeEditor workspace={blocklyWorkspace} />
+      )}
     </div>
   );
 };
