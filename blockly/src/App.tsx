@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import * as Blockly from "blockly/core";
 
@@ -7,6 +7,7 @@ import { Toolbar } from "./Toolbar";
 import { CodeEditor } from "./monaco/CodeEditor";
 import { upload } from "./blockly/upload";
 import { generate } from "./blockly/storeys/code";
+import { debounce } from "./blockly/debounce";
 
 // @ts-ignore
 import classes from "./app.module.css";
@@ -18,6 +19,23 @@ const App = () => {
   const [blocklyWorkspace, setBlocklyWorkspace] =
     useState<Blockly.WorkspaceSvg>();
   const [code, setCode] = useState("");
+  const tokenRef = useRef(token);
+  tokenRef.current = token;
+  const uploadWorkspace = useMemo(
+    () =>
+      debounce(
+        (generatedCode: string, workspace: Blockly.WorkspaceSvg) => {
+          upload(generatedCode, "/code/upload", tokenRef.current);
+          upload(
+            Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace)),
+            "/code/workspace/upload",
+            tokenRef.current
+          );
+        },
+        500
+      ),
+    []
+  );
 
   useEffect(() => {
     let theToken: string;
@@ -79,15 +97,7 @@ const App = () => {
               const generatedCode = generate(workspace);
               setCode(generatedCode);
               setBlocklyWorkspace(workspace);
-              upload(generatedCode, "/code/upload", token);
-              upload(
-                Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace)),
-                // JSON.stringify(
-                //Blockly.serialization.workspaces.save(workspace)
-                // ),
-                "/code/workspace/upload",
-                token
-              );
+              uploadWorkspace(generatedCode, workspace);
             }}
           />
           <textarea value={code} className={classes.aside} readOnly />

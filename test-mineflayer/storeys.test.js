@@ -48,7 +48,7 @@ describe("Storeys plugin test", () => {
       setTimeout(() => {
         if (code === 0) done();
         else done(new Error(`playwright exited with code ${code}`));
-      }, 2000);
+      }, 5000);
     });
   });
 
