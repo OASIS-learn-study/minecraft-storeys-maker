@@ -55,7 +55,7 @@ public abstract class AbstractHttpServerVerticle extends AbstractVerticle {
         addRoutes(router);
 
         httpServer = vertx.createHttpServer();
-        httpServer.requestHandler(router).listen(httpPort, asyncResult -> {
+        httpServer.requestHandler(router).listen(httpPort).onComplete(asyncResult -> {
             startPromise.handle(asyncResult.mapEmpty());
         });
     }
