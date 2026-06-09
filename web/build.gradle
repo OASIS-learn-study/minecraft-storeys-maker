@@ -1,7 +1,7 @@
 // see also ../storeys/build.gradle
 
 plugins {
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'com.gradleup.shadow' version '9.4.2'
 }
 
 repositories {
@@ -34,7 +34,7 @@ task runWithJavaExec(type: JavaExec) {
   group = "Execution"
   description = "Run the main class with JavaExecTask"
   classpath = sourceSets.test.runtimeClasspath
-  main = "ch.vorburger.minecraft.storeys.web.SeleniumTest"
+  mainClass = "ch.vorburger.minecraft.storeys.web.SeleniumTest"
   standardInput = System.in
 }
 

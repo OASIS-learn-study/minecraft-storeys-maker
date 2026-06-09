@@ -16,7 +16,9 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
 }
 
-mainClassName = 'study.learn.storeys.engine.Main'
+application {
+    mainClass = 'study.learn.storeys.engine.Main'
+}
 
 /* TODO this broke during the upgrade to Gradle 7
 jar {
