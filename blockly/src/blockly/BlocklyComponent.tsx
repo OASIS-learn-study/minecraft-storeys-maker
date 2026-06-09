@@ -1,10 +1,8 @@
 import { ReactNode, useMemo, useLayoutEffect, useRef } from "react";
 
 import "blockly/blocks";
-import Blockly from "blockly/core";
-
-// @ts-ignore
-import locale from "blockly/msg/en";
+import * as Blockly from "blockly/core";
+import * as locale from "blockly/msg/en";
 
 import initBlocks from "./storeys/blocks";
 import initGenerator from "./storeys/code";
@@ -13,7 +11,7 @@ import classes from "./blockly.module.css";
 import { debounce } from "./debounce";
 
 type BlocklyComponentProps = {
-  workspace?: Blockly.WorkspaceSvg;
+  workspace?: Element;
   onWorkspaceChange?: (event: any, workspace?: Blockly.WorkspaceSvg) => void;
   children?: ReactNode;
 };
@@ -59,7 +57,10 @@ export const BlocklyComponent = ({
 
   const changeListener = (event: any) => {
     if (TYPES.includes(event.type) && onWorkspaceChange) {
-      onWorkspaceChange(event, Blockly.getMainWorkspace());
+      onWorkspaceChange(
+        event,
+        Blockly.getMainWorkspace() as Blockly.WorkspaceSvg
+      );
     }
   };
 
@@ -72,9 +73,12 @@ export const BlocklyComponent = ({
     Blockly.setLocale(locale);
     initBlocks();
     initGenerator();
+    if (!ref.current) {
+      return;
+    }
     const blocklyWorkspace = Blockly.inject(ref.current, {
       toolbox: toolbox.current,
-      media: "https://unpkg.com/blockly@^8.0.2/media/",
+      media: "https://unpkg.com/blockly@12.5.1/media/",
       rendererOverrides: {
         ADD_START_HATS: true,
       },

@@ -1,13 +1,15 @@
 // JavaScript code generators see "./blocks.ts"
 
-import Blockly from "blockly/core";
-import BlocklyJS from "blockly/javascript";
+import * as Blockly from "blockly/core";
+import {
+  javascriptGenerator,
+  Order,
+} from "blockly/javascript";
 import "blockly/javascript";
-import { Block } from "core/blockly";
 
 export default function initGenerator() {
-  Blockly.JavaScript["when_event"] = (block: Block) => {
-    const whenStatements = Blockly.JavaScript.statementToCode(block, "THEN");
+  javascriptGenerator.forBlock["when_event"] = (block, generator) => {
+    const whenStatements = generator.statementToCode(block, "THEN");
     return (
       'e.whenEvent("' +
       block.getField("EVENT")?.getValue() +
@@ -17,8 +19,8 @@ export default function initGenerator() {
     );
   };
 
-  Blockly.JavaScript["when_right_clicked"] = (block: Block) => {
-    const whenStatements = Blockly.JavaScript.statementToCode(block, "THEN");
+  javascriptGenerator.forBlock["when_right_clicked"] = (block, generator) => {
+    const whenStatements = generator.statementToCode(block, "THEN");
     const entity = block.getField("ENTITY")?.getValue();
     return (
       'e.whenEntityRightClicked("' +
@@ -29,81 +31,61 @@ export default function initGenerator() {
     );
   };
 
-  Blockly.JavaScript["when_command"] = (block: Block) => {
-    const whenStatements = Blockly.JavaScript.statementToCode(block, "THEN");
+  javascriptGenerator.forBlock["when_command"] = (block, generator) => {
+    const whenStatements = generator.statementToCode(block, "THEN");
     const command = block.getField("COMMAND")?.getValue();
     return (
       'e.whenCommand("' + command + '", function(m) {\n' + whenStatements + "\n});\n"
     );
   };
 
-  Blockly.JavaScript["when_inside"] = (block: Block) => {
-    const whenStatements = Blockly.JavaScript.statementToCode(block, "THEN");
+  javascriptGenerator.forBlock["when_inside"] = (block, generator) => {
+    const whenStatements = generator.statementToCode(block, "THEN");
     const areaName = block.getField("AREA")?.getValue();
     return (
       'e.whenInside("' + areaName + '", function(m) {\n' + whenStatements + "\n});\n"
     );
   };
 
-  Blockly.JavaScript["narrate"] = (block: Block) => {
+  javascriptGenerator.forBlock["narrate"] = (block, generator) => {
     const name = block.getField("ENTITY")?.getValue();
-    const text = Blockly.JavaScript.valueToCode(
-      block,
-      "TEXT",
-      Blockly.JavaScript.ORDER_ATOMIC
-    );
+    const text = generator.valueToCode(block, "TEXT", Order.ATOMIC);
 
     return 'm.narrate("' + name + '", ' + text + ");\n";
   };
 
-  Blockly.JavaScript["minecraftCommand"] = (block: Block) => {
-    const command = Blockly.JavaScript.valueToCode(
-      block,
-      "COMMAND",
-      Blockly.JavaScript.ORDER_ATOMIC
-    );
+  javascriptGenerator.forBlock["minecraftCommand"] = (block, generator) => {
+    const command = generator.valueToCode(block, "COMMAND", Order.ATOMIC);
     return 'm.cmd(' + command + ');\n';
   };
 
-  Blockly.JavaScript["addRemoveItem"] = (block: Block) => {
-    const amount = Blockly.JavaScript.valueToCode(
-      block,
-      "AMOUNT",
-      Blockly.JavaScript.ORDER_ATOMIC
-    );
-    const item = Blockly.JavaScript.valueToCode(
-      block,
-      "ITEM",
-      Blockly.JavaScript.ORDER_ATOMIC
-    );
+  javascriptGenerator.forBlock["addRemoveItem"] = (block, generator) => {
+    const amount = generator.valueToCode(block, "AMOUNT", Order.ATOMIC);
+    const item = generator.valueToCode(block, "ITEM", Order.ATOMIC);
     return "m.addRemoveItem(" + amount + ", " + item + ");\n";
   };
 
-  Blockly.JavaScript["showTitle"] = (block: Block) => {
-    const text = Blockly.JavaScript.valueToCode(
-      block,
-      "TEXT",
-      Blockly.JavaScript.ORDER_ATOMIC
-    );
+  javascriptGenerator.forBlock["showTitle"] = (block, generator) => {
+    const text = generator.valueToCode(block, "TEXT", Order.ATOMIC);
 
     return "m.title(" + text + ");\n";
   };
 
-  Blockly.JavaScript["items"] = (block: Block) => [
+  javascriptGenerator.forBlock["items"] = (block) => [
     block.getField("ITEM")?.getValue(),
-    Blockly.JavaScript.ORDER_ATOMIC,
+    Order.ATOMIC,
   ];
 
-  Blockly.JavaScript["itemHeld"] = (block: Block) => [
+  javascriptGenerator.forBlock["itemHeld"] = () => [
     "m.player().getItemInHand(HandTypes.MAIN_HAN)",
-    Blockly.JavaScript.ORDER_ATOMIC,
+    Order.ATOMIC,
   ];
 
-  Blockly.JavaScript["lastPlayerJoined"] = (block: Block) => [
+  javascriptGenerator.forBlock["lastPlayerJoined"] = () => [
     "Erik",
-    Blockly.JavaScript.ORDER_ATOMIC,
+    Order.ATOMIC,
   ];
 }
 
 export const generate = (workspace: Blockly.WorkspaceSvg) =>
-  BlocklyJS.workspaceToCode(workspace);
+  javascriptGenerator.workspaceToCode(workspace);
