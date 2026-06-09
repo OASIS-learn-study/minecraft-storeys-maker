@@ -62,7 +62,10 @@ until [ "$($CONTAINER inspect --format='{{.State.Health.Status}}' storeys 2>/dev
   sleep 1
 done
 
-$CONTAINER run --network host --rm -v $PWD/test-mineflayer:/project$VOL_SUFFIX minecraft-storeys-maker-build bash -c "npm install && npx playwright install-deps chromium && npx playwright install chromium && npm test"
+# Playwright does not yet support Ubuntu 26.04; use 24.04 deps until it does.
+$CONTAINER run --network host --rm -e PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu24.04-x64 \
+    -v $PWD/test-mineflayer:/project$VOL_SUFFIX minecraft-storeys-maker-build \
+    bash -c "npm install && npx playwright install-deps chromium && npx playwright install chromium && npm test"
 
 # podman stop storeys
 
