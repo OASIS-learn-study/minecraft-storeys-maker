@@ -52,8 +52,20 @@ $CONTAINER run --name storeys --detach --rm \
 $CONTAINER logs -f storeys &
 LOGS_PID=$!
 
+server_ready_from_logs() {
+  case "$($CONTAINER logs --tail 200 storeys 2>/dev/null || true)" in
+    *'Done ('*'For help, type "help"'*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 RETRIES=180
 until [ "$($CONTAINER inspect --format='{{.State.Health.Status}}' storeys 2>/dev/null)" = healthy ]; do
+  # Podman health status can remain "starting" in CI after the server is already up.
+  if server_ready_from_logs; then
+    echo "Minecraft server reported startup completion; proceeding before health becomes healthy"
+    break
+  fi
   RETRIES=$(($RETRIES - 1))
   if [ $RETRIES -eq 0 ]; then
     echo "Minecraft container failed to become healthy, giving up now"
