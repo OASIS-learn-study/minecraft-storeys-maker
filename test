@@ -43,16 +43,16 @@ if ! file "$SPONGE_JAR" 2>/dev/null | grep -qE 'Java archive|Zip archive'; then
 fi
 
 $CONTAINER run --name storeys --detach --rm \
-    -e WORLD=/data/world-init \
-    -e SPONGEVERSION=1.16.5-8.2.0 \
-    -e ONLINE_MODE=FALSE \
-    -v $PWD/minecraft-server-test-data:/data$VOL_SUFFIX -e UID=0 -e GID=0 \
-    -p 25565:25565 -p 8080:8080 -p 7070:7070 minecraft-storeys-maker
+  -e WORLD=/data/world-init \
+  -e SPONGEVERSION=1.16.5-8.2.0 \
+  -e ONLINE_MODE=FALSE \
+  -v $PWD/minecraft-server-test-data:/data$VOL_SUFFIX -e UID=0 -e GID=0 \
+  -p 25565:25565 -p 8080:8080 -p 7070:7070 minecraft-storeys-maker
 
 $CONTAINER logs -f storeys &
 LOGS_PID=$!
 
-RETRIES=90
+RETRIES=180
 until [ "$($CONTAINER inspect --format='{{.State.Health.Status}}' storeys 2>/dev/null)" = healthy ]; do
   RETRIES=$(($RETRIES - 1))
   if [ $RETRIES -eq 0 ]; then
@@ -64,8 +64,8 @@ done
 
 # Playwright does not yet support Ubuntu 26.04; use 24.04 browser builds until it does.
 $CONTAINER run --network host --rm -e PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu24.04-x64 \
-    -v $PWD/test-mineflayer:/project$VOL_SUFFIX minecraft-storeys-maker-build \
-    bash -c "npm install && npx playwright install chromium && npm test"
+  -v $PWD/test-mineflayer:/project$VOL_SUFFIX minecraft-storeys-maker-build \
+  bash -c "npm install && npx playwright install chromium && npm test"
 
 # podman stop storeys
 
