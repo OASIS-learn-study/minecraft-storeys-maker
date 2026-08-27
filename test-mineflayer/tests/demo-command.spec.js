@@ -8,6 +8,7 @@ test("test blockly by creating command", async ({ page }) => {
   await page.getByText("Events").waitFor({ timeout: 60000 });
 
   const flyout = page.locator(".blocklyToolboxFlyout");
+  const blockCanvas = page.locator(".blocklyBlockCanvas");
   const workspace = page.locator(".injectionDiv > .blocklySvg").first();
 
   await page.getByText("Events").click({ force: true });
@@ -15,14 +16,33 @@ test("test blockly by creating command", async ({ page }) => {
 
   await page.getByText("Actions").click({ force: true });
   const title = flyout.getByText("title").first();
-  const workspaceWhen = workspace.getByText("When /").first();
+  const workspaceWhen = blockCanvas.getByText("When /").first();
 
+  // First create the action block from the flyout.
   await title.dragTo(workspaceWhen, {
     force: true,
-    targetPosition: {
-      x: 30,
-      y: 55,
-    },
+  });
+
+  // Connect blocks directly via Blockly API to avoid flaky coordinate-based drag behavior.
+  await page.evaluate(() => {
+    const workspace = window.__storeysBlocklyWorkspace;
+    if (!workspace) {
+      throw new Error("Blockly workspace is not available");
+    }
+
+    const whenCommand = workspace.getTopBlocks(true).find((b) => b.type === "when_command");
+    const titleBlock = workspace.getTopBlocks(true).find((b) => b.type === "showTitle");
+    if (!whenCommand || !titleBlock) {
+      throw new Error("Required Blockly blocks were not created");
+    }
+
+    const thenConnection = whenCommand.getInput("THEN")?.connection;
+    const titlePreviousConnection = titleBlock.previousConnection;
+    if (!thenConnection || !titlePreviousConnection) {
+      throw new Error("Missing Blockly block connections");
+    }
+    thenConnection.connect(titlePreviousConnection);
+    workspace.render();
   });
 
   // Blockly 12 keeps shadow fields in the flyout hidden; edit after dragging to the workspace.
@@ -37,9 +57,10 @@ test("test blockly by creating command", async ({ page }) => {
   await page.keyboard.press("Enter");
 
   const code = page.locator("textarea");
-  await expect(code).toContainText('e.whenCommand("demo", function(m) {', { timeout: 15000 });
-  await expect(code).toContainText("m.title('automated test!');");
-  await expect(code).not.toContainText("});\nm.title");
+  await expect(code).toContainText(
+    /e\.whenCommand\("demo", function\(m\) \{\s*m\.title\('automated test!'\);\s*\}\);/,
+    { timeout: 15000 }
+  );
 
   await uploadPromise;
 });

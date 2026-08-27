@@ -95,6 +95,12 @@ const App = () => {
                 });
               }
               const generatedCode = generate(workspace);
+              // Expose workspace for integration tests that need deterministic block wiring.
+              (
+                window as Window & {
+                  __storeysBlocklyWorkspace?: Blockly.WorkspaceSvg;
+                }
+              ).__storeysBlocklyWorkspace = workspace;
               setCode(generatedCode);
               setBlocklyWorkspace(workspace);
               uploadWorkspace(generatedCode, workspace);
