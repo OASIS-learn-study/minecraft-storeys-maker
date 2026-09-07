@@ -5,16 +5,16 @@ updates:
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "yearly"
   - package-ecosystem: "npm"
     directory: "/blockly"
     schedule:
-      interval: "weekly"
+      interval: "yearly"
   - package-ecosystem: "npm"
     directory: "/test-mineflayer"
     schedule:
-      interval: "weekly"
+      interval: "yearly"
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "yearly"
