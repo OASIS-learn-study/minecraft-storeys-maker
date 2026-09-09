@@ -1,7 +1,7 @@
 
 dependencies {
     api project(':api-jvm')
-    implementation('com.spotify:futures-extra:4.0.0') {
+    implementation('com.spotify:futures-extra:4.3.3') {
         exclude group: 'com.google.guava'
     }
     testImplementation 'junit:junit:4.13.2'
